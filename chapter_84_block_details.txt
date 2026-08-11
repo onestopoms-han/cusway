@@ -1,0 +1,137 @@
+--- DETAILED BLOCK INFO ---
+
+[Block 1] hsCode: 84_gen
+Start:  "84_gen",\n    "titleKo": "제84류 원자로․보일러ㆍ기계류와 이들의 부분품 주 및 총설",\n    "titleEn": "Chapter 84 Nuclear reactors, boilers, machinery and mechanical appliance
+End: ication of Note 4 to Section XVI or Note 3 to Chapter 90, the whole is classified in another heading of Chapter 84, Chapter 85 or of Chapter 90."\n  },
+
+[Block 2] hsCode: 8401
+Start:  "8401",\n    "titleKo": "84.01 - 원자로, 방사선을 조사(照射)하지 않은 원자로용 연료 요소(카트리지)와 동위원소 분리용 기기",\n    "titleEn": "84.01 - Nuclear reactors; fuel elements (cartri
+End: ialysis; separators for irradiated fuels or for processing effluents, whether operating by ion-exchange or operating chemically (heading 84.21)."\n  },
+
+[Block 3] hsCode: 8402
+Start:  "8402",\n    "titleKo": "84.02 - 증기발생보일러(저압증기도 발생시킬 수 있는 중앙난방용 온수보일러는 제외한다)와 과열수보일러(super-heated water boiler)",\n    "titleEn": "84.02 - Steam or othe
+End: rved but not otherwise worked, presented unassembled, are not identifiable as parts of boilers and are therefore to be classified in Section XV."\n  },
+
+[Block 4] hsCode: 8403
+Start:  "8403",\n    "titleKo": "84.03 - 중앙난방용 보일러(제8402호의 것은 제외한다)",\n    "titleEn": "84.03 - Central heating boilers other than those of heading 84.02.",\n   
+End: r chambers (heading 73.09, 73.10 or 84.79).\n\n(c) Furnace burners (heading 84.16).\n\n(d) Steam or hot water taps, cocks, etc. (heading 84.81)."\n  },
+
+[Block 5] hsCode: 8404
+Start:  "8404",\n    "titleKo": "84.04 - 제8402호나 제8403호의 보일러용 부속기기(예: 연료절약기ㆍ과열기ㆍ그을음제거기ㆍ가스회수기)와 증기원동기용 응축기",\n    "titleEn": "84.04 - Auxiliary plant for use wi
+End: (heading 84.16).\n\n(c) Distillation and other condensers of heading 84.19.\n\n(d) Filters and purifiers for water, gases, etc. (heading 84.21)."\n  },
+
+[Block 6] hsCode: 8405
+Start:  "8405",\n    "titleKo": "84.05 - 발생로가스(producer gas)나 수성(水性)가스 발생기, 아세틸렌가스 발생기와 이와 유사한 습식가스 발생기(청정기를 갖춘 것인지에 상관없다)",\n    "titleEn": "84.05 - Producer 
+End: ors for the generation of, e.g., nitrogen dioxide, hydrogen sulphide or prussic acid (heading 85.43) and ozonotherapy apparatus (heading 90.19)."\n  },
+
+[Block 7] hsCode: 8406
+Start:  "8406",\n    "titleKo": "84.06 - 증기터빈",\n    "titleEn": "84.06 - Steam turbines and other vapour turbines.",\n    "contentKo": "8406.10 - 선박추진용 터빈\n\n- 
+End: see the General Explanatory Note to Section XVI), other parts of turbines (e.g., rotors and stators and their segments, rotor or stator blades)."\n  },
+
+[Block 8] hsCode: 8407
+Start:  "8407",\n    "titleKo": "84.07 - 왕복이나 로터리 방식으로 움직이는 불꽃점화식 피스톤 내연기관",\n    "titleEn": "84.07 - Spark-ignition reciprocating or rotary internal combustio
+End: the volume of that part of a cylinder swept by the piston between bottom dead centre and top dead centre, multiplied by the number of cylinders."\n  },
+
+[Block 9] hsCode: 8408
+Start:  "8408",\n    "titleKo": "84.08 - 압축점화식 피스톤 내연기관(디젤엔진이나 세미디젤엔진)",\n    "titleEn": "84.08 - Compression-ignition internal combustion piston engines (dies
+End: classification of parts (see the General Explanatory Note to Section XVI), parts of the engines of this heading are classified in heading 84.09."\n  },
+
+[Block 10] hsCode: 8409
+Start:  "8409",\n    "titleKo": "84.09 - 제8407호나 제8408호의 엔진에 전용되거나 주로 사용되는 부분품",\n    "titleEn": "84.09 - Parts suitable for use solely or principally with the
+End: 83); and gear-boxes (heading 84.83).\n\n(c) Electrical ignition or starting equipment (including sparking plugs and glow plugs) (heading 85.11)."\n  },
+
+[Block 11] hsCode: 8410
+Start:  "8410",\n    "titleKo": "84.10 - 수력터빈ㆍ수차와 이들의 조정기",\n    "titleEn": "84.10 - Hydraulic turbines, water wheels, and regulators therefor.",\n    "contentK
+End: tors, according to type, in order to maintain uniformity of the speed of rotation despite variations in the load, valve needles for regulators)."\n  },
+
+[Block 12] hsCode: 8411
+Start:  "8411",\n    "titleKo": "84.11 - 터보제트ㆍ터보프로펠러와 그 밖의 가스터빈",\n    "titleEn": "84.11 - Turbo-jets, turbo-propellers and other gas turbines.",\n    "contentK
+End:  to be taken to mean the product of the exhaust mass flow per second and the difference between the exhaust velocity and the air inlet velocity."\n  },
+
+[Block 13] hsCode: 8412
+Start:  "8412",\n    "titleKo": "84.12 - 그 밖의 엔진과 모터",\n    "titleEn": "84.12 - Other engines and motors.",\n    "contentKo": "8412.10 - 터보제트 외의 반동 엔진\n\n- 수력엔진
+End: heading 84.02) or as parts of steam power units of this heading.\n\nTransmission shafts and crank shafts are, however, excluded (heading 84.83)."\n  },
+
+[Block 14] hsCode: 8413
+Start:  "8413",\n    "titleKo": "84.13 - 액체펌프(계기를 갖추었는지에 상관없다)와 액체엘리베이터",\n    "titleEn": "84.13 - Pumps for liquids, whether or not fitted with a measuring de
+End: other motor fuels and lubricants as well as pumps with a measuring device for use in food shops, laboratories and various industrial activities."\n  },
+
+[Block 15] hsCode: 8414
+Start:  "8414",\n    "titleKo": "84.14 - 기체펌프나 진공펌프ㆍ기체 압축기와 팬, 팬이 결합된 환기용이나 순환용 후드(필터를 갖추었는지에 상관없다), 기밀(氣密)식 생물안전작업대(필터를 갖추었는지에 상관없다)",\n    "titleEn": "84.14 
+End: tors and conveyors (heading 84.28).\n\n(d) Machines for cleaning, sorting or grading seed, grain or dried leguminous vegetables (heading 84.37)."\n  },
+
+[Block 16] hsCode: 8415
+Start:  "8415",\n    "titleKo": "84.15 - 공기조절기(동력구동식 팬과 온도와 습도를 변화시키는 기구를 갖춘 것으로 한정하며, 습도만을 따로 조절할 수 없는 것도 포함한다)(+)",\n    "titleEn": "84.15 - Air conditioning
+End: units are designed to be connected by electrical wiring and copper tubing through which refrigerant passes between the indoor and outdoor units."\n  },
+
+[Block 17] hsCode: 8416
+Start:  "8416",\n    "titleKo": "84.16 - 액체연료ㆍ잘게 부순 고체연료ㆍ기체연료를 사용하는 노(爐)용 버너, 기계식 스토커(stoker)[이들의 기계식 불판ㆍ기계식 회(灰) 배출기와 이와 유사한 기기를 포함한다]",\n    "titleEn": "84.1
+End: r hand, iron fire-bars and grates of general use, for fitting into brickwork, are classified in heading 73.21, 73.22 or 73.26 according to type."\n  },
+
+[Block 18] hsCode: 8417
+Start:  "8417",\n    "titleKo": "84.17 - 비전기식 공업용이나 실험실용 노(爐)와 오븐(소각로를 포함한다)",\n    "titleEn": "84.17 - Industrial or laboratory furnaces and ovens, including 
+End: .21).\n\n(b) Apparatus of heading 84.19, including oil-cracking plant, autoclaves, steamers and drying plant.\n\n(c) Converters (heading 84.54)."\n  },
+
+[Block 19] hsCode: 8418
+Start:  "8418",\n    "titleKo": "84.18 - 냉장고ㆍ냉동고와 그 밖의 냉장기구나 냉동기구(전기식인지에 상관없다), 열펌프(제8415호의 공기조절기는 제외한다)",\n    "titleEn": "84.18 - Refrigerators, freezers and
+End: 는 압축형(compression)의 것과 흡수형(absorption)의 것 두 가지 형이 있다.\n\n압축형 열펌프는 주로 다음의 요소들로 구성된다.\n\n(1) 증발기(evaporator) : 이것은 주위로부터 에너지를 추출해서 열전달 유체(流體)(heat-trans
+
+[Block 20] hsCode: 8423
+Start:  "8423",\n    "titleKo": "84.23 - 중량 측정기기[감량(感量)이 50밀리그램 이하인 저울은 제외하며, 중량측정식 계수기와 검사기를 포함한다]와 각종 저울 추(+)",\n    "titleEn": "84.23 Weighing machinery (ex
+End: ay be of the totalising or integrating type, and measure or record the weight of material as it passes in buckets, on chains or similar devices."\n  },
+
+[Block 21] hsCode: 8424
+Start:  "8424",\n    "titleKo": "84.24 - 액체나 가루의 분사용ㆍ살포용ㆍ분무용 기기(수동식인지에 상관없다), 소화기(소화제를 충전한 것인지에 상관없다), 스프레이건과 이와 유사한 기기, 증기나 모래의 분사기와 이와 유사한 제트분사기(+)",\n    "t
+End:  refrigerator unit or a refrigerator unit evaporator (heading 84.15).\n\n(b) Gas liquefaction apparatus (e.g., Linde apparatus) (heading 84.19)."\n  },
+
+[Block 22] hsCode: 8419
+Start:  "8419",\n    "titleKo": "84.19 - 가열ㆍ조리ㆍ배소(焙燒)ㆍ증류ㆍ정류ㆍ살균ㆍ저온살균ㆍ증기가열ㆍ건조ㆍ증발ㆍ응축ㆍ냉각과 그 밖의 온도 변화에 따른 방법으로 재료를 처리하는 기계ㆍ설비ㆍ실험실 장치[전기가열식(제8514호의 노(爐)와 오븐과 그 밖의 장
+End: therwise worked, presented unassembled, are not identifiable as parts of goods of this heading and are therefore to be classified in Section XV."\n  },
+
+[Block 23] hsCode: 8420
+Start:  "8420",\n    "titleKo": "84.20 - 캘린더기(calendering machine)나 그 밖의 로울기(rolling machine)(금속이나 유리 가공용은 제외한다)와 이것에 사용되는 실린더",\n    "titleEn": "84.20 - Calen
+End: sing machines (heading 84.63).\n\n(h) Machines for making plate or other flat glass by rolling, and calenders for working glass (heading 84.75)."\n  },
+
+[Block 24] hsCode: 8421
+Start:  "8421",\n    "titleKo": "84.21 - 원심분리기(원심탈수기를 포함한다), 액체용이나 기체용 여과기나 청정기",\n    "titleEn": "84.21 Centrifuges, including centrifugal dryers; filtering o
+End:  같이 원심력의 원리에 의하여 조작되는 특정의 다른 형태의 기계는 제외한다.\n\n(a) 우라늄 동위원소 분리용의 “가스(gas)”원심분리기라 부르는 특수 원심분리기(제8401호)\n\n(b) 액체용의 원심펌프(제8413호)\n\n(c) 원심식 공기펌프와 송풍�  },
+
+[Block 25] hsCode: 8430
+Start:  "8430",\n    "titleKo": "84.30 - 그 밖의 이동용ㆍ정지(整地)용ㆍ지균(地均)용ㆍ스크래핑(scraping)용ㆍ굴착용ㆍ탬핑(tamping)용ㆍ콤팩팅(compacting)용ㆍ채굴용ㆍ천공용 기계(토양용ㆍ광석용ㆍ광물용으로 한정한다), 항타기와 항발기, 
+End: 8430.39\n\nThese subheadings cover the machines described in paragraphs (A), (B) and (G) of Part (III) of the Explanatory Note to heading 84.30."\n  },
+
+[Block 26] hsCode: 8431
+Start:  "8431",\n    "titleKo": "84.31 - 제8425호부터 제8430호까지의 기계에 전용되거나 주로 사용되는 부분품",\n    "titleEn": "84.31 Parts suitable for use solely or principally with th
+End: fiers of heading 84.79.\n\n(c) Wine-presses, cider-presses, etc. (heading 84.35).\n\n(d) Artificial kidney (dialysis) apparatus (heading 90.18)."\n  },
+
+[Block 27] hsCode: 8422
+Start:  "8422",\n    "titleKo": "84.22 - 접시세척기, 병이나 그 밖의 용기의 세정용이나 건조용 기계, 병ㆍ깡통ㆍ상자ㆍ자루ㆍ그 밖의 용기의 충전용ㆍ봉함용ㆍ실링(sealing)용ㆍ레이블 부착용 기계, 병ㆍ단지ㆍ통과 이와 유사한 용기의 캡슐 부착(capsu
+End: ght : up to 95 cm\n\ndepth : up to 70 cm\n\nThe dimensions of machines and appliances to be stood on a table or counter are appreciably smaller."\n  },
+
+[Block 28] hsCode: 8423
+Start:  "8423",\n    "titleKo": "84.23 - 중량 측정기기[감량(感量)이 50밀리그램 이하인 저울은 제외하며, 중량측정식 계수기와 검사기를 포함한다]와 각종 저울 추(+)",\n    "titleEn": "84.23 Weighing machinery (ex
+End: ay be either of the totaliser or integrating kind, measure and record the weight of materials as they go past in buckets, on chains or the like."\n  },
+
+[Block 29] hsCode: 8424
+Start:  "8424",\n    "titleKo": "84.24 - 액체나 가루의 분사용ㆍ살포용ㆍ분무용 기기(수동식인지에 상관없다), 소화기(소화제를 충전한 것인지에 상관없다), 스프레이건과 이와 유사한 기기, 증기나 모래의 분사기와 이와 유사한 제트분사기(+)",\n    "t
+End: pushed boom sprayers are further examples of the portable sprayers of this subheading.\n\nThis subheading does not include hot and cold foggers."\n  },
+
+[Block 30] hsCode: 8425
+Start:  "8425",\n    "titleKo": "84.25 - 풀리 태클(pulley tackle)과 호이스트(hoist)[스킵호이스트(skip hoist)는 제외한다], 윈치(winch)와 캡스턴(capstan), 잭(jack)",\n    "titleEn": "84.25
+End: \n\n(a) Hydraulic or pneumatic cylinders of heading 84.12.\n\n(b) Level crossing control gear and railway signalling equipment of heading 86.08."\n  },
+
+[Block 31] hsCode: 8426
+Start:  "8426",\n    "titleKo": "84.26 - 선박의 데릭(derrick), 크레인(케이블크레인을 포함한다), 이동식 양하대ㆍ스트래들 캐리어(straddle carrier), 크레인이 결합된 작업트럭",\n    "titleEn": "84.26 - Ships
+End:  to Section XVI), parts of the machines of this heading are classified in heading 84.31.\n\nThe heading excludes crane lorries of heading 87.05."\n  },
+
+[Block 32] hsCode: 8427
+Start:  "8427",\n    "titleKo": "84.27 - 포크리프트트럭(fork-lift truck), 그 밖의 작업트럭[권양(捲揚)용이나 취급용 장비가 결합된 것으로 한정한다]",\n    "titleEn": "84.27 - Fork-lift trucks; other
+End:  classification of parts (see the General Explanatory Note to Section XVI), parts of the trucks of this heading are classified in heading 84.31."\n  },
+
+[Block 33] hsCode: 8428
+Start:  "8428",\n    "titleKo": "84.28 - 그 밖의 권양(捲揚)용ㆍ취급용ㆍ적하용ㆍ양하용 기계류[예: 리프트ㆍ에스컬레이터ㆍ컨베이어ㆍ텔레페릭(teleferic)]",\n    "titleEn": "84.28 - Other lifting, handling, l
+End: ices, electronic integrated circuits or flat panel displays (heading 84.86).\n\n(e) Turntables of heading 86.08.\n\n(f) Dumpers (heading 87.04)."\n  },
+
+[Block 34] hsCode: 8429
+Start:  "8429",\n    "titleKo": "84.29 - 자주식(自走式) 불도저(bulldozer)ㆍ앵글도저(angledozer)ㆍ그레이더(grader)ㆍ레벨러(leveller)ㆍ스크레이퍼(scraper)ㆍ메커니컬셔블(mechanical shovel)ㆍ엑스커베이터(e
+End: ed with booms and pneumatic or hydraulic cylinders, suitable for mounting directly onto the propelling base, are classified in heading 84.31."\n  }\n]\n\n

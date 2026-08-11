@@ -1,0 +1,47 @@
+{
+  "classification_principles": {
+    "general_rule": "HS Code 분류 시 물리적 형태보다 '상품의 본질적 기능'을 핵심 판단 기준으로 삼는다.",
+    "priority_hierarchy": [
+      {"level": 1, "rule": "특정 호(예: 85.24)는 다른 모든 장보다 우선하여 적용한다.", "scope": "FPD 모듈류"},
+      {"level": 2, "rule": "전기기기는 '발생/변환/저장' 등 전기적 기능을 핵심 판단 기준으로 삼는다.", "scope": "제85류 전반"},
+      {"level": 3, "rule": "분류 위험 최소화를 위해 품목별 자동 검증 체크리스트를 의무적으로 활용한다.", "scope": "수출입 문서 검토 시"}
+    ],
+    "functional_priority_logic": [
+      {
+        "condition": "품목이 동력 전달 기능(예: 캠샤프트, 크랭크샤프트)을 포함하는가?",
+        "then": "84.83 (전동축류)로 분류한다.",
+        "else": "기계류(Chapter 84) 기본 분류를 검토한다.",
+        "justification": "품목의 형태가 아닌 '동력 전달 기능'을 기준으로 삼는다."
+      },
+      {
+        "condition": "제품이 전기적 변환 또는 표시 기능을 주된 목적으로 하는가? (예: 디스플레이 모듈)",
+        "then": "85.24 (디스플레이 모듈)를 최우선으로 적용한다.",
+        "else": "전기 기기(Chapter 85) 분류를 검토한다.",
+        "justification": "최신 기술 정의 및 기능 통합 여부에 초점을 맞춰 법적 우선권을 확보한다."
+      },
+      {
+        "condition": "제품의 본질이 물리적 구조나 재료인가? (예: 금속 박스, 가스켓)",
+        "then": "84.84 (금속판 등의 접합부) 또는 해당 재료에 따른 분류를 적용한다.",
+        "else": "기능(Function)을 기준으로 상위/하위 호를 판단한다.",
+        "justification": "외형이나 재료가 아닌 '상품의 본질적 기능'을 최우선 원칙으로 한다."
+      }
+    ],
+    "risk_management_checklist": {
+      "risk_area": "오분류 위험 최소화",
+      "action_item": [
+        {"step": 1, "description": "기능적 우선순위 매트릭스 적용 여부 검토 (85류 중심)"},
+        {"step": 2, "description": "특정 호(예: 85.24)의 우선적 적용 로직을 최우선으로 검토"},
+        {"step": 3, "description": "수출입 문서 검토 시 필수 체크리스트 의무적으로 활용"}
+      ],
+      "legal_risk_focus": "제외 항목(Exclusion) 관련 법적 리스크를 최우선 분석하고 고객 가이드에 명시한다."
+    }
+  },
+  "data_sources_reference": {
+    "source_log_date": "2026-08-10",
+    "derived_from_sessions": [
+      "sessions/2026-08-10T08-45",
+      "sessions/2026-08-10T08-44",
+      "sessions/2026-8-10"
+    ]
+  }
+}

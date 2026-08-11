@@ -1,0 +1,61 @@
+/* RiskScoreGauge.css */
+
+.risk-score-gauge-container {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  max-width: 400px;
+  margin: 20px auto;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.gauge-visualizer {
+  height: 30px;
+  background-color: #e0e0e0;
+  border-radius: 15px;
+  margin: 20px 0;
+  overflow: hidden;
+  position: relative; /* Text positioning for simulation */
+}
+
+.gauge-fill {
+  height: 100%;
+  transition: width 0.8s ease-in-out, background-color 0.8s ease-in-out; /* 핵심 애니메이션 적용 */
+}
+
+.gauge-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.risk-feedback-banner {
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background-color 0.8s ease, color 0.8s ease; /* 메시지 색상 변화도 애니메이션 */
+}
+
+.risk-stable .gauge-fill { background-color: #3CB371 !important; }
+.risk-stable .risk-feedback-banner { background-color: #e6ffe6; color: #2e7d32; border: 1px solid #4caf50;}
+
+.risk-caution .gauge-fill { background-color: #FFBF00 !important; }
+.risk-caution .risk-feedback-banner { background-color: #fff8e1; color: #f57c00; border: 1px solid #ffb300;}
+
+.risk-warning .gauge-fill { background-color: #CC3333 !important; }
+.risk-warning .risk-feedback-banner { background-color: #ffebee; color: #c62828; border: 1px solid #f44336;}
+
+.risk-critical .gauge-fill { background-color: #FF0000 !important; }
+.risk-critical .risk-feedback-banner { background-color: #ffebee; color: #c62828; border: 1px solid #f44336;}
+
+.status-indicator {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #666;
+}

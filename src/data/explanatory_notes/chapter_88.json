@@ -1,0 +1,19 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/chapter_88.json';
+
+const newEntry = {
+  "chapter": "88",
+  "titleKo": "제88류 - 항공기와 우주선, 이들의 부분품",
+  "titleEn": "Chapter 88 - Aircraft, spacecraft, and parts thereof.",
+  "contentKo": "제88류에는 기구, 비행선, 글라이더 등 무동력 항공기(제8801호), 비행기, 헬리콥터, 우주선, 위성 및 우주선 운반로켓(제8802호), 낙하산(제8804호), 항공기 발진/갑판착륙 장치 및 지상비행훈련장치(제8805호), 그리고 무인항공기(드론)(제8806호) 및 그 부분품을 분류한다.\n\n[주규정 및 소호주 요약]\n1. 무인기(UAV) 정의 (주 제1호) :\n- 기내에 조종사 없이 비행하도록 설계된 항공기(제8801호의 기구/글라이더 제외). 디지털 카메라 등 실용 기능을 수행하는 장치가 영구 장착되어 있거나 화물 수송용 구조를 가질 수 있다.\n- 단, 오로지 완구/오락용으로만 설계된 비행 완구는 제외한다 (제9503호).\n2. 자체 중량(Unladen weight) 정의 (소호주 제1호) :\n- 보통 비행 조건에서 승무원, 연료, 영구 장착 장비를 제외한 순수 기체(frame)만의 중량.\n3. 최대이륙중량(Maximum take-off weight) 정의 (소호주 제2호) :\n- 보통 비행 조건에서 이륙할 수 있는 기체의 최대 중량(화물, 장비, 연료 중량 포함).\n\n[총설 요약]\n- 미완성/불완전 항공기(엔진이나 내장 설비가 없는 기체)도 본질적 특성을 갖추면 완제품으로 분류한다.\n- 제17부 주규정에 따라 항공기 전용 부분품은 본 류에 분류된다.",
+  "contentEn": "Chapter 88 covers balloons and dirigibles and non-powered aircraft (heading 88.01), other aircraft (headings 88.02 or 88.06), spacecraft (including satellites) and spacecraft launch vehicles (heading 88.02), certain allied equipment such as parachutes (heading 88.04), and aircraft launching gear, deck arrestor gear and ground flying trainers (heading 88.05). Subject to the provisions of the Notes to Section XVII, it also covers parts of such equipment.\n\n[Key Chapter & Subheading Notes Summary]\n- Note 1 (Unmanned Aircraft UAV): Means any aircraft, other than those of heading 88.01, designed to be flown without a pilot on board. They may carry a payload or be equipped with permanently integrated digital cameras or other equipment for utilitarian functions. Excludes flying toys designed solely for amusement (heading 95.03).\n- Subheading Note 1 (Unladen Weight): The weight of the machine in normal flying order, excluding the weight of the crew, fuel, and equipment other than permanently fitted items.\n- Subheading Note 2 (Maximum Take-off Weight): The maximum weight of the machine in normal flying order at take-off, including payload, equipment, and fuel.\n\n[General Explanatory Notes Summary]\n- Incomplete or unfinished aircraft (e.g. not equipped with engines or internal equipment) are classified with the corresponding complete or finished aircraft, provided they have the essential character thereof."
+};
+
+try {
+  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
+  console.log("✅ Successfully updated chapter_88.json with English text!");
+} catch (e) {
+  console.error("❌ Error writing chapter_88.json:", e.message);
+}

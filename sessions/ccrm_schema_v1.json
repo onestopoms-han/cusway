@@ -1,0 +1,103 @@
+{
+  "title": "CCRM Risk Simulation & Classification Schema v1.0",
+  "description": "모호한 품목 분류와 리스크 회피 시뮬레이션 결과를 통합하여, 사용자에게 행동 지침(Action Flow)을 제공하기 위한 핵심 데이터 구조.",
+  "type": "object",
+  "properties": {
+    "classification_details": {
+      "type": "object",
+      "description": "분류된 위험 품목에 대한 상세 정보.",
+      "properties": {
+        "item_name": {
+          "type": "string",
+          "description": "분류 대상이 된 물질 또는 제품의 명칭."
+        },
+        "primary_hscode": {
+          "type": "string",
+          "description": "최종 분류된 HS Code (예: 3810, 2900 등)."
+        },
+        "ambiguity_score": {
+          "type": "number",
+          "description": "품목의 모호성 점수 (0.0 ~ 1.0). 이 값이 높을수록 추가 검증이 필요함.",
+          "minimum": 0,
+          "maximum": 1.0
+        },
+        "exclusion_check_results": {
+          "type": "object",
+          "description": "제외 품목(Chapter 29, 30 등) 관련 자동 검증 결과.",
+          "properties": {
+            "is_excluded": {
+              "type": "boolean",
+              "description": "해당 품목이 제외 기준에 해당하는지 여부."
+            },
+            "exclusion_reason": {
+              "type": "string",
+              "description": "제외된 경우, 그 이유(근거) 명시."
+            }
+          },
+          "required": ["is_excluded"]
+        }
+      },
+      "required": ["item_name", "primary_hscode", "ambiguity_score", "exclusion_check_results"]
+    },
+    "simulation_results": {
+      "type": "object",
+      "description": "리스크 회피 시뮬레이션의 최종 결과 및 경로.",
+      "properties": {
+        "risk_level": {
+          "type": "string",
+          "enum": ["Low", "Medium", "High", "Critical"],
+          "description": "시뮬레이션된 최종 위험 등급."
+        },
+        "authority_flow_status": {
+          "type": "string",
+          "enum": ["Pending_Review", "Action_Required", "Compliance_Met", "Risk_Mitigated"],
+          "description": "현재 권위 흐름 상태. 이는 UI의 색상 및 애니메이션에 직접 사용됨.",
+          "default": "Pending_Review"
+        },
+        "recommended_action_path": {
+          "type": "array",
+          "description": "권장되는 다음 행동 단계 목록 (Story Flow 기반).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step_id": {
+                "type": "integer",
+                "description": "단계 순서."
+              },
+              "action_description": {
+                "type": "string",
+                "description": "사용자가 취해야 할 구체적인 행동 지침 (예: '3815 분류 판단 Flowchart 검토')."
+              },
+              "required_data_check": {
+                "type": "boolean",
+                "description": "이 단계를 진행하기 위해 필요한 데이터(Input)가 모두 충족되었는지 여부."
+              }
+            },
+            "required": ["step_id", "action_description", "required_data_check"]
+          }
+        },
+        "simulation_metrics": {
+          "type": "object",
+          "description": "ROI 및 손실 회피 관련 정량적 지표.",
+          "properties": {
+            "estimated_loss_reduction_percent": {
+              "type": "number",
+              "description": "예상되는 잠재적 손실 감소율 (0.0 ~ 100.0)."
+            },
+            "time_saved_estimate_hours": {
+              "type": "number",
+              "description": "잠재적으로 절약될 것으로 예상되는 시간(시간 단위)."
+            },
+            "risk_control_score": {
+              "type": "number",
+              "description": "통제권 확보 효용 점수 (0.0 ~ 100.0). 이 값은 Authority Flow와 연동됨."
+            }
+          },
+          "required": ["estimated_loss_reduction_percent", "time_saved_estimate_hours", "risk_control_score"]
+        }
+      },
+      "required": ["risk_level", "authority_flow_status", "recommended_action_path", "simulation_metrics"]
+    }
+  },
+  "required": ["classification_details", "simulation_results"]
+}

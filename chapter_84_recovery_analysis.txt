@@ -1,0 +1,139 @@
+📊 Chapter 84 Backup Blocks Analysis
+Total parsed blocks: 34
+
+Block [1] hsCode: 84_gen (Length: 32322)
+Start: {\n    "hsCode": "84_gen",\n    "titleKo": "제84류 원자로․보일러ㆍ기계류와 이들의 부분품 주 및 총설",\n    "titleEn": "Chapter
+End: ter 90, the whole is classified in another heading of Chapter 84, Chapter 85 or of Chapter 90."\n  },
+
+Block [2] hsCode: 8401 (Length: 18080)
+Start: {\n    "hsCode": "8401",\n    "titleKo": "84.01 - 원자로, 방사선을 조사(照射)하지 않은 원자로용 연료 요소(카트리지)와 동위원소 분리용 기기"
+End: ocessing effluents, whether operating by ion-exchange or operating chemically (heading 84.21)."\n  },
+
+Block [3] hsCode: 8402 (Length: 8554)
+Start: {\n    "hsCode": "8402",\n    "titleKo": "84.02 - 증기발생보일러(저압증기도 발생시킬 수 있는 중앙난방용 온수보일러는 제외한다)와 과열수보일러(s
+End: ed, are not identifiable as parts of boilers and are therefore to be classified in Section XV."\n  },
+
+Block [4] hsCode: 8403 (Length: 2216)
+Start: {\n    "hsCode": "8403",\n    "titleKo": "84.03 - 중앙난방용 보일러(제8402호의 것은 제외한다)",\n    "titleEn": "84.03 -
+End:  Furnace burners (heading 84.16).\n\n(d) Steam or hot water taps, cocks, etc. (heading 84.81)."\n  },
+
+Block [5] hsCode: 8404 (Length: 7948)
+Start: {\n    "hsCode": "8404",\n    "titleKo": "84.04 - 제8402호나 제8403호의 보일러용 부속기기(예: 연료절약기ㆍ과열기ㆍ그을음제거기ㆍ가스회수기)
+End: densers of heading 84.19.\n\n(d) Filters and purifiers for water, gases, etc. (heading 84.21)."\n  },
+
+Block [6] hsCode: 8405 (Length: 6983)
+Start: {\n    "hsCode": "8405",\n    "titleKo": "84.05 - 발생로가스(producer gas)나 수성(水性)가스 발생기, 아세틸렌가스 발생기와 이와 유사
+End:  hydrogen sulphide or prussic acid (heading 85.43) and ozonotherapy apparatus (heading 90.19)."\n  },
+
+Block [7] hsCode: 8406 (Length: 3941)
+Start: {\n    "hsCode": "8406",\n    "titleKo": "84.06 - 증기터빈",\n    "titleEn": "84.06 - Steam turbines and ot
+End: other parts of turbines (e.g., rotors and stators and their segments, rotor or stator blades)."\n  },
+
+Block [8] hsCode: 8407 (Length: 8474)
+Start: {\n    "hsCode": "8407",\n    "titleKo": "84.07 - 왕복이나 로터리 방식으로 움직이는 불꽃점화식 피스톤 내연기관",\n    "titleEn": "
+End:  piston between bottom dead centre and top dead centre, multiplied by the number of cylinders."\n  },
+
+Block [9] hsCode: 8408 (Length: 4793)
+Start: {\n    "hsCode": "8408",\n    "titleKo": "84.08 - 압축점화식 피스톤 내연기관(디젤엔진이나 세미디젤엔진)",\n    "titleEn": "84.0
+End: ry Note to Section XVI), parts of the engines of this heading are classified in heading 84.09."\n  },
+
+Block [10] hsCode: 8409 (Length: 1690)
+Start: {\n    "hsCode": "8409",\n    "titleKo": "84.09 - 제8407호나 제8408호의 엔진에 전용되거나 주로 사용되는 부분품",\n    "titleEn
+End: ical ignition or starting equipment (including sparking plugs and glow plugs) (heading 85.11)."\n  },
+
+Block [11] hsCode: 8410 (Length: 4672)
+Start: {\n    "hsCode": "8410",\n    "titleKo": "84.10 - 수력터빈ㆍ수차와 이들의 조정기",\n    "titleEn": "84.10 - Hydraulic
+End: ormity of the speed of rotation despite variations in the load, valve needles for regulators)."\n  },
+
+Block [12] hsCode: 8411 (Length: 9186)
+Start: {\n    "hsCode": "8411",\n    "titleKo": "84.11 - 터보제트ㆍ터보프로펠러와 그 밖의 가스터빈",\n    "titleEn": "84.11 - Tur
+End: ss flow per second and the difference between the exhaust velocity and the air inlet velocity."\n  },
+
+Block [13] hsCode: 8412 (Length: 17727)
+Start: {\n    "hsCode": "8412",\n    "titleKo": "84.12 - 그 밖의 엔진과 모터",\n    "titleEn": "84.12 - Other engines 
+End:  this heading.\n\nTransmission shafts and crank shafts are, however, excluded (heading 84.83)."\n  },
+
+Block [14] hsCode: 8413 (Length: 17444)
+Start: {\n    "hsCode": "8413",\n    "titleKo": "84.13 - 액체펌프(계기를 갖추었는지에 상관없다)와 액체엘리베이터",\n    "titleEn": "84.
+End: with a measuring device for use in food shops, laboratories and various industrial activities."\n  },
+
+Block [15] hsCode: 8414 (Length: 10205)
+Start: {\n    "hsCode": "8414",\n    "titleKo": "84.14 - 기체펌프나 진공펌프ㆍ기체 압축기와 팬, 팬이 결합된 환기용이나 순환용 후드(필터를 갖추었는지에
+End: s for cleaning, sorting or grading seed, grain or dried leguminous vegetables (heading 84.37)."\n  },
+
+Block [16] hsCode: 8415 (Length: 12438)
+Start: {\n    "hsCode": "8415",\n    "titleKo": "84.15 - 공기조절기(동력구동식 팬과 온도와 습도를 변화시키는 기구를 갖춘 것으로 한정하며, 습도만을 따
+End: iring and copper tubing through which refrigerant passes between the indoor and outdoor units."\n  },
+
+Block [17] hsCode: 8416 (Length: 6633)
+Start: {\n    "hsCode": "8416",\n    "titleKo": "84.16 - 액체연료ㆍ잘게 부순 고체연료ㆍ기체연료를 사용하는 노(爐)용 버너, 기계식 스토커(stoker)
+End: fitting into brickwork, are classified in heading 73.21, 73.22 or 73.26 according to type."\n  }\n  },
+
+Block [18] hsCode: 8417 (Length: 5383)
+Start: {\n    "hsCode": "8417",\n    "titleKo": "84.17 - 비전기식 공업용이나 실험실용 노(爐)와 오븐(소각로를 포함한다)",\n    "titleEn":
+End:  oil-cracking plant, autoclaves, steamers and drying plant.\n\n(c) Converters (heading 84.54)."\n  },
+
+Block [19] hsCode: 8418 (Length: 3806)
+Start: {\n    "hsCode": "8418",\n    "titleKo": "84.18 - 냉장고ㆍ냉동고와 그 밖의 냉장기구나 냉동기구(전기식인지에 상관없다), 열펌프(제8415호의 공
+End: 있다.\n\n압축형 열펌프는 주로 다음의 요소들로 구성된다.\n\n(1) 증발기(evaporator) : 이것은 주위로부터 에너지를 추출해서 열전달 유체(流體)(heat-trans
+
+Block [20] hsCode: 8423 (Length: 6954)
+Start: {\n    "hsCode": "8423",\n    "titleKo": "84.23 - 중량 측정기기[감량(感量)이 50밀리그램 이하인 저울은 제외하며, 중량측정식 계수기와 검사기를
+End: easure or record the weight of material as it passes in buckets, on chains or similar devices."\n  },
+
+Block [21] hsCode: 8424 (Length: 19481)
+Start: {\n    "hsCode": "8424",\n    "titleKo": "84.24 - 액체나 가루의 분사용ㆍ살포용ㆍ분무용 기기(수동식인지에 상관없다), 소화기(소화제를 충전한 것인
+End: or (heading 84.15).\n\n(b) Gas liquefaction apparatus (e.g., Linde apparatus) (heading 84.19)."\n  },
+
+Block [22] hsCode: 8419 (Length: 30574)
+Start: {\n    "hsCode": "8419",\n    "titleKo": "84.19 - 가열ㆍ조리ㆍ배소(焙燒)ㆍ증류ㆍ정류ㆍ살균ㆍ저온살균ㆍ증기가열ㆍ건조ㆍ증발ㆍ응축ㆍ냉각과 그 밖의 온도
+End: entifiable as parts of goods of this heading and are therefore to be classified in Section XV."\n  },
+
+Block [23] hsCode: 8420 (Length: 6156)
+Start: {\n    "hsCode": "8420",\n    "titleKo": "84.20 - 캘린더기(calendering machine)나 그 밖의 로울기(rolling machine)
+End:  making plate or other flat glass by rolling, and calenders for working glass (heading 84.75)."\n  },
+
+Block [24] hsCode: 8421 (Length: 1922)
+Start: {\n    "hsCode": "8421",\n    "titleKo": "84.21 - 원심분리기(원심탈수기를 포함한다), 액체용이나 기체용 여과기나 청정기",\n    "titleE
+End: 우라늄 동위원소 분리용의 “가스(gas)”원심분리기라 부르는 특수 원심분리기(제8401호)\n\n(b) 액체용의 원심펌프(제8413호)\n\n(c) 원심식 공기펌프와 송풍�  },
+
+Block [25] hsCode: 8430 (Length: 19948)
+Start: {\n    "hsCode": "8430",\n    "titleKo": "84.30 - 그 밖의 이동용ㆍ정지(整地)용ㆍ지균(地均)용ㆍ스크래핑(scraping)용ㆍ굴착용ㆍ탬핑(tamp
+End: scribed in paragraphs (A), (B) and (G) of Part (III) of the Explanatory Note to heading 84.30."\n  },
+
+Block [26] hsCode: 8431 (Length: 22811)
+Start: {\n    "hsCode": "8431",\n    "titleKo": "84.31 - 제8425호부터 제8430호까지의 기계에 전용되거나 주로 사용되는 부분품",\n    "titl
+End: -presses, etc. (heading 84.35).\n\n(d) Artificial kidney (dialysis) apparatus (heading 90.18)."\n  },
+
+Block [27] hsCode: 8422 (Length: 7889)
+Start: {\n    "hsCode": "8422",\n    "titleKo": "84.22 - 접시세척기, 병이나 그 밖의 용기의 세정용이나 건조용 기계, 병ㆍ깡통ㆍ상자ㆍ자루ㆍ그 밖의 용기
+End: mensions of machines and appliances to be stood on a table or counter are appreciably smaller."\n  },
+
+Block [28] hsCode: 8423 (Length: 7001)
+Start: {\n    "hsCode": "8423",\n    "titleKo": "84.23 - 중량 측정기기[감량(感量)이 50밀리그램 이하인 저울은 제외하며, 중량측정식 계수기와 검사기를
+End:  measure and record the weight of materials as they go past in buckets, on chains or the like."\n  },
+
+Block [29] hsCode: 8424 (Length: 14080)
+Start: {\n    "hsCode": "8424",\n    "titleKo": "84.24 - 액체나 가루의 분사용ㆍ살포용ㆍ분무용 기기(수동식인지에 상관없다), 소화기(소화제를 충전한 것인
+End: ortable sprayers of this subheading.\n\nThis subheading does not include hot and cold foggers."\n  },
+
+Block [30] hsCode: 8425 (Length: 7178)
+Start: {\n    "hsCode": "8425",\n    "titleKo": "84.25 - 풀리 태클(pulley tackle)과 호이스트(hoist)[스킵호이스트(skip hoist)
+End: g 84.12.\n\n(b) Level crossing control gear and railway signalling equipment of heading 86.08."\n  },
+
+Block [31] hsCode: 8426 (Length: 17338)
+Start: {\n    "hsCode": "8426",\n    "titleKo": "84.26 - 선박의 데릭(derrick), 크레인(케이블크레인을 포함한다), 이동식 양하대ㆍ스트래들 캐리어
+End: ading are classified in heading 84.31.\n\nThe heading excludes crane lorries of heading 87.05."\n  },
+
+Block [32] hsCode: 8427 (Length: 3861)
+Start: {\n    "hsCode": "8427",\n    "titleKo": "84.27 - 포크리프트트럭(fork-lift truck), 그 밖의 작업트럭[권양(捲揚)용이나 취급용 장비
+End: ory Note to Section XVI), parts of the trucks of this heading are classified in heading 84.31."\n  },
+
+Block [33] hsCode: 8428 (Length: 21975)
+Start: {\n    "hsCode": "8428",\n    "titleKo": "84.28 - 그 밖의 권양(捲揚)용ㆍ취급용ㆍ적하용ㆍ양하용 기계류[예: 리프트ㆍ에스컬레이터ㆍ컨베이어ㆍ텔레페릭
+End:  displays (heading 84.86).\n\n(e) Turntables of heading 86.08.\n\n(f) Dumpers (heading 87.04)."\n  },
+
+Block [34] hsCode: 8429 (Length: 7742)
+Start: {\n    "hsCode": "8429",\n    "titleKo": "84.29 - 자주식(自走式) 불도저(bulldozer)ㆍ앵글도저(angledozer)ㆍ그레이더(grader
+End: rs, suitable for mounting directly onto the propelling base, are classified in heading 84.31."\n  }\n]
+

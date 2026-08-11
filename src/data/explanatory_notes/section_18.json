@@ -1,0 +1,19 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/section_18.json';
+
+const newEntry = {
+  "section": "18",
+  "titleKo": "제18부 - 광학기기ㆍ사진용 기기ㆍ영화용 기기ㆍ측정기기ㆍ검사기기ㆍ정밀기기ㆍ의료용 기기, 시계, 악기, 이들의 부분품과 부속품",
+  "titleEn": "Section XVIII - OPTICAL, PHOTOGRAPHIC, CINEMATOGRAPHIC, MEASURING, CHECKING, PRECISION, MEDICAL OR SURGICAL INSTRUMENTS AND APPARATUS; CLOCKS AND WATCHES; MUSICAL INSTRUMENTS; PARTS AND ACCESSORIES THEREOF",
+  "contentKo": "제18부는 정밀 측정/검사/의료 기기를 분류하는 제90류, 시간 측정기인 시계를 분류하는 제91류, 악기를 분류하는 제92류로 구성된다.",
+  "contentEn": "Section XVIII comprises Chapter 90 (optical, photographic, measuring, checking, precision, medical or surgical instruments), Chapter 91 (clocks and watches), and Chapter 92 (musical instruments), as well as parts and accessories thereof."
+};
+
+try {
+  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
+  console.log("✅ Successfully updated section_18.json with English text!");
+} catch (e) {
+  console.error("❌ Error writing section_18.json:", e.message);
+}

@@ -1,0 +1,25 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/chapter_84.json';
+
+const newEntry = {
+  "hsCode": "8438",
+  "titleKo": "84.38 - 식품 또는 음료의 조제ㆍ제조 산업용 기계(이 류에 따로 분류되지 않은 것으로 한정하며, 동물성 또는 비휘발성인 식물성ㆍ미생물성 지방이나 기름의 추출용이나 조제용 기계는 제외한다)",
+  "titleEn": "84.38 - Machinery, not specified or included elsewhere in this Chapter, for the industrial preparation or manufacture of food or drink, other than machinery for the extraction or preparation of animal or fixed vegetable or microbial fats or oils.",
+  "contentKo": "이 호에는 식품 또는 음료의 조제ㆍ제조 산업용 기계로서 이 류에 따로 분류되지 않은 것으로 한정하며(즉시 소비용인지 저장용인지에 상관없으며, 사람인지 동물용인지에 상관없다), 동물성이나 비휘발성 식물성 지방이나 기름의 추출용 기계ㆍ조제용의 기계는 제외한다(제8479호). 이 호에는 식당이나 이와 유사한 시설에서 사용되는 공업용 기계나 상업용 기계도 포함한다.\n\n다만, 실제로 식품공업용기계라 할지라도 이 호에서 제외하는 것이 많다는 것을 유의하여야 할 것이다. 그 예를 들면, 다음과 같다.\n(a) 제8210호나 제8509호에 분류하는 가정용 기기(예: 육류 박절기와 빵 절단기)\n(b) 공업용이나 실험실용의 오븐(제8417호나 제8514호)\n(c) 조리․배소(焙燒)․가열증기 등의 기계류와 장치(제8419호)\n(d) 원심 분리기와 여과기(제8421호)\n(e) 병주입․통조림․포장용 기계(제8422호)\n(f) 제분공업용 기계(제8437호)\n\n(I) 베이커리 기계\n(1) 가루반죽(dough)이나 페이스트리류의 믹서\n(2) 가루반죽(dough) 분할기\n(3) 성형기(成形機)\n(4) 빵이나 케이크 등의 박절기(slicing machine)\n(5) 빵가루 제조용으로 설계된 기계\n(6) 비스킷ㆍ케이크류의 분할ㆍ성형ㆍ절단이나 충전기\n(7) 케이크 디포지팅기\n\n(II) 마카로니ㆍ스파게티ㆍ그 밖에 이와 유사한 식품의 제조용 기계\n(1) 마카로니 페이스트 조제용의 혼합기\n(2) 판 모양으로 롤링한 파이(pastry)를 일정한 모양으로 자르거나 형압하는 기계\n(3) 마카로니․스파게티 등의 연속 추출기\n(4) 라비올리(rivioli) 등을 채우는 기계\n(5) 마카로니․버미셀리(vermicelli) 등을 타래 상태로 꼬는 기계\n\n(III) 과자류(confectionery) 제조용 기계\n(1) 가루설탕조제용의 분쇄기와 파쇄기\n(2) 과자혼합기\n(3) “풀링(pulling)”기\n(4) 당의용 냄비(dragee pan)\n(5) 과자류의 성형․절단이나 본뜨기용으로 설계된 기계\n\n(IV) 코코아ㆍ초콜릿 제조용 기계\n(1) 배소(焙燒)한 코코아두를 탈피․탈배(脫胚)하거나 부수어서 “닙(nib)”으로 만드는 기계\n(2) 파쇄된 코코아 두와 페이스트 분쇄기\n(3) 코코아매스로부터 코코아 버터를 추출하는 프레스(press)\n(4) 코코아가루의 조제용 기계\n(5) 코코아버터․코코아가루․설탕 등의 혼합기\n(6) 혼합물의 롤처리기와 정제기\n(7) 콘체(conche)\n(8) 초콜릿 압송이나 압출기\n(9) 조립기나 성형기(成形機)\n(10) 피의기(enrobing machine)\n\n(V) 설탕 제조용 기계\n(A) 사탕수수로부터 당즙을 추출하는 기계 (절단기, 분쇄기, 파쇄기, 롤러 밀 등)\n(B) 사탕무에서 당즙을 추출하는 기계 (세척기, 슬라이싱머신, 확산장치, 펄프프레스 등)\n(C) 당즙으로부터 설탕을 추출하는 기계와 당즙기계 (아황산염포충조, 결정용 기계, 설탕파쇄기 등)\n\n(VI) 양조용 기계(brewery machinery)\n(1) 기계 장치를 갖춘 발아용 기계\n(2) 맥아 탈근용 회전 실린더\n(3) 맥아 파쇄기\n(4) 교반 장치를 갖춘 당화조(mashing vat)\n(5) 여과조(straining vat)\n\n(VII) 육류나 가금(家禽)육의 조제용 기계\n(1) 도살과 그 뒤 처리용 기계\n(2) 돼지의 탈모기\n(3) 식육용 절단기와 세절기\n(4) 골절기와 골쇄기\n(5) 육타기(meat beating machine)\n(6) 식육용 민싱기와 다이싱기\n(7) 장(gut)의 세척기\n(8) 소시지 충전기\n(9) 식육과 베이컨의 박절기\n(10) 식육이나 지방의 몰딩프레스\n(11) 가금(家禽)의 도살용ㆍ탈모용과 내장취출용 기계\n(12) 육의 염장용 기기\n\n(VIII) 과실ㆍ견과ㆍ채소의 조제용 기계\n(A) 박피기 (연마식, 나선 칼날식, 감귤류용, 화학식 등)\n(B) 채두류의 겉껍질 제거기\n(C) 그린빈 끝 절단기\n(D) 줄기 제거기\n(E) 핵이나 씨 제거기\n(F) 견과류 탈곡기\n(G) 과실ㆍ채소 파쇄 및 절단기\n(H) 사우어크라우트용 절단 및 염장기\n(IJ) 과육 마쇄기\n\n(IX) 어류ㆍ어패류 등의 조제용 기계\n(1) 스케일링, 거팅 및 헤드 제거기\n(2) 필레(fillets) 제조기\n(3) 어패류 외각 제거 및 절단기\n(4) 어류 가루 제조 분쇄기\n\n(X) 식품 또는 음료의 조제ㆍ제조산업용의 그 밖의 기계\n(1) 아세트화 장치 (식초 제조용)\n(2) 커피 두 탈피기\n(3) 정유(essential oil) 추출기\n(4) 찻잎 절단 및 롤링기\n\n부분품\n부분품의 분류에 관한 일반규정(제16부 총설 참조)에 의하여 이 호의 기계 부분품도 또한 이 호에 분류한다.",
+  "contentEn": "This heading covers machinery, not specified or included elsewhere in Chapter 84, for the industrial preparation or manufacture of food or drink (excluding extraction of animal/vegetable fats or oils of heading 84.79).\n\nIt includes :\n(I) Bakery machinery (dough mixers, dividers, moulders, slicing machines).\n(II) Macaroni, spaghetti or similar food manufacturing machinery (mixing machines, die-extruders).\n(III) Confectionery manufacturing machinery (grinding mills, pulling machines, dragee pans).\n(IV) Cocoa or chocolate manufacturing machinery (nibbing machines, grates, presses, conches, enrobing machines).\n(V) Sugar manufacturing machinery (sugar cane cutters, shredders, crushers, diffusers, crystallisers).\n(VI) Brewery machinery (germination plants, malt crushers, mashing vats).\n(VII) Meat or poultry preparation machinery (slaughtering equipment, dehairers, saws, mincers, sausage stuffers).\n(VIII) Fruit, nut or vegetable preparation machinery (abrasive peelers, chemical peelers, coring/stoning machines, slicing cutters).\n(IX) Fish or shellfish preparation machinery (scaling, gutting, filleting and shell-removing machines).\n(X) Other food or drink industry machinery (vinegar makers, coffee decorticators, tea-leaf cutters).\n\nParts of these machines are also covered.\n\nThe heading excludes :\n(a) Domestic appliances of heading 82.10 or 85.09.\n(b) Ovens of heading 84.17 or 85.14.\n(c) Cooking, roasting or pasteurising plant (heading 84.19).\n(d) Centrifuges and filters (heading 84.21).\n(e) Packing, wrapping or bottling machines (heading 84.22).\n(f) Flour-milling machinery (heading 84.37)."
+};
+
+try {
+  let fileContent = '[]';
+  if (fs.existsSync(filePath)) {
+    fileContent = fs.readFileSync(filePath, 'utf8');
+  }
+  const data = JSON.parse(fileContent);
+  data.push(newEntry);
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  console.log("✅ Successfully appended 84.38 to chapter_84.json!");
+} catch (e) {
+  console.error("❌ Error appending to file:", e.message);
+}

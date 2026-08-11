@@ -1,0 +1,19 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/chapter_86.json';
+
+const newEntry = {
+  "chapter": "86",
+  "titleKo": "제86류 - 철도용이나 궤도용 기관차ㆍ차량과 이들의 부분품, 철도용이나 궤도용 장비품과 그 부분품, 기계식(전기기계식을 포함한다) 각종 교통신호용 기기",
+  "titleEn": "Chapter 86 - Railway or tramway locomotives, rolling-stock and parts thereof; railway or tramway track fixtures and fittings and parts thereof; mechanical (including electro-mechanical) traffic signalling equipment of all kinds",
+  "contentKo": "제86류에는 철도 및 궤도용 기관차, 차량, 그 부분품(대차 보기, 차륜, 완충기 등), 궤도용 장비품 및 교통신호/안전기기(기계식 및 전기기계식), 그리고 복합 수송용 컨테이너를 분류한다.\n\n[주규정 요약]\n1. 제외 물품 (주 제1호) :\n - 가. 목재/콘크리트제 침목 및 호버트레인 가이드트랙 (제4406호 또는 제6810호)\n - 나. 제7302호의 철강제 궤도건설 재료(레일, 크로싱, 전환궤조 등)\n - 다. 제8530호의 전기식 신호/안전/교통관제 기기\n2. 부분품 범위 (주 제2호) : 차축, 차륜, 대차(보기, 비셀보기), 언더프레임, 차축함(축박스), 제동기(브레이크 장치), 완충기, 연결기, 차체 등은 제8607호의 부분품에 포함된다.\n3. 선로장비품 범위 (주 제3호) : 조립된 선로, 전차대, 플랫폼 완충기, 로딩게이지 및 완목신호기, 기계식 신호판 등 기계식(전기기계식 포함) 신호/관제 기기가 제8608호에 해당된다.\n\n[총설 요약]\n- '철도'와 '궤도'는 철강제 궤도 외에 콘크리트 가이드 및 자기부유식 시스템도 포함한다.\n- 공기완충식 호버트레인 가이드트랙 차량 및 관련 기기도 본 류에 분류된다.\n- 미완성 차량(엔진 없는 차체, 시트 없는 객차 등)도 본질적 특성을 갖추면 완제품으로 분류하나, 대차 언더프레임에 장착되지 않은 차체는 제8607호의 부분품으로 분류한다.\n- 놀이공원용 탈것, 완구용 기차는 제95류, 기차 실장형 포(砲)는 제93류로 제외된다.",
+  "contentEn": "Chapter 86 covers railway or tramway locomotives and rolling-stock, their parts, track fixtures and fittings, mechanical (including electro-mechanical) signalling and traffic control equipment, and multi-mode cargo containers.\n\n[Key Chapter Notes Summary]\n- Note 1 (Exclusions): Excludes railway sleepers of wood/concrete (44.06/68.10), track construction material of iron/steel (73.02), and electrical signalling/traffic control equipment of heading 85.30.\n- Note 2 (Parts of 86.07): Specifically covers axles, wheels, bogies, bisel-bogies, axle boxes, brake gear, buffers, couplers, and coachwork.\n- Note 3 (Track fixtures of 86.08): Covers assembled track, turntables, platform buffers, loading gauges, and mechanical (or electro-mechanical) signalling/control equipment (semaphores, crossing control gear, etc.).\n\n[General Explanatory Notes Summary]\n- 'Railway' and 'tramway' include steel rails as well as concrete guide tracks and magnetic levitation systems.\n- Air-cushion vehicles designed for guide tracks (hovertrains) and their track fittings are covered here.\n- Incomplete vehicles (e.g. body without engine or seats) are classified as complete vehicles, whereas bodies not mounted on underframes fall under parts (86.07).\n- Excludes toy trains (95.03), amusement rides (95.08), and armored railway cars with weapons (93.01)."
+};
+
+try {
+  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
+  console.log("✅ Successfully updated chapter_86.json with English text!");
+} catch (e) {
+  console.error("❌ Error writing chapter_86.json:", e.message);
+}

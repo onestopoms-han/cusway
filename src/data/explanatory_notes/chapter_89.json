@@ -1,0 +1,19 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/chapter_89.json';
+
+const newEntry = {
+  "chapter": "89",
+  "titleKo": "제89류 - 선박과 수상 구조물",
+  "titleEn": "Chapter 89 - Ships, boats and floating structures.",
+  "contentKo": "제89류에는 추진 유무에 관계없이 모든 종류의 선박, 보트, 호버크래프트(수상용 공기완충식 차량), 코퍼댐, 부잔교, 부표 등 수상 구조물을 분류한다.\n\n[주규정 요약]\n1. 미완성/미조립 선박의 분류 (주 제1호) :\n- 미완성/불완전 선박, 미조립 선체(조립/분해 무관)로서 특정 선박의 특징을 갖추지 않은 것은 제8906호(기타 선박)로 분류한다.\n- 반면, 추진기나 가구 등이 없더라도 선박으로서 본질적 특성을 갖춘 것은 해당 특정 선박의 호로 분류한다.\n\n[총설 요약 - 선박 부분품의 특수성 (중요)]\n- 제17부 내 타 류(제86~88류)와 달리, 선박용 부분품(선체를 제외한다)은 아무리 전용으로 설계되었더라도 제89류에 분류하지 않는다.\n- 선박의 부분품과 부속품은 HS 품목분류표상의 다른 호에 재질/기능에 따라 각각 분류된다.\n  - 예: 목제 노, 페달(제4421호), 돛(제6306호), 마스트/해치웨이/금속 선체 부분품(제7308호), 금속제 닻(anchor)(제7316호), 프로펠러 및 외륜(제8487호), 조타 장치 및 스티어링 기어(제8479호).\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 수륙양용차량 및 육상-수상 겸용 공기완충식 차량 (제87류)\n(b) 수상 비행기 및 비행 보트 (제8802호)\n(c) 완구용 보트 및 소형 완구 (제9503호)\n(d) 수상 스키 및 관련 레저 기구 (제9506호)\n(e) 유원지용 오락 보트 및 워터파크 설비 (제9508호)\n(f) 장식용 범선 모형 (제4420호 또는 제8306호)\n(g) 골동품(제작 후 100년 초과) (제9706호)",
+  "contentEn": "Chapter 89 covers ships, boats and other vessels of all kinds (whether or not self-propelled), and also floating structures such as coffer-dams, landing stages and buoys. It also includes air cushion vehicles (hovercraft) designed to travel over water (sea, estuaries, lakes), whether or not able to land on beaches or landing stages or also able to travel over ice.\n\n[Key Chapter Notes Summary]\n- Note 1 (Incomplete Vessels): A hull, an unfinished or incomplete vessel, assembled, unassembled or disassembled, or a complete vessel unassembled or disassembled, is to be classified in heading 89.06 if it does not have the essential character of a vessel of a particular kind.\n\n[General Explanatory Notes Summary - Critical Exclusion of Parts]\n- Contrary to the provisions relating to the transport equipment falling in other Chapters of Section XVII, this Chapter excludes all separately presented parts (other than hulls) and accessories of vessels or floating structures, even if they are clearly identifiable as such. Such parts and accessories are classified in the appropriate headings elsewhere in the Nomenclature, for example :\n  (1) The parts and accessories specified in Note 2 to Section XVII.\n  (2) Wooden oars and paddles (heading 44.21).\n  (3) Ropes and cables of textile material (heading 56.07).\n  (4) Sails (heading 63.06).\n  (5) Masts, hatchways, gangways, rails and bulkheads for ships or boats and parts of hulls, having the character of metal structures of heading 73.08.\n  (6) Cables of iron or steel (heading 73.12).\n  (7) Anchors of iron or steel (heading 73.16).\n  (8) Propellers and paddle wheels (heading 84.87).\n  (9) Rudders (headings 44.21, 73.25, 73.26, etc.) and other steering or rudder equipment for ships or boats (heading 84.79).\n\nExcludes model vessels (heading 44.20 or 83.06), demonstrational apparatus (heading 90.23), torpedoes or mines (heading 93.06), toy boats (heading 95.03), water-skis (heading 95.06), amusement park boats (heading 95.08), and antiques of an age exceeding 100 years (heading 97.06). Amphibious vehicles are in Chapter 87, and seaplanes/flying boats fall in heading 88.02."
+};
+
+try {
+  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
+  console.log("✅ Successfully updated chapter_89.json with English text!");
+} catch (e) {
+  console.error("❌ Error writing chapter_89.json:", e.message);
+}

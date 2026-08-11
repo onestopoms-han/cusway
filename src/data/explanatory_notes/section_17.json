@@ -1,0 +1,23 @@
+const fs = require('fs');
+const path = require('path');
+
+const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/section_17.json';
+
+const newEntry = {
+  "section": "17",
+  "titleKo": "제17부 - 차량ㆍ항공기ㆍ선박과 수송기기 관련품 (주규정 및 총설)",
+  "titleEn": "Section XVII - Vehicles, Aircraft, Vessels and Associated Transport Equipment (Notes & General Explanatory Notes)",
+  "contentKo": "제17부는 철도차량(제86류), 육상차량(제87류), 항공기/우주선(제88류), 선박/수상구조물(제89류) 및 그 부분품을 분류한다.\n\n[핵심 주규정 요약]\n1. 제외 물품 (주 제1호) : 완구, 스포츠용구(봅슬레이 등), 유원지 탈것(제95류).\n2. 부분품 제외 대상 (주 제2호) : 아래 물품은 수송기기용이라 하더라도 제17부 부분품에서 제외되어 각각 해당 호에 분류된다.\n - 가. 조인트, 와셔, 개스킷 (재질에 따름) 및 가황고무 제품 (제4016호)\n - 나. 제15부 주 제2호의 범용성 부분품 (볼트, 너트, 스프링 등 제15부 또는 플라스틱제 제39류)\n - 다. 수공구 및 공구 (제82류)\n - 라. 제8306호의 물품\n - 마. 제8401호부터 제8479호까지의 기기나 이들의 부분품(이 부의 물품용 방열기는 제외한다), 제8481호나 제8482호의 물품, 엔진이나 모터의 필수적인 부분을 구성하는 제8483호의 물품\n - 바. 전기기기(제85류)\n - 사. 제90류의 물품\n - 아. 제91류의 물품\n - 자. 무기(제93류)\n - 차. 제9405호의 조명기구와 그 부분품\n - 카. 차량의 부분품으로 사용되는 브러시(제9603호)\n3. 전용/주사용 기준 (주 제3호) : 부분품과 부속품은 당해 류의 물품에 전용되거나 주로 사용하기에 적합한 것만 분류한다. 둘 이상의 호에 적용 가능 시 주 용도에 따른다.\n4. 특수 차량 분류 (주 제4호) : 도로/궤도 겸용차 및 수륙양용차는 제87류, 도로 겸용 항공기는 제88류에 분류한다.\n5. 공기완충식(호버크래프트) 차량 (주 제5호) : 가이드트랙용은 제86류, 육상/수륙양용은 제87류, 수상용은 제89류에 분류한다.\n\n[총설 요약]\n- 제89류(선박)는 부분품에 관한 규정이 없으므로 선박용 부분품은 재질/기능에 따라 다른 류에 분류된다.\n- 범용성 부분품(스프링, 케이블, 볼트, 너트)과 제84류(엔진, 펌프, 윈드스크린 와이퍼 모터), 제85류(모터, 배터리, 점화플러그, 전선, 조명등), 제90류(항해장비, 속도계, 압력계) 등은 제17부 수송기기의 부분품에서 명확히 제외된다.",
+  "contentEn": "Section XVII covers railway rolling stock (Chapter 86), road vehicles (Chapter 87), aircraft and spacecraft (Chapter 88), and ships and floating structures (Chapter 89), along with their parts and accessories.\n\n[Key Section Notes Summary]\n- Note 1 (Exclusions): Excludes toys of 95.03/08, bobsleds, toboggans of 95.06.\n- Note 2 (Parts Exclusions): The following are excluded from parts/accessories of Section XVII, even if identifiable for transport equipment:\n (a) Joints, washers, gaskets (by constituent material or in 84.84); vulcanised rubber articles (40.16).\n (b) Parts of general use of base metal (Section XV) or similar goods of plastics (Chapter 39).\n (c) Tools of Chapter 82.\n (d) Articles of heading 83.06.\n (e) Engines, motors, pumps, compressors, valves, bearings, crankshafts of Chapter 84 (except radiators for Section XVII).\n (f) Electrical machinery and equipment of Chapter 85.\n (g) Instruments and apparatus of Chapter 90.\n (h) Clocks and watches of Chapter 91.\n (ij) Arms of Chapter 93.\n (k) Luminaires and lighting fittings of heading 94.05.\n (l) Brushes used as parts of vehicles (heading 96.03).\n- Note 3 (Sole/Principal Use): Parts and accessories are classified under Chapters 86 to 88 only if suitable for sole or principal use. If answers to two or more headings, classify by principal use.\n- Note 4 (Special Vehicles): Road/rail vehicles and amphibious vehicles are in Chapter 87; road-usable aircraft are in Chapter 88.\n- Note 5 (Air-cushion vehicles): Classified as hovertrains (Chapter 86), land vehicles (Chapter 87), or marine vessels (Chapter 89) depending on design.\n\n[General Explanatory Notes Summary]\n- Chapter 89 does not contain provisions for parts of vessels. Thus, marine parts are classified under their respective headings outside Chapter 89.\n- Parts of general use (springs, fasteners), engines (Chapter 84), electrical devices (Chapter 85), and instrumentation (Chapter 90) are strictly excluded from transport equipment parts."
+};
+
+try {
+  const dirPath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes';
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
+  console.log("✅ Successfully updated section_17.json with English text!");
+} catch (e) {
+  console.error("❌ Error writing section_17.json:", e.message);
+}

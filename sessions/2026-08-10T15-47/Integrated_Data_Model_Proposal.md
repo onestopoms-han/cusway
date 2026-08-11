@@ -1,0 +1,1 @@
+# 사용자 입력 데이터 모델 재설계: Authority Flow Vector (안)
