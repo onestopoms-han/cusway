@@ -16,17 +16,55 @@ import {
 
 import { VALUATION_PRECEDENT_DB, ValuationPrecedent } from '../data/rules/valuation_precedents';
 
-export default function ValuationPrecedents() {
+import { useEffect } from 'react';
+
+interface ValuationPrecedentsProps {
+  currentUser: any;
+}
+
+export default function ValuationPrecedents({ currentUser }: ValuationPrecedentsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [allPrecedents, setAllPrecedents] = useState<ValuationPrecedent[]>(VALUATION_PRECEDENT_DB);
   const [matchedCases, setMatchedCases] = useState<ValuationPrecedent[]>(VALUATION_PRECEDENT_DB);
   const [selectedCase, setSelectedCase] = useState<ValuationPrecedent | null>(VALUATION_PRECEDENT_DB[0]);
   const [argumentDraft, setArgumentDraft] = useState('');
   const [draftGenerated, setDraftGenerated] = useState(false);
 
+  useEffect(() => {
+    const fetchPrecedents = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/valuation/precedents');
+        if (response.ok) {
+          const data = await response.json();
+          // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정
+          const mapped = data.map((item: any) => ({
+            ...item,
+            categoryKo: item.category_ko,
+            keyIssue: item.key_issue,
+            factualBackground: item.factual_background,
+            holdingKo: item.holding_ko,
+            customsArgument: item.customs_argument,
+            importerArgument: item.importer_argument,
+            reasoningSnippet: item.reasoning_snippet,
+            implicationKo: item.implication_ko
+          }));
+          setAllPrecedents(mapped);
+          setMatchedCases(mapped);
+          if (mapped.length > 0) {
+            setSelectedCase(mapped[0]);
+          }
+        }
+      } catch (err) {
+        console.warn('FastAPI 백엔드가 켜져 있지 않아 로컬 정적 판례 DB를 사용합니다.');
+      }
+    };
+    fetchPrecedents();
+  }, []);
+
   const handleSearch = () => {
     const query = searchQuery.toLowerCase();
-    const filtered = VALUATION_PRECEDENT_DB.filter(item => {
+    const filtered = allPrecedents.filter(item => {
       const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
       const matchesText = 
         item.title.toLowerCase().includes(query) ||
@@ -47,7 +85,7 @@ export default function ValuationPrecedents() {
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    const filtered = VALUATION_PRECEDENT_DB.filter(item => {
+    const filtered = allPrecedents.filter(item => {
       const matchesCategory = category === 'all' || item.category === category;
       const query = searchQuery.toLowerCase();
       const matchesText = 

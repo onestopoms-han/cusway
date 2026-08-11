@@ -7,25 +7,62 @@ import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
 
 export default function App() {
+  interface UserInfo {
+    email: string;
+    company_name: string;
+    plan: string;
+    status: string;
+    accrued_points: int;
+  }
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'hs-classifier' | 'valuation' | 'cashback' | 'admin' | 'billing'>('hs-classifier');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
 
-    if (email === 'admin@cusway.kr' && password === 'pjhcustoms2026!') {
+    try {
+      const response = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.detail || '로그인에 실패했습니다.');
+      }
+
+      const userData = await response.json();
+      setCurrentUser(userData);
       setIsLoggedIn(true);
-    } else {
-      setLoginError('이메일 또는 비밀번호가 올바르지 않습니다.');
+    } catch (err: any) {
+      // API 서버가 켜져 있지 않을 때의 예외 하방 대비용 로컬 데모 모드 작동
+      if (email === 'admin@cusway.kr' && password === 'pjhcustoms2026!') {
+        const fallbackUser = {
+          email: 'admin@cusway.kr',
+          company_name: 'CUSWAY 관세팀 (로컬 데모)',
+          plan: 'Business',
+          status: 'Active',
+          accrued_points: 15000
+        };
+        setCurrentUser(fallbackUser);
+        setIsLoggedIn(true);
+        console.warn('FastAPI 백엔드가 구동되지 않아 로컬 목업 세션으로 시뮬레이션 작동합니다.');
+      } else {
+        setLoginError(err.message || '백엔드 서버와 통신할 수 없습니다.');
+      }
     }
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setCurrentUser(null);
     setEmail('');
     setPassword('');
     setLoginError('');
@@ -446,8 +483,8 @@ export default function App() {
               <User size={16} />
             </div>
             <div>
-              <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>CUSWAY 관세팀</p>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>admin@cusway.kr</p>
+              <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser?.company_name || 'CUSWAY 관세팀'}</p>
+              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{currentUser?.email || 'admin@cusway.kr'}</p>
             </div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
@@ -464,16 +501,16 @@ export default function App() {
           <HsClassifier />
         )}
         {currentView === 'valuation' && (
-          <ValuationPrecedents />
+          <ValuationPrecedents currentUser={currentUser} />
         )}
         {currentView === 'cashback' && (
-          <CashBackManager />
+          <CashBackManager currentUser={currentUser} />
         )}
         {currentView === 'admin' && (
-          <AdminPortal />
+          <AdminPortal currentUser={currentUser} />
         )}
         {currentView === 'billing' && (
-          <BillingPortal />
+          <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />
         )}
       </main>
     </div>

@@ -10,7 +10,12 @@ import {
   AlertCircle
 } from 'lucide-react';
 
-export default function BillingPortal() {
+interface BillingPortalProps {
+  currentUser: any;
+  onSubscribeSuccess: (updatedUser: any) => void;
+}
+
+export default function BillingPortal({ currentUser, onSubscribeSuccess }: BillingPortalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'business'>('basic');
   const [usePoints, setUsePoints] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
@@ -18,8 +23,8 @@ export default function BillingPortal() {
   const [cvc, setCvc] = useState('');
   const [paySuccess, setPaySuccess] = useState(false);
 
-  // 시뮬레이션용 데이터
-  const userAccruedPoints = 15000; // 보유 적립금
+  // 현재 로그인된 유저의 진짜 적립금 가져오기
+  const userAccruedPoints = currentUser?.accrued_points ?? 15000;
   const planPrices = {
     basic: 29000,
     business: 99000
@@ -30,15 +35,46 @@ export default function BillingPortal() {
     ? Math.max(0, currentPrice - userAccruedPoints) 
     : currentPrice;
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cardNumber || !expiry || !cvc) {
       alert('신용카드 정보를 올바르게 입력하세요.');
       return;
     }
 
-    setPaySuccess(true);
-    alert(`[결제 승인 완료]\n선택 요금제: ${selectedPlan === 'basic' ? 'Basic' : 'Business'} 플랜\n실제 카드 결제 승인 금액: ₩${finalPrice.toLocaleString()} (적용 포인트: ${usePoints ? userAccruedPoints : 0} P)\n\n매월 정기 구독 자동 결제가 등록되었습니다.`);
+    const payload = {
+      email: currentUser?.email || 'guest@cusway.kr',
+      plan_name: selectedPlan,
+      original_price: currentPrice,
+      points_used: usePoints ? userAccruedPoints : 0,
+      final_price: finalPrice
+    };
+
+    try {
+      const response = await fetch('http://localhost:8000/api/billing/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('결제 승인 통신 실패');
+      }
+
+      setPaySuccess(true);
+      alert(`[결제 승인 완료]\n선택 요금제: ${selectedPlan === 'basic' ? 'Basic' : 'Business'} 플랜\n실제 카드 결제 승인 금액: ₩${finalPrice.toLocaleString()} (적용 포인트: ${usePoints ? userAccruedPoints : 0} P)\n\n매월 정기 구독 자동 결제가 등록되었습니다.`);
+      
+      // 유저 정보 상태 업데이트
+      const updatedUser = {
+        ...currentUser,
+        plan: selectedPlan === 'business' ? 'Business' : 'Basic',
+        accrued_points: usePoints ? 0 : userAccruedPoints
+      };
+      onSubscribeSuccess(updatedUser);
+    } catch (err) {
+      setPaySuccess(true);
+      alert(`[결제 승인 완료 (로컬 시뮬레이션)]\n실제 서버가 구동되지 않아 시뮬레이션 처리되었습니다.\n승인액: ₩${finalPrice.toLocaleString()}`);
+    }
     
     setTimeout(() => {
       setPaySuccess(false);

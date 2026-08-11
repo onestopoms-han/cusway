@@ -33,71 +33,120 @@ interface UploadRequest {
   date: string;
 }
 
-export default function AdminPortal() {
-  const [customers, setCustomers] = useState<Customer[]>([
-    { id: '1', email: 'director@seoulcustoms.com', companyName: '서울관세법인', plan: 'Business', status: 'Active', joinDate: '2026-06-15', accruedPoints: 25000 },
-    { id: '2', email: 'trade_agent@korea.co.kr', companyName: '한국관세사무소', plan: 'Basic', status: 'Active', joinDate: '2026-07-01', accruedPoints: 5000 },
-    { id: '3', email: 'customs_tax@corp.com', companyName: '태평양세무관세', plan: 'Business', status: 'Suspended', joinDate: '2026-05-10', accruedPoints: 0 },
-    { id: '4', email: 'user77@pjhcustoms.com', companyName: 'PJH 관세팀 내부망', plan: 'Business', status: 'Active', joinDate: '2026-08-01', accruedPoints: 15000 }
-  ]);
+import { useEffect } from 'react';
 
-  const [uploadRequests, setUploadRequests] = useState<UploadRequest[]>([
-    {
-      id: 'REQ-101',
-      email: 'director@seoulcustoms.com',
-      typeKo: '관세평가 판례',
-      hsCodeOrIssue: '상표권 권리사용료의 수입관련성',
-      itemName: '의류 완제품 수입 라이선스 계약서',
-      fileName: '의류완제품_로열티계약서_비식별.pdf',
-      points: 8000,
-      date: '2026-08-11'
-    },
-    {
-      id: 'REQ-102',
-      email: 'trade_agent@korea.co.kr',
-      typeKo: 'HS 품목분류',
-      hsCodeOrIssue: '2101.12-1000',
-      itemName: '설탕 대체 감미료 혼합 커피조제품',
-      fileName: '품목분류회신_2101_커피.pdf',
-      points: 5000,
-      date: '2026-08-11'
+interface AdminPortalProps {
+  currentUser: any;
+}
+
+export default function AdminPortal({ currentUser }: AdminPortalProps) {
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [uploadRequests, setUploadRequests] = useState<UploadRequest[]>([]);
+
+  const fetchAdminData = async () => {
+    try {
+      // 1. 고객 목록 로드
+      const resCust = await fetch('http://localhost:8000/api/customers');
+      if (resCust.ok) {
+        const data = await resCust.json();
+        setCustomers(data.map((c: any) => ({
+          id: String(c.id),
+          email: c.email,
+          companyName: c.company_name,
+          plan: c.plan,
+          status: c.status,
+          joinDate: c.join_date,
+          accruedPoints: c.accrued_points
+        })));
+      }
+
+      // 2. 캐시백 대기 목록 로드
+      const resReq = await fetch('http://localhost:8000/api/cashback/requests');
+      if (resReq.ok) {
+        const data = await resReq.json();
+        // 대기중(검토 대기중)인 요청만 필터링해서 보여줌
+        setUploadRequests(data.filter((r: any) => r.status === '검토 대기중').map((r: any) => ({
+          id: String(r.id),
+          email: r.email,
+          typeKo: r.type_ko,
+          hsCodeOrIssue: r.hs_code_or_issue,
+          itemName: r.item_name,
+          fileName: r.file_name,
+          points: r.points,
+          date: r.date
+        })));
+      }
+    } catch (err) {
+      console.warn('FastAPI 백엔드가 구동되지 않아 어드민 목업 데이터로 시뮬레이션 작동합니다.');
+      // 임시 목업 세팅
+      setCustomers([
+        { id: '1', email: 'director@seoulcustoms.com', companyName: '서울관세법인', plan: 'Business', status: 'Active', joinDate: '2026-06-15', accruedPoints: 25000 },
+        { id: '2', email: 'trade_agent@korea.co.kr', companyName: '한국관세사무소', plan: 'Basic', status: 'Active', joinDate: '2026-07-01', accruedPoints: 5000 }
+      ]);
     }
-  ]);
-
-  // 회원 활성/정지 토글 기능
-  const toggleCustomerStatus = (id: string) => {
-    setCustomers(customers.map(c => {
-      if (c.id === id) {
-        const newStatus = c.status === 'Active' ? 'Suspended' : 'Active';
-        alert(`[계정 통제 정책 알림]\n${c.companyName} (${c.email}) 계정 상태가 ${newStatus === 'Active' ? '활성화' : '이용 정지'} 처리되었습니다.`);
-        return { ...c, status: newStatus };
-      }
-      return c;
-    }));
   };
 
-  // 캐시백 문서 승인 처리
-  const approveRequest = (reqId: string, email: string, points: number) => {
-    // 1. 요청 목록에서 제거
-    setUploadRequests(uploadRequests.filter(r => r.id !== reqId));
-    
-    // 2. 고객 포인트 추가
-    setCustomers(customers.map(c => {
-      if (c.email === email) {
-        return { ...c, accruedPoints: c.accruedPoints + points };
-      }
-      return c;
-    }));
+  useEffect(() => {
+    fetchAdminData();
+  }, []);
 
-    alert(`[검수 완료 - 캐시백 승인]\n${email} 계정에 ${points.toLocaleString()}포인트(₩) 적립이 승인 완료되었습니다.`);
+  // 회원 활성/정지 토글 기능 (FastAPI 연동)
+  const toggleCustomerStatus = async (id: string, currentStatus: string, companyName: string, email: string) => {
+    const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
+    try {
+      const response = await fetch(`http://localhost:8000/api/customers/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (!response.ok) throw new Error('상태 변경 실패');
+      
+      alert(`[계정 통제 정책 알림]\n${companyName} (${email}) 계정 상태가 ${newStatus === 'Active' ? '활성화' : '이용 정지'} 처리되었습니다.`);
+      fetchAdminData();
+    } catch (err) {
+      // 로컬 폴백
+      setCustomers(customers.map(c => {
+        if (c.id === id) {
+          return { ...c, status: newStatus as any };
+        }
+        return c;
+      }));
+    }
   };
 
-  // 캐시백 문서 반려 처리
-  const rejectRequest = (reqId: string, email: string) => {
-    const reason = prompt('반려 사유를 입력하세요:', '문서 내 수입자 상호 및 개인정보 비식별화(마스킹) 처리가 누락되었습니다.');
-    if (reason) {
+  // 캐시백 문서 승인 처리 (FastAPI 연동)
+  const approveRequest = async (reqId: string, email: string, points: number) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/cashback/requests/${reqId}/approve`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) throw new Error('승인 처리 실패');
+      alert(`[검수 완료 - 캐시백 승인]\n${email} 계정에 ${points.toLocaleString()}포인트(₩) 적립이 승인 완료되었습니다.`);
+      fetchAdminData();
+    } catch (err) {
+      // 로컬 폴백
       setUploadRequests(uploadRequests.filter(r => r.id !== reqId));
+    }
+  };
+
+  // 캐시백 문서 반려 처리 (FastAPI 연동)
+  const rejectRequest = async (reqId: string, email: string) => {
+    const reason = prompt('반려 사유를 입력하세요:', '문서 내 수입자 상호 및 개인정보 비식별화(마스킹) 처리가 누락되었습니다.');
+    if (!reason) return;
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/cashback/requests/${reqId}/reject`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) throw new Error('반려 처리 실패');
       alert(`[검수 완료 - 캐시백 반려]\n수신인: ${email}\n반려사유: ${reason}`);
+      fetchAdminData();
+    } catch (err) {
+      // 로컬 폴백
+      setUploadRequests(uploadRequests.filter(r => r.id !== reqId));
     }
   };
 
@@ -261,7 +310,7 @@ export default function AdminPortal() {
                   </span>
                   
                   <button
-                    onClick={() => toggleCustomerStatus(c.id)}
+                    onClick={() => toggleCustomerStatus(c.id, c.status, c.companyName, c.email)}
                     style={{
                       background: c.status === 'Active' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
                       border: c.status === 'Active' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',

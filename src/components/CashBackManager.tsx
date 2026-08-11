@@ -13,49 +13,49 @@ interface UploadHistory {
   date: string;
 }
 
-export default function CashBackManager() {
+import { useEffect } from 'react';
+
+interface CashBackManagerProps {
+  currentUser: any;
+}
+
+export default function CashBackManager({ currentUser }: CashBackManagerProps) {
   const [shareType, setShareType] = useState<'hs' | 'valuation'>('hs');
   const [hsCode, setHsCode] = useState('');
   const [valuationIssue, setValuationIssue] = useState('');
   const [itemName, setItemName] = useState('');
   const [fileName, setFileName] = useState('');
   const [uploadStatus, setUploadStatus] = useState<boolean | null>(null);
-  
-  const [history, setHistory] = useState<UploadHistory[]>([
-    {
-      id: '1',
-      type: 'hs',
-      typeKo: 'HS 품목분류',
-      hsCodeOrIssue: '2101.12-1000',
-      itemName: '식물성 대체크림 혼합 커피믹스',
-      fileName: '품목분류회신_2026_커피믹스.pdf',
-      points: 10000,
-      status: '승인 완료',
-      date: '2026-08-08'
-    },
-    {
-      id: '2',
-      type: 'valuation',
-      typeKo: '관세평가 판례',
-      hsCodeOrIssue: '상표권 권리사용료 범위',
-      itemName: '의류 라이선스 수입 상표권 계약',
-      fileName: '결정례_상표권로열티_비과세소명.pdf',
-      points: 8000,
-      status: '승인 완료',
-      date: '2026-08-09'
-    },
-    {
-      id: '3',
-      type: 'hs',
-      typeKo: 'HS 품목분류',
-      hsCodeOrIssue: '1902.19-1000',
-      itemName: '기타 조리하지 않은 파스타면',
-      fileName: '사전심사회신_1902_면류.pdf',
-      points: 5000,
-      status: '검토 대기중',
-      date: '2026-08-10'
+  const [history, setHistory] = useState<UploadHistory[]>([]);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/cashback/requests');
+      if (response.ok) {
+        const data = await response.json();
+        // API 필드 매핑
+        const mapped = data.map((item: any) => ({
+          id: String(item.id),
+          type: item.type,
+          typeKo: item.type_ko,
+          hsCodeOrIssue: item.hs_code_or_issue,
+          itemName: item.item_name,
+          fileName: item.file_name,
+          points: item.points,
+          status: item.status,
+          date: item.date
+        }));
+        // 나의 이메일 기록만 필터링하거나 전체 이력을 보여주되 관리 편의 유지
+        setHistory(mapped);
+      }
+    } catch (err) {
+      console.warn('FastAPI 백엔드가 구동되지 않아 로컬 메모리 모드로 작동합니다.');
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const totalPoints = history
     .filter(item => item.status === '승인 완료')
@@ -67,7 +67,7 @@ export default function CashBackManager() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const primaryIdentifier = shareType === 'hs' ? hsCode : valuationIssue;
     if (!primaryIdentifier || !itemName || !fileName) {
@@ -75,20 +75,45 @@ export default function CashBackManager() {
       return;
     }
 
-    const newRecord: UploadHistory = {
-      id: String(history.length + 1),
+    const payload = {
+      email: currentUser?.email || 'guest@cusway.kr',
       type: shareType,
-      typeKo: shareType === 'hs' ? 'HS 품목분류' : '관세평가 판례',
-      hsCodeOrIssue: primaryIdentifier,
-      itemName,
-      fileName,
-      points: shareType === 'valuation' ? 8000 : 5000, // 판례는 8000포인트 기본
-      status: '검토 대기중',
-      date: new Date().toISOString().split('T')[0]
+      type_ko: shareType === 'hs' ? 'HS 품목분류' : '관세평가 판례',
+      hs_code_or_issue: primaryIdentifier,
+      item_name: itemName,
+      file_name: fileName,
+      points: shareType === 'valuation' ? 8000 : 5000
     };
 
-    setHistory([newRecord, ...history]);
-    setUploadStatus(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/cashback/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('캐시백 업로드 전송 실패');
+      }
+      
+      setUploadStatus(true);
+      fetchHistory();
+    } catch (err) {
+      // Fallback
+      const newRecord: UploadHistory = {
+        id: String(history.length + 1),
+        type: shareType,
+        typeKo: shareType === 'hs' ? 'HS 품목분류' : '관세평가 판례',
+        hsCodeOrIssue: primaryIdentifier,
+        itemName,
+        fileName,
+        points: shareType === 'valuation' ? 8000 : 5000,
+        status: '검토 대기중',
+        date: new Date().toISOString().split('T')[0]
+      };
+      setHistory([newRecord, ...history]);
+      setUploadStatus(true);
+    }
     
     // 입력 초기화
     setHsCode('');
