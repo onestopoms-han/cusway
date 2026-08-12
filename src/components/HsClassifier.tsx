@@ -149,6 +149,24 @@ export default function HsClassifier() {
       };
     }
 
+    if (query.includes('휴대폰') || query.includes('스마트폰') || query.includes('셀룰라') || query.includes('통신') || query.includes('전화기')) {
+      return {
+        keywordTrigger: ['휴대폰', '스마트폰', '셀룰라', '통신'],
+        recommendedHsCode: "8517.13-0000",
+        headingName: "제8517호의 전화기(셀룰러 통신망용 전화기 포함) 및 송신ㆍ수신용 기기",
+        subheadingName: "스마트폰 (개인 휴대용 무선전화기)",
+        confidence: 92,
+        technicalTerms: "Smartphones for cellular networks or for other wireless networks",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 위성/셀룰러 무선 통신망을 활용하여 음성 및 데이터를 송수신하는 개인 휴대폰(스마트폰)입니다. 일반통칙 제1호 및 제6호에 의거하여 스마트폰 및 무선 통신기기가 분류되는 제8517호 하위 세번으로 결정됩니다.",
+        sectionNote: "제16부 기계류와 전기기기 및 이들의 부분품 (제85류 적용)",
+        chapterNote: "제85류 전기기기와 그 부분품, 녹음기ㆍ음성 재생기 주석",
+        exclusionNote: "위성 신호 단순 수신만을 수행하는 GPS 네비게이션 기기(제8526호)는 본 호에서 제외됩니다.",
+        headingExplanation: "제8517호에는 셀룰러 통신망을 이용하는 휴대폰(스마트폰) 및 유선/무선 송수신 장비 일체가 정확하게 포함됩니다.",
+        precedents: []
+      };
+    }
+
     // 4. Ultimate Unclassified Fallback
     return {
       keywordTrigger: [],
