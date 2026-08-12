@@ -15,9 +15,14 @@ def retrieve_relevant_notes(query: str, db: Session):
     if not keywords:
         return []
 
-    # Simple matching query logic
-    # Find all ExplanatoryNote entries containing at least one keyword in their heading or content_ko
-    notes = db.query(ExplanatoryNote).all()
+    # Query with filter to avoid full DB load in memory (prevents serverless crash)
+    from sqlalchemy import or_
+    filters = []
+    for kw in keywords[:3]: # Limit to first 3 keywords to avoid complex SQL
+        filters.append(ExplanatoryNote.content_ko.like(f"%{kw}%"))
+        filters.append(ExplanatoryNote.heading.like(f"%{kw}%"))
+        
+    notes = db.query(ExplanatoryNote).filter(or_(*filters)).limit(50).all()
     
     matches = []
     for note in notes:
@@ -27,11 +32,9 @@ def retrieve_relevant_notes(query: str, db: Session):
 
         for kw in keywords:
             kw_lower = kw.lower()
-            # If keyword matches the heading code directly (e.g. '8483' or '2526')
             if kw_lower == heading_clean or kw_lower in note.heading:
                 score += 50
             
-            # Count occurrences in Korean content
             occurrences = content_lower.count(kw_lower)
             if occurrences > 0:
                 score += (occurrences * 5)
@@ -39,8 +42,6 @@ def retrieve_relevant_notes(query: str, db: Session):
         if score > 0:
             matches.append((note, score))
 
-    # Sort matches by relevance score desc
     matches.sort(key=lambda x: x[1], reverse=True)
-    
-    # Return top 3 matched ExplanatoryNote models
     return [item[0] for item in matches[:3]]
+
