@@ -193,7 +193,8 @@ def seed_data():
         notes_path = os.path.join(parent_dir, "raw_explanatory_notes.txt")
         if os.path.exists(notes_path):
             parsed_notes = parse_explanatory_notes(notes_path)
-            for note in parsed_notes:
+            # Limit seeding to top 150 notes to avoid serverless execution timeout
+            for note in parsed_notes[:150]:
                 db_note = ExplanatoryNote(
                     heading=note["heading"],
                     content_ko=note["content_ko"],
@@ -202,7 +203,7 @@ def seed_data():
                     chapter=note["chapter"]
                 )
                 db.add(db_note)
-            print(f"[RAG-SEED] Successfully indexed {len(parsed_notes)} Heading nodes to DB.")
+            print(f"[RAG-SEED] Successfully indexed {len(parsed_notes[:150])} Heading nodes to DB.")
         else:
             print(f"[RAG-SEED] Cannot find raw_explanatory_notes.txt at {notes_path}")
 

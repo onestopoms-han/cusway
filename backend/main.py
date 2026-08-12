@@ -121,6 +121,16 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 def get_precedents(db: Session = Depends(get_db)):
     return db.query(Precedent).all()
 
+@app.get("/api/health")
+def health_check(db: Session = Depends(get_db)):
+    try:
+        # Check simple DB query to confirm SQLite is healthy
+        user_count = db.query(User).count()
+        return {"status": "ok", "message": "Database is connected and healthy.", "user_count": user_count}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @app.post("/api/cashback/upload", response_model=CashbackResponse)
 def upload_cashback(req: CashbackRequestCreate, db: Session = Depends(get_db)):
     db_req = CashbackRequest(
