@@ -58,6 +58,8 @@ export default function HsClassifier() {
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [showAlert, setShowAlert] = useState(false);
+  const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
+  const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
   const handleStartAnalysis = () => {
     setAnalyzing(true);
@@ -374,6 +376,110 @@ export default function HsClassifier() {
             />
           </div>
 
+          {/* File Attachment Drag & Drop Zone */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+              📸 품목 실물 사진 또는 PDF 기술사양서 첨부
+            </label>
+            <div 
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                  const sizeStr = file.size > 1024 * 1024 
+                    ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' 
+                    : (file.size / 1024).toFixed(0) + ' KB';
+                  setAttachedFile({ name: file.name, size: sizeStr, type: file.type });
+                  if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => setAttachedPreview(ev.target?.result as string);
+                    reader.readAsDataURL(file);
+                  } else {
+                    setAttachedPreview(null);
+                  }
+                }
+              }}
+              style={{
+                border: '2px dashed var(--border-color)',
+                borderRadius: '8px',
+                padding: '16px 12px',
+                textAlign: 'center',
+                background: 'rgba(255,255,255,0.01)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*,application/pdf';
+                input.onchange = (e: any) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    const sizeStr = file.size > 1024 * 1024 
+                      ? (file.size / (1024 * 1024)).toFixed(1) + ' MB' 
+                      : (file.size / 1024).toFixed(0) + ' KB';
+                    setAttachedFile({ name: file.name, size: sizeStr, type: file.type });
+                    if (file.type.startsWith('image/')) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setAttachedPreview(ev.target?.result as string);
+                      reader.readAsDataURL(file);
+                    } else {
+                      setAttachedPreview(null);
+                    }
+                  }
+                };
+                input.click();
+              }}
+            >
+              {!attachedFile ? (
+                <div>
+                  <span style={{ fontSize: '1.2rem', display: 'block', marginBottom: '4px' }}>📁</span>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    파일을 끌어서 놓거나 클릭하여 업로드
+                  </p>
+                  <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.25)', marginTop: '2px' }}>
+                    (지원 파일: JPG, PNG, GIF, PDF)
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', padding: '2px 8px', borderRadius: '4px', background: 'rgba(20, 184, 166, 0.2)', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                    {attachedFile.type.includes('pdf') ? '📄 PDF 도면 사양서' : '🖼️ 이미지 사진'}
+                  </span>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', wordBreak: 'break-all' }}>
+                    {attachedFile.name} ({attachedFile.size})
+                  </p>
+                  
+                  {attachedPreview && (
+                    <img 
+                      src={attachedPreview} 
+                      alt="품목 프리뷰" 
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '120px', 
+                        borderRadius: '6px', 
+                        marginTop: '4px',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                      }} 
+                    />
+                  )}
+                  
+                  <span 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAttachedFile(null);
+                      setAttachedPreview(null);
+                    }}
+                    style={{ fontSize: '0.7rem', color: 'var(--accent-red)', textDecoration: 'underline', marginTop: '2px' }}
+                  >
+                    첨부 제거
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
           <button 
             className="btn-primary" 
             onClick={handleStartAnalysis} 
@@ -489,6 +595,38 @@ export default function HsClassifier() {
                   {matchedRule.exclusionNote}
                 </div>
               </div>
+
+              {/* Attached Specifications/Images inside Results */}
+              {attachedFile && (
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.03)', 
+                  border: '1px solid var(--border-color)', 
+                  borderRadius: '8px', 
+                  padding: '12px 16px', 
+                  marginBottom: '16px',
+                  fontSize: '0.8rem'
+                }}>
+                  <span style={{ fontWeight: 700, color: 'var(--accent-cyan)', display: 'block', marginBottom: '6px' }}>
+                    📎 첨부 품목 스펙 문서/사진 증빙 자료
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+                    <span>{attachedFile.type.includes('pdf') ? '📄' : '🖼️'}</span>
+                    <span>{attachedFile.name} ({attachedFile.size})</span>
+                  </div>
+                  {attachedPreview && (
+                    <img 
+                      src={attachedPreview} 
+                      alt="분석 증빙" 
+                      style={{ 
+                        maxHeight: '100px', 
+                        borderRadius: '4px', 
+                        marginTop: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)'
+                      }} 
+                    />
+                  )}
+                </div>
+              )}
 
               {/* Hierarchy Tree */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px' }}>
