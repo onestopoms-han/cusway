@@ -91,7 +91,9 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       const matchesText = 
         item.title.toLowerCase().includes(query) ||
         item.keyIssue.toLowerCase().includes(query) ||
-        item.holdingKo.toLowerCase().includes(query);
+        item.holdingKo.toLowerCase().includes(query) ||
+        item.factualBackground.toLowerCase().includes(query) ||
+        item.caseNumber.toLowerCase().includes(query);
       return matchesCategory && matchesText;
     });
     setMatchedCases(filtered);
