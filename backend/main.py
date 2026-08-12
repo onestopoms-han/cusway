@@ -17,6 +17,18 @@ app = FastAPI(title="CUSWAY Backend API", version="1.0")
 def startup_event():
     # 백엔드 서버 기동 시 가볍게 실행 (무거운 DB 시딩 제거하여 Vercel 기동 타임아웃 500 에러 차단)
     print("[STARTUP] CUSWAY Serverless Backend Initialized Successfully.")
+    from backend.db import SessionLocal
+    from backend.seed import seed_data
+    from backend.models import User
+    db = SessionLocal()
+    try:
+        if db.query(User).count() == 0:
+            seed_data()
+            print("[STARTUP] Seeded empty DB.")
+    except Exception as e:
+        print(f"[STARTUP] Seeding failed: " + str(e))
+    finally:
+        db.close()
 
 # 프론트엔드 연동을 위한 CORS 설정
 app.add_middleware(
