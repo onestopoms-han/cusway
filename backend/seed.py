@@ -184,28 +184,50 @@ def seed_data():
             )
             db.add(db_r)
 
-    # 4. RAG 관세율표 해설서 원문 적재 시드 구문 추가
-    notes_exists = db.query(ExplanatoryNote).first()
-    if not notes_exists:
-        print("[RAG-SEED] Indexing raw_explanatory_notes.txt into SQLite...")
-        # 프로젝트 루트 경로 내 raw_explanatory_notes.txt 탐색
+    # 4. RAG 관세율표 해설서 원문 적재 시드 구문 추가 (JSON 파일들로부터 로드)
+    notes_count = db.query(ExplanatoryNote).count()
+    if notes_count < 1000:
+        print("[RAG-SEED] Indexing chapter JSON files into SQLite...")
+        db.query(ExplanatoryNote).delete()
+        
+        import glob
+        import json
+        
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        notes_path = os.path.join(parent_dir, "raw_explanatory_notes.txt")
-        if os.path.exists(notes_path):
-            parsed_notes = parse_explanatory_notes(notes_path)
-            # Limit seeding to top 800 notes to ensure coverage of glass (70), steel (73) and machinery (84-85)
-            for note in parsed_notes[:800]:
-                db_note = ExplanatoryNote(
-                    heading=note["heading"],
-                    content_ko=note["content_ko"],
-                    content_en=note["content_en"],
-                    section=note["section"],
-                    chapter=note["chapter"]
-                )
-                db.add(db_note)
-            print(f"[RAG-SEED] Successfully indexed {len(parsed_notes[:800])} Heading nodes to DB.")
-        else:
-            print(f"[RAG-SEED] Cannot find raw_explanatory_notes.txt at {notes_path}")
+        notes_dir = os.path.join(parent_dir, "src", "data", "explanatory_notes")
+        json_pattern = os.path.join(notes_dir, "chapter_*.json")
+        json_files = glob.glob(json_pattern)
+        
+        indexed_count = 0
+        for filepath in json_files:
+            filename = os.path.basename(filepath)
+            chapter_num = filename.replace("chapter_", "").replace(".json", "")
+            chapter_name = f"제{chapter_num}류" if chapter_num.isdigit() else ""
+            
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for item in data:
+                        hs_code = item.get("hsCode", "")
+                        # Convert "9608" to "96.08" for consistency in RAG match
+                        if len(hs_code) == 4 and hs_code.isdigit():
+                            heading = f"{hs_code[:2]}.{hs_code[2:]}"
+                        else:
+                            heading = hs_code
+                            
+                        db_note = ExplanatoryNote(
+                            heading=heading,
+                            content_ko=item.get("contentKo", ""),
+                            content_en=item.get("contentEn", ""),
+                            section="",
+                            chapter=chapter_name
+                        )
+                        db.add(db_note)
+                        indexed_count += 1
+            except Exception as e:
+                print(f"[RAG-SEED] Error indexing {filename}: {e}")
+                
+        print(f"[RAG-SEED] Successfully indexed {indexed_count} Heading nodes from JSON files to DB.")
 
     db.commit()
     db.close()

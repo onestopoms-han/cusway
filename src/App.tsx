@@ -12,7 +12,7 @@ export default function App() {
     company_name: string;
     plan: string;
     status: string;
-    accrued_points: int;
+    accrued_points: number;
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);

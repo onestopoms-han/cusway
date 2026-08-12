@@ -5,7 +5,7 @@ import urllib.error
 from sqlalchemy.orm import Session
 
 from backend.rag.retriever import retrieve_relevant_notes
-from src.data.rules import KOREAN_HS_RULES
+from backend.rag.rules import KOREAN_HS_RULES
 
 def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
     """
@@ -19,7 +19,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     for note in relevant_notes:
         references_text += f"\n[호 세호 코드: {note.heading}]\n- 부/류명: {note.section} / {note.chapter}\n- 해설내용: {note.content_ko[:1200]}\n"
 
-    # Build Prompt
+    # Build Prompt with strict instructions for legal citations and GRI references
     prompt = f"""
 당신은 대한민국 관세청 및 WCO 기준에 부합하는 최고의 품목분류 AI 관세사입니다.
 제시된 수입 대상 물품명, 재질 및 주요 용도를 분석하고, 아래 제공된 관세율표 해설서 원문(RAG 검색)을 법적 근거로 삼아 정밀 세번 판정을 내리십시오.
@@ -32,6 +32,13 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
 [참조 관세율표 해설서 (RAG retrieved)]
 {references_text}
 
+[작성 및 판정 지침]
+1. recommendedHsCode: 10자리 세번 코드를 정확하게 명시하십시오. (예: 8483.40-1000)
+2. appliedGris: 분류 시 핵심 근거가 된 관세율표 해석에 관한 일반통칙 번호(예: 통칙 제1호, 통칙 제3호 나목, 통칙 제6호)들을 배열로 반환하십시오.
+3. legalReasoning: 통칙 적용 이유와 해설서 조문 내용을 논리적으로 매칭하여 왜 이 HS Code로 결정되었는지에 대한 논리를 작성하십시오.
+4. sectionNote & chapterNote: 부의 주(Section Note) 및 류의 주(Chapter Note) 규정 중 본 품목과 관계된 실제 구절(인용구) 또는 조항을 원문에서 정확하게 찾아 명시하십시오. (예: '제84류 주 제2호 가목에 따라...')
+5. exclusionNote: 본 분류가 잘못 적용되는 것을 방지하기 위한 핵심 제외 규정(Exclusion Note)을 작성하십시오.
+
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
 
 {{
@@ -42,9 +49,9 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
   "technicalTerms": "관세 기술 표준 용어 (예: Ball Screw for Steering)",
   "appliedGris": ["적용 통칙 번호 (예: 통칙 제1호, 통칙 제6호)"],
   "legalReasoning": "법적 품목분류 판정 논리 상세 (참조 해설 조문을 인용하여 논리적으로 서술)",
-  "sectionNote": "부의 주(Note) 내용 중 본 품목에 관계된 부분",
-  "chapterNote": "류의 주(Note) 내용 중 본 품목에 관계된 부분",
-  "exclusionNote": "본 분류의 오적용을 방지하는 주요 제외 주석 요약",
+  "sectionNote": "부의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
+  "chapterNote": "류의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
+  "exclusionNote": "본 분류의 오적용을 방지하는 주요 제외 주석 요약 및 근거",
   "headingExplanation": "호 해설서 전문 요약 및 대비 방안",
   "precedents": [
     {{
