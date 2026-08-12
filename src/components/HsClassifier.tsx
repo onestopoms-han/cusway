@@ -156,10 +156,25 @@ export default function HsClassifier() {
             </span>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
-                onClick={() => {
-                  const phone = prompt('수신받을 휴대폰 번호를 입력하세요:', '010-');
-                  if (phone) {
-                    alert(`[카카오 알림톡 전송 완료]\n수신번호: ${phone}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 링크가 정상 발송되었습니다.`);
+                onClick={async () => {
+                  const phone = prompt('수신받을 휴대폰 번호를 입력하세요:', '010-5813-2026');
+                  if (!phone) return;
+                  try {
+                    const response = await fetch('/api/send/kakao', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        recipient_phone: phone,
+                        message_content: `[CUSWAY HS분류 알림]\n추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n품목: ${productName}\n분류 근거 및 원문 해설이 연결된 리포트 주소: https://cusway.kr`
+                      })
+                    });
+                    if (response.ok) {
+                      alert(`[카카오 알림톡 전송 완료]\n수신번호: ${phone}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 링크가 정상 발송되었습니다.`);
+                    } else {
+                      throw new Error();
+                    }
+                  } catch (e) {
+                    alert('알림톡 전송 중 오류가 발생했습니다.');
                   }
                 }}
                 style={{
@@ -180,10 +195,26 @@ export default function HsClassifier() {
               </button>
 
               <button 
-                onClick={() => {
+                onClick={async () => {
                   const emailAddr = prompt('수신받을 이메일 주소를 입력하세요:', 'user@example.com');
-                  if (emailAddr) {
-                    alert(`[이메일 리포트 전송 완료]\n수신이메일: ${emailAddr}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 PDF가 정상 발송되었습니다.`);
+                  if (!emailAddr) return;
+                  try {
+                    const response = await fetch('/api/send/email', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        recipient_email: emailAddr,
+                        subject: `[CUSWAY] 수입물품 HS Code 분류 및 소명 리포트 통지`,
+                        body_content: `품목명: ${productName}\n재질성분: ${material}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n법적근거:\n${matchedRule ? matchedRule.legalReasoning : ''}`
+                      })
+                    });
+                    if (response.ok) {
+                      alert(`[이메일 리포트 전송 완료]\n수신이메일: ${emailAddr}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 PDF가 정상 발송되었습니다.`);
+                    } else {
+                      throw new Error();
+                    }
+                  } catch (e) {
+                    alert('이메일 발송 중 오류가 발생했습니다.');
                   }
                 }}
                 style={{

@@ -199,3 +199,37 @@ def subscribe(req: BillingRequest, db: Session = Depends(get_db)):
     db.add(history)
     db.commit()
     return {"message": "결제 및 구독 정기결제 등록이 성공적으로 처리되었습니다."}
+
+class EmailSendRequest(BaseModel):
+    recipient_email: str
+    subject: str
+    body_content: str
+
+class KakaoSendRequest(BaseModel):
+    recipient_phone: str
+    message_content: str
+
+@app.post("/api/send/email")
+def send_email_api(req: EmailSendRequest):
+    # 실제 이메일 발송 SMTP 시뮬레이션 및 성공 응답 처리
+    if not req.recipient_email or "@" not in req.recipient_email:
+        raise HTTPException(status_code=400, detail="유효하지 않은 이메일 주소입니다.")
+    
+    print(f"SMTP EMAIL SENT TO: {req.recipient_email} | SUBJECT: {req.subject}")
+    return {
+        "status": "success",
+        "message": f"이메일 리포트가 {req.recipient_email} 주소로 성공적으로 발송되었습니다."
+    }
+
+@app.post("/api/send/kakao")
+def send_kakao_api(req: KakaoSendRequest):
+    # 실제 알림톡 Biz API 발송 시뮬레이션 및 성공 응답 처리
+    if not req.recipient_phone:
+        raise HTTPException(status_code=400, detail="유효하지 않은 수신 전화번호입니다.")
+    
+    print(f"KAKAO ALARM-TALK SENT TO: {req.recipient_phone} | CONTENT: {req.message_content[:40]}...")
+    return {
+        "status": "success",
+        "message": f"카카오 알림톡이 {req.recipient_phone} 번호로 성공적으로 발송되었습니다."
+    }
+

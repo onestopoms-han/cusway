@@ -66,12 +66,15 @@ body {
   body {
     background: #ffffff !important;
     color: #000000 !important;
+    font-size: 12pt !important;
+    line-height: 1.5 !important;
   }
   aside,
   button,
   .glow-effect,
   input,
-  textarea {
+  textarea,
+  .no-print {
     display: none !important;
   }
   main {
@@ -80,15 +83,29 @@ body {
     width: 100% !important;
   }
   .glass-panel {
-    background: transparent !important;
-    border: 1px solid #ccc !important;
+    background: #ffffff !important;
+    border: 1px solid #111111 !important;
     box-shadow: none !important;
     color: #000000 !important;
+    padding: 15px !important;
+    border-radius: 4px !important;
   }
   .text-gradient {
     -webkit-text-fill-color: initial !important;
     color: #000000 !important;
     font-weight: bold !important;
+  }
+  /* 2단 그리드가 인쇄 시 깨지지 않고 아래로 순차 배치되도록 가로폭 해제 */
+  div {
+    display: block !important;
+    width: 100% !important;
+    float: none !important;
+    box-shadow: none !important;
+  }
+  /* 페이지 여백 최적화 */
+  @page {
+    size: A4;
+    margin: 20mm;
   }
 }
 
