@@ -5,39 +5,21 @@ import urllib.error
 from sqlalchemy.orm import Session
 
 from backend.rag.retriever import retrieve_relevant_notes
-from src.data.rules import KOREAN_HS_RULES # Import local rules as robust fallback
+from src.data.rules import KOREAN_HS_RULES
 
 def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
     """
-    RAG chain to search explanatory notes database, invoke OpenAI GPT model,
-    and return structured HS classification results.
+    RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
+    with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.
     """
-    # 1. Retrieve raw reference texts from SQLite
     combined_query = f"{product_name} {material} {function_use}"
     relevant_notes = retrieve_relevant_notes(combined_query, db)
     
-    # Structure references block
     references_text = ""
     for note in relevant_notes:
         references_text += f"\n[호 세호 코드: {note.heading}]\n- 부/류명: {note.section} / {note.chapter}\n- 해설내용: {note.content_ko[:1200]}\n"
 
-    # 2. Check OpenAI API Key. Evaluate both env key or custom client key. Default to user's registered key if empty.
-    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        # Load api key from local gitignored key file
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        key_path = os.path.join(parent_dir, "openai.key")
-        if os.path.exists(key_path):
-            with open(key_path, "r", encoding="utf-8") as kf:
-                api_key = kf.read().strip()
-    
-    if not api_key:
-        print("[RAG-LLM] OPENAI_API_KEY not found. Fallback to local RAG offline database matcher.")
-        return run_local_fallback_match(product_name, material, function_use, db)
-
-
-
-    # 3. Build Prompt for GPT
+    # Build Prompt
     prompt = f"""
 당신은 대한민국 관세청 및 WCO 기준에 부합하는 최고의 품목분류 AI 관세사입니다.
 제시된 수입 대상 물품명, 재질 및 주요 용도를 분석하고, 아래 제공된 관세율표 해설서 원문(RAG 검색)을 법적 근거로 삼아 정밀 세번 판정을 내리십시오.
@@ -78,7 +60,50 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
 }}
 """
 
-    # 4. Invoke OpenAI Chat Completion API via HTTP Request (No extra thick sdk weight needed)
+    # 1. Try Groq LPU Engine First (1st Priority: Ultra-fast, free/cost-effective)
+    groq_key = os.environ.get("GROQ_API_KEY")
+    if groq_key and groq_key.strip():
+        try:
+            url = "https://api.groq.com/openai/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {groq_key.strip()}"
+            }
+            data = {
+                "model": "llama-3.3-70b-versatile",
+                "messages": [
+                    {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.1
+            }
+            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=7) as response:
+                res_body = response.read().decode("utf-8")
+                res_json = json.loads(res_body)
+                output = res_json["choices"][0]["message"]["content"].strip()
+                if output.startswith("```json"):
+                    output = output.split("```json")[1].split("```")[0].strip()
+                elif output.startswith("```"):
+                    output = output.split("```")[1].split("```")[0].strip()
+                return json.loads(output)
+        except Exception as ge:
+            print(f"[RAG-LLM] Groq LPU call failed: {str(ge)}. Cascading to OpenAI.")
+
+    # 2. Check OpenAI API Key. Evaluate both env key or custom client key. Default to user's registered key if empty.
+    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        key_path = os.path.join(parent_dir, "openai.key")
+        if os.path.exists(key_path):
+            with open(key_path, "r", encoding="utf-8") as kf:
+                api_key = kf.read().strip()
+    
+    if not api_key:
+        print("[RAG-LLM] OpenAI and Groq keys missing. Fallback to local RAG offline database matcher.")
+        return run_local_fallback_match(product_name, material, function_use, db)
+
+    # 3. Invoke OpenAI Chat Completion API (2nd Priority: Stable backup)
     try:
         url = "https://api.openai.com/v1/chat/completions"
         headers = {
@@ -95,12 +120,11 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
         }
         
         req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=40) as response:
+        with urllib.request.urlopen(req, timeout=12) as response:
             res_body = response.read().decode("utf-8")
             res_json = json.loads(res_body)
             gpt_output = res_json["choices"][0]["message"]["content"].strip()
             
-            # Clean possible markdown wrap
             if gpt_output.startswith("```json"):
                 gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
             elif gpt_output.startswith("```"):
@@ -119,15 +143,10 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     combined_query = f"{product_name} {material} {function_use}"
     relevant_notes = retrieve_relevant_notes(combined_query, db)
 
-    # If database matches a structured raw note (e.g. 96.08 for fountain pen)
     if relevant_notes:
         best_note = relevant_notes[0]
         heading_code = best_note.heading.replace('.', '')
-        # Formulate HSK 10-digit code using matched heading
         hsk_code = f"{heading_code}.10-0000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-0000"
-        
-        # Clean clean lines for previews
-        clean_desc = best_note.content_ko[:1000].replace('\n', ' ')
         
         return {
             "recommendedHsCode": hsk_code,
@@ -154,10 +173,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             ]
         }
 
-    # Offline RAG static rule search fallback if DB query returned nothing
     input_lower = combined_query.lower()
-    
-    # Specific custom semantic matching for complex items to guarantee high-quality classification fallbacks
     if "유리" in input_lower and "텀블러" in input_lower:
         return {
             "recommendedHsCode": "7013.37-0000",
@@ -174,7 +190,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "precedents": [
                 {
                     "id": "DEC-7013-01",
-                    "title": "플라스틱/스텐 캡이 결합된 음료용 유리 텀블러의 품목분류 결정",
+                    "title": "플라스틱/스텐 캡이 결합된 음료용 유리 텀러의 품목분류 결정",
                     "code": "7013.37-0000",
                     "issuingBody": "관세평가분류원",
                     "date": "2024-11-12",
@@ -191,7 +207,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             break
             
     if not found:
-        found = KOREAN_HS_RULES[0] # Default fallback is Pasta
+        found = KOREAN_HS_RULES[0]
         
     return {
         "recommendedHsCode": found["recommendedHsCode"],
@@ -217,5 +233,3 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             } for p in found["precedents"]
         ]
     }
-
-
