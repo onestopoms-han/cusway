@@ -51,7 +51,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/billing/subscribe', {
+      const response = await fetch('/api/billing/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

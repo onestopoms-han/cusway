@@ -34,7 +34,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   useEffect(() => {
     const fetchPrecedents = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/valuation/precedents');
+        const response = await fetch('/api/valuation/precedents');
         if (response.ok) {
           const data = await response.json();
           // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정

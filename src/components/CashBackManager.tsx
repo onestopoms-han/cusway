@@ -30,7 +30,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/cashback/requests');
+      const response = await fetch('/api/cashback/requests');
       if (response.ok) {
         const data = await response.json();
         // API 필드 매핑
@@ -86,7 +86,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/cashback/upload', {
+      const response = await fetch('/api/cashback/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

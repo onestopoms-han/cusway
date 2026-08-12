@@ -46,7 +46,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
   const fetchAdminData = async () => {
     try {
       // 1. 고객 목록 로드
-      const resCust = await fetch('http://localhost:8000/api/customers');
+      const resCust = await fetch('/api/customers');
       if (resCust.ok) {
         const data = await resCust.json();
         setCustomers(data.map((c: any) => ({
@@ -61,7 +61,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
       }
 
       // 2. 캐시백 대기 목록 로드
-      const resReq = await fetch('http://localhost:8000/api/cashback/requests');
+      const resReq = await fetch('/api/cashback/requests');
       if (resReq.ok) {
         const data = await resReq.json();
         // 대기중(검토 대기중)인 요청만 필터링해서 보여줌
@@ -94,7 +94,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
   const toggleCustomerStatus = async (id: string, currentStatus: string, companyName: string, email: string) => {
     const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active';
     try {
-      const response = await fetch(`http://localhost:8000/api/customers/${id}/status`, {
+      const response = await fetch(`/api/customers/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -118,7 +118,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
   // 캐시백 문서 승인 처리 (FastAPI 연동)
   const approveRequest = async (reqId: string, email: string, points: number) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/cashback/requests/${reqId}/approve`, {
+      const response = await fetch(`/api/cashback/requests/${reqId}/approve`, {
         method: 'POST'
       });
 
@@ -137,7 +137,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
     if (!reason) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/cashback/requests/${reqId}/reject`, {
+      const response = await fetch(`/api/cashback/requests/${reqId}/reject`, {
         method: 'POST'
       });
 
