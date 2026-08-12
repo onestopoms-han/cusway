@@ -255,19 +255,23 @@ class HsClassifyRequest(BaseModel):
     product_name: str
     material: str
     function_use: str
+    api_key: Optional[str] = None
 
 @app.post("/api/hs/classify")
 def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
     from backend.rag.llm_chain import query_rag_hs_classification
     try:
+        # Pass both env key or custom client key
         result = query_rag_hs_classification(
             product_name=req.product_name,
             material=req.material,
             function_use=req.function_use,
-            db=db
+            db=db,
+            custom_key=req.api_key
         )
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"RAG AI 분석 도중 오류가 발생했습니다: {str(e)}")
+
 
 
