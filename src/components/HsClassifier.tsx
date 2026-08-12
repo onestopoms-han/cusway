@@ -61,29 +61,42 @@ export default function HsClassifier() {
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
   const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
-  const handleStartAnalysis = () => {
+  const handleStartAnalysis = async () => {
     setAnalyzing(true);
     setApprovedStatus(null);
     setMatchedRule(null);
     setShowAlert(false);
 
-    setTimeout(() => {
-      setAnalyzing(false);
-      
-      // 사용자 입력을 토대로 RAG 규칙 데이터셋에서 최적의 키워드를 찾음
+    try {
+      const response = await fetch('/api/hs/classify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_name: productName,
+          material: material,
+          function_use: functionUse
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMatchedRule(data);
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      console.warn('API call failed, fallback to local dataset match.');
+      // Local fallback logic
       const inputLower = (productName + ' ' + material + ' ' + functionUse).toLowerCase();
-      
       let foundRule = KOREAN_HS_RULES.find(rule => 
         rule.keywordTrigger.some(keyword => inputLower.includes(keyword))
       );
-
-      // 매칭되는 규칙이 없을 경우 기본적으로 첫 번째(파스타) 매칭 또는 유사 검색
       if (!foundRule) {
         foundRule = KOREAN_HS_RULES[0];
       }
-
       setMatchedRule(foundRule);
-    }, 1500);
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const handleManualSearch = () => {

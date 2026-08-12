@@ -233,3 +233,23 @@ def send_kakao_api(req: KakaoSendRequest):
         "message": f"카카오 알림톡이 {req.recipient_phone} 번호로 성공적으로 발송되었습니다."
     }
 
+class HsClassifyRequest(BaseModel):
+    product_name: str
+    material: str
+    function_use: str
+
+@app.post("/api/hs/classify")
+def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
+    from backend.rag.llm_chain import query_rag_hs_classification
+    try:
+        result = query_rag_hs_classification(
+            product_name=req.product_name,
+            material=req.material,
+            function_use=req.function_use,
+            db=db
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"RAG AI 분석 도중 오류가 발생했습니다: {str(e)}")
+
+

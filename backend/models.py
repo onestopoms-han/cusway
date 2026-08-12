@@ -57,3 +57,14 @@ class PaymentHistory(Base):
     points_used = Column(Integer, default=0)
     final_price = Column(Integer, nullable=False)
     date = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d"))
+
+class ExplanatoryNote(Base):
+    __tablename__ = "explanatory_notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    heading = Column(String, index=True, nullable=False) # e.g. 01.02 or 84.83
+    content_ko = Column(Text, nullable=False)
+    content_en = Column(Text, nullable=True)
+    section = Column(String, nullable=True)
+    chapter = Column(String, nullable=True)
+

@@ -1,10 +1,13 @@
 from .db import SessionLocal, engine, Base
-from .models import User, Precedent, CashbackRequest
+from .models import User, Precedent, CashbackRequest, ExplanatoryNote
+from .rag.parser import parse_explanatory_notes
+import os
 
 def seed_data():
     # 테이블 생성
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
+
 
     # 1. 테스트 유저 생성 (CUSWAY 관리자 및 일반 고객들)
     users_data = [
@@ -180,6 +183,28 @@ def seed_data():
                 status=r["status"]
             )
             db.add(db_r)
+
+    # 4. RAG 관세율표 해설서 원문 적재 시드 구문 추가
+    notes_exists = db.query(ExplanatoryNote).first()
+    if not notes_exists:
+        print("[RAG-SEED] Indexing raw_explanatory_notes.txt into SQLite...")
+        # 프로젝트 루트 경로 내 raw_explanatory_notes.txt 탐색
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        notes_path = os.path.join(parent_dir, "raw_explanatory_notes.txt")
+        if os.path.exists(notes_path):
+            parsed_notes = parse_explanatory_notes(notes_path)
+            for note in parsed_notes:
+                db_note = ExplanatoryNote(
+                    heading=note["heading"],
+                    content_ko=note["content_ko"],
+                    content_en=note["content_en"],
+                    section=note["section"],
+                    chapter=note["chapter"]
+                )
+                db.add(db_note)
+            print(f"[RAG-SEED] Successfully indexed {len(parsed_notes)} Heading nodes to DB.")
+        else:
+            print(f"[RAG-SEED] Cannot find raw_explanatory_notes.txt at {notes_path}")
 
     db.commit()
     db.close()
