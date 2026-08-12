@@ -10,14 +10,22 @@ from .seed import seed_data
 
 # DB 생성 및 초기 데이터 적재
 Base.metadata.create_all(bind=engine)
-seed_data()
 
 app = FastAPI(title="CUSWAY Backend API", version="1.0")
+
+@app.on_event("startup")
+def startup_event():
+    # 백엔드 서버 기동 시 비동기적으로(안정적으로) 데이터베이스 적재 실행
+    try:
+        seed_data()
+    except Exception as e:
+        print(f"[STARTUP] Seeding warning/error: {str(e)}")
 
 # 프론트엔드 연동을 위한 CORS 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # Vite dev server 및 실서비스 바인딩
+
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
