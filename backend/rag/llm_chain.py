@@ -62,6 +62,13 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
 
     # 1. Try Groq LPU Engine First (1st Priority: Ultra-fast, free/cost-effective)
     groq_key = os.environ.get("GROQ_API_KEY")
+    if not groq_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        gkey_path = os.path.join(parent_dir, "groq.key")
+        if os.path.exists(gkey_path):
+            with open(gkey_path, "r", encoding="utf-8") as gkf:
+                groq_key = gkf.read().strip()
+                
     if groq_key and groq_key.strip():
         try:
             url = "https://api.groq.com/openai/v1/chat/completions"

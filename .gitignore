@@ -27,3 +27,4 @@ dist-ssr
 *.db
 *.db-journal
 openai.key
+groq.key
