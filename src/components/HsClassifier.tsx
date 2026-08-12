@@ -280,52 +280,6 @@ export default function HsClassifier() {
         </div>
       </div>
 
-      {/* OpenAI User API Setting Panel */}
-      <div className="glass-panel" style={{ 
-        padding: '16px 20px', 
-        background: 'rgba(6, 182, 212, 0.04)', 
-        border: '1px solid rgba(6, 182, 212, 0.15)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={16} style={{ color: 'var(--accent-cyan)' }} />
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>
-            ⚙️ OpenAI GPT-4o 실시간 RAG AI 가동 활성화 설정 (선택 사항)
-          </span>
-        </div>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', margin: 0 }}>
-          보유하신 OpenAI API Key(sk-...)를 입력하시면, 데이터베이스에 등록된 전체 관세 해설서 내용물과 1~6 통칙을 <b>AI가 100% 실시간으로 스스로 독해</b>하여 어떠한 품목이든 한 번에 세번 분류 및 소명의견서를 실시간 자동 창조해 냅니다. (입력 시 브라우저 로컬 저장소에 안전하게 보존)
-        </p>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input 
-            type="password" 
-            placeholder="sk-................................................"
-            value={openaiKey}
-            onChange={(e) => setOpenaiKey(e.target.value)}
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              background: 'rgba(0,0,0,0.5)',
-              border: '1px solid rgba(6, 182, 212, 0.3)',
-              borderRadius: '6px',
-              color: '#fff',
-              fontSize: '0.85rem'
-            }}
-          />
-          {openaiKey && (
-            <button 
-              className="btn-secondary" 
-              onClick={() => { setOpenaiKey(''); localStorage.removeItem('openai_key'); }}
-              style={{ padding: '8px 12px', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid var(--accent-red)', color: '#fca5a5' }}
-            >
-              키 제거
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Quick Search Tool */}
       <div className="glass-panel" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)' }}>

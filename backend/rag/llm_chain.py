@@ -21,11 +21,20 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     for note in relevant_notes:
         references_text += f"\n[호 세호 코드: {note.heading}]\n- 부/류명: {note.section} / {note.chapter}\n- 해설내용: {note.content_ko[:1200]}\n"
 
-    # 2. Check OpenAI API Key. Evaluate both env key or custom client key
+    # 2. Check OpenAI API Key. Evaluate both env key or custom client key. Default to user's registered key if empty.
     api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        # Load api key from local gitignored key file
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        key_path = os.path.join(parent_dir, "openai.key")
+        if os.path.exists(key_path):
+            with open(key_path, "r", encoding="utf-8") as kf:
+                api_key = kf.read().strip()
+    
     if not api_key:
         print("[RAG-LLM] OPENAI_API_KEY not found. Fallback to local RAG offline database matcher.")
         return run_local_fallback_match(product_name, material, function_use, db)
+
 
 
     # 3. Build Prompt for GPT
