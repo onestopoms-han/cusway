@@ -85,30 +85,48 @@ def retrieve_relevant_notes(query: str, db: Session):
         return []
 
     from sqlalchemy import or_
-    filters = []
+    anchor_filters = []
+    text_filters = []
     
     # 0. Force target heading anchors into SQL candidates if query keywords match
     for kw in keywords:
         kw_lower = kw.lower()
         if kw_lower in HEADING_ANCHORS:
             for ah in HEADING_ANCHORS[kw_lower]:
-                filters.append(ExplanatoryNote.heading.like(f"%{ah}%"))
+                anchor_filters.append(ExplanatoryNote.heading.like(f"%{ah}%"))
     
     # Boost search by numeric heading queries
     for num_kw in numeric_keywords:
         formatted_num = num_kw if len(num_kw) == 2 else f"{num_kw[:2]}.{num_kw[2:]}"
-        filters.append(ExplanatoryNote.heading.like(f"%{formatted_num}%"))
+        text_filters.append(ExplanatoryNote.heading.like(f"%{formatted_num}%"))
         
     # Also add standard text matching filters (searching by normalized nouns)
     for kw in keywords[:5]: # Limit to top 5 keywords
-        filters.append(ExplanatoryNote.content_ko.like(f"%{kw}%"))
-        filters.append(ExplanatoryNote.heading.like(f"%{kw}%"))
+        text_filters.append(ExplanatoryNote.content_ko.like(f"%{kw}%"))
+        text_filters.append(ExplanatoryNote.heading.like(f"%{kw}%"))
         
-    if not filters:
+    # 1. Fetch anchor notes first with 100% priority
+    anchor_notes = []
+    if anchor_filters:
+        anchor_notes = db.query(ExplanatoryNote).filter(or_(*anchor_filters)).all()
+        
+    # 2. Fetch text notes up to the remaining limit
+    text_notes = []
+    if text_filters:
+        remaining_limit = max(0, 300 - len(anchor_notes))
+        if remaining_limit > 0:
+            text_notes = db.query(ExplanatoryNote).filter(or_(*text_filters)).limit(remaining_limit).all()
+            
+    # 3. Merge and de-duplicate candidates
+    seen_ids = set()
+    notes = []
+    for note in anchor_notes + text_notes:
+        if note.id not in seen_ids:
+            seen_ids.add(note.id)
+            notes.append(note)
+            
+    if not notes:
         return []
-        
-    # Query matching candidate notes (expanded candidate limit to avoid database truncation)
-    notes = db.query(ExplanatoryNote).filter(or_(*filters)).limit(300).all()
     
     matches = []
     for note in notes:
