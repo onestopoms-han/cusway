@@ -383,11 +383,25 @@ export default function HsClassifier() {
     }
   };
 
-  const handleManualSearch = () => {
+  const handleManualSearch = async () => {
     if (!searchKeyword.trim()) return;
     const query = searchKeyword.toLowerCase();
     
-    // Attempt standard local rules match
+    // 1. Attempt backend DB search API first
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMatchedRule(data);
+        setShowAlert(false);
+        return;
+      }
+    } catch (err) {
+      console.warn("Backend manual search offline, falling back to local routing.", err);
+    }
+
+    // 2. Attempt standard local rules match
     const found = KOREAN_HS_RULES.find(rule => 
       rule.keywordTrigger.some(k => k.toLowerCase().includes(query)) ||
       rule.recommendedHsCode.replace(/[\.\-]/g, '').includes(query) ||

@@ -282,5 +282,44 @@ def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"RAG AI 통합 프로세서 분석 도중 오류가 발생했습니다: {str(e)}")
 
+@app.get("/api/hs/search")
+def hs_manual_search_api(keyword: str, db: Session = Depends(get_db)):
+    from backend.rag.retriever import retrieve_relevant_notes
+    try:
+        notes = retrieve_relevant_notes(keyword, db)
+        if not notes:
+            raise HTTPException(status_code=404, detail="입력하신 키워드에 상응하는 해설서를 데이터베이스에서 찾을 수 없습니다.")
+        
+        # Extract best matched note
+        best_note = notes[0]
+        heading_code = best_note.heading.replace('.', '')
+        
+        # Build valid 10-digit format
+        if len(heading_code) == 2:
+            hsk_code = f"{heading_code}01.00-0000"
+        elif len(heading_code) == 4:
+            hsk_code = f"{heading_code}.10-0000"
+        else:
+            hsk_code = f"{heading_code[:4]}.90-0000"
+            
+        return {
+            "keywordTrigger": [keyword],
+            "recommendedHsCode": hsk_code,
+            "headingName": best_note.title_ko or best_note.heading,
+            "subheadingName": best_note.title_en or "Explanatory Note Lookup",
+            "confidence": 92,
+            "technicalTerms": best_note.title_en or "Explanatory Note Match",
+            "appliedGris": ["통칙 제1호", "통칙 제6호"],
+            "legalReasoning": f"가. 대상 물품 개요\n수동 검색 키워드 '{keyword}'에 의거하여 데이터베이스 검색 매칭을 수행했습니다.\n\n나. 관련 관세율표 조항\n{best_note.heading} 해설서 조문을 매칭 근거로 적용합니다.\n\n다. 해설서 상세 내용\n{best_note.content_ko[:700]}...",
+            "sectionNote": "관련 부 및 류의 해설 총설 규정 참고",
+            "chapterNote": f"제{heading_code[:2]}류 주석 규정 대조 필요",
+            "exclusionNote": "성분/포장 상태/혼합 비율에 따라 제외 조항에 저촉되는지 여부를 추가로 검토하십시오.",
+            "headingExplanation": best_note.content_ko[:450],
+            "precedents": [],
+            "competingHsCodes": []
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"수동 데이터베이스 해설서 조회 오류: {str(e)}")
+
 
 
