@@ -389,8 +389,7 @@ export default function HsClassifier() {
     
     // 1. Attempt backend DB search API first
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-      const response = await fetch(`${apiUrl}/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}`);
+      const response = await fetch(`/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}`);
       if (response.ok) {
         const data = await response.json();
         setMatchedRule(data);
