@@ -442,29 +442,31 @@ export default function App() {
               </span>
             </button>
 
-            <button 
-              onClick={() => setCurrentView('admin')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                background: currentView === 'admin' ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
-                color: currentView === 'admin' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'admin' ? 600 : 400,
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'var(--transition-smooth)'
-              }}
-            >
-              <ShieldAlert size={18} color={currentView === 'admin' ? 'var(--accent-red)' : 'gray'} />
-              <span style={{ color: currentView === 'admin' ? 'var(--accent-red)' : 'inherit' }}>
-                ⚙️ 어드민 고객관리
-              </span>
-            </button>
+            {currentUser?.email === 'admin@cusway.kr' && (
+              <button 
+                onClick={() => setCurrentView('admin')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: currentView === 'admin' ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
+                  color: currentView === 'admin' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  fontWeight: currentView === 'admin' ? 600 : 400,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'var(--transition-smooth)'
+                }}
+              >
+                <ShieldAlert size={18} color={currentView === 'admin' ? 'var(--accent-red)' : 'gray'} />
+                <span style={{ color: currentView === 'admin' ? 'var(--accent-red)' : 'inherit' }}>
+                  ⚙️ 어드민 고객관리
+                </span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -506,7 +508,7 @@ export default function App() {
         {currentView === 'cashback' && (
           <CashBackManager currentUser={currentUser} />
         )}
-        {currentView === 'admin' && (
+        {currentView === 'admin' && currentUser?.email === 'admin@cusway.kr' && (
           <AdminPortal currentUser={currentUser} />
         )}
         {currentView === 'billing' && (
