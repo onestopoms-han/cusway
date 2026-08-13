@@ -29,6 +29,29 @@ HEADING_ANCHORS = {
     "계란": ["04.07", "0407"]
 }
 
+KOREAN_TO_ENGLISH_MAP = {
+    "비타민": "vitamin",
+    "마우스": "mouse",
+    "인형": "doll",
+    "완구": "toy",
+    "로봇": "robot",
+    "로보트": "robot",
+    "달걀": "egg",
+    "계란": "egg",
+    "유리": "glass",
+    "철강": "steel",
+    "플라스틱": "plastic",
+    "컴퓨터": "computer",
+    "스마트폰": "smartphone",
+    "전화기": "telephone",
+    "텀블러": "tumbler",
+    "의약품": "medicament",
+    "화학": "chemical",
+    "의류": "clothing",
+    "신발": "footwear",
+    "모자": "headgear"
+}
+
 def normalize_korean_keyword(kw: str) -> str:
     """
     Cleans Korean particles (조사) and removes standard material/device suffixes 
@@ -110,6 +133,13 @@ def retrieve_relevant_notes(query: str, db: Session):
         text_filters.append(ExplanatoryNote.content_ko.like(f"%{kw}%"))
         text_filters.append(ExplanatoryNote.heading.like(f"%{kw}%"))
         
+        # Dual-Language Cross-Retrieval (Query English content_en if mapping exists)
+        if kw in KOREAN_TO_ENGLISH_MAP:
+            eng_kw = KOREAN_TO_ENGLISH_MAP[kw]
+            text_filters.append(ExplanatoryNote.content_en.like(f"%{eng_kw}%"))
+        elif kw.replace(' ', '').isalpha():
+            text_filters.append(ExplanatoryNote.content_en.like(f"%{kw}%"))
+        
     # 1. Fetch anchor notes first with 100% priority
     anchor_notes = []
     if anchor_filters:
@@ -153,8 +183,13 @@ def retrieve_relevant_notes(query: str, db: Session):
             if kw_lower == heading_clean or kw_lower in heading_raw:
                 score += 250
                 
-            # Factor C: Frequency score in description content
+            # Factor C: Frequency score in description content (Korean & English cross frequency)
             occurrences = content_lower.count(kw_lower)
+            if kw_lower in KOREAN_TO_ENGLISH_MAP:
+                eng_kw = KOREAN_TO_ENGLISH_MAP[kw_lower]
+                content_en_lower = note.content_en.lower() if note.content_en else ""
+                occurrences += content_en_lower.count(eng_kw)
+                
             if occurrences > 0:
                 score += (occurrences * 12)
                 score += 30
