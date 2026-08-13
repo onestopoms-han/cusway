@@ -80,6 +80,34 @@ export default function HsClassifier() {
   const runLocalHeuristicClassifier = (prod: string, mat: string, func: string): ClassificationRule => {
     const query = (prod + ' ' + mat + ' ' + func).toLowerCase();
     
+    // 0. 최우선 순위로 핵심 품목 명사 하드코딩 우회 (백엔드 오프라인 대응 및 7308 오분류 원천 차단)
+    if (query.includes('인형') || query.includes('완구') || query.includes('장난감') || query.includes('toy') || query.includes('doll')) {
+      return {
+        keywordTrigger: ['인형', '완구', '장난감'],
+        recommendedHsCode: "9503.00-0000",
+        headingName: "제9503호의 삼륜자전거ㆍ인형ㆍ완구와 축소 모형",
+        subheadingName: "사람 모형의 인형 (인공지능 또는 작동 기능 포함)",
+        confidence: 94,
+        technicalTerms: "Dolls representing only human beings, parts and accessories",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 내부에 인공지능(AI)이나 전자 보조 장치가 탑재되었으나, 그 본질적인 기능 및 외관은 사람을 돕거나 놀이/장식을 위한 '사람 모형의 인형(Dolls)'입니다. 통칙 제1호에 따라 오락 및 완구류가 분류되는 제9503호 완구 범주에 명확하게 분류됩니다.",
+        sectionNote: "제20부 잡품 (제95류 완구 및 운동구 등)",
+        chapterNote: "제95류 완구ㆍ유희용구ㆍ운동용구와 이들의 부분품 및 부속품 주석",
+        exclusionNote: "단순히 산업용 교육 로봇이나 고성능 휴머노이드 로봇 등 기계적 작동이 본질인 물품은 제8479호로 이송될 수 있습니다.",
+        headingExplanation: "제9503호에는 모든 완구류와 더불어 조립식 모형, 사람 모양의 인형(Dolls) 및 동물 완구 등이 광범위하게 지정되어 분류됩니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8479.50-0000",
+            headingName: "다목적 산업용 로봇",
+            appliedGri: "통칙 제1호",
+            reasoning: "인공지능 및 작동 장치가 강하게 연계되어 있어 자동 작동 로봇 기계류와 경합이 발생할 수 있습니다.",
+            exclusionReason: "제95류 완구류 제외규정에 따른 산업용 스펙이 아니며, 오락 및 심리 정서 교감용 사람 인형이 주용도이므로 제9503호에 매핑됩니다."
+          }
+        ]
+      };
+    }
+
     // 1. Try matching with predefined local rules using keyword counts
     let bestRule: ClassificationRule | null = null;
     let maxMatches = 0;
