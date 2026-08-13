@@ -68,14 +68,21 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 [참조 관세청 공식 결정사례 (Precedents retrieved)]
 {precedents_context}
 
-[작성 및 판정 지침]
+[작성 및 판정 지침 (Strict Verification Pipeline)]
 1. recommendedHsCode: 10자리 세번 코드를 정확하게 명시하십시오. (예: 8483.40-1000)
 2. appliedGris: 분류 시 핵심 근거가 된 관세율표 해석에 관한 일반통칙 번호(예: 통칙 제1호, 통칙 제3호 나목, 통칙 제6호)들을 배열로 반환하십시오.
-3. legalReasoning: 통칙 적용 이유와 해설서 조문 및 제시된 결정사례 내용을 논리적으로 매칭하여 왜 이 HS Code로 결정되었는지에 대한 논리를 작성하십시오.
+3. legalReasoning: 관세청 품목분류 사전심사 소명서 수준으로 정밀하게 논리를 구성하십시오. 반드시 아래의 구조로 단락을 구분하여 작성하십시오:
+   가. 대상물품 사양 및 기술적 개요 (재질, 탑재 제어 장치, 기계적 특성 명시)
+   나. 관련 관세율표 부/류 주(Note) 및 호 해설서의 제외 규정 검토
+   다. 관세율표 해석에 관한 일반통칙(GRI) 순차 적용에 따른 품목분류 판정 논리
+   라. 최종 세번 분류 결론 및 타 경합 세번 배제 이유
 4. sectionNote & chapterNote: 부의 주(Section Note) 및 류의 주(Chapter Note) 규정 중 본 품목과 관계된 실제 구절(인용구) 또는 조항을 원문에서 정확하게 찾아 명시하십시오. (예: '제84류 주 제2호 가목에 따라...')
-5. exclusionNote: 본 분류가 잘못 적용되는 것을 방지하기 위한 핵심 제외 규정(Exclusion Note)을 작성하십시오.
+5. exclusionNote: 본 분류의 오적용을 방지하기 위한 핵심 제외 규정(Exclusion Note)을 RAG 제공된 원문에서 찾아 명확히 기술하십시오.
 6. precedents: 위 제공된 [참조 관세청 공식 결정사례] 중 가장 유사한 사례들을 JSON 리스트 포맷에 맞추어 인용해 주십시오. (제공되지 않은 가짜 결정례를 상상해 만들지 마십시오)
 7. competingHsCodes: 최종 분류로 고려되었으나 아쉽게 탈락했거나, 세법상 쟁점이 될 수 있는 경쟁/경합 HS Code 리스트(최대 2개)를 분석하여 반환하십시오.
+
+[자가 검증 (Self-Correction & Refusal Rule)]
+* 분류하려는 물품이 RAG에 검색된 제외 주석(예: '다목적 로봇은 제8479호로...', '인형 모양의 것은 제9503호로...') 중 특정 호의 배제 대상에 해당할 경우, 해당 호(예: 철강제 구조물 제7308호)로의 분류를 즉각 철회(기각)하고 정합성 있는 본래의 호로 분류 방향을 재정립하여 결과를 반환하십시오.
 
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
 """
@@ -91,7 +98,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
   "confidence": 95,
   "technicalTerms": "관세 기술 표준 용어 (예: Ball Screw for Steering)",
   "appliedGris": ["적용 통칙 번호 (예: 통칙 제1호, 통칙 제6호)"],
-  "legalReasoning": "법적 품목분류 판정 논리 상세 (참조 해설 조문을 인용하여 논리적으로 서술)",
+  "legalReasoning": "법적 품목분류 판정 논리 상세 (가~라 단락 구조로 관세청 양식에 맞추어 서술)",
   "sectionNote": "부의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
   "chapterNote": "류의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
   "exclusionNote": "본 분류의 오적용을 방지하는 주요 제외 주석 요약 및 근거",

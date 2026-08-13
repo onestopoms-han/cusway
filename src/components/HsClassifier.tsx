@@ -1199,13 +1199,49 @@ export default function HsClassifier() {
                     </div>
                   </div>
 
-                  <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-                    <h4 style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '10px', fontWeight: 600 }}>
-                      AI 법적 논리 생성문 (Strict RAG)
-                    </h4>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'pre-line', lineHeight: 1.6 }}>
-                      {matchedRule.legalReasoning}
-                    </p>
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)', 
+                    padding: '20px', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--border-color)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+                      <h4 style={{ fontSize: '0.92rem', color: 'var(--accent-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        📋 관세청 품목분류 사전심사 규격 소명 리포트
+                      </h4>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
+                        WCO GRI Standard Formatting
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {matchedRule.legalReasoning.split('\n\n').map((paragraph, pIdx) => {
+                        const isTitleParagraph = paragraph.startsWith('가.') || paragraph.startsWith('나.') || paragraph.startsWith('다.') || paragraph.startsWith('라.');
+                        return (
+                          <div 
+                            key={pIdx} 
+                            style={{ 
+                              background: isTitleParagraph ? 'rgba(255,255,255,0.01)' : 'transparent',
+                              borderLeft: isTitleParagraph ? '3px solid var(--accent-primary)' : 'none',
+                              padding: isTitleParagraph ? '10px 14px' : '0 14px',
+                              borderRadius: isTitleParagraph ? '0 6px 6px 0' : '0'
+                            }}
+                          >
+                            <p style={{ 
+                              fontSize: isTitleParagraph ? '0.85rem' : '0.82rem', 
+                              fontWeight: isTitleParagraph ? 700 : 400,
+                              color: isTitleParagraph ? '#fff' : 'var(--text-muted)', 
+                              lineHeight: 1.6,
+                              whiteSpace: 'pre-line',
+                              margin: 0
+                            }}>
+                              {paragraph}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
