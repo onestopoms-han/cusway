@@ -268,10 +268,10 @@ class HsClassifyRequest(BaseModel):
 
 @app.post("/api/hs/classify")
 def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
-    from backend.rag.llm_chain import query_rag_hs_classification
+    from backend.rag.classification_processor import AICustomsClassificationProcessor
     try:
-        # Pass both env key or custom client key
-        result = query_rag_hs_classification(
+        # Execute unified customs RAG, GRI validation and tax risk assessment pipeline
+        result = AICustomsClassificationProcessor.run_classification_pipeline(
             product_name=req.product_name,
             material=req.material,
             function_use=req.function_use,
@@ -280,7 +280,7 @@ def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"RAG AI 분석 도중 오류가 발생했습니다: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"RAG AI 통합 프로세서 분석 도중 오류가 발생했습니다: {str(e)}")
 
 
 
