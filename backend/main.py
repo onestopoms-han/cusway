@@ -305,10 +305,10 @@ def hs_manual_search_api(keyword: str, db: Session = Depends(get_db)):
         return {
             "keywordTrigger": [keyword],
             "recommendedHsCode": hsk_code,
-            "headingName": best_note.title_ko or best_note.heading,
-            "subheadingName": best_note.title_en or "Explanatory Note Lookup",
+            "headingName": f"제{best_note.heading}호 관련 해설 조문",
+            "subheadingName": "Explanatory Note Lookup",
             "confidence": 92,
-            "technicalTerms": best_note.title_en or "Explanatory Note Match",
+            "technicalTerms": "Explanatory Note Match",
             "appliedGris": ["통칙 제1호", "통칙 제6호"],
             "legalReasoning": f"가. 대상 물품 개요\n수동 검색 키워드 '{keyword}'에 의거하여 데이터베이스 검색 매칭을 수행했습니다.\n\n나. 관련 관세율표 조항\n{best_note.heading} 해설서 조문을 매칭 근거로 적용합니다.\n\n다. 해설서 상세 내용\n{best_note.content_ko[:700]}...",
             "sectionNote": "관련 부 및 류의 해설 총설 규정 참고",
