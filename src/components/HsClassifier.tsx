@@ -133,7 +133,33 @@ export default function HsClassifier() {
             headingName: "비디오 게임용 콘솔과 조종기",
             appliedGri: "통칙 제1호",
             reasoning: "게임 콘솔 조작용 컨트롤러로 사용될 가능성이 있어 분류 경합이 발생할 수 있습니다.",
-            exclusionReason: "본 물품은 범용 컴퓨터의 USB/무선 포인팅 목적으로 설계되었으므로 제9504호 비디오 게임용 장치에서 제외됩니다."
+          }
+        ]
+      };
+    }
+    // 0-3. 스마트폰/휴대폰 로컬 우회 예외 처리
+    if (query.includes('스마트폰') || query.includes('휴대폰') || query.includes('phone') || query.includes('핸드폰')) {
+      return {
+        keywordTrigger: ['스마트폰', '휴대폰', '전화기'],
+        recommendedHsCode: "8517.13-0000",
+        headingName: "제8517호 (스마트폰 및 기타 송수신용 기기)",
+        subheadingName: "스마트폰 (스마트 모바일 운영체제 탑재 제품)",
+        confidence: 97,
+        technicalTerms: "Smartphones for cellular networks",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 스마트 모바일 운영체제를 탑재하여 애플리케이션 실행 및 인터넷 브라우징이 가능한 셀룰러 통신망용 전화기(스마트폰)입니다. 통칙 제1호 및 제6호에 따라 제8517.13호 스마트폰 세번에 명확히 매핑됩니다.",
+        sectionNote: "제16부 기계류 및 전자기기 주석",
+        chapterNote: "제85류 주 제5호: 스마트폰의 기술 규격 및 운영체제 관련 기준",
+        exclusionNote: "⚠️ 제외규정 통제: 단순 데이터 전송만을 수행하는 무선 동글(제8517.62호)이나 컴퓨터 전용 모뎀 장치는 본 소호에서 제외됩니다.",
+        headingExplanation: "제8517호에는 스마트폰과 함께 유선/무선 네트워크용 송수신기 및 부분품이 지정됩니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8471.30-0000",
+            headingName: "휴대용 자동자료처리기계",
+            appliedGri: "통칙 제1호",
+            reasoning: "컴퓨터의 기능을 상당 부분 수행하므로 휴대용 컴퓨터와의 경합이 발생합니다.",
+            exclusionReason: "셀룰러 전화망을 기반으로 한 음성/데이터 송수신이 주기능이므로 제8517호로 분류 우선순위를 가집니다."
           }
         ]
       };
