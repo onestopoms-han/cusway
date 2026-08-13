@@ -167,6 +167,24 @@ export default function HsClassifier() {
       };
     }
 
+    if (query.includes('인형') || query.includes('완구') || query.includes('장난감') || query.includes('doll') || query.includes('toy')) {
+      return {
+        keywordTrigger: ['인형', '완구', '장난감'],
+        recommendedHsCode: "9503.00-0000",
+        headingName: "제9503호의 삼륜자전거ㆍ인형ㆍ완구와 축소 모형",
+        subheadingName: "사람 모형의 인형 (인공지능 또는 작동 기능 포함)",
+        confidence: 94,
+        technicalTerms: "Dolls representing only human beings, parts and accessories",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 내부에 인공지능(AI)이나 전자 보조 장치가 탑재되었으나, 그 본질적인 기능 및 외관은 사람을 돕거나 놀이/장식을 위한 '사람 모형의 인형(Dolls)'입니다. 통칙 제1호에 따라 오락 및 완구류가 분류되는 제9503호 완구 범주에 명확하게 분류됩니다.",
+        sectionNote: "제20부 잡품 (제95류 완구 및 운동구 등)",
+        chapterNote: "제95류 완구ㆍ유희용구ㆍ운동용구와 이들의 부분품 및 부속품 주석",
+        exclusionNote: "단순히 산업용 교육 로봇이나 고성능 휴머노이드 로봇 등 기계적 작동이 본질인 물품은 제8479호로 이송될 수 있습니다.",
+        headingExplanation: "제9503호에는 모든 완구류와 더불어 조립식 모형, 사람 모양의 인형(Dolls) 및 동물 완구 등이 광범위하게 지정되어 분류됩니다.",
+        precedents: []
+      };
+    }
+
     // 4. Ultimate Unclassified Fallback
     return {
       keywordTrigger: [],
@@ -703,64 +721,112 @@ export default function HsClassifier() {
                 <div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>해설서 RAG 추천 HS 10단위 코드</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-                    <h3 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '1px' }} className="text-gradient">
-                      {matchedRule.recommendedHsCode}
-                    </h3>
-                    <span style={{ 
-                      background: 'rgba(16, 185, 129, 0.15)', 
-                      color: '#10b981', 
-                      fontSize: '0.8rem', 
-                      padding: '4px 10px', 
-                      borderRadius: '12px', 
-                      fontWeight: 700 
-                    }}>
-                      분류 신뢰도 {matchedRule.confidence}%
-                    </span>
+                    {matchedRule.recommendedHsCode === "0000.00-0000" ? (
+                      <h3 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '1px', color: 'var(--accent-red)' }}>
+                        판정 보류 (분류 불가)
+                      </h3>
+                    ) : (
+                      <h3 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '1px' }} className="text-gradient">
+                        {matchedRule.recommendedHsCode}
+                      </h3>
+                    )}
+                    
+                    {matchedRule.recommendedHsCode === "0000.00-0000" ? (
+                      <span style={{ 
+                        background: 'rgba(239, 68, 68, 0.15)', 
+                        color: 'var(--accent-red)', 
+                        fontSize: '0.8rem', 
+                        padding: '4px 10px', 
+                        borderRadius: '12px', 
+                        fontWeight: 700 
+                      }}>
+                        신뢰도 등급: 불능 (0%)
+                      </span>
+                    ) : (
+                      <span style={{ 
+                        background: matchedRule.confidence >= 90 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)', 
+                        color: matchedRule.confidence >= 90 ? '#10b981' : 'var(--accent-amber)', 
+                        fontSize: '0.8rem', 
+                        padding: '4px 10px', 
+                        borderRadius: '12px', 
+                        fontWeight: 700 
+                      }}>
+                        신뢰도 등급: {matchedRule.confidence >= 90 ? '확실 (상)' : '검토필요 (중)'} ({matchedRule.confidence}%)
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Human-in-the-Loop Approval Action */}
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button 
-                    onClick={() => setApprovedStatus(true)}
-                    style={{
-                      background: approvedStatus === true ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
-                      color: approvedStatus === true ? '#fff' : '#10b981',
-                      border: '1px solid #10b981',
-                      borderRadius: '6px',
-                      padding: '8px 16px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <ShieldCheck size={16} /> {approvedStatus === true ? '관세사 최종 확인완료' : '세율 적용 확정 승인'}
-                  </button>
+                  {matchedRule.recommendedHsCode !== "0000.00-0000" && (
+                    <button 
+                      onClick={() => setApprovedStatus(true)}
+                      style={{
+                        background: approvedStatus === true ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
+                        color: approvedStatus === true ? '#fff' : '#10b981',
+                        border: '1px solid #10b981',
+                        borderRadius: '6px',
+                        padding: '8px 16px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <ShieldCheck size={16} /> {approvedStatus === true ? '관세사 최종 확인완료' : '세율 적용 확정 승인'}
+                    </button>
+                  )}
                 </div>
               </div>
 
               {/* Exclusion Note Highlight Alert (Critical for Customs Clearance) */}
-              <div style={{ 
-                background: 'rgba(239, 68, 68, 0.08)', 
-                border: '1px solid rgba(239, 68, 68, 0.25)', 
-                borderRadius: '8px', 
-                padding: '12px 16px', 
-                marginBottom: '16px',
-                fontSize: '0.8rem',
-                color: '#fca5a5',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px'
-              }}>
-                <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--accent-red)' }} />
-                <div>
-                  <span style={{ fontWeight: 700, display: 'block', marginBottom: '2px' }}>분류 제외 규정 통제 조건 (Exclusion Check)</span>
-                  {matchedRule.exclusionNote}
+              {matchedRule.recommendedHsCode === "0000.00-0000" ? (
+                <div style={{ 
+                  background: 'rgba(239, 68, 68, 0.12)', 
+                  border: '1px solid rgba(239, 68, 68, 0.4)', 
+                  borderRadius: '8px', 
+                  padding: '16px', 
+                  marginBottom: '16px',
+                  fontSize: '0.82rem',
+                  color: '#fca5a5',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px'
+                }}>
+                  <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--accent-red)' }} />
+                  <div>
+                    <span style={{ fontWeight: 800, display: 'block', marginBottom: '4px', fontSize: '0.9rem' }}>⚠️ 품목 분류 판단 불가 안내</span>
+                    입력하신 사양정보(제품명, 재질 및 주요 용도)만으로는 세부 호(Heading) 및 통칙 적용 범위를 명확하게 매칭할 수 없습니다. 
+                    <ul style={{ margin: '6px 0 0 16px', padding: 0, listStyleType: 'disc', lineHeight: 1.5 }}>
+                      <li>보다 구체적인 거래 품명 또는 상업 용어를 사용해 주십시오. (예: 단순히 '전자기기' 대신 '무선 송수신기')</li>
+                      <li>주요 원재료의 구성 비율(%) 또는 기계의 작동 원리를 구체화해 주십시오.</li>
+                      <li>로컬 백엔드 RAG 엔진 서버 기동 여부와 OpenAI API 키 설정을 점검하십시오.</li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div style={{ 
+                  background: 'rgba(239, 68, 68, 0.08)', 
+                  border: '1px solid rgba(239, 68, 68, 0.25)', 
+                  borderRadius: '8px', 
+                  padding: '12px 16px', 
+                  marginBottom: '16px',
+                  fontSize: '0.8rem',
+                  color: '#fca5a5',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px'
+                }}>
+                  <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--accent-red)' }} />
+                  <div>
+                    <span style={{ fontWeight: 700, display: 'block', marginBottom: '2px' }}>분류 제외 규정 통제 조건 (Exclusion Check)</span>
+                    {matchedRule.exclusionNote}
+                  </div>
+                </div>
+              )}
 
               {/* Attached Specifications/Images inside Results */}
               {attachedFile && (
@@ -795,16 +861,18 @@ export default function HsClassifier() {
               )}
 
               {/* Hierarchy Tree */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px' }}>
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>4단위 (호의 용어)</span>
-                  <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.headingName}</p>
+              {matchedRule.recommendedHsCode !== "0000.00-0000" && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>4단위 (호의 용어)</span>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.headingName}</p>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>6단위 (소호의 용어)</span>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.subheadingName}</p>
+                  </div>
                 </div>
-                <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>6단위 (소호의 용어)</span>
-                  <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.subheadingName}</p>
-                </div>
-              </div>
+              )}
             </div>
           ) : (
             <div className="glass-panel" style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
