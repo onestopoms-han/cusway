@@ -104,5 +104,24 @@ class AICustomsClassificationProcessor:
             # Downgrade to warnings-hold
             result_dict["recommendedHsCode"] = "0000.00-0000"
 
+        # ----------------------------------------------------
+        # Phase 5-2: Real-time HS Code Master validation & autofill
+        # ----------------------------------------------------
+        raw_hs = result_dict.get("recommendedHsCode", "")
+        if raw_hs and raw_hs != "0000.00-0000":
+            from backend.models import HSCodeMaster
+            
+            clean_hs = raw_hs.replace('.', '').replace('-', '')
+            master_rec = db.query(HSCodeMaster).filter(
+                (HSCodeMaster.hs_code == raw_hs) | (HSCodeMaster.hs_code == clean_hs)
+            ).first()
+            
+            if master_rec:
+                result_dict["headingName"] = master_rec.name_ko
+                result_dict["subheadingName"] = master_rec.name_en or ""
+                print(f"[PROCESSOR] Matched official master names: {master_rec.name_ko} ({master_rec.name_en})")
+            else:
+                print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
+
         print(f"[PROCESSOR] Pipeline execution completed successfully. HS Code matched: {result_dict.get('recommendedHsCode')}")
         return result_dict

@@ -83,3 +83,13 @@ class CustomsPrecedent(Base):
     date = Column(String, nullable=True)
 
 
+class HSCodeMaster(Base):
+    __tablename__ = "hs_code_master"
+
+    hs_code = Column(String, primary_key=True, index=True)
+    hscode_length = Column(Integer, nullable=False)
+    name_ko = Column(String, nullable=False)
+    name_en = Column(String, nullable=True)
+
+
+
