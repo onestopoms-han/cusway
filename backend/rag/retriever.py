@@ -5,8 +5,39 @@ from backend.models import ExplanatoryNote, CustomsPrecedent
 # Common Korean customs query stopwords
 STOPWORDS = {
     "재질", "용도", "기능", "구성", "성분", "물품", "제품", "수입", "대상", 
-    "분류", "추천", "기계", "장치", "기구", "사용", "제조", "제작", "부품", "도면"
+    "분류", "추천", "기계", "장치", "기구", "사용", "제조", "제작", "부품", "도면",
+    "속에", "속에는", "대신", "대신해주고", "할수", "할수있는", "있는", "있고", "탑제된", 
+    "탑재된", "인간의", "일을", "하고", "하는", "으로", "에서", "은", "는", "이", "가", "외형"
 }
+
+# Core customs terms heavy boosts to guarantee accurate chapter RAG anchoring
+CORE_KEYWORDS = {
+    "인형": 800, "로봇": 800, "로보트": 800, "완구": 800, "장난감": 800, 
+    "반도체": 600, "전동기": 500, "모터": 500, "유리": 400, "텀블러": 400, 
+    "파스타": 500, "국수": 500, "발전기": 500, "스마트폰": 600, "전화기": 500
+}
+
+def normalize_korean_keyword(kw: str) -> str:
+    """
+    Cleans Korean particles (조사) and removes standard material/device suffixes 
+    to extract pure search stems.
+    """
+    kw = kw.strip().lower()
+    suffixes = ["은", "는", "이", "가", "을", "를", "의", "에", "와", "과", "로", "으로", "에서", "한", "된", "용", "제"]
+    for s in suffixes:
+        if len(kw) > len(s) + 1 and kw.endswith(s):
+            kw = kw[:-len(s)]
+            break
+            
+    if len(kw) > 3:
+        for kw_end in ["재질", "성분", "제품", "장치", "기구", "로보트"]:
+            if kw.endswith(kw_end):
+                if kw_end == "로보트":
+                    kw = kw[:-3] + "로봇"
+                else:
+                    kw = kw[:-len(kw_end)]
+                break
+    return kw
 
 def retrieve_relevant_notes(query: str, db: Session):
     """
@@ -17,16 +48,25 @@ def retrieve_relevant_notes(query: str, db: Session):
         return []
 
     # 1. HS Code / Heading detection (e.g. 8483, 85, 3920.10)
-    # Extract digit sequences of length 2 to 4 representing chapter or heading
     numeric_keywords = re.findall(r'\b\d{2,4}\b', query)
     
-    # Clean query and parse standard text keywords
+    # Clean query and parse/normalize text keywords
     raw_keywords = [kw.strip() for kw in re.split(r'[\s,\.\-\(\)]+', query) if len(kw.strip()) >= 2]
-    keywords = [kw for kw in raw_keywords if kw not in STOPWORDS]
     
-    # If standard keywords are empty due to filtering, revert to raw keywords to avoid empty search
+    normalized = []
+    for rk in raw_keywords:
+        nk = normalize_korean_keyword(rk)
+        if len(nk) >= 2 and nk not in STOPWORDS:
+            normalized.append(nk)
+            
+    # De-duplicate keywords while preserving order
+    keywords = []
+    for k in normalized:
+        if k not in keywords:
+            keywords.append(k)
+            
     if not keywords:
-        keywords = raw_keywords
+        keywords = [normalize_korean_keyword(rk) for rk in raw_keywords]
     
     if not keywords and not numeric_keywords:
         return []
@@ -36,12 +76,11 @@ def retrieve_relevant_notes(query: str, db: Session):
     
     # Boost search by numeric heading queries
     for num_kw in numeric_keywords:
-        # Match as prefix or exact heading string format (e.g. 84.83 or 84)
         formatted_num = num_kw if len(num_kw) == 2 else f"{num_kw[:2]}.{num_kw[2:]}"
         filters.append(ExplanatoryNote.heading.like(f"%{formatted_num}%"))
         
-    # Also add standard text matching filters
-    for kw in keywords[:4]: # Limit to top 4 text keywords to avoid complex SQL execution
+    # Also add standard text matching filters (searching by normalized nouns)
+    for kw in keywords[:5]: # Limit to top 5 keywords
         filters.append(ExplanatoryNote.content_ko.like(f"%{kw}%"))
         filters.append(ExplanatoryNote.heading.like(f"%{kw}%"))
         
@@ -49,7 +88,7 @@ def retrieve_relevant_notes(query: str, db: Session):
         return []
         
     # Query matching candidate notes
-    notes = db.query(ExplanatoryNote).filter(or_(*filters)).limit(60).all()
+    notes = db.query(ExplanatoryNote).filter(or_(*filters)).limit(80).all()
     
     matches = []
     for note in notes:
@@ -58,26 +97,29 @@ def retrieve_relevant_notes(query: str, db: Session):
         heading_clean = note.heading.replace('.', '')
         heading_raw = note.heading
         
-        # Factor A: Exact/partial heading code matching (highest priority)
+        # Factor A: Exact/partial heading code matching
         for num_kw in numeric_keywords:
             if num_kw == heading_clean:
-                score += 800  # Exact heading number match (e.g. "8483" -> "84.83")
+                score += 1500  # Elevated exact code weight
             elif num_kw in heading_clean:
-                score += 300  # Chapter or sub-part number match
+                score += 500
         
         # Factor B: Keyword match in heading title/code
         for kw in keywords:
             kw_lower = kw.lower()
             if kw_lower == heading_clean or kw_lower in heading_raw:
-                score += 150
+                score += 250
                 
             # Factor C: Frequency score in description content
             occurrences = content_lower.count(kw_lower)
             if occurrences > 0:
-                # Add score proportional to occurrence frequency
-                score += (occurrences * 8)
-                # Small bonus for uniqueness/distinct match
-                score += 20
+                score += (occurrences * 12)
+                score += 30
+                
+            # Factor D: Core keyword heavy boost to prevent irrelevant heading takeovers
+            if kw_lower in CORE_KEYWORDS:
+                if kw_lower in content_lower or kw_lower in heading_raw:
+                    score += CORE_KEYWORDS[kw_lower]
                 
         if score > 0:
             matches.append((note, score))
