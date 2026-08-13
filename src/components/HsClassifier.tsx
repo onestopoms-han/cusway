@@ -899,16 +899,23 @@ export default function HsClassifier() {
                         신뢰도 등급: 불능 (0%)
                       </span>
                     ) : (
-                      <span style={{ 
-                        background: matchedRule.confidence >= 90 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)', 
-                        color: matchedRule.confidence >= 90 ? '#10b981' : 'var(--accent-amber)', 
-                        fontSize: '0.8rem', 
-                        padding: '4px 10px', 
-                        borderRadius: '12px', 
-                        fontWeight: 700 
-                      }}>
-                        신뢰도 등급: {matchedRule.confidence >= 90 ? '확실 (상)' : '검토필요 (중)'} ({matchedRule.confidence}%)
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                        <span style={{ 
+                          background: matchedRule.confidence >= 90 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)', 
+                          color: matchedRule.confidence >= 90 ? '#10b981' : 'var(--accent-amber)', 
+                          fontSize: '0.8rem', 
+                          padding: '4px 10px', 
+                          borderRadius: '12px', 
+                          fontWeight: 700 
+                        }}>
+                          신뢰도 등급: {matchedRule.confidence >= 90 ? '확실 (상)' : '검토필요 (중)'} ({matchedRule.confidence}%)
+                        </span>
+                        {matchedRule.validation_attempts && (
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                            🛡️ AI 다단계 교차 검증 감사 완료 ({matchedRule.validation_attempts} Pass)
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

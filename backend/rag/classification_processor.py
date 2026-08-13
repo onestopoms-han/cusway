@@ -27,19 +27,47 @@ class AICustomsClassificationProcessor:
         relevant_precedents = retrieve_relevant_precedents(combined_query, db)
 
         # ----------------------------------------------------
-        # Phase 2: Classification (Runs through LLM Chain with CoT guidelines)
+        # Phase 2: Classification (Runs through LLM Chain with Iterative Feedback Loop up to 3 retries)
         # ----------------------------------------------------
-        # The query_rag_hs_classification handles the LLM RAG prompts and fallbacks
         result_dict = query_rag_hs_classification(product_name, material, function_use, db, custom_key)
 
         # ----------------------------------------------------
-        # Phase 3: Legal Consistency & Exclusions Validation
+        # Phase 3: Legal Consistency & Exclusions Validation with Self-Correction Loop
         # ----------------------------------------------------
-        # Validate logic and note exclusions
-        validation_results = HSConsistencyValidator.compute_consistency_score(result_dict)
+        max_retries = 3
+        validation_results = {"consistency_score": 0, "status": "FAIL", "warnings": []}
+        
+        for attempt in range(max_retries):
+            validation_results = HSConsistencyValidator.compute_consistency_score(result_dict)
+            
+            # If no warnings and hs code is resolved, we exit early (Success)
+            if not validation_results["warnings"] and result_dict.get("recommendedHsCode") != "0000.00-0000":
+                print(f"[PROCESSOR] Attempt {attempt+1}: Verification passed with no warnings.")
+                break
+                
+            if attempt == max_retries - 1:
+                print(f"[PROCESSOR] Attempt {attempt+1}: Maximum feedback retries reached. Retaining final version.")
+                break
+                
+            # If warnings exist or classification failed, format feedback prompt and re-run LLM
+            print(f"[PROCESSOR] Attempt {attempt+1}: Inconsistency/Fail detected. Warnings: {validation_results['warnings']}")
+            
+            feedback_msg = (
+                f"당신의 이전 분류 결과 {result_dict.get('recommendedHsCode')} ({result_dict.get('headingName')}) 에 다음 법적 모순 및 제외 조항 저촉 경고가 감지되었습니다:\n"
+                + "\n".join([f"- {w}" for w in validation_results["warnings"]])
+                + "\n\n이 제외 조항과 모순을 철저히 대조하여 본 물품에 합당한 세번(GRI 통칙에 입각한 대체 세번)으로 엄격하게 수정하여 반환하십시오."
+            )
+            
+            # Re-query LLM with feedback prompt
+            result_dict = query_rag_hs_classification(
+                product_name, material, function_use, db, custom_key,
+                feedback_prompt=feedback_msg
+            )
+
         result_dict["consistency_score"] = validation_results["consistency_score"]
         result_dict["consistency_status"] = validation_results["status"]
         result_dict["consistency_warnings"] = validation_results["warnings"]
+        result_dict["validation_attempts"] = attempt + 1
 
         # ----------------------------------------------------
         # Phase 4: Post-Clearance Audit (PCA) Tax Risk Assessment
