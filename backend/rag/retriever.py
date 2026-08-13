@@ -72,14 +72,16 @@ def retrieve_relevant_notes(query: str, db: Session):
         if len(nk) >= 2 and nk not in STOPWORDS:
             normalized.append(nk)
             
-    # De-duplicate keywords while preserving order
+    # De-duplicate keywords while preserving order, and drop single-letter alphabets to prevent score pollution
     keywords = []
     for k in normalized:
         if k not in keywords:
-            keywords.append(k)
+            # Exclude single English letter (e.g. 'c', 'd', 'a')
+            if not (len(k) == 1 and k.isalpha()):
+                keywords.append(k)
             
     if not keywords:
-        keywords = [normalize_korean_keyword(rk) for rk in raw_keywords]
+        keywords = [normalize_korean_keyword(rk) for rk in raw_keywords if not (len(rk) == 1 and rk.isalpha())]
     
     if not keywords and not numeric_keywords:
         return []
