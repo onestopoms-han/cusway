@@ -6,8 +6,36 @@ from sqlalchemy.orm import Session
 
 from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_precedents
 from backend.rag.rules import KOREAN_HS_RULES
+from backend.rag.hs_validator import HSConsistencyValidator
 
 def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
+    """
+    Wrapper around RAG classification flow that appends legal consistency validation.
+    """
+    result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key)
+    
+    # Inject variables for validator context
+    result_dict["product_name"] = product_name
+    result_dict["material"] = material
+    
+    # Run Validator
+    validation = HSConsistencyValidator.compute_consistency_score(result_dict)
+    
+    # Merge validation results
+    result_dict["consistency_score"] = validation["consistency_score"]
+    result_dict["consistency_status"] = validation["status"]
+    result_dict["consistency_warnings"] = validation["warnings"]
+    
+    # If consistency score is too low, downgrade the confidence
+    if validation["consistency_score"] < 60:
+        result_dict["confidence"] = min(result_dict["confidence"], 50)
+        # Force code to unclassified format if completely inconsistent
+        if validation["consistency_score"] < 30:
+            result_dict["recommendedHsCode"] = "0000.00-0000"
+            
+    return result_dict
+
+def _query_rag_hs_classification_raw(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
     """
     RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
     with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.

@@ -40,6 +40,9 @@ export interface ClassificationRule {
   exclusionNote: string;       // 제외 규정 (가장 중요한 제외 주석)
   headingExplanation: string;  // 호 해설서 요약
   precedents: Precedent[];
+  consistency_score?: number;
+  consistency_status?: string;
+  consistency_warnings?: string[];
 }
 
 import { KOREAN_HS_RULES } from '../data/rules';
@@ -916,6 +919,49 @@ export default function HsClassifier() {
                   </div>
                 </div>
               </div>
+
+              {/* 법적 정합성 검증 엔진 분석 결과 노출 (GRI Validator Results) */}
+              {matchedRule.consistency_score !== undefined && (
+                <div style={{
+                  background: matchedRule.consistency_score >= 85 ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.06)',
+                  border: `1px solid ${matchedRule.consistency_score >= 85 ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.25)'}`,
+                  borderRadius: '8px',
+                  padding: '14px 18px',
+                  marginBottom: '20px',
+                  fontSize: '0.82rem'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontWeight: 700, color: matchedRule.consistency_score >= 85 ? '#10b981' : 'var(--accent-red)' }}>
+                      ⚖️ 관세율표 일반통칙(GRI) 및 부/류 주석 검증 리포트
+                    </span>
+                    <span style={{ 
+                      background: matchedRule.consistency_score >= 85 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                      color: matchedRule.consistency_score >= 85 ? '#10b981' : 'var(--accent-red)',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      fontWeight: 700,
+                      fontSize: '0.72rem'
+                    }}>
+                      정합 점수: {matchedRule.consistency_score}점
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, color: '#fff', fontWeight: 600 }}>
+                    판정 분류 등급: <span style={{ color: matchedRule.consistency_score >= 85 ? '#10b981' : 'var(--accent-amber)' }}>{matchedRule.consistency_status}</span>
+                  </p>
+                  
+                  {matchedRule.consistency_warnings && matchedRule.consistency_warnings.length > 0 && (
+                    <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px', color: '#fca5a5', fontSize: '0.78rem', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--accent-amber)', display: 'block', marginBottom: '2px' }}>⚠️ 확인된 법적 모순 사항:</span>
+                      {matchedRule.consistency_warnings.map((warn, wIdx) => (
+                        <div key={wIdx} style={{ display: 'flex', gap: '6px', alignItems: 'flex-start', lineHeight: 1.4 }}>
+                          <span>•</span>
+                          <span>{warn}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Tabs Navigator */}
               <div style={{ display: 'flex', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', marginBottom: '16px' }}>
