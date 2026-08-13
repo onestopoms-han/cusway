@@ -1,19 +1,62 @@
-const fs = require('fs');
-const path = require('path');
-
-const filePath = 'c:/Users/PJH/onestop-ai-custom-service/src/data/explanatory_notes/chapter_86.json';
-
-const newEntry = {
-  "chapter": "86",
-  "titleKo": "제86류 - 철도용이나 궤도용 기관차ㆍ차량과 이들의 부분품, 철도용이나 궤도용 장비품과 그 부분품, 기계식(전기기계식을 포함한다) 각종 교통신호용 기기",
-  "titleEn": "Chapter 86 - Railway or tramway locomotives, rolling-stock and parts thereof; railway or tramway track fixtures and fittings and parts thereof; mechanical (including electro-mechanical) traffic signalling equipment of all kinds",
-  "contentKo": "제86류에는 철도 및 궤도용 기관차, 차량, 그 부분품(대차 보기, 차륜, 완충기 등), 궤도용 장비품 및 교통신호/안전기기(기계식 및 전기기계식), 그리고 복합 수송용 컨테이너를 분류한다.\n\n[주규정 요약]\n1. 제외 물품 (주 제1호) :\n - 가. 목재/콘크리트제 침목 및 호버트레인 가이드트랙 (제4406호 또는 제6810호)\n - 나. 제7302호의 철강제 궤도건설 재료(레일, 크로싱, 전환궤조 등)\n - 다. 제8530호의 전기식 신호/안전/교통관제 기기\n2. 부분품 범위 (주 제2호) : 차축, 차륜, 대차(보기, 비셀보기), 언더프레임, 차축함(축박스), 제동기(브레이크 장치), 완충기, 연결기, 차체 등은 제8607호의 부분품에 포함된다.\n3. 선로장비품 범위 (주 제3호) : 조립된 선로, 전차대, 플랫폼 완충기, 로딩게이지 및 완목신호기, 기계식 신호판 등 기계식(전기기계식 포함) 신호/관제 기기가 제8608호에 해당된다.\n\n[총설 요약]\n- '철도'와 '궤도'는 철강제 궤도 외에 콘크리트 가이드 및 자기부유식 시스템도 포함한다.\n- 공기완충식 호버트레인 가이드트랙 차량 및 관련 기기도 본 류에 분류된다.\n- 미완성 차량(엔진 없는 차체, 시트 없는 객차 등)도 본질적 특성을 갖추면 완제품으로 분류하나, 대차 언더프레임에 장착되지 않은 차체는 제8607호의 부분품으로 분류한다.\n- 놀이공원용 탈것, 완구용 기차는 제95류, 기차 실장형 포(砲)는 제93류로 제외된다.",
-  "contentEn": "Chapter 86 covers railway or tramway locomotives and rolling-stock, their parts, track fixtures and fittings, mechanical (including electro-mechanical) signalling and traffic control equipment, and multi-mode cargo containers.\n\n[Key Chapter Notes Summary]\n- Note 1 (Exclusions): Excludes railway sleepers of wood/concrete (44.06/68.10), track construction material of iron/steel (73.02), and electrical signalling/traffic control equipment of heading 85.30.\n- Note 2 (Parts of 86.07): Specifically covers axles, wheels, bogies, bisel-bogies, axle boxes, brake gear, buffers, couplers, and coachwork.\n- Note 3 (Track fixtures of 86.08): Covers assembled track, turntables, platform buffers, loading gauges, and mechanical (or electro-mechanical) signalling/control equipment (semaphores, crossing control gear, etc.).\n\n[General Explanatory Notes Summary]\n- 'Railway' and 'tramway' include steel rails as well as concrete guide tracks and magnetic levitation systems.\n- Air-cushion vehicles designed for guide tracks (hovertrains) and their track fittings are covered here.\n- Incomplete vehicles (e.g. body without engine or seats) are classified as complete vehicles, whereas bodies not mounted on underframes fall under parts (86.07).\n- Excludes toy trains (95.03), amusement rides (95.08), and armored railway cars with weapons (93.01)."
-};
-
-try {
-  fs.writeFileSync(filePath, JSON.stringify([newEntry], null, 2), 'utf8');
-  console.log("✅ Successfully updated chapter_86.json with English text!");
-} catch (e) {
-  console.error("❌ Error writing chapter_86.json:", e.message);
-}
+[
+  {
+    "hsCode": "8601",
+    "titleKo": "86.01 - 철도용 기관차(외부 전원이나 축전지로 주행하는 것으로 한정한다)",
+    "titleEn": "86.01 - Rail locomotives powered from an external source of electricity or by electric accumulators.",
+    "contentKo": "이 호에는 외부 전원(제3궤조 레일이나 가공 전선 등) 또는 자체에 탑재된 축전지(배터리)로부터 에너지를 공급받아 작동하는 모든 종류의 전기식 철도 기관차를 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n- 외부 전원식 전기기관차(제8601.10호)\n- 축전지식 전기기관차(제8601.20호)",
+    "contentEn": "This heading covers all electric rail locomotives, whether powered from an external source of electricity (via a third rail or overhead line) or from electric accumulators (batteries) carried on the vehicle."
+  },
+  {
+    "hsCode": "8602",
+    "titleKo": "86.02 - 그 밖의 철도용 기관차와 탄수차(炭水車)",
+    "titleEn": "86.02 - Other rail locomotives; locomotive tenders.",
+    "contentKo": "이 호에는 제86.01호(외부 전원/축전지식) 이외의 전력원/동력원을 사용하여 구동되는 모든 종류의 철도 기관차 및 탄수차(증기기관차에 연결되어 연료와 물을 운반하는 전용 차량)를 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n(A) 기관차\n- 디젤 전기기관차(diesel-electric locomotive) : 디젤 엔진으로 발전기를 돌려 생성된 전기로 모터를 구동하는 전기 전동식 기관차.\n- 디젤 유압식 기관차 및 디젤 기계식 기관차.\n- 증기기관차(터빈식, 탱크식, 무화력 증기 축압식 포함).\n- 가스터빈 기관차 등 기타 엔진 구동식 기관차.\n- 소형 분기 및 입환용(shunting) 기관차.\n(B) 탄수차(tender)\n- 증기기관차용 석탄/물/연료유 탱크 전용 결합 차량.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 도로와 철도 궤도 양용 주행 트랙터 (제8701호)",
+    "contentEn": "This heading covers all types of rail locomotives powered by systems other than those of heading 86.01 (e.g. diesel engines, steam engines, gas turbines, compressed air), and locomotive tenders (vehicles coupled to steam locomotives carrying water and fuel).\n\nIt includes :\n- Diesel-electric, diesel-hydraulic, and diesel-mechanical locomotives.\n- Steam locomotives of all kinds (including fireless locomotives with a steam reservoir).\n- Shunting locomotives (tractors) designed to shunt wagons at stations.\n- Locomotive tenders consisting of a frame carrying a water cistern and a coal box or oil tank.\n\nExcludes tractors designed to travel on both road and rail (heading 87.01)."
+  },
+  {
+    "hsCode": "8603",
+    "titleKo": "86.03 - 자주식(自走式) 철도용이나 궤도용 객차와 화차(제8604호의 것은 제외한다)",
+    "titleEn": "86.03 - Self-propelled railway or tramway coaches, vans and trucks, other than those of heading 86.04.",
+    "contentKo": "이 호에는 자체 동력 장치를 갖추고 직접 승객이나 화물을 실어 나르는 자주식(동력 분산식) 철도/궤도 객차, 밴(van), 화차 및 트럭을 분류한다. 기관차(제8601호, 제8602호)와 구별된다.\n\n이 호에는 다음의 물품을 포함한다.\n- 전동 객차 및 전차(tram) : 가공 가선이나 제3궤조를 통해 외부에서 전류를 급전받는 지하철, 도시철도용 모터 카 객차(제8603.10호).\n- 디젤 동력차 및 내연기관식 레일카 (디젤 액체식, 디젤 전기식 등).\n- 축전지(배터리) 구동식 자주식 객차/화차.\n- 자이로 드라이브식 궤도차(electro-gyro rail vehicle).\n- 랙 레일(rack-rail) 톱니바퀴식 산악 궤도 자주식 차량.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 전철 바퀴(철도 레일 주행용 휠)로 교체하여 레일에서 주행할 수 있으나 본질적으로 도로 주행용 차량인 개조 카 (제8702호 또는 제8704호)\n(b) 철도 유지보수/점검용 자주식 차량 (제8604호)",
+    "contentEn": "This heading covers self-propelled railway or tramway coaches, vans, and trucks designed to carry passengers or goods. Unlike locomotives, they combine a power unit and carrying space.\n\nIt includes :\n- Electrically-propelled coaches and trams powered from an external source (via pantograph, trolley, or third rail).\n- Motorised rail-cars driven by diesel or other internal combustion engines (with solid, pneumatic, or rack-rail tyres).\n- Accumulator-powered self-propelled rail vehicles.\n- Electro-gyro rail vehicles storing energy in a high-speed flywheel.\n\nExcludes road vehicles convertible to railcars simply by changing wheels and locking steering (heading 87.02 or 87.04)."
+  },
+  {
+    "hsCode": "8604",
+    "titleKo": "86.04 - 철도나 궤도의 유지용이나 보수용 차량[자주식(自走式)의 것인지에 상관없다][예: 공작차(workshop)ㆍ기중기차(crane)ㆍ밸러스트 템퍼(ballast tamper)ㆍ트랙라이너(trackliner)ㆍ검사차ㆍ궤도검사차]",
+    "titleEn": "86.04 - Railway or tramway maintenance or service vehicles, whether or not self-propelled (for example, workshops, cranes, ballast tampers, trackliners, testing coaches and track inspection trolleys).",
+    "contentKo": "이 호에는 철도 선로의 신설, 유지보수, 청소, 시설 안전 검사 등에 특화되어 제작된 철도차량(자주식 여부 무관)을 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n(1) 설비차량 : 발전기, 리프팅 잭, 용접기 등을 구비한 공작차(workshop).\n(2) 기중기차(crane vehicle) : 전복 차량 인양 및 레일 부설용 기중기가 장착된 차량.\n(3) 윈치 트럭(winch truck) 및 가설용 발판 차량(scaffold truck).\n(4) 청소 및 자갈 다짐용 차량 : 밸러스트 탬퍼(ballast tamper), 자갈 살포차 등.\n(5) 트랙라이너(trackliner) 및 궤도 부설용 기계가 내장된 자주식 차량.\n(6) 살수/살충 분사차(제초제 분포차).\n(7) 궤도 검사 및 측정차 : 레일 결함 감지, 중량 하중 측정, 궤도 불규칙 측정 센서 및 기기가 탑재된 시험용 차량(testing coach).\n(8) 보수 요원 및 기자재 수송용 자주식/비자주식 트롤리(레일 사이클 rail cycle 포함).\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 철도 차량 섀시 구조로 일체화되어 조립되지 않고, 단순히 바퀴가 달린 플랫폼 위에 얹어 놓아 독립적으로 이동하는 기계 및 측정기 (각 해당 호, 예: 제84류, 제90류)",
+    "contentEn": "This heading covers vehicles specially designed for the construction, maintenance, and service of railway or tramway tracks or lines, whether or not self-propelled.\n\nIt includes :\n- Workshop vehicles fitted with tools, welding apparatus, jacks, hoists, generators, etc.\n- Crane vehicles for clearing wrecks, laying track, or loading/unloading cargo at stations.\n- Winch trucks, scaffold trucks, cement mixer trucks for track base installation, and herbicide spray cars.\n- Ballast tampers, trackliners, and other specialized track maintenance machinery.\n- Testing coaches and track inspection cars (e.g. for testing bridges, measuring track deflection, registering track irregularities).\n- Inspection trolleys (including motorized or hand-propelled rail cycles).\n\nExcludes machines or measuring instruments mounted on simple wheeled platforms rather than on a true railway chassis/trolley (headings such as 84.25, 84.26, 84.28, 84.30, etc.)."
+  },
+  {
+    "hsCode": "8605",
+    "titleKo": "86.05 - 철도용이나 궤도용 객차[자주식(自走式)은 제외한다], 수하물차ㆍ우편차와 그 밖의 철도용이나 궤도용 특수용도차[자주식(自走式)과 제8604호의 것은 제외한다]",
+    "titleEn": "86.05 - Railway or tramway passenger coaches, not self-propelled; luggage vans, post office coaches and other special purpose railway or tramway coaches, not self-propelled (other than those of heading 86.04).",
+    "contentKo": "이 호에는 자주식(자체 구동 모터 장착형)이 아니며, 주로 여객열차 등에 연결되어 승객 수송 및 우편/수하물 수송, 혹은 특수 공공 목적에 사용되는 무동력(피견인식) 철도/궤도용 객차와 특수용도차를 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n(1) 일반 여객용 객차(1등석, 2등석 등) 및 침대차(couchette), 식당차, 전망차, 카페차, 연회차.\n(2) 케이블카 객차 및 케이블 철도용 객차(funicular railway coach).\n(3) 전차(노면전차)용 무동력 트레일러 객차.\n(4) 광산의 갱내 요원 수송용 특수 객차.\n(5) 승무원/철도원의 취침/휴식/임시 거주용 객차.\n(6) 화객차(여객과 수하물을 동시에 싣는 차).\n(7) 우편물 정리를 위한 작업대 등을 갖춘 우편객차(post office coach).\n(8) 구급차, 병원차, X선 검진차 등 의료용 특수 객차.\n(9) 죄소 이송용 감방객차.\n(10) 무장을 갖춘 장갑객차(armoured coach).\n(11) 무선/통신 안테나 및 장비를 설치한 통신/무선차.\n(12) 장치, 모형 등을 비치한 직원 교육 및 전시회용 특수 객차.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 모터가 내장된 자주식 전동차 및 디젤동력차 객차 (제8603호)\n(b) 선로 유지보수용 공작차, 기중기차, 측정시험차 등 (제8604호)",
+    "contentEn": "This heading covers non-self-propelled passenger coaches, luggage vans, mail vans, and other special-purpose rail vehicles (excluding maintenance vehicles of heading 86.04).\n\nIt includes :\n- Passenger coaches of all kinds (including sleeping cars, dining cars, saloon cars, disco/dancing cars).\n- Funicular (cable) railway coaches and tramway trailer coaches.\n- Special underground mine passenger coaches.\n- Railway staff housing coaches.\n- Post office coaches and luggage vans.\n- Ambulance, hospital, or X-ray coaches.\n- Prison vans and armoured coaches.\n- Instruction or exhibition coaches fitted with machinery, scale models, etc.\n\nExcludes self-propelled passenger/mail coaches (heading 86.03) and track maintenance coaches (heading 86.04)."
+  },
+  {
+    "hsCode": "8606",
+    "titleKo": "86.06 - 철도용이나 궤도용 화차[자주식(自走式)은 제외한다]",
+    "titleEn": "86.06 - Railway or tramway goods vans, wagons and trucks, not self-propelled.",
+    "contentKo": "이 호에는 철도 선로를 주행하여 화물을 수송하는 자주식이 아닌 무동력(피견인식) 화물용 화차, 왜건, 트럭을 분류한다. 광산, 공장, 창고 부지 내 궤도용 소형 화차 및 트럭을 포함한다.\n\n이 호에는 다음의 물품을 포함한다.\n(1) 탱크차(tank wagon) 및 가스/액체 수송용 통형 화차(reservoir wagon)(제8606.10호).\n(2) 자기양하식 화차(self-discharging wagon) : 호퍼카(hopper wagon), 경사식 왜건(tipping wagon) 등 화물을 스스로 하역할 수 있는 구조의 화차(제8606.30호).\n(3) 유개화차(boxcar, goods van) : 지붕과 측벽이 있어 밀폐할 수 있는 화차(제8606.91호).\n(4) 무개화차(open wagon) : 지붕이 없고 고정 측벽 높이가 60cm를 초과하는 화차(제8606.92호).\n(5) 기타 화차(평면 트럭, 저상식 트럭 underslung flat truck 등)(제8606.99호) :\n- 보온, 냉장, 냉동 화차.\n- 목재, 원목 수송용 화차.\n- 활어, 가금류 수송용 특수 화차 및 마필(말) 수송차.\n- 이단적(double-deck) 자동차 수송용 화차.\n- 광산용 화차(트롤리 덤프카 등).\n- 강관, 레일, 빔(girder) 등 장척물 수송용 화차.\n- 방사성 핵물질 수송용 특수 설계 차.\n- 도로 주행용 차량이나 궤도용 화차를 싣고 이동하는 피기백(piggyback)용 플랫폼 화차.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 철도 화차에 적재되어 수송되는 도로-레일 겸용 세미트레일러 자체 (제8716호)",
+    "contentEn": "This heading covers non-self-propelled vehicles for the transport of goods by rail, including small wagons and trucks for use in mines, factories, and warehouses.\n\nIt includes :\n- Tank wagons and reservoir wagons (heading 8606.10).\n- Self-discharging wagons (hopper cars, tipping wagons) (heading 8606.30).\n- Closed and covered vans (boxcars) (heading 8606.91).\n- Open wagons with fixed sides exceeding 60 cm (heading 8606.92).\n- Flat trucks, underslung flat trucks for heavy loads, timber-carrying wagons, and double-deck automobile carriers (heading 8606.99).\n- Special insulated/refrigerated wagons.\n- Wagons for transporting live animals, fish, or poultry.\n- Mine tubs and wagons for carrying rails/girders.\n- Highly radioactive material transport containers on specialized rail trucks.\n\nExcludes road-rail semi-trailers carried on flat wagons (heading 87.16)."
+  },
+  {
+    "hsCode": "8607",
+    "titleKo": "86.07 - 철도용이나 궤도용 기관차나 차량의 부분품",
+    "titleEn": "86.07 - Parts of railway or tramway locomotives or rolling-stock.",
+    "contentKo": "이 호에는 제86.01호부터 제86.06호까지의 철도/궤도용 기관차 및 차량에 전용되거나 주로 사용되는 부분품(제17부 주규정에서 제외하지 않은 것)을 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n(1) 보기(bogie)대차 및 비셀보기(bissel-bogie) 대차 (구동식 및 비구동식 모두 포함)(제8607.11호, 제8607.12호).\n(2) 차축, 차륜(바퀴) 및 그 부분품(윤심 hub, 외륜/타이어 등) 및 축박스(axle-box, 저널 박스)와 그 하우징(제8607.19호).\n(3) 제동장치(브레이크 장치) 및 그 부분품 (공기식 브레이크, 진공 브레이크, 제동 쐐기 슈 shoe, 브레이크 실린더, 레버 등)(제8607.21호, 제8607.29호).\n(4) 연결기 및 완충기 : 드래프트 기어, 드로바, 연결용 훅, 스크루/체인식 및 자동 커플러, 차량간 연결통로(갱웨이)(제8607.30호).\n(5) 기타 부분품(제8607.91호, 제8607.99호) :\n- 언더프레임에 실리지 않은 대차 차체(body shell) 및 그 구성 부품(도어, 도어 프레임, 칸막이, 지주 stanchion, 런닝 보드, 수조 등).\n- 주조 프레임 및 프레임 부품(세로대 longeron, 가로대 cross-girder, 엑슬가이드 등).\n- 제동/가열 배관용 커플링 헤드(coupling head)가 부착된 파이프 어셈블리.\n- 대차(bogie) 현가용 유압식 쇼크업소버(shock-absorber).\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 전용 가공되지 않은 일반 형강(angle, shape), 강판(sheet/plate), 금속 튜브 및 배관재 (제15부)\n(b) 전동기, 발전기, 디젤 엔진 등 기계류 및 전기장치 자체 (제84류, 제85류)"
+  },
+  {
+    "hsCode": "8608",
+    "titleKo": "86.08 - 철도나 궤도선로용 장치물, 철도ㆍ궤도ㆍ도로ㆍ내륙수로ㆍ주차장ㆍ항만ㆍ비행장에서 사용되는 기계식(전기기계식을 포함한다) 신호기기ㆍ안전기기ㆍ교통관제기기, 이들의 부분품",
+    "titleEn": "86.08 - Railway or tramway track fixtures and fittings; mechanical (including electro-mechanical) signalling, safety or traffic control equipment for railways, tramways, roads, inland waterways, parking facilities, port installations or airfields; parts of the foregoing.",
+    "contentKo": "이 호에는 철도/궤도 선로용 고정 장치물 및 철도, 도로, 항만, 비행장 등에서 사용되는 기계식 및 전기기계식 신호/안전/관제 설비(및 그 부분품)를 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n(A) 철도/궤도 선로용 고정 장치물\n- 조립된 선로(레일이 이미 침목이나 지지물에 고정된 것 - 커브, 교차점, 분기 궤도용 등).\n- 전차대(turntable) : 차량 방향 전환용 회전 플랫폼 (단, 평행 선로 이동용 천차기 traverser 및 왜건 티퍼/푸셔는 제8428호로 제외).\n- 플랫폼 완충장치(platform buffer) : 충격 흡수용 스프링/유압식 종단 막음 장치.\n- 로딩게이지(loading gauge) : 열차 높이/너비 한계 측정용 아치 구조물.\n(B) 기계식 및 전기기계식 신호/안전/관제 기기\n- 신호상자 레버 제어 장치 및 연동 장치 (신호기 및 전철기 연동용).\n- 완목신호기(semaphore), 신호용 디스크, 신호 포스트, 신호 갠트리.\n- 전철기 검정기(point detector) 및 궤도 자동 록킹 바.\n- 레일 브레이크(차량 감속용 공기/유압 제동 바 장치).\n- 탈선기(derailer) 및 비상 정지용 트랙 트립 바(train stop).\n- 자동 안개 신호기 및 평면교차 건널목 차단기 기계식 개폐 제어 장치 (차단기 게이트 자체는 재질에 따라 제7308호 등 분류).\n\n부분품\n- 회전 플랫폼 판, 신호 암/디스크, 제어 레버, 전철기 록 케이스 등.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 미조립 레일, 스위치 블레이드, 전철봉, 침목 (제4406호, 제6810호, 제7302호)\n(b) 전선 지지용 철탑 및 지지 문형 가설 철주 (제7308호 등)\n(c) 전기식 신호등, 경보벨, 전기식 신호/관제반 자체 (제8530호, 제8531호, 제8536호 등)\n(d) 범용성 금속 와이어, 체인, 볼트, 너트 (제15부)"
+  },
+  {
+    "hsCode": "8609",
+    "titleKo": "86.09 - 컨테이너(액체운반용 컨테이너를 포함하며, 하나 이상의 운송수단으로 운반할 수 있도록 특별히 설계되고 구조를 갖춘 것으로 한정한다)",
+    "titleEn": "8609.00 - Containers (including containers for the transport of fluids) specially designed and equipped for carriage by one or more modes of transport.",
+    "contentKo": "이 호에는 도로, 철도, 해상, 항공 등 복합 수송 수단을 통해 화물을 중간에 재포장하지 않고 '문 앞까지(door-to-door)' 안전하게 이송할 수 있도록 특수 설계되고 튼튼한 금속/나무 구조로 반복 사용이 가능한 컨테이너(용적 1㎥ 이상)를 분류한다.\n\n이 호에는 다음의 물품을 포함한다.\n- 가구 이동용 컨테이너(리프트밴 lift van).\n- 부패성 화물 수송용 단열/냉장 컨테이너.\n- 액체 또는 가스 운반용 컨테이너 (실린더/원통 탱크형으로서 차량/선박에 탈착할 수 있는 지지 프레임 구조물이 결합된 것).\n- 석탄, 광석, 벌크 화물용 무개(open) 컨테이너 및 하부/측면 경첩 개폐형 하역 컨테이너.\n- 취약 물품(유리, 도자기 등) 수송용 특수 프레임 컨테이너 및 생동물 수송용 특수 컨테이너.\n\n이 호에는 또한 다음의 것을 제외한다.\n(a) 복합 수송 전용 프레임 및 탈착 장치(훅, 링 등)가 결합되지 않은 일반 금속/나무 상자 및 패키지 용기 (재질에 따라 분류)\n(b) 철도 화차 적재용 도로-레일 겸용 세미트레일러 (제8716호)\n(c) 모듈러 하우스 및 모듈화된 조립식 빌딩 유닛 (제9406호)"
+  }
+]
