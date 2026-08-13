@@ -108,6 +108,37 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-2. 컴퓨터용 입력장치 (마우스, 키보드) 로컬 우회 예외 처리
+    if (query.includes('마우스') || query.includes('mouse') || query.includes('키보드') || query.includes('keyboard')) {
+      const isMouse = query.includes('마우스') || query.includes('mouse');
+      return {
+        keywordTrigger: ['마우스', '키보드', '컴퓨터용'],
+        recommendedHsCode: isMouse ? "8471.60-1010" : "8471.60-1020",
+        headingName: "제8471호 (자동자료처리기계와 그 단위기기)",
+        subheadingName: isMouse ? "컴퓨터용 포인팅 입력장치 (마우스)" : "컴퓨터용 자판 입력장치 (키보드)",
+        confidence: 96,
+        technicalTerms: isMouse ? "Pointing device (Mouse) for automatic data processing machines" : "Keyboard for automatic data processing machines",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: isMouse 
+          ? "본 물품은 자동자료처리기계(컴퓨터)에 전기적으로 연결되어 스크린 상의 포인터를 제어하는 마우스(Mouse)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 자동자료처리기계의 입력단위기기로 분류되는 제8471.60호 하위 세번(8471.60-1010)에 최종 결정됩니다."
+          : "본 물품은 자동자료처리기계(컴퓨터)에 연결되어 문자 및 명령을 입력하는 키보드(Keyboard)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 자동자료처리기계의 입력단위기기로 분류되는 제8471.60호 하위 세번(8471.60-1020)에 최종 결정됩니다.",
+        sectionNote: "제16부 주 제2호 가목 (기계의 부분품/단위기기 독자 분류 조항)",
+        chapterNote: "제84류 주 제6호 및 제8471호 해설서 총설: 자동자료처리기계의 입력장치 요건 검토",
+        exclusionNote: "⚠️ 제외규정 통제: 자동자료처리기계(컴퓨터) 전용이 아닌 단순 게임 콘솔용 조이스틱(제9504호) 또는 무선 통신 모뎀 단독 장치(제8517호)는 본 호에서 제외됩니다.",
+        headingExplanation: "제8471호 해설: 이 호에는 컴퓨터 본체와 유기적으로 결합되어 데이터를 입력하거나 출력하는 단위기기(마우스, 키보드, 모니터, 프린터 등)를 분류합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "9504.50-0000",
+            headingName: "비디오 게임용 콘솔과 조종기",
+            appliedGri: "통칙 제1호",
+            reasoning: "게임 콘솔 조작용 컨트롤러로 사용될 가능성이 있어 분류 경합이 발생할 수 있습니다.",
+            exclusionReason: "본 물품은 범용 컴퓨터의 USB/무선 포인팅 목적으로 설계되었으므로 제9504호 비디오 게임용 장치에서 제외됩니다."
+          }
+        ]
+      };
+    }
+
     // 1. Try matching with predefined local rules using keyword counts
     let bestRule: ClassificationRule | null = null;
     let maxMatches = 0;
