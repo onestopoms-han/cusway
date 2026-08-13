@@ -1,6 +1,7 @@
 from .db import SessionLocal, engine, Base
 from .models import User, Precedent, CashbackRequest, ExplanatoryNote
 from .rag.parser import parse_explanatory_notes
+from .rag.precedents_collector import collect_and_seed_precedents
 import os
 
 def seed_data():
@@ -228,6 +229,9 @@ def seed_data():
                 print(f"[RAG-SEED] Error indexing {filename}: {e}")
                 
         print(f"[RAG-SEED] Successfully indexed {indexed_count} Heading nodes from JSON files to DB.")
+
+    # 5. RAG 공식 관세청 결정례 적재
+    collect_and_seed_precedents(db)
 
     db.commit()
     db.close()

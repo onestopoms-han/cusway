@@ -1,6 +1,6 @@
 import re
 from sqlalchemy.orm import Session
-from backend.models import ExplanatoryNote
+from backend.models import ExplanatoryNote, CustomsPrecedent
 
 # Common Korean customs query stopwords
 STOPWORDS = {
@@ -85,5 +85,66 @@ def retrieve_relevant_notes(query: str, db: Session):
     # Sort matches by calculated score in descending order
     matches.sort(key=lambda x: x[1], reverse=True)
     return [item[0] for item in matches[:3]]
+
+
+def retrieve_relevant_precedents(query: str, db: Session):
+    """
+    Retrieves matching official customs precedents from the database.
+    """
+    if not query:
+        return []
+
+    # Clean query and parse keywords
+    raw_keywords = [kw.strip() for kw in re.split(r'[\s,\.\-\(\)]+', query) if len(kw.strip()) >= 2]
+    keywords = [kw for kw in raw_keywords if kw not in STOPWORDS]
+    if not keywords:
+        keywords = raw_keywords
+
+    numeric_keywords = re.findall(r'\b\d{2,4}\b', query)
+
+    from sqlalchemy import or_
+    filters = []
+    
+    # 1. Match by HS Code prefix/exact (highest priority)
+    for num in numeric_keywords:
+        filters.append(CustomsPrecedent.hs_code.like(f"%{num}%"))
+        
+    # 2. Match by keyword in product name, material, function
+    for kw in keywords[:4]:
+        filters.append(CustomsPrecedent.product_name.like(f"%{kw}%"))
+        filters.append(CustomsPrecedent.material.like(f"%{kw}%"))
+        filters.append(CustomsPrecedent.function_use.like(f"%{kw}%"))
+        
+    if not filters:
+        return []
+        
+    precedents = db.query(CustomsPrecedent).filter(or_(*filters)).limit(20).all()
+    
+    matches = []
+    for prec in precedents:
+        score = 0
+        hscode_clean = prec.hs_code.replace('.', '').replace('-', '')
+        
+        # Numeric match boost
+        for num in numeric_keywords:
+            if num in hscode_clean:
+                score += 500
+                
+        # Keyword match boosts
+        for kw in keywords:
+            kw_lower = kw.lower()
+            if kw_lower in prec.product_name.lower():
+                score += 150
+            if prec.material and kw_lower in prec.material.lower():
+                score += 80
+            if prec.function_use and kw_lower in prec.function_use.lower():
+                score += 80
+                
+        if score > 0:
+            matches.append((prec, score))
+            
+    matches.sort(key=lambda x: x[1], reverse=True)
+    return [item[0] for item in matches[:2]]
+
 
 

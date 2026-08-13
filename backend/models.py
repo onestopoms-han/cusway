@@ -68,3 +68,18 @@ class ExplanatoryNote(Base):
     section = Column(String, nullable=True)
     chapter = Column(String, nullable=True)
 
+
+class CustomsPrecedent(Base):
+    __tablename__ = "customs_precedents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    case_number = Column(String, index=True, nullable=False)
+    hs_code = Column(String, index=True, nullable=False)
+    product_name = Column(String, nullable=False)
+    material = Column(Text, nullable=True)
+    function_use = Column(Text, nullable=True)
+    decision_reason = Column(Text, nullable=False)
+    issuing_body = Column(String, default="관세평가분류원")
+    date = Column(String, nullable=True)
+
+
