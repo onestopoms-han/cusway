@@ -8,11 +8,11 @@ from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_pre
 from backend.rag.rules import KOREAN_HS_RULES
 from backend.rag.hs_validator import HSConsistencyValidator
 
-def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
+def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None, feedback_prompt: str = None):
     """
     Wrapper around RAG classification flow that appends legal consistency validation.
     """
-    result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key)
+    result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key, feedback_prompt)
     
     # Inject variables for validator context
     result_dict["product_name"] = product_name
@@ -35,7 +35,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
             
     return result_dict
 
-def _query_rag_hs_classification_raw(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None):
+def _query_rag_hs_classification_raw(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None, feedback_prompt: str = None):
     """
     RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
     with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.
@@ -75,9 +75,15 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 4. sectionNote & chapterNote: 부의 주(Section Note) 및 류의 주(Chapter Note) 규정 중 본 품목과 관계된 실제 구절(인용구) 또는 조항을 원문에서 정확하게 찾아 명시하십시오. (예: '제84류 주 제2호 가목에 따라...')
 5. exclusionNote: 본 분류가 잘못 적용되는 것을 방지하기 위한 핵심 제외 규정(Exclusion Note)을 작성하십시오.
 6. precedents: 위 제공된 [참조 관세청 공식 결정사례] 중 가장 유사한 사례들을 JSON 리스트 포맷에 맞추어 인용해 주십시오. (제공되지 않은 가짜 결정례를 상상해 만들지 마십시오)
+7. competingHsCodes: 최종 분류로 고려되었으나 아쉽게 탈락했거나, 세법상 쟁점이 될 수 있는 경쟁/경합 HS Code 리스트(최대 2개)를 분석하여 반환하십시오.
 
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
+"""
 
+    if feedback_prompt:
+        prompt += f"\n\n[이전 판정 검증 모순 피드백 - 반드시 교정하십시오]\n{feedback_prompt}\n위 피드백 사항들을 철저히 인지하고, 모순과 저촉을 완벽히 해결하는 올바른 HS Code 및 근거 논리로 수정해서 반환하십시오."
+
+    prompt += f"""
 {{
   "recommendedHsCode": "10자리 세번 (예: 8483.40-1000)",
   "headingName": "4단위 호의 용어 요약 (예: 기어와 기어링, 볼스크류)",
@@ -99,6 +105,15 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
       "date": "2026-01-01",
       "similarity": 95,
       "reasoningSnippet": "결정례의 주요 판결 요지"
+    }}
+  ],
+  "competingHsCodes": [
+    {{
+      "hsCode": "경합 10자리 세번 (예: 8479.89-9099)",
+      "headingName": "경합 호의 용어 (예: 기타 기계류)",
+      "appliedGri": "적용 가능 통칙 (예: 통칙 제1호, 통칙 제3호 다목)",
+      "reasoning": "경합 후보로 검토 및 비교되는 상세 논리",
+      "exclusionReason": "최종 분류에서 배제된 이유 및 법적 제외 규정 근거"
     }}
   ]
 }}
@@ -238,7 +253,16 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "chapterNote": best_note.chapter if best_note.chapter else "제96류 잡품 (제9608호 필기용구 주석 등)",
             "exclusionNote": f"해당 호({best_note.heading}) 해설서 상 제외 조항: 본 품목이 완구용 또는 타 류에 전용으로 분류되는 제품인 경우 해당 세번에서 제외 처리됩니다.",
             "headingExplanation": best_note.content_ko[:1500],
-            "precedents": precedents_list
+            "precedents": precedents_list,
+            "competingHsCodes": [
+                {
+                    "hsCode": "9617.00-1000" if "유리" in input_lower or "텀블러" in input_lower else "8479.89-9099",
+                    "headingName": "보온병류" if "유리" in input_lower or "텀블러" in input_lower else "기타 기계류",
+                    "appliedGri": "통칙 제3호 다목" if "유리" in input_lower or "텀블러" in input_lower else "통칙 제1호",
+                    "reasoning": "기타 재질과의 결합 및 완제품의 본질적 기능에 따른 다중 세번 검토 구도 형성",
+                    "exclusionReason": "해당 호의 분류 명시 및 관련 제외 주석에 따라 배제됨"
+                }
+            ]
         }
 
     input_lower = combined_query.lower()
@@ -264,6 +288,15 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                     "date": "2024-11-12",
                     "similarity": 98,
                     "reasoningSnippet": "몸체가 강화유리로 제작되고 단순 밀폐 마개로 스테인리스 스틸 캡이 부속된 텀블러는 통칙 제3호 나목을 적용, 본질적 특성을 지닌 유리제 용기로 보아 제7013호에 분류함."
+                }
+            ],
+            "competingHsCodes": [
+                {
+                    "hsCode": "9617.00-1000",
+                    "headingName": "보온병과 그 밖에 진공용기(조립된 것)",
+                    "appliedGri": "통칙 제3호 나목",
+                    "reasoning": "이중벽을 가진 보온 목적의 음료용 용기로 볼 여지가 있어 제9617호 보온용기가 경합 후보로 검토됨.",
+                    "exclusionReason": "본 제품은 단일벽의 강화유리 재질 구조이며 진공 단열 구조가 아니므로 제9617호 보온병 규격에서 제외되어 제7013호로 최종 분류됨."
                 }
             ]
         }
@@ -299,5 +332,14 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                 "similarity": p["similarity"],
                 "reasoningSnippet": p["reasoningSnippet"]
             } for p in found["precedents"]
+        ],
+        "competingHsCodes": [
+            {
+                "hsCode": "9503.00-0000" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "8479.89-9099",
+                "headingName": "완구ㆍ유희용구" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "기타 기계류",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
+                "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
+            }
         ]
     }

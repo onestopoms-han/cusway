@@ -26,6 +26,14 @@ export interface Precedent {
 // ----------------------------------------------------
 // 통칙/부/류/호 해설 기반의 고도화된 규칙 매칭 데이터셋
 // ----------------------------------------------------
+export interface CompetingHsCode {
+  hsCode: string;
+  headingName: string;
+  appliedGri: string;
+  reasoning: string;
+  exclusionReason: string;
+}
+
 export interface ClassificationRule {
   keywordTrigger: string[];     // 키워드
   recommendedHsCode: string;   // 추천 HS Code
@@ -43,6 +51,7 @@ export interface ClassificationRule {
   consistency_score?: number;
   consistency_status?: string;
   consistency_warnings?: string[];
+  competingHsCodes?: CompetingHsCode[];
 }
 
 import { KOREAN_HS_RULES } from '../data/rules';
@@ -111,7 +120,16 @@ export default function HsClassifier() {
         chapterNote: `제${code.slice(0, 2)}류의 주(Note) 규정 적용 범위 검토`,
         exclusionNote: "완구용 제품 또는 다른 특정 류에 전용되는 물품인지 여부를 대조하십시오.",
         headingExplanation: `제${code}호에 규정된 물리 사양 및 재질 설명과 일치함을 확인하였습니다.`,
-        precedents: []
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8479.89-9099",
+            headingName: "기타의 기계류와 기계기구",
+            appliedGri: "통칙 제1호",
+            reasoning: "사용자 지정 4단위 코드 외에 다목적 범용 기계 범주에 속할 가능성이 있어 제8479호가 경합됩니다.",
+            exclusionReason: "제품 사양이 특정 호의 설명에 명확히 부합하므로 일반 호(제8479호)보다 전용 호에 우선 분류됩니다."
+          }
+        ]
       };
     }
 
@@ -130,7 +148,16 @@ export default function HsClassifier() {
         chapterNote: "제70류 유리와 유리제품 (제7013호 식사용 유리 용기 주석)",
         exclusionNote: "이중벽을 가진 보온병용 유리 내벽(제7020호) 및 완구용 제품은 제외됩니다.",
         headingExplanation: "제7013호에는 일반적으로 식탁ㆍ주방용이나 이와 유사한 음료용 유리컵이 명확히 분류됩니다.",
-        precedents: []
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "9617.00-1000",
+            headingName: "보온병과 그 밖에 진공용기(조립된 것)",
+            appliedGri: "통칙 제3호 나목",
+            reasoning: "음료를 담는 휴대용 텀블러로 보온 기능성이 결합될 경우 제9617호와 분류 경합이 발생합니다.",
+            exclusionReason: "강화유리 단일 재질 제품으로 진공 단열 구조가 없으므로 제9617호 보온 용기 규격에서 배제됩니다."
+          }
+        ]
       };
     }
 
@@ -148,7 +175,16 @@ export default function HsClassifier() {
         chapterNote: "제84류 원자로·보일러와 기계류 및 이들의 부분품 주석",
         exclusionNote: "전기식 제어 장치 또는 고무 재질 전용 벨트는 본 호에서 제외됩니다.",
         headingExplanation: "제8483호에는 각종 기계의 동력 전달용 축, 기어 장치, 볼스크류 등이 분류됩니다.",
-        precedents: []
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8708.94-0000",
+            headingName: "차량용 조향장치와 그 부분품",
+            appliedGri: "통칙 제1호",
+            reasoning: "자동차 조향 장치(Steering Gear)에 조립되는 부품이므로 제8708호 차량용 부분품과 경합됩니다.",
+            exclusionReason: "제16부 주 제2호 가목 및 제17부 주 제2호 마목에 따라, 제8483호의 전동기 기어 장치는 차량 부분품(제8708호)보다 우선하여 제8483호 전용 세번으로 분류됩니다."
+          }
+        ]
       };
     }
 
@@ -166,7 +202,16 @@ export default function HsClassifier() {
         chapterNote: "제85류 전기기기와 그 부분품, 녹음기ㆍ음성 재생기 주석",
         exclusionNote: "위성 신호 단순 수신만을 수행하는 GPS 네비게이션 기기(제8526호)는 본 호에서 제외됩니다.",
         headingExplanation: "제8517호에는 셀룰러 통신망을 이용하는 휴대폰(스마트폰) 및 유선/무선 송수신 장비 일체가 정확하게 포함됩니다.",
-        precedents: []
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8528.59-0000",
+            headingName: "기타의 모니터",
+            appliedGri: "통칙 제3호 다목",
+            reasoning: "태블릿이나 고성능 디스플레이 스마트 기기로 사용되어 단순 출력 화면 용도로 경합이 발생할 수 있습니다.",
+            exclusionReason: "무선 송수신 기능이 본질적인 기기 특성이므로 제8517호가 우선 적용됩니다."
+          }
+        ]
       };
     }
 
@@ -184,7 +229,16 @@ export default function HsClassifier() {
         chapterNote: "제95류 완구ㆍ유희용구ㆍ운동용구와 이들의 부분품 및 부속품 주석",
         exclusionNote: "단순히 산업용 교육 로봇이나 고성능 휴머노이드 로봇 등 기계적 작동이 본질인 물품은 제8479호로 이송될 수 있습니다.",
         headingExplanation: "제9503호에는 모든 완구류와 더불어 조립식 모형, 사람 모양의 인형(Dolls) 및 동물 완구 등이 광범위하게 지정되어 분류됩니다.",
-        precedents: []
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "8479.50-0000",
+            headingName: "다목적 산업용 로봇",
+            appliedGri: "통칙 제1호",
+            reasoning: "인공지능 및 작동 장치가 강하게 연계되어 있어 자동 작동 로봇 기계류와 경합이 발생할 수 있습니다.",
+            exclusionReason: "제95류 완구류 제외규정에 따른 산업용 스펙이 아니며, 오락 및 심리 정서 교감용 사람 인형이 주용도이므로 제9503호에 매핑됩니다."
+          }
+        ]
       };
     }
 
@@ -202,7 +256,8 @@ export default function HsClassifier() {
       chapterNote: "검색 결과가 없으므로 관련 류 주석을 특정할 수 없습니다.",
       exclusionNote: "관세율표 분류 기준에 따라 타 류에 특별히 분류되는 물품인지 사양 확인이 필요합니다.",
       headingExplanation: "관세청 품목분류표 및 해설서 고시를 직접 조회하시기 바랍니다.",
-      precedents: []
+      precedents: [],
+      competingHsCodes: []
     };
   };
 
@@ -873,6 +928,74 @@ export default function HsClassifier() {
                   <div>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>6단위 (소호의 용어)</span>
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.subheadingName}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 경합 세번 및 법적 쟁점 비교 섹션 */}
+              {matchedRule.competingHsCodes && matchedRule.competingHsCodes.length > 0 && (
+                <div style={{
+                  marginTop: '16px',
+                  background: 'rgba(245, 158, 11, 0.03)',
+                  border: '1px solid rgba(245, 158, 11, 0.15)',
+                  borderRadius: '8px',
+                  padding: '16px'
+                }}>
+                  <span style={{ 
+                    fontSize: '0.8rem', 
+                    color: 'var(--accent-amber)', 
+                    fontWeight: 700, 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '6px',
+                    marginBottom: '10px'
+                  }}>
+                    ⚖️ 경합 세번 및 법적 쟁점 분석 (Competing HS Codes)
+                  </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {matchedRule.competingHsCodes.map((comp, cIdx) => (
+                      <div key={cIdx} style={{
+                        background: 'rgba(0, 0, 0, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        borderRadius: '6px',
+                        padding: '12px',
+                        fontSize: '0.8rem'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span style={{ color: '#fff', fontWeight: 700 }}>
+                            경합 코드: <span style={{ color: 'var(--accent-amber)' }}>{comp.hsCode}</span> ({comp.headingName})
+                          </span>
+                          <span style={{ 
+                            background: 'rgba(245, 158, 11, 0.15)', 
+                            color: 'var(--accent-amber)', 
+                            fontSize: '0.7rem', 
+                            padding: '2px 6px', 
+                            borderRadius: '4px',
+                            fontWeight: 600
+                          }}>
+                            대체 검토
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--text-muted)' }}>
+                          <div>
+                            <strong style={{ color: 'var(--text-main)' }}>• 적용 가능 통칙:</strong> {comp.appliedGri}
+                          </div>
+                          <div>
+                            <strong style={{ color: 'var(--text-main)' }}>• 경합/검토 사유:</strong> {comp.reasoning}
+                          </div>
+                          <div style={{ 
+                            marginTop: '4px', 
+                            padding: '8px', 
+                            background: 'rgba(239, 68, 68, 0.05)', 
+                            borderLeft: '2px solid var(--accent-red)',
+                            color: '#fca5a5',
+                            fontSize: '0.75rem' 
+                          }}>
+                            <strong>최종 배제 근거 (제외 규정):</strong> {comp.exclusionReason}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
