@@ -219,6 +219,20 @@ def reject_cashback_request(req_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "반려 처리되었습니다."}
 
+class CashbackAppealRequest(BaseModel):
+    appeal_reason: str
+
+@app.post("/api/cashback/requests/{req_id}/appeal")
+def appeal_cashback_request(req_id: int, req: CashbackAppealRequest, db: Session = Depends(get_db)):
+    db_req = db.query(CashbackRequest).filter(CashbackRequest.id == req_id).first()
+    if not db_req:
+        raise HTTPException(status_code=404, detail="요청을 찾을 수 없습니다.")
+    
+    db_req.status = "재확인 요청중"
+    db_req.file_name = f"{db_req.file_name} (소명: {req.appeal_reason})"
+    db.commit()
+    return {"message": "재심사 청구가 성공적으로 접수되었습니다. 관리자팀에서 24시간 내 수동 재검증을 진행합니다."}
+
 @app.get("/api/customers", response_model=List[UserResponse])
 def get_customers(db: Session = Depends(get_db)):
     return db.query(User).all()

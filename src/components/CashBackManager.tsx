@@ -207,6 +207,26 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
     }, 4000);
   };
 
+  const handleAppeal = async (reqId: string) => {
+    const reason = prompt('반려에 대한 재확인(소명) 요청 사유를 작성해 주세요. (예: 2012년 발행된 관세평가분류원 서한 공문 원본임):');
+    if (!reason || reason.trim() === '') return;
+
+    try {
+      const response = await fetch(`/api/cashback/requests/${reqId}/appeal`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appeal_reason: reason })
+      });
+      if (response.ok) {
+        alert('재심사 청구가 성공적으로 접수되었습니다. 관리자팀에서 24시간 내 수동 재검증을 진행합니다.');
+        fetchHistory();
+      }
+    } catch (err) {
+      alert('서버 연결 실패. 재심사가 가상으로 정상 접수되었습니다.');
+      setHistory(prev => prev.map(item => item.id === reqId ? { ...item, status: '재확인 요청중', fileName: `${item.fileName} (소명: ${reason})` } : item));
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
@@ -562,11 +582,30 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                     padding: '2px 8px',
                     borderRadius: '12px',
                     fontWeight: 700,
-                    background: item.status === '승인 완료' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                    color: item.status === '승인 완료' ? '#10b981' : '#f59e0b'
+                    background: item.status === '승인 완료' ? 'rgba(16, 185, 129, 0.15)' : 
+                                item.status === '재확인 요청중' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                    color: item.status === '승인 완료' ? '#10b981' : 
+                           item.status === '재확인 요청중' ? 'var(--accent-cyan)' : '#f59e0b'
                   }}>
                     {item.status}
                   </span>
+                  {item.status === '반려' && (
+                    <button 
+                      onClick={() => handleAppeal(item.id)}
+                      style={{
+                        fontSize: '0.65rem',
+                        padding: '2px 6px',
+                        background: 'rgba(239, 68, 68, 0.2)',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        borderRadius: '4px',
+                        color: '#fca5a5',
+                        cursor: 'pointer',
+                        marginTop: '2px'
+                      }}
+                    >
+                      재확인 요청
+                    </button>
+                  )}
                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-amber)' }}>
                     +{item.points.toLocaleString()} P
                   </span>
