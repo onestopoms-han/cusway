@@ -31,6 +31,24 @@ HEADING_ANCHORS = {
     "성경책": ["49.01", "4901"]
 }
 
+EXCLUSION_RULES = {
+    "3926": {
+        "keywords": ["장식", "액세서리", "완구", "장난감", "인형", "장신구"],
+        "exclude_headings": ["7117", "9503"],
+        "reason": "제39류 주 제2호 바목(제71호의 모조신변장식용품) 및 카목(제95류의 완구)에 의거하여 플라스틱제 장식/완구류는 3926호에서 제외되어 각각 7117호 또는 9503호로 최우선 분류됩니다."
+    },
+    "7326": {
+        "keywords": ["장식", "장신구", "액세서리", "전등", "라이트", "완구", "장난감"],
+        "exclude_headings": ["7117", "8513", "9503"],
+        "reason": "제15부 주 제1호 거목(제95류의 완구) 및 타목(제8513호의 휴대용 전등)에 의거하여 철강제의 장신구/전등/완구는 7326호에서 제외되어 각각 7117호, 8513호, 9503호로 분류됩니다."
+    },
+    "4901": {
+        "keywords": ["그림책", "장난감", "완구", "골동품", "수집품", "백년", "100년"],
+        "exclude_headings": ["4903", "9705"],
+        "reason": "제49류 주 제3호 및 제97류 주 제4호에 의거하여 아동용 그림책은 4903호, 제작 후 100년이 초과한 역사적 골동 서적은 9705호(수집품)로 우선 분류됩니다."
+    }
+}
+
 KOREAN_TO_ENGLISH_MAP = {
     "비타민": "vitamin",
     "마우스": "mouse",
@@ -210,6 +228,17 @@ def retrieve_relevant_notes(query: str, db: Session):
                 allowed_headings = HEADING_ANCHORS[kw_lower]
                 if any(ah in heading_raw or ah == heading_clean for ah in allowed_headings):
                     score += 8000  # Massive score to guarantee target anchor RAG is returned
+                    
+        # Factor G: Legal Exclusion Rules Check (Strict Exclusion logic)
+        for ex_key, ex_rule in EXCLUSION_RULES.items():
+            if ex_key in heading_raw or ex_key == heading_clean:
+                # Check if query keywords trigger the exclusion
+                query_lower = query.lower()
+                has_exclusion_kw = any(ex_kw in query_lower for ex_kw in ex_rule["keywords"])
+                if has_exclusion_kw:
+                    score -= 5000  # Strong penalty to push below non-excluded headings
+                    # Append legal reason explaining why this was excluded directly into content_ko (temporary injection for LLM reference)
+                    note.content_ko += f"\n\n[제외규정 정합성 검증알림: 해당 물품은 {ex_rule['reason']}]"
                     
         # Factor E: Pure heading code priority (Specific heading beats generic notes/general notes)
         if "_gen" not in heading_raw and "rules" not in heading_raw:
