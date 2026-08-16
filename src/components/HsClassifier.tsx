@@ -208,6 +208,41 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-5. 열쇠고리 로컬 우회 예외 처리
+    if (query.includes('열쇠고리') || query.includes('keyring') || query.includes('key ring')) {
+      return {
+        keywordTrigger: ['열쇠고리', 'keyring', 'key ring'],
+        recommendedHsCode: "7326.90-9000",
+        headingName: "제7326호 (기타 철강 제품)",
+        subheadingName: "철강제 열쇠고리 (Key ring)",
+        confidence: 90,
+        technicalTerms: "Iron or steel key rings",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "일반적인 금속제(철강) 열쇠고리는 제7326호의 기타 철강 제품에 분류됩니다. 한편, 경량 플라스틱 재질로 제조된 열쇠고리는 제3926호에 분류되므로 재질 사양에 맞추어 아래의 경합 세번과 비교 후 선택하십시오.",
+        sectionNote: "제15부 비열금속과 그 제품",
+        chapterNote: "제73류 철강의 제품 규정",
+        exclusionNote: "⚠️ 가죽제 열쇠고리(제4205호)나 귀금속 도금 제품(제71류)은 해당 호의 전용 조항에 따라 이 호에서 제외됩니다.",
+        headingExplanation: "열쇠고리는 단독 호가 없으므로 구성 재질에 따라 세번이 좌우되며, 철강제(7326.90-9000)와 플라스틱제(3926.90-9000)가 대표적으로 경합합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "3926.90-9000",
+            headingName: "제3926호 (기타 플라스틱 제품)",
+            appliedGri: "통칙 제1호",
+            reasoning: "사출 플라스틱 본체로 만들어진 열쇠고리의 경합 분류 세번입니다.",
+            exclusionReason: "중량감 있는 비금속 고리가 본체 역할을 하고 단순 조립된 플라스틱 부품만 있는 경우에는 7326호가 우선합니다."
+          },
+          {
+            hsCode: "7117.90-9000",
+            headingName: "제7117호 (모조 신변장식용품)",
+            appliedGri: "통칙 제3호 다목",
+            reasoning: "액세서리용 펜던트 장식이 화려한 비귀금속제 모조 장식용 열쇠고리 경합 세번입니다.",
+            exclusionReason: "단순 열쇠 묶음 고리로서의 실용적 기능이 우선하는 제품은 7326호로 복귀시킵니다."
+          }
+        ]
+      };
+    }
+
     // 1. Try matching with predefined local rules using keyword counts
     let bestRule: ClassificationRule | null = null;
     let maxMatches = 0;
