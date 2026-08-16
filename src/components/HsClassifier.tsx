@@ -603,7 +603,14 @@ export default function HsClassifier() {
                   const phone = prompt('카카오톡으로 공유할 메시지를 확인하세요. 확인을 누르면 카카오톡 친구/나에게 보내기 화면으로 이동합니다.', '010-5813-2026');
                   if (phone === null) return; // 취소 시 중단
                   
-                  const shareText = `[CUSWAY HS분류 알림]\n\n■ 추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n■ 품목명: ${productName}\n■ 재질성분: ${material || '미기재'}\n■ 법적근거: ${matchedRule ? matchedRule.legalReasoning.slice(0, 100) : ''}...\n\n상세 리포트 전문 확인: https://www.cusway.kr`;
+                  const activeProdName = matchedRule && matchedRule.keywordTrigger && matchedRule.keywordTrigger[0] 
+                    ? matchedRule.keywordTrigger[0] 
+                    : productName;
+                  const activeMaterial = matchedRule && matchedRule.keywordTrigger && matchedRule.keywordTrigger[0]
+                    ? (material === '수동 검색 대상' ? '수동 검색 품목' : material)
+                    : material;
+                  
+                  const shareText = `[CUSWAY HS분류 알림]\n\n■ 추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n■ 품목명: ${activeProdName}\n■ 재질성분: ${activeMaterial || '미기재'}\n■ 법적근거: ${matchedRule ? matchedRule.legalReasoning.slice(0, 100) : ''}...\n\n상세 리포트 전문 확인: https://www.cusway.kr`;
                   const shareUrl = `https://sharer.kakao.com/talk/friends/picker/link?link=${encodeURIComponent("https://www.cusway.kr")}&text=${encodeURIComponent(shareText)}`;
                   
                   window.open(shareUrl, '_blank', 'width=450,height=650');
@@ -630,8 +637,15 @@ export default function HsClassifier() {
                   const emailAddr = prompt('리포트를 발송할 이메일 주소를 입력하세요:', 'user@example.com');
                   if (!emailAddr) return;
                   
+                  const activeProdName = matchedRule && matchedRule.keywordTrigger && matchedRule.keywordTrigger[0] 
+                    ? matchedRule.keywordTrigger[0] 
+                    : productName;
+                  const activeMaterial = matchedRule && matchedRule.keywordTrigger && matchedRule.keywordTrigger[0]
+                    ? (material === '수동 검색 대상' ? '수동 검색 품목' : material)
+                    : material;
+                  
                   const subject = `[CUSWAY] 수입물품 HS Code 분류 및 소명 리포트 통지`;
-                  const body = `품목명: ${productName}\n재질성분: ${material || '미기재'}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n\n■ 법적 소명 근거:\n${matchedRule ? matchedRule.legalReasoning : ''}\n\n상세 정보 및 관세율표 해설서 원문은 사이트에서 확인해 주세요: https://www.cusway.kr`;
+                  const body = `품목명: ${activeProdName}\n재질성분: ${activeMaterial || '미기재'}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n\n■ 법적 소명 근거:\n${matchedRule ? matchedRule.legalReasoning : ''}\n\n상세 정보 및 관세율표 해설서 원문은 사이트에서 확인해 주세요: https://www.cusway.kr`;
                   
                   window.location.href = `mailto:${emailAddr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }}
