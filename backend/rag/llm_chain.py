@@ -215,6 +215,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     Retrieves explanatory notes using query terms and dynamically structures matching results.
     """
     combined_query = f"{product_name} {material} {function_use}"
+    input_lower = combined_query.lower()
     relevant_notes = retrieve_relevant_notes(combined_query, db)
     relevant_precedents = retrieve_relevant_precedents(combined_query, db)
 
