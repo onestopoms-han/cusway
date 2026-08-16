@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
@@ -7,6 +7,21 @@ import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
 
 export default function App() {
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   interface UserInfo {
     email: string;
     company_name: string;
@@ -300,205 +315,171 @@ export default function App() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0f172a', width: '100%' }}>
+    <div className="app-container">
       {/* Dynamic Glow Effect */}
       <div className="glow-effect" style={{ position: 'absolute', width: '400px', height: '400px', top: '-100px', left: '-100px', background: 'rgba(20, 184, 166, 0.15)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none' }} />
       <div className="glow-effect" style={{ position: 'absolute', width: '600px', height: '600px', bottom: '-200px', right: '-200px', background: 'rgba(245, 158, 11, 0.1)', filter: 'blur(120px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-      {/* Side Navigation Bar */}
-      <aside style={{
-        width: '260px',
-        background: 'var(--bg-secondary)',
-        borderRight: '1px solid var(--glass-border)',
-        padding: '30px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        zIndex: 10
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '40px', padding: '0 10px' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(6, 182, 212, 0.3)',
-              boxShadow: '0 0 15px rgba(6, 182, 212, 0.2)'
-            }}>
-              <svg width="26" height="26" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Gateway C arc */}
-                <path d="M68 28C58 20 42 20 32 30C22 40 22 58 32 68C42 78 58 78 68 70" stroke="var(--accent-cyan)" strokeWidth="8" strokeLinecap="round" />
-                
-                {/* Forwarding Way track W */}
-                <path d="M38 46L48 68L56 50L64 68L78 36" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-                
-                {/* Arrow head */}
-                <path d="M72 36H78V42" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <div>
-              <h1 style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '-0.5px', color: '#fff' }}>CUSWAY</h1>
-              <p style={{ fontSize: '0.65rem', color: 'var(--accent-primary)', fontWeight: 700, letterSpacing: '0.5px' }}>HS & VALUATION AI</p>
-            </div>
-          </div>
-
-          {/* Navigation Menu */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <button 
-              onClick={() => setCurrentView('hs-classifier')}
-              style={{
+      {/* Side / Top Navigation Bar */}
+      <aside className="app-sidebar">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', width: '100%' }}>
+          {/* Logo & User profile row (condensed on mobile) */}
+          <div className="app-sidebar-logo-container">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: 'none',
+                justifyContent: 'center',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                boxShadow: '0 0 10px rgba(6, 182, 212, 0.2)'
+              }}>
+                <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M68 28C58 20 42 20 32 30C22 40 22 58 32 68C42 78 58 78 68 70" stroke="var(--accent-cyan)" strokeWidth="8" strokeLinecap="round" />
+                  <path d="M38 46L48 68L56 50L64 68L78 36" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M72 36H78V42" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <h1 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>CUSWAY</h1>
+                <p style={{ fontSize: '0.55rem', color: 'var(--accent-primary)', fontWeight: 700, margin: 0 }}>AI SERVICE</p>
+              </div>
+            </div>
+
+            {/* Quick Logout for Mobile Header */}
+            {isMobile && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                  {currentUser?.company_name.split(' ')[0]}
+                </span>
+                <LogOut size={16} onClick={handleLogout} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Menu (Horizontal scrollable on mobile) */}
+          <nav className="app-sidebar-nav">
+            <button 
+              onClick={() => setCurrentView('hs-classifier')}
+              className="app-sidebar-nav-btn"
+              style={{
                 background: currentView === 'hs-classifier' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
                 color: currentView === 'hs-classifier' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: currentView === 'hs-classifier' ? 600 : 400,
                 cursor: 'pointer',
-                textAlign: 'left',
                 transition: 'var(--transition-smooth)'
               }}
             >
-              <Scale size={18} color={currentView === 'hs-classifier' ? 'var(--accent-primary)' : 'gray'} />
-              <span>AI HS Code 분류 & 근거</span>
+              <Scale size={14} color={currentView === 'hs-classifier' ? 'var(--accent-primary)' : 'gray'} />
+              <span>AI HS 분류</span>
             </button>
 
             <button 
               onClick={() => setCurrentView('valuation')}
+              className="app-sidebar-nav-btn"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: 'none',
                 background: currentView === 'valuation' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
                 color: currentView === 'valuation' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: currentView === 'valuation' ? 600 : 400,
                 cursor: 'pointer',
-                textAlign: 'left',
                 transition: 'var(--transition-smooth)'
               }}
             >
-              <Scale size={18} color={currentView === 'valuation' ? 'var(--accent-cyan)' : 'gray'} />
+              <Scale size={14} color={currentView === 'valuation' ? 'var(--accent-cyan)' : 'gray'} />
               <span style={{ color: currentView === 'valuation' ? 'var(--accent-cyan)' : 'inherit' }}>
-                AI 관세평가 판례 검색
+                AI 관세평가
               </span>
             </button>
 
             <button 
               onClick={() => setCurrentView('cashback')}
+              className="app-sidebar-nav-btn"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: 'none',
                 background: currentView === 'cashback' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
                 color: currentView === 'cashback' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: currentView === 'cashback' ? 600 : 400,
                 cursor: 'pointer',
-                textAlign: 'left',
                 transition: 'var(--transition-smooth)'
               }}
             >
-              <Coins size={18} color={currentView === 'cashback' ? 'var(--accent-amber)' : 'gray'} />
+              <Coins size={14} color={currentView === 'cashback' ? 'var(--accent-amber)' : 'gray'} />
               <span style={{ color: currentView === 'cashback' ? 'var(--accent-amber)' : 'inherit' }}>
-                결정례 공유 & 캐시백
+                결정례 캐시백
               </span>
             </button>
 
             <button 
               onClick={() => setCurrentView('billing')}
+              className="app-sidebar-nav-btn"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                width: '100%',
-                padding: '12px 16px',
-                borderRadius: '8px',
-                border: 'none',
                 background: currentView === 'billing' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
                 color: currentView === 'billing' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: currentView === 'billing' ? 600 : 400,
                 cursor: 'pointer',
-                textAlign: 'left',
                 transition: 'var(--transition-smooth)'
               }}
             >
-              <CreditCard size={18} color={currentView === 'billing' ? 'var(--accent-primary)' : 'gray'} style={{ flexShrink: 0 }} />
+              <CreditCard size={14} color={currentView === 'billing' ? 'var(--accent-primary)' : 'gray'} />
               <span style={{ color: currentView === 'billing' ? 'var(--accent-primary)' : 'inherit' }}>
-                요금 결제 & 구독 관리
+                요금 구독
               </span>
             </button>
 
             {currentUser?.email === 'admin@cusway.kr' && (
               <button 
                 onClick={() => setCurrentView('admin')}
+                className="app-sidebar-nav-btn"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: '8px',
-                  border: 'none',
                   background: currentView === 'admin' ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
                   color: currentView === 'admin' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: currentView === 'admin' ? 600 : 400,
                   cursor: 'pointer',
-                  textAlign: 'left',
                   transition: 'var(--transition-smooth)'
                 }}
               >
-                <ShieldAlert size={18} color={currentView === 'admin' ? 'var(--accent-red)' : 'gray'} />
+                <ShieldAlert size={14} color={currentView === 'admin' ? 'var(--accent-red)' : 'gray'} />
                 <span style={{ color: currentView === 'admin' ? 'var(--accent-red)' : 'inherit' }}>
-                  ⚙️ 어드민 고객관리
+                  어드민
                 </span>
               </button>
             )}
           </nav>
         </div>
 
-        {/* User Status / Bottom Menu */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--glass-border)', paddingTop: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 10px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'var(--bg-tertiary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <User size={16} />
+        {/* User Status / Bottom Menu (Hidden on mobile navigation aside) */}
+        {!isMobile && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--glass-border)', paddingTop: '20px', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 10px' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                background: 'var(--bg-tertiary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <User size={16} />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser?.company_name || 'CUSWAY 관세팀'}</p>
+                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{currentUser?.email || 'admin@cusway.kr'}</p>
+              </div>
             </div>
-            <div>
-              <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser?.company_name || 'CUSWAY 관세팀'}</p>
-              <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{currentUser?.email || 'admin@cusway.kr'}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
+              <Settings size={18} style={{ cursor: 'pointer' }} />
+              <Bell size={18} style={{ cursor: 'pointer' }} />
+              <LogOut size={18} onClick={handleLogout} style={{ cursor: 'pointer' }} />
             </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
-            <Settings size={18} style={{ cursor: 'pointer' }} />
-            <Bell size={18} style={{ cursor: 'pointer' }} />
-            <LogOut size={18} onClick={handleLogout} style={{ cursor: 'pointer' }} />
-          </div>
-        </div>
+        )}
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flex: 1, padding: '40px', overflowY: 'auto', position: 'relative', zIndex: 5 }}>
+      <main className="app-main">
         {currentView === 'hs-classifier' && (
           <HsClassifier />
         )}

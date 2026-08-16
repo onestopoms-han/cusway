@@ -27,6 +27,30 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
   const [fileName, setFileName] = useState('');
   const [uploadStatus, setUploadStatus] = useState<boolean | null>(null);
   const [history, setHistory] = useState<UploadHistory[]>([]);
+  const [matchCount, setMatchCount] = useState<number | null>(null);
+
+  // 입력 내용에 따른 실시간 DB 연관 결정례 개수 조회 효과 (Debounce 적용)
+  useEffect(() => {
+    const query = shareType === 'hs' ? hsCode : valuationIssue;
+    if (!query || query.trim().length < 2) {
+      setMatchCount(null);
+      return;
+    }
+
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/precedents/match-count?query=${encodeURIComponent(query)}&type=${shareType}`);
+        if (response.ok) {
+          const data = await response.json();
+          setMatchCount(data.count);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [hsCode, valuationIssue, shareType]);
 
   const fetchHistory = async () => {
     try {
@@ -250,6 +274,27 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               </div>
             )}
 
+            {/* 실시간 AI 연관 결정례 검색 개수 배지 표시 */}
+            {matchCount !== null && (
+              <div style={{
+                padding: '12px 16px',
+                background: 'rgba(6, 182, 212, 0.1)',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                color: 'var(--accent-cyan)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                animation: 'pulse 2s infinite ease-in-out'
+              }}>
+                <ShieldCheck size={16} color="var(--accent-cyan)" />
+                <span>
+                  <b>AI 실시간 분석:</b> 입력하신 내용과 관련된 기존 <b>{shareType === 'hs' ? 'HS 품목분류' : '관세평가 심판례'}</b> 결정례가 DB에 총 <b style={{ fontSize: '0.95rem', color: '#fff', textDecoration: 'underline' }}>{matchCount}건</b> 존재합니다!
+                </span>
+              </div>
+            )}
+
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
                 품목명 / 사건명 (상세 내역)
@@ -337,11 +382,12 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
             fontSize: '0.75rem',
             color: '#fca5a5',
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'flex-start',
             gap: '8px'
           }}>
             <AlertCircle size={16} style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div>
+            <div style={{ flex: 1, minWidth: '240px' }}>
               <strong>정보 보안 통제 정책:</strong><br />
               업로드된 결정서 데이터는 AI RAG 학습용 결정례 가공(비식별화)에만 독점 사용되며, 타 회원에게 화주 및 수입자명이 고스란히 유출되지 않도록 시스템 차원에서 엄격한 데이터 필터링을 거치게 되므로 안심하고 등록하셔도 좋습니다.
             </div>

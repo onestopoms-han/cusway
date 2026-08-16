@@ -1,17 +1,29 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles # 스태틱 서빙을 위한 임포트 추가
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import List, Optional
+import os
 
 from .db import engine, Base, get_db
-from .models import User, Precedent, CashbackRequest, PaymentHistory
+from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent
 from .seed import seed_data
 
 # DB 생성 및 초기 데이터 적재
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CUSWAY Backend API", version="1.0")
+
+# 프론트엔드 React 빌드본(dist/)을 /static 가상 경로로 마운트 서빙 (포트 8000 통합 서빙)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+dist_dir = os.path.join(project_root, "dist")
+if os.path.exists(dist_dir):
+    app.mount("/static", StaticFiles(directory=dist_dir), name="static")
+    print(f"[STATIC_MOUNT] Successfully mounted frontend bundle at: {dist_dir}")
+else:
+    print(f"[STATIC_WARN] Frontend dist/ directory not found at: {dist_dir}")
 
 @app.on_event("startup")
 def startup_event():
@@ -34,7 +46,6 @@ def startup_event():
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # Vite dev server 및 실서비스 바인딩
-
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -129,6 +140,29 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 @app.get("/api/valuation/precedents", response_model=List[PrecedentResponse])
 def get_precedents(db: Session = Depends(get_db)):
     return db.query(Precedent).all()
+
+@app.get("/api/precedents/match-count")
+def get_match_count(query: str, type: str, db: Session = Depends(get_db)):
+    if not query or len(query.strip()) < 2:
+        return {"count": 0}
+    
+    clean_query = query.strip()
+    if type == "hs":
+        # HS Code 매칭 (도트, 대시 제거 후 전방 일치)
+        hs_digits = clean_query.replace(".", "").replace("-", "")
+        count = db.query(CustomsPrecedent).filter(
+            CustomsPrecedent.hs_code.like(f"{hs_digits}%")
+        ).count()
+        return {"count": count}
+    else:
+        # 관세평가 쟁점 매칭 (제목, 핵심 쟁점, 결정 요지, 사실 관계 키워드 검색)
+        count = db.query(Precedent).filter(
+            (Precedent.title.like(f"%{clean_query}%")) |
+            (Precedent.key_issue.like(f"%{clean_query}%")) |
+            (Precedent.holding_ko.like(f"%{clean_query}%")) |
+            (Precedent.factual_background.like(f"%{clean_query}%"))
+        ).count()
+        return {"count": count}
 
 @app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):

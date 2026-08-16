@@ -109,7 +109,7 @@ class AICustomsClassificationProcessor:
         # ----------------------------------------------------
         raw_hs = result_dict.get("recommendedHsCode", "")
         if raw_hs and raw_hs != "0000.00-0000":
-            from backend.models import HSCodeMaster
+            from backend.models import HSCodeMaster, CustomsPrecedent
             
             clean_hs = raw_hs.replace('.', '').replace('-', '')
             master_rec = db.query(HSCodeMaster).filter(
@@ -122,6 +122,26 @@ class AICustomsClassificationProcessor:
                 print(f"[PROCESSOR] Matched official master names: {master_rec.name_ko} ({master_rec.name_en})")
             else:
                 print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
+                
+            # ----------------------------------------------------
+            # Phase 5-3: Match real customs precedents by prefix (first 4 digits)
+            # ----------------------------------------------------
+            precedent_cases = []
+            hs_prefix = clean_hs[:4]
+            if hs_prefix:
+                db_cases = db.query(CustomsPrecedent).filter(
+                    CustomsPrecedent.hs_code.like(f"{hs_prefix}%")
+                ).limit(3).all()
+                for c in db_cases:
+                    precedent_cases.append({
+                        "case_number": c.case_number,
+                        "hs_code": c.hs_code,
+                        "product_name": c.product_name,
+                        "decision_reason": c.decision_reason,
+                        "date": c.date or ""
+                    })
+                print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
+            result_dict["precedent_cases"] = precedent_cases
 
         print(f"[PROCESSOR] Pipeline execution completed successfully. HS Code matched: {result_dict.get('recommendedHsCode')}")
         return result_dict

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Scale, 
   BookOpen, 
@@ -59,6 +59,21 @@ import { KOREAN_HS_RULES } from '../data/rules';
 
 
 export default function HsClassifier() {
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [productName, setProductName] = useState('달걀이 포함된 건조 스파게티 면');
   const [material, setMaterial] = useState('듀럼밀 세몰리나 85%, 계란 노른자 분말 15%');
   const [functionUse, setFunctionUse] = useState('이탈리안 건조 파스타 면 조리용 식자재');
@@ -434,11 +449,12 @@ export default function HsClassifier() {
           fontSize: '0.85rem',
           lineHeight: 1.5,
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
           gap: '12px'
         }}>
           <AlertTriangle size={18} style={{ color: 'var(--accent-amber)', flexShrink: 0 }} />
-          <div>
+          <div style={{ flex: 1, minWidth: '240px' }}>
             <strong>⚠️ 로컬 휴리스틱 매칭 모드 작동 중 (Local Heuristic Fallback Active)</strong><br />
             FastAPI 백엔드 서버(localhost:8000)가 기동되지 않았거나 연결할 수 없어 <b>로컬 정적 데이터셋 및 지능형 유추 알고리즘</b>에 기초하여 결과를 매칭하고 있습니다. 상세 RAG 및 실시간 AI 판단을 위해 백엔드 서버 기동 여부나 API Key 구성을 확인하십시오.
           </div>
@@ -455,11 +471,12 @@ export default function HsClassifier() {
         fontSize: '0.8rem',
         lineHeight: 1.5,
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         gap: '12px'
       }}>
         <AlertTriangle size={18} style={{ color: 'var(--accent-red)', flexShrink: 0 }} />
-        <div>
+        <div style={{ flex: 1, minWidth: '240px' }}>
           <strong>⚠️ 법적 고지 및 면책 조항 (Legal Disclaimer)</strong><br />
           본 AI HS Code 분류 엔진이 제공하는 분석 결과 및 관세 해설서 분류 근거는 <strong>단순 법적 참고용</strong>으로만 제공되는 것이며, 실제 신고 시 법적 효력을 갖는 공식 유권해석이 아닙니다. 실제 품목분류 및 관세율 적용 오류로 인하여 발생하는 불이익이나 세무상의 책임은 사용자(신고자) 본인에게 있으며, 개발사 및 CUSWAY는 어떠한 법적 책임도 지지 않습니다.
         </div>
@@ -471,32 +488,53 @@ export default function HsClassifier() {
         background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%)', 
         border: '1px solid rgba(20, 184, 166, 0.2)' 
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row', 
+          justifyContent: 'space-between', 
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '16px' : '24px'
+        }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <Scale size={24} className="text-gradient" />
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>CUSWAY 관세 해설서·통칙 기반 HS 분류 엔진</h2>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center', 
+              gap: '10px', 
+              marginBottom: '8px' 
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Scale size={24} className="text-gradient" />
+                <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 700 }}>CUSWAY 관세 해설서·통칙 기반 HS 분류 엔진</h2>
+              </div>
               <span style={{ 
                 background: 'rgba(20, 184, 166, 0.15)', 
                 color: 'var(--accent-primary)', 
                 fontSize: '0.75rem', 
                 padding: '4px 10px', 
                 borderRadius: '12px', 
-                fontWeight: 600 
+                fontWeight: 600,
+                width: 'fit-content'
               }}>
                 Strict RAG Engine v2.5
               </span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.4 }}>
               사용자가 입력한 수입신고서 품명/재질/기능을 분석하여 관세율표 부·류의 주(Note), 제외규정, 호 해설서의 법적 근거에 기반한 정확한 HS Code 분류 결과를 매칭합니다.
             </p>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '2px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: isMobile ? 'flex-start' : 'flex-end', 
+            gap: '8px',
+            flexShrink: 0
+          }}>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               DB 동기화 완료: <b>raw_explanatory_notes.txt</b> (19,754 lines)
             </span>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%' }}>
               <button 
                 onClick={async () => {
                   const phone = prompt('수신받을 휴대폰 번호를 입력하세요:', '010-5813-2026');
@@ -602,7 +640,13 @@ export default function HsClassifier() {
       </div>
 
       {/* Quick Search Tool */}
-      <div className="glass-panel" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="glass-panel" style={{ 
+        padding: '16px', 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row', 
+        alignItems: isMobile ? 'stretch' : 'center', 
+        gap: '12px' 
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)' }}>
           <Search size={18} />
           <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>해설서 DB 수동 검색:</span>
@@ -623,7 +667,7 @@ export default function HsClassifier() {
             fontSize: '0.85rem'
           }}
         />
-        <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }} onClick={handleManualSearch}>
+        <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem', width: isMobile ? '100%' : 'auto' }} onClick={handleManualSearch}>
           검색 및 매칭
         </button>
       </div>
@@ -646,7 +690,7 @@ export default function HsClassifier() {
       )}
 
       {/* Main Grid Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '430px 1fr', gap: '24px' }}>
+      <div className="hs-grid-layout">
         
         {/* Left Panel: Input Specs */}
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -873,16 +917,29 @@ export default function HsClassifier() {
           {/* Top Recommendation Summary Card */}
           {matchedRule ? (
             <div className="glass-panel" style={{ padding: '24px', borderLeft: '4px solid var(--accent-primary)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between', 
+                alignItems: isMobile ? 'stretch' : 'flex-start', 
+                gap: '16px',
+                marginBottom: '16px' 
+              }}>
                 <div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>해설서 RAG 추천 HS 10단위 코드</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: isMobile ? 'flex-start' : 'center', 
+                    gap: '12px', 
+                    marginTop: '4px' 
+                  }}>
                     {matchedRule.recommendedHsCode === "0000.00-0000" ? (
-                      <h3 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '1px', color: 'var(--accent-red)' }}>
+                      <h3 style={{ fontSize: isMobile ? '1.6rem' : '2rem', fontWeight: 800, letterSpacing: '1px', color: 'var(--accent-red)' }}>
                         판정 보류 (분류 불가)
                       </h3>
                     ) : (
-                      <h3 style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '1px' }} className="text-gradient">
+                      <h3 style={{ fontSize: isMobile ? '1.6rem' : '2rem', fontWeight: 800, letterSpacing: '1px' }} className="text-gradient">
                         {matchedRule.recommendedHsCode}
                       </h3>
                     )}
@@ -921,7 +978,7 @@ export default function HsClassifier() {
                 </div>
 
                 {/* Human-in-the-Loop Approval Action */}
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
                   {matchedRule.recommendedHsCode !== "0000.00-0000" && (
                     <button 
                       onClick={() => setApprovedStatus(true)}
@@ -936,7 +993,9 @@ export default function HsClassifier() {
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '6px'
+                        justifyContent: 'center',
+                        gap: '6px',
+                        width: '100%'
                       }}
                     >
                       <ShieldCheck size={16} /> {approvedStatus === true ? '관세사 최종 확인완료' : '세율 적용 확정 승인'}
@@ -956,11 +1015,12 @@ export default function HsClassifier() {
                   fontSize: '0.82rem',
                   color: '#fca5a5',
                   display: 'flex',
+                  flexWrap: 'wrap',
                   alignItems: 'flex-start',
                   gap: '10px'
                 }}>
                   <AlertTriangle size={20} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--accent-red)' }} />
-                  <div>
+                  <div style={{ flex: 1, minWidth: '240px' }}>
                     <span style={{ fontWeight: 800, display: 'block', marginBottom: '4px', fontSize: '0.9rem' }}>⚠️ 품목 분류 판단 불가 안내</span>
                     입력하신 사양정보(제품명, 재질 및 주요 용도)만으로는 세부 호(Heading) 및 통칙 적용 범위를 명확하게 매칭할 수 없습니다. 
                     <ul style={{ margin: '6px 0 0 16px', padding: 0, listStyleType: 'disc', lineHeight: 1.5 }}>
@@ -980,11 +1040,12 @@ export default function HsClassifier() {
                   fontSize: '0.8rem',
                   color: '#fca5a5',
                   display: 'flex',
+                  flexWrap: 'wrap',
                   alignItems: 'flex-start',
                   gap: '8px'
                 }}>
                   <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px', color: 'var(--accent-red)' }} />
-                  <div>
+                  <div style={{ flex: 1, minWidth: '240px' }}>
                     <span style={{ fontWeight: 700, display: 'block', marginBottom: '2px' }}>분류 제외 규정 통제 조건 (Exclusion Check)</span>
                     {matchedRule.exclusionNote}
                   </div>
@@ -1354,34 +1415,83 @@ export default function HsClassifier() {
               {/* TAB 2: Precedents */}
               {activeTab === 'precedents' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {matchedRule.precedents.map((prec) => (
-                    <div key={prec.id} style={{ 
-                      background: 'rgba(0,0,0,0.2)', 
-                      padding: '14px', 
-                      borderRadius: '6px', 
-                      border: '1px solid var(--border-color)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                          [{prec.id}] {prec.title}
-                        </span>
-                        <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>
-                          유사도 {prec.similarity}%
-                        </span>
+                  {matchedRule.precedent_cases && matchedRule.precedent_cases.length > 0 ? (
+                    matchedRule.precedent_cases.map((prec, pIdx) => (
+                      <div key={pIdx} style={{ 
+                        background: 'rgba(20, 184, 166, 0.04)', 
+                        padding: '16px', 
+                        borderRadius: '8px', 
+                        border: '1px solid rgba(20, 184, 166, 0.25)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                            🏛️ [실제 판례] {prec.case_number}
+                          </span>
+                          <span style={{ fontSize: '0.72rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                            관세청 데이터 대조 완료
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          <span>발행기관: <b>관세평가분류원</b></span>
+                          <span>결정세번: <b style={{ color: 'var(--accent-cyan)' }}>{prec.hs_code.length >= 6 ? `${prec.hs_code.slice(0,4)}.${prec.hs_code.slice(4,6)}-${prec.hs_code.slice(6)}` : prec.hs_code}</b></span>
+                          {prec.date && <span>결정일자: {prec.date}</span>}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
+                          • 품명: {prec.product_name}
+                        </div>
+                        <div style={{ 
+                          fontSize: '0.8rem', 
+                          color: 'var(--text-muted)', 
+                          marginTop: '4px',
+                          background: 'rgba(0,0,0,0.2)',
+                          padding: '10px',
+                          borderRadius: '6px',
+                          lineHeight: 1.5,
+                          whiteSpace: 'pre-line'
+                        }}>
+                          <strong>결정사유 및 품목분류 근거:</strong><br />
+                          {prec.decision_reason}
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        <span>발행기관: {prec.issuingBody}</span>
-                        <span>결정일자: {prec.date}</span>
-                        <span>확정 코드: <b>{prec.code}</b></span>
+                    ))
+                  ) : (
+                    matchedRule.precedents && matchedRule.precedents.map((prec) => (
+                      <div key={prec.id} style={{ 
+                        background: 'rgba(0,0,0,0.2)', 
+                        padding: '14px', 
+                        borderRadius: '6px', 
+                        border: '1px solid var(--border-color)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
+                            [{prec.id}] {prec.title}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>
+                            유사도 {prec.similarity}%
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          <span>발행기관: {prec.issuingBody}</span>
+                          <span>결정일자: {prec.date}</span>
+                          <span>확정 코드: <b>{prec.code}</b></span>
+                        </div>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                          "{prec.reasoningSnippet}"
+                        </p>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-                        "{prec.reasoningSnippet}"
-                      </p>
+                    ))
+                  )}
+                  {(!matchedRule.precedent_cases || matchedRule.precedent_cases.length === 0) && (!matchedRule.precedents || matchedRule.precedents.length === 0) && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', padding: '20px' }}>
+                      일치하거나 경합하는 관세청 사전심사 결정례를 찾지 못했습니다.
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
 

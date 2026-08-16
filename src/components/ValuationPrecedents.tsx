@@ -23,6 +23,10 @@ interface ValuationPrecedentsProps {
 }
 
 export default function ValuationPrecedents({ currentUser }: ValuationPrecedentsProps) {
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [allPrecedents, setAllPrecedents] = useState<ValuationPrecedent[]>(VALUATION_PRECEDENT_DB);
@@ -30,6 +34,17 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [selectedCase, setSelectedCase] = useState<ValuationPrecedent | null>(VALUATION_PRECEDENT_DB[0]);
   const [argumentDraft, setArgumentDraft] = useState('');
   const [draftGenerated, setDraftGenerated] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const fetchPrecedents = async () => {
@@ -41,6 +56,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
           const mapped = data.map((item: any) => ({
             ...item,
             categoryKo: item.category_ko,
+            caseNumber: item.case_number,
             keyIssue: item.key_issue,
             factualBackground: item.factual_background,
             holdingKo: item.holding_ko,
@@ -61,17 +77,19 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
     };
     fetchPrecedents();
   }, []);
-
-  const handleSearch = () => {
-    const query = searchQuery.toLowerCase();
+  // 검색어 및 카테고리가 변경될 때마다 실시간으로 리스트를 필터링하는 반응형 효과 추가
+  useEffect(() => {
+    const query = searchQuery.trim().toLowerCase();
     const filtered = allPrecedents.filter(item => {
-      const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-      const matchesText = 
-        item.title.toLowerCase().includes(query) ||
-        item.keyIssue.toLowerCase().includes(query) ||
-        item.holdingKo.toLowerCase().includes(query) ||
-        item.factualBackground.toLowerCase().includes(query) ||
-        item.caseNumber.toLowerCase().includes(query);
+      const matchesCategory = selectedCategory === 'all' || 
+        item.category === selectedCategory ||
+        (selectedCategory === 'transfer-pricing-tp' && item.category === 'transfer-pricing');
+      const matchesText = !query || 
+        (item.title || "").toLowerCase().includes(query) ||
+        (item.keyIssue || "").toLowerCase().includes(query) ||
+        (item.holdingKo || "").toLowerCase().includes(query) ||
+        (item.factualBackground || "").toLowerCase().includes(query) ||
+        (item.caseNumber || "").toLowerCase().includes(query);
       return matchesCategory && matchesText;
     });
     setMatchedCases(filtered);
@@ -80,28 +98,17 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
     } else {
       setSelectedCase(null);
     }
+  }, [searchQuery, selectedCategory, allPrecedents]);
+
+  const handleSearch = () => {
+    // 이제 실시간 useEffect가 작동하므로, 검색 버튼을 누르면 강제로 한 번 더 상태가 갱신됩니다.
     setDraftGenerated(false);
   };
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
-    const filtered = allPrecedents.filter(item => {
-      const matchesCategory = category === 'all' || item.category === category;
-      const query = searchQuery.toLowerCase();
-      const matchesText = 
-        item.title.toLowerCase().includes(query) ||
-        item.keyIssue.toLowerCase().includes(query) ||
-        item.holdingKo.toLowerCase().includes(query) ||
-        item.factualBackground.toLowerCase().includes(query) ||
-        item.caseNumber.toLowerCase().includes(query);
-      return matchesCategory && matchesText;
-    });
-    setMatchedCases(filtered);
-    if (filtered.length > 0) {
-      setSelectedCase(filtered[0]);
-    } else {
-      setSelectedCase(null);
-    }
+    // 카테고리 전환 시 검색어를 초기화하여, 해당 카테고리의 모든 리스트가 보이도록 UX 사용성 대폭 개선
+    setSearchQuery('');
     setDraftGenerated(false);
   };
 
@@ -146,11 +153,12 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         fontSize: '0.8rem',
         lineHeight: 1.5,
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
         gap: '12px'
       }}>
         <AlertTriangle size={18} style={{ color: 'var(--accent-red)', flexShrink: 0 }} />
-        <div>
+        <div style={{ flex: 1, minWidth: '240px' }}>
           <strong>⚠️ 법적 고지 및 판례 참고 면책 조항 (Legal Disclaimer)</strong><br />
           본 CustomTax AI 관세평가 판례 매칭 엔진이 제공하는 결정례, 판결 요약 및 소명 가이드는 <strong>법적 공식 효력이 없는 실무 참고용 분석</strong>입니다. 각 수입물품별 계약 실질과 지출 명세에 따라 세관의 해석이 달라질 수 있으므로, 반드시 정식 과세처분 소명서 제출 시 전문 관세사와의 대면 법률 검토를 거치시기 바라며 본 처분 결과에 대한 법적 책임은 지지 않습니다.
         </div>
@@ -162,23 +170,38 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(217, 70, 239, 0.08) 100%)', 
         border: '1px solid rgba(6, 182, 212, 0.2)' 
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row', 
+          justifyContent: 'space-between', 
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: isMobile ? '16px' : '24px'
+        }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <Scale size={24} color="var(--accent-cyan)" />
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>CustomTax AI 관세평가 판례·결정례 매칭 소명 엔진</h2>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: isMobile ? 'column' : 'row',
+              alignItems: isMobile ? 'flex-start' : 'center', 
+              gap: '10px', 
+              marginBottom: '8px' 
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Scale size={24} color="var(--accent-cyan)" />
+                <h2 style={{ fontSize: isMobile ? '1.25rem' : '1.5rem', fontWeight: 700 }}>CustomTax AI 관세평가 판례·결정례 매칭 소명 엔진</h2>
+              </div>
               <span style={{ 
                 background: 'rgba(6, 182, 212, 0.15)', 
                 color: 'var(--accent-cyan)', 
                 fontSize: '0.75rem', 
                 padding: '4px 10px', 
                 borderRadius: '12px', 
-                fontWeight: 600 
+                fontWeight: 600,
+                width: 'fit-content'
               }}>
                 Valuation Precedents v1.0
               </span>
             </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1.4 }}>
               본사-지사 간 이전가격(특수관계 가격영향), 로열티 권리사용료 가산 여부, 생산지원비 범위 등 핵심 과세가격 쟁점별 세관/조세심판원/대법원 판례를 즉각 매칭합니다.
             </p>
           </div>
@@ -195,7 +218,10 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              justifyContent: 'center',
+              gap: '6px',
+              width: isMobile ? '100%' : 'auto',
+              alignSelf: isMobile ? 'stretch' : 'center'
             }}
           >
             <FileText size={14} /> 판례 소명 리포트 출력/PDF 저장
@@ -204,7 +230,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       </div>
 
       {/* Main Grid: Left Search/List, Right Detail Case View */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '24px' }}>
+      <div className="valuation-grid-layout">
         
         {/* Left Side: Search Panel & matched case list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -254,10 +280,13 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                 { value: 'all', label: '전체 쟁점' },
                 { value: 'royalty', label: '로열티' },
                 { value: 'transfer-pricing', label: '특수관계' },
-                { value: 'assists', label: '생산지원비' }
+                { value: 'assists', label: '생산지원비' },
+                { value: 'transfer-pricing-tp', label: '이전가격' },
+                { value: 'indirect-payment', label: '간접지급액' },
+                { value: 'freight', label: '운임 및 관련비용' }
               ].map(cat => (
                 <button
-                  key={cat.value}
+                  key={`${cat.value}-${cat.label}`}
                   onClick={() => handleCategoryChange(cat.value)}
                   style={{
                     padding: '4px 10px',
@@ -276,6 +305,22 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             </div>
           </div>
 
+          {/* Matched Case List Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            <span>검색 결과: 총 <b style={{ color: 'var(--accent-cyan)' }}>{matchedCases.length}</b>건</span>
+            {(searchQuery || selectedCategory !== 'all') && (
+              <button 
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                }}
+                style={{ background: 'transparent', border: 'none', color: '#f87171', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '2px' }}
+              >
+                검색 초기화
+              </button>
+            )}
+          </div>
+
           {/* Matched Case List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '450px' }}>
             {matchedCases.length === 0 ? (
@@ -283,7 +328,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                 검색 조건과 일치하는 관세평가 판례가 없습니다.
               </div>
             ) : (
-              matchedCases.map(item => (
+              matchedCases.slice(0, 50).map(item => (
                 <div 
                   key={item.id} 
                   onClick={() => {
@@ -322,6 +367,20 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                   </div>
                 </div>
               ))
+            )}
+            
+            {/* 검색 결과가 50개를 초과할 때 초과 안내 메시지 노출 (DOM 부하 방지 및 UX 제공) */}
+            {matchedCases.length > 50 && (
+              <div style={{
+                padding: '12px',
+                textAlign: 'center',
+                color: 'var(--text-muted)',
+                fontSize: '0.78rem',
+                borderTop: '1px dashed rgba(255, 255, 255, 0.08)',
+                marginTop: '8px'
+              }}>
+                검색 결과가 많아 상위 50개만 표시됩니다.<br/>더 상세한 검색어를 입력해 주세요.
+              </div>
             )}
           </div>
         </div>
