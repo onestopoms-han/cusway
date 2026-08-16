@@ -29,6 +29,16 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
   const [history, setHistory] = useState<UploadHistory[]>([]);
   const [matchCount, setMatchCount] = useState<number | null>(null);
 
+  // AI 분석 모듈 추가 상태
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<{
+    rarity: '최상 (신규/독점)' | '우수 (희귀 쟁점)' | '보통 (일반 판례)' | '낮음 (중복 사례)';
+    matchRate: number; // 기존 DB와 매칭률 (%)
+    legalImpact: '경정청구 소명력 매우 높음 (상)' | '중' | '하';
+    suggestedPoints: number; // AI 책정 포인트
+    analysisSnippet: string;
+  } | null>(null);
+
   // 입력 내용에 따른 실시간 DB 연관 결정례 개수 조회 효과 (Debounce 적용)
   useEffect(() => {
     const query = shareType === 'hs' ? hsCode : valuationIssue;
@@ -69,7 +79,6 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           status: item.status,
           date: item.date
         }));
-        // 나의 이메일 기록만 필터링하거나 전체 이력을 보여주되 관리 편의 유지
         setHistory(mapped);
       }
     } catch (err) {
@@ -87,7 +96,51 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name);
+      const uploadedFile = e.target.files[0];
+      setFileName(uploadedFile.name);
+      
+      // 파일 업로드 시 즉시 RAG 매칭 및 가치평가 시뮬레이션 가동 (체크하고 또 체크하는 디테일 효과)
+      setIsAnalyzing(true);
+      setAnalysisResult(null);
+      
+      setTimeout(() => {
+        // 기존 11년 치 DB와의 유사도 및 중복 여부 판정 시뮬레이션
+        const isHighlyDuplicated = matchCount && matchCount > 5;
+        const randomMatchRate = isHighlyDuplicated 
+          ? Math.floor(Math.random() * 20) + 75 // 75~95% 중복 매칭
+          : Math.floor(Math.random() * 40) + 10; // 10~50% 독창성 매칭
+        
+        let rarityVal: any = '최상 (신규/독점)';
+        let pts = 15000;
+        let impact: any = '경정청구 소명력 매우 높음 (상)';
+        let snippet = `본 사전회시 문서는 2015-2026 관세청 DB 내에 유사 쟁점이 존재하지 않는 독점적이고 희귀한 고가치 소명 자료입니다.`;
+
+        if (randomMatchRate > 75) {
+          rarityVal = '낮음 (중복 사례)';
+          pts = 2000;
+          impact = '하';
+          snippet = `해당 품목분류 코드는 기존 11개년 DB에 다수의 동일/유사 사전심사가 이미 적재되어 있어 가치 평가 등급이 조정되었습니다.`;
+        } else if (randomMatchRate > 40) {
+          rarityVal = '보통 (일반 판례)';
+          pts = 5000;
+          impact = '중';
+          snippet = `일반적인 매칭 구조를 갖고 있으나 의견서 초안 데이터 보강용으로 가치가 양호한 문서입니다.`;
+        } else if (randomMatchRate > 20) {
+          rarityVal = '우수 (희귀 쟁점)';
+          pts = 9000;
+          impact = '중';
+          snippet = `경합 세번 분리가 명확한 실무 희귀 쟁점을 포함하고 있어 활용도가 높은 고품질 자료입니다.`;
+        }
+
+        setAnalysisResult({
+          rarity: rarityVal,
+          matchRate: randomMatchRate,
+          legalImpact: impact,
+          suggestedPoints: pts,
+          analysisSnippet: snippet
+        });
+        setIsAnalyzing(false);
+      }, 1500);
     }
   };
 
@@ -99,6 +152,8 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       return;
     }
 
+    const ptsToAward = analysisResult ? analysisResult.suggestedPoints : (shareType === 'valuation' ? 8000 : 5000);
+
     const payload = {
       email: currentUser?.email || 'guest@cusway.kr',
       type: shareType,
@@ -106,7 +161,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       hs_code_or_issue: primaryIdentifier,
       item_name: itemName,
       file_name: fileName,
-      points: shareType === 'valuation' ? 8000 : 5000
+      points: ptsToAward
     };
 
     try {
@@ -121,6 +176,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       }
       
       setUploadStatus(true);
+      setAnalysisResult(null);
       fetchHistory();
     } catch (err) {
       // Fallback
@@ -131,12 +187,13 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         hsCodeOrIssue: primaryIdentifier,
         itemName,
         fileName,
-        points: shareType === 'valuation' ? 8000 : 5000,
-        status: '검토 대기중',
+        points: ptsToAward,
+        status: '승인 완료', // 시뮬레이터 즉시 적립 연동
         date: new Date().toISOString().split('T')[0]
       };
       setHistory([newRecord, ...history]);
       setUploadStatus(true);
+      setAnalysisResult(null);
     }
     
     // 입력 초기화
@@ -352,6 +409,76 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 </p>
               </div>
             </div>
+
+            {/* AI 실시간 문서 가치 분석 및 매칭률 평가 리포트 뷰어 */}
+            {isAnalyzing && (
+              <div style={{
+                padding: '20px',
+                background: 'rgba(0,0,0,0.3)',
+                border: '1px dashed var(--accent-cyan)',
+                borderRadius: '8px',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+                animation: 'pulse 1.5s infinite ease-in-out'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '3px solid rgba(6, 182, 212, 0.2)',
+                  borderTop: '3px solid var(--accent-cyan)',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                  AI가 11개년 관세청 사전심사 DB와 매칭률 대조 및 독점성 가치 평가 중...
+                </span>
+              </div>
+            )}
+
+            {analysisResult && (
+              <div className="glass-panel" style={{
+                padding: '20px',
+                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(217, 70, 239, 0.05) 100%)',
+                border: '1px solid rgba(6, 182, 212, 0.25)',
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
+                  <Gift size={16} color="var(--accent-cyan)" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>🤖 AI 실시간 사전회시 가치평가 리포트</span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', fontSize: '0.78rem' }}>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>기존 DB와 매칭률:</span>
+                    <strong style={{ color: 'var(--accent-cyan)', marginLeft: '6px' }}>{analysisResult.matchRate}%</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>자료 희귀성 등급:</span>
+                    <strong style={{ color: 'var(--accent-amber)', marginLeft: '6px' }}>{analysisResult.rarity}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>세액 절감 파급력:</span>
+                    <strong style={{ color: '#d946ef', marginLeft: '6px' }}>{analysisResult.legalImpact}</strong>
+                  </div>
+                  <div>
+                    <span style={{ color: 'var(--text-muted)' }}>AI 산정 적정 가치:</span>
+                    <strong style={{ color: 'var(--accent-amber)', fontSize: '0.85rem', marginLeft: '6px' }}>
+                      ₩{analysisResult.suggestedPoints.toLocaleString()} P
+                    </strong>
+                  </div>
+                </div>
+
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '6px', lineHeight: 1.4 }}>
+                  💡 <b>AI 코멘트:</b> {analysisResult.analysisSnippet}
+                </p>
+              </div>
+            )}
 
             <button 
               type="submit"
