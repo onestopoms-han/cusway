@@ -89,7 +89,11 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         (item.keyIssue || "").toLowerCase().includes(query) ||
         (item.holdingKo || "").toLowerCase().includes(query) ||
         (item.factualBackground || "").toLowerCase().includes(query) ||
-        (item.caseNumber || "").toLowerCase().includes(query);
+        (item.caseNumber || "").toLowerCase().includes(query) ||
+        (item.customsArgument || "").toLowerCase().includes(query) ||
+        (item.importerArgument || "").toLowerCase().includes(query) ||
+        (item.implicationKo || "").toLowerCase().includes(query) ||
+        (item.reasoningSnippet || "").toLowerCase().includes(query);
       return matchesCategory && matchesText;
     });
     setMatchedCases(filtered);
