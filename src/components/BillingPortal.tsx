@@ -27,9 +27,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
   const userAccruedPoints = currentUser?.accrued_points ?? 15000;
   const planPrices = {
     free: 0,
-    pay_per_use: 3900,
-    basic: 14900,
-    business: 49000
+    pay_per_use: 990,
+    basic: 4900,
+    business: 19900
   };
 
   const currentPrice = planPrices[selectedPlan];
@@ -47,10 +47,10 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     }
 
     const planNamesKo = {
-      free: '무료 체험 (매월 5건)',
-      pay_per_use: '건당 과금 (₩3,900/건)',
-      basic: 'Basic 구독 (₩14,900/월)',
-      business: 'Business 구독 (₩49,000/월)'
+      free: '무료 체험 (매월 10건)',
+      pay_per_use: '건당 과금 (₩990/건)',
+      basic: 'Basic 구독 (₩4,900/월)',
+      business: 'Business 구독 (₩19,900/월)'
     };
 
     const payload = {
@@ -167,7 +167,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 평생 무료</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 5건</b> 무료 검증 리포트 제공</li>
+                <li><b>매월 10건</b> 무료 검증 리포트 제공</li>
                 <li>한글 해설서 및 통칙 매칭 기능</li>
                 <li>이메일/카카오톡 리포트 전송</li>
               </ul>
@@ -199,7 +199,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>수입 건수가 적은 간이 화주</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-amber)' }}>₩3,900</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-amber)' }}>₩990</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 1건당</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
@@ -235,11 +235,11 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>개인 관세사 / 일반 기업체</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>₩14,900</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>₩4,900</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 월</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 15건</b> 리포트 다운로드 한도</li>
+                <li><b>매월 50건</b> 리포트 다운로드 한도</li>
                 <li>관세평가 판례 RAG 검색 무제한</li>
                 <li>이메일/카카오 다중 전송 편의 지원</li>
               </ul>
@@ -271,11 +271,11 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>관세법인 / 다중 계정 그룹</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)' }}>₩49,000</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)' }}>₩19,900</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 월</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 80건</b> 다운로드 + <b>계정 5개</b> 지원</li>
+                <li><b>매월 300건</b> 다운로드 + <b>계정 5개</b> 지원</li>
                 <li>관세법인 공식 로고 박힌 리포트 인쇄</li>
                 <li>적립 캐시백 최대 10만 P 일시 공제</li>
               </ul>
