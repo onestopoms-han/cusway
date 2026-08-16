@@ -317,7 +317,22 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             break
             
     if not found:
-        found = KOREAN_HS_RULES[0]
+        # 매칭되는 정적 룰이 없으면 엉뚱한 KOREAN_HS_RULES[0]를 뱉지 말고, 미분류/가이드 보류 형식으로 안전하게 리턴
+        return {
+            "recommendedHsCode": "0000.00-0000",
+            "headingName": "미분류 화물 (매칭 실패)",
+            "subheadingName": f"{product_name} - 상세 사양 검토 요망",
+            "confidence": 40,
+            "technicalTerms": "Unresolved customs query",
+            "appliedGris": ["통칙 제1호"],
+            "legalReasoning": f"입력하신 품명 '{product_name}'과 재질/용도 조건은 로컬 데이터베이스 내의 관세율표 해설서 및 통칙 가이드 범주에서 정확한 부합 세번을 찾지 못했습니다. 정확한 분류를 위해 재질(예: 철강제, 플라스틱제, 가죽제)을 상세히 기재해 주십시오.",
+            "sectionNote": "제외 조항 및 관련 부의 주석 규정을 대조하십시오.",
+            "chapterNote": "관세율표 각 류의 제외 물품 리스트를 참고하십시오.",
+            "exclusionNote": "재질 및 가공 방식에 따라 제3926호(플라스틱), 제7326호(철강), 제7117호(모조신변장식용품) 등으로 분산 분류될 수 있습니다.",
+            "headingExplanation": "세부 사양이 기재되지 않은 단순 제품명만으로는 품목분류 판정이 불가합니다.",
+            "precedents": [],
+            "competingHsCodes": []
+        }
         
     return {
         "recommendedHsCode": found["recommendedHsCode"],
