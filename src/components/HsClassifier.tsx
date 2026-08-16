@@ -180,6 +180,34 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-4. 성경책 로컬 우회 예외 처리
+    if (query.includes('성경') || query.includes('bible') || query.includes('성경책')) {
+      return {
+        keywordTrigger: ['성경', '성경책', 'bible'],
+        recommendedHsCode: "4901.99-2000",
+        headingName: "제4901호 (인쇄서적ㆍ소책자ㆍ리플릿과 이와 유사한 인쇄물)",
+        subheadingName: "종교 서적 (성경ㆍ성서)",
+        confidence: 98,
+        technicalTerms: "Religious books (Bibles, prayer books)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 종교적 교리(성경)가 인쇄된 인쇄 서적입니다. 관세율표 일반통칙 제1호 및 제6호에 의거하여 인쇄 서적류가 분류되는 제4901호 하위 세번 중 종교 서적 전용 세번(4901.99-2000)에 정확히 분류됩니다.",
+        sectionNote: "제10부 펄프, 종이, 인쇄물 (제49류 인쇄서적 등)",
+        chapterNote: "제49류 주석 규정: 인쇄된 서적의 분류 범위 확인",
+        exclusionNote: "⚠️ 제외규정 통제: 수집품 또는 고고학적 가치를 지닌 역사적 골동품 성경책(제9705호)은 본 호에서 제외되어 골동품류로 분류될 수 있으나, 일반 판매용 성경책은 4901호에 분류합니다.",
+        headingExplanation: "제4901호 해설: 이 호에는 인쇄된 서적, 소책자, 리플릿과 이와 유사한 인쇄물을 분류하며, 성서와 종교적 도서는 전용 세번으로 세분화됩니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "9705.10-0000",
+            headingName: "수집품과 골동품",
+            appliedGri: "통칙 제1호",
+            reasoning: "매우 희귀하거나 역사적 가치가 입증된 고서 성경책의 경우 제9705호 골동품 분류 경합이 발생할 수 있습니다.",
+            exclusionReason: "일반적인 예배/인쇄 유통 목적의 성경책은 통상적인 인쇄서적(제4901호)으로 분류하는 것이 타당합니다."
+          }
+        ]
+      };
+    }
+
     // 1. Try matching with predefined local rules using keyword counts
     let bestRule: ClassificationRule | null = null;
     let maxMatches = 0;
