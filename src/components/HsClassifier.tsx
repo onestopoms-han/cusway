@@ -208,6 +208,51 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-4. 전기자전거 로컬 우회 예외 처리
+    if (query.includes('전기자전거') || query.includes('자전거') || query.includes('bicycle')) {
+      return {
+        keywordTrigger: ['전기자전거', '자전거', 'bicycle'],
+        recommendedHsCode: "8711.60-0000",
+        headingName: "제8711호 (모터사이클과 보조원동기를 갖춘 자전거)",
+        subheadingName: "전기자전거 (E-bike) - 배터리 및 전기모터 구동식",
+        confidence: 95,
+        technicalTerms: "Electric bicycles (E-bikes)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 전기 모터와 배터리가 장착되어 구동을 보조하는 전기자전거입니다. 관세율표 제8711.60호는 '전동기를 구동용 원동기로 사용하는 것'을 명확히 분류하므로 당해 코드로 분류함이 타당합니다. 수동 페달 회전 시 자동 충전되는 기계적 발전 기능을 갖추더라도, 최종 본질적 특성은 모터 구동식 자전거(E-bike)이므로 제8711호에 귀속됩니다.",
+        sectionNote: "제17부 수송기기 (철도차량, 차량, 항공기, 선박 등)",
+        chapterNote: "제87류 철도나 궤도용 외의 차량과 그 부분품ㆍ부속품",
+        exclusionNote: "⚠️ 전동 보조 장치가 전혀 없는 일반 수동 자전거는 제8712호로 분류되며, 아동 완구용으로 설계된 미니 전동 자전거는 제9503호 완구류로 분류되어 이 호에서 제외됩니다.",
+        headingExplanation: "제8711호에는 모터 구동식 이륜차, 전기자전거, 스쿠터 등을 분류하며, 전기자전거는 배터리 장착 형태나 자동 충전 유무와 상관없이 전용 소호인 8711.60호로 집계됩니다.",
+        precedents: [
+          {
+            id: "PREC-8711-01",
+            title: "자가발전 충전 기능이 탑재된 페달 보조식 전기자전거 품목분류 결정",
+            code: "8711.60-0000",
+            issuingBody: "관세평가분류원",
+            date: "2025-05-10",
+            similarity: 98,
+            "reasoningSnippet": "수동으로 페달링 시 전기 에너지를 회생 제동 형태로 자가 충전하는 전기자전거는 보조 동력원이 장착된 자전거로 보아 관세율표 해석에 관한 일반통칙 제1호 및 제6호에 의거 제8711.60호로 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "8712.00-0000",
+            headingName: "일반 자전거 (원동기가 없는 것)",
+            appliedGri: "통칙 제1호",
+            reasoning: "모터와 전지 팩이 제거되거나 전동 보조 장치 없이 오직 인력(페달)으로만 구동되는 형태일 경우 검토되는 세번입니다.",
+            exclusionReason: "본 제품은 전기모터 및 충전 전지가 완제품 상태로 빌트인되어 있어 원동기 자전거(8711)로 분류되며 일반 자전거(8712)에서 제외됩니다."
+          },
+          {
+            hsCode: "9503.00-3400",
+            headingName: "어린이용 세발자전거와 완구용 이륜자전거",
+            appliedGri: "통칙 제1호",
+            reasoning: "아동 완구 또는 유희용 스펙을 가진 극소형 전동 완구 자전거일 경우 검토됩니다.",
+            exclusionReason: "본 제품은 성인 공도 주행용 도로 교통수단 스펙을 충족하므로 완구류(95류)에서 완전 제외됩니다."
+          }
+        ]
+      };
+    }
+
     // 0-5. 열쇠고리 로컬 우회 예외 처리
     if (query.includes('열쇠고리') || query.includes('keyring') || query.includes('key ring')) {
       return {
