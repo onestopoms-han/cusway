@@ -176,7 +176,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                     {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
-                "temperature": 0.1
+                "temperature": 0.0
             }
             req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
             with urllib.request.urlopen(req, timeout=7) as response:
@@ -217,7 +217,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 {"role": "system", "content": "You are a professional Korean Customs Broker chatbot."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.2
+            "temperature": 0.0
         }
         
         req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
