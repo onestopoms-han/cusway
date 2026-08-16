@@ -25,6 +25,7 @@ dist-ssr
 
 # Database and secrets
 *.db
+!cusway.db
 *.db-journal
 openai.key
 groq.key
