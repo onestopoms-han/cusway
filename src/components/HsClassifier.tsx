@@ -599,27 +599,14 @@ export default function HsClassifier() {
             </span>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%' }}>
               <button 
-                onClick={async () => {
-                  const phone = prompt('수신받을 휴대폰 번호를 입력하세요:', '010-5813-2026');
-                  if (!phone) return;
-                  try {
-                    const response = await fetch('/api/send/kakao', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        recipient_phone: phone,
-                        message_content: `[CUSWAY HS분류 알림]\n추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n품목: ${productName}\n분류 근거 및 원문 해설이 연결된 리포트 주소: https://cusway.kr`
-                      })
-                    });
-                    if (response.ok) {
-                      alert(`[카카오 알림톡 전송 완료]\n수신번호: ${phone}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 링크가 정상 발송되었습니다.`);
-                    } else {
-                      // Vercel Serverless 배포 반영 지연 대비 로컬 폴백 시뮬레이션
-                      alert(`[카카오 알림톡 전송 완료 (시뮬레이터)]\n수신번호: ${phone}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 링크가 정상 발송되었습니다. (서버 통신 우회 성공)`);
-                    }
-                  } catch (e) {
-                    alert(`[카카오 알림톡 전송 완료 (시뮬레이터)]\n수신번호: ${phone}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 링크가 정상 발송되었습니다. (서버 오프라인 대응 완료)`);
-                  }
+                onClick={() => {
+                  const phone = prompt('카카오톡으로 공유할 메시지를 확인하세요. 확인을 누르면 카카오톡 친구/나에게 보내기 화면으로 이동합니다.', '010-5813-2026');
+                  if (phone === null) return; // 취소 시 중단
+                  
+                  const shareText = `[CUSWAY HS분류 알림]\n\n■ 추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n■ 품목명: ${productName}\n■ 재질성분: ${material || '미기재'}\n■ 법적근거: ${matchedRule ? matchedRule.legalReasoning.slice(0, 100) : ''}...\n\n상세 리포트 전문 확인: https://www.cusway.kr`;
+                  const shareUrl = `https://sharer.kakao.com/talk/friends/picker/link?link=${encodeURIComponent("https://www.cusway.kr")}&text=${encodeURIComponent(shareText)}`;
+                  
+                  window.open(shareUrl, '_blank', 'width=450,height=650');
                 }}
                 style={{
                   background: 'rgba(254, 229, 0, 0.1)',
@@ -639,28 +626,14 @@ export default function HsClassifier() {
               </button>
 
               <button 
-                onClick={async () => {
-                  const emailAddr = prompt('수신받을 이메일 주소를 입력하세요:', 'user@example.com');
+                onClick={() => {
+                  const emailAddr = prompt('리포트를 발송할 이메일 주소를 입력하세요:', 'user@example.com');
                   if (!emailAddr) return;
-                  try {
-                    const response = await fetch('/api/send/email', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        recipient_email: emailAddr,
-                        subject: `[CUSWAY] 수입물품 HS Code 분류 및 소명 리포트 통지`,
-                        body_content: `품목명: ${productName}\n재질성분: ${material}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n법적근거:\n${matchedRule ? matchedRule.legalReasoning : ''}`
-                      })
-                    });
-                    if (response.ok) {
-                      alert(`[이메일 리포트 전송 완료]\n수신이메일: ${emailAddr}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 PDF가 정상 발송되었습니다.`);
-                    } else {
-                      // Vercel Serverless 배포 반영 지연 대비 로컬 폴백 시뮬레이션
-                      alert(`[이메일 리포트 전송 완료 (시뮬레이터)]\n수신이메일: ${emailAddr}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 PDF가 정상 발송되었습니다. (서버 통신 우회 성공)`);
-                    }
-                  } catch (e) {
-                    alert(`[이메일 리포트 전송 완료 (시뮬레이터)]\n수신이메일: ${emailAddr}\n\n"${matchedRule ? matchedRule.recommendedHsCode : '분류'}" HS 분류 리포트 PDF가 정상 발송되었습니다. (서버 오프라인 대응 완료)`);
-                  }
+                  
+                  const subject = `[CUSWAY] 수입물품 HS Code 분류 및 소명 리포트 통지`;
+                  const body = `품목명: ${productName}\n재질성분: ${material || '미기재'}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n\n■ 법적 소명 근거:\n${matchedRule ? matchedRule.legalReasoning : ''}\n\n상세 정보 및 관세율표 해설서 원문은 사이트에서 확인해 주세요: https://www.cusway.kr`;
+                  
+                  window.location.href = `mailto:${emailAddr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }}
                 style={{
                   background: 'rgba(6, 182, 212, 0.1)',
