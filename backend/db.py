@@ -3,9 +3,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Vercel 배포 환경에서는 /tmp 폴더만 쓰기 권한이 허용되므로 경로 분기 처리
+import shutil
+
+# Vercel 배포 환경에서는 /tmp 폴더만 쓰기 권한이 허용되므로 파일 복사 후 사용
 if os.environ.get("VERCEL"):
     DATABASE_URL = "sqlite:////tmp/cusway.db"
+    src_db = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cusway.db")
+    dest_db = "/tmp/cusway.db"
+    if os.path.exists(src_db):
+        try:
+            shutil.copy2(src_db, dest_db)
+            print(f"[DB_COPY] Successfully copied {src_db} to {dest_db} (size: {os.path.getsize(dest_db)} bytes)")
+        except Exception as e:
+            print(f"[DB_COPY_ERROR] Failed to copy database: {e}")
+    else:
+        print(f"[DB_COPY_WARN] Source database not found at {src_db}")
 else:
     DATABASE_URL = "sqlite:///./cusway.db"
 
