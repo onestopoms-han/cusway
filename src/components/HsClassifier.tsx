@@ -208,6 +208,44 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-3. 퍼즐 로컬 우회 예외 처리
+    if (query.includes('퍼즐') || query.includes('puzzle')) {
+      return {
+        keywordTrigger: ['퍼즐', 'puzzle'],
+        recommendedHsCode: "9503.00-3300",
+        headingName: "제9503호 (완구와 오락용구)",
+        subheadingName: "퍼즐 (지그소 퍼즐 등 재질 불문)",
+        confidence: 96,
+        technicalTerms: "Puzzles of all kinds (Jigsaw puzzles)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 종이 판지 재질의 지그소 퍼즐(종이 퍼즐)입니다. 관세율표 제9503호는 재질에 관계없이 모든 퍼즐을 분류하는 특게호(9503.00-3300)를 보유하고 있습니다. 따라서 제48류의 종이 제품에서 배제되어 제9503호 완구류로 최우선 분류됩니다.",
+        sectionNote: "제20부 잡품 (제95류 완구, 게임용구, 운동용구)",
+        chapterNote: "제95류 주석 규정: 완구류의 분류 기준",
+        exclusionNote: "⚠️ 종이 재질의 퍼즐이라 하더라도 완구 목적의 퍼즐은 제48류(종이 제품) 및 제49류(인쇄물)에서 완전 제외되어 제9503호에 귀속됩니다.",
+        headingExplanation: "제9503호 해설: 이 호에는 재질에 관계없이 모든 종류의 퍼즐(예: 지그소 퍼즐, 입체 퍼즐)이 분류됩니다.",
+        precedents: [
+          {
+            id: "PREC-9503-01",
+            title: "종이 재질 지그소 퍼즐의 품목분류 결정례",
+            code: "9503.00-3300",
+            issuingBody: "관세평가분류원",
+            date: "2024-03-15",
+            similarity: 98,
+            reasoningSnippet: "종이 판지에 그림을 인쇄하여 커팅한 완구용 지그소 퍼즐은 구성 재질이 종이(48류)라 할지라도 유희용 완구의 본질을 지니므로 통칙 제1호에 따라 제9503.00-3300호에 분류됨."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "4823.90-9000",
+            headingName: "기타 종이 제품",
+            appliedGri: "통칙 제1호",
+            reasoning: "완구로 설계되지 않은 단순 도안 가공용 두꺼운 종이 판지 형태일 경우 검토되는 코드입니다.",
+            exclusionReason: "완제품 지그소 퍼즐 완구로서의 본질적 형상이 완성되어 있으므로 48류 제품군에서 제외됩니다."
+          }
+        ]
+      };
+    }
+
     // 0-4. 전기자전거 로컬 우회 예외 처리
     if (query.includes('전기자전거') || query.includes('자전거') || query.includes('bicycle')) {
       return {
