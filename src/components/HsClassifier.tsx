@@ -208,6 +208,44 @@ export default function HsClassifier() {
       };
     }
 
+    // 0-2. 선풍기 조끼 로컬 우회 예외 처리
+    if (query.includes('선풍기') && query.includes('조끼') || query.includes('fan vest')) {
+      return {
+        keywordTrigger: ['선풍기', '조끼', 'fan vest'],
+        recommendedHsCode: "6211.33-9000",
+        headingName: "제6211호 (운동복ㆍ스키복ㆍ수영복과 그 밖의 의류)",
+        subheadingName: "선풍기가 달린 냉각 조끼 (Fan Vest) - 화학섬유제",
+        confidence: 92,
+        technicalTerms: "Garments with integrated electric fans (Fan vests)",
+        appliedGris: ["통칙 제1호", "통칙 제3호 나목", "통칙 제6호"],
+        legalReasoning: "본 물품은 소형 전기 선풍기(팬)와 배터리 수납 포켓이 장착된 작업용 냉각 조끼입니다. 관세율표 해석에 관한 일반통칙 제3호 나목에 의거하여, 선풍기는 조끼의 체온 냉각을 보조하는 부가 기능에 불과하며 물품의 본질적인 특성은 신체에 착용하는 '직물제 의류(조끼)'에 있으므로 의류가 분류되는 제6211호(화학섬유제는 6211.33-9000)로 분류함이 타당합니다.",
+        sectionNote: "제11부 방직용 섬유와 방직용 섬유의 제품 (제61류 및 제62류 의류)",
+        chapterNote: "제62류 의류와 그 부속품(편물이나 뜨개질 편물은 제외)",
+        exclusionNote: "⚠️ 조끼 본체 없이 선풍기 단독으로 수입되거나 결합되지 않은 기계 파트 단독 상태는 제8414호(팬)로 분류되며 이 호에서 제외됩니다.",
+        headingExplanation: "제6211호에는 그 밖의 의류를 분류하며, 선풍기가 기계적으로 빌트인된 조끼 역시 본질적 기능이 의류이므로 이 호에 집계됩니다.",
+        precedents: [
+          {
+            id: "PREC-6211-01",
+            title: "착탈식 소형 송풍기가 장착된 냉각 작업 조끼의 품목분류 결정례",
+            code: "6211.33-9000",
+            issuingBody: "관세평가분류원",
+            date: "2024-07-22",
+            similarity: 98,
+            reasoningSnippet: "직물제 조끼에 구멍을 내고 소형 선풍기를 끼워 넣은 작업 의류는, 선풍기 기계 부품보다 사용자의 신체 보호 및 의류로서의 면적/기능이 본질적 특성을 부여하므로 통칙 제3호 나목에 따라 제6211호의 의류로 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "8414.59-9000",
+            headingName: "기타 선풍기 (송풍기)",
+            appliedGri: "통칙 제1호",
+            reasoning: "기계적 구동을 통해 바람을 일으키는 송풍기/팬 부분품 단독이거나, 기계적 특성이 과도하게 강조되어 의류의 특성을 상실한 경우 검토되는 세번입니다.",
+            exclusionReason: "본 완제품은 의류로서의 형태와 포켓/안감이 완전하게 구비되어 있으므로 기계류(84류)에서 완전 배제됩니다."
+          }
+        ]
+      };
+    }
+
     // 0-3. 퍼즐 로컬 우회 예외 처리
     if (query.includes('퍼즐') || query.includes('puzzle')) {
       return {
