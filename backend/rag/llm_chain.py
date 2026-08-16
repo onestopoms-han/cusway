@@ -10,8 +10,10 @@ from backend.rag.hs_validator import HSConsistencyValidator
 
 def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None, feedback_prompt: str = None):
     """
-    Wrapper around RAG classification flow that appends legal consistency validation.
+    Wrapper around RAG classification flow that appends legal consistency validation and
+    performs a self-correction secondary call if consistency score is too low (Double-Check Loop).
     """
+    # 1. First Classification Attempt
     result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key, feedback_prompt)
     
     # Inject variables for validator context
@@ -21,7 +23,32 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     # Run Validator
     validation = HSConsistencyValidator.compute_consistency_score(result_dict)
     
-    # Merge validation results
+    # 2. Self-Correction Loop: If score is under 75, launch a secondary checking query (Slow but extremely precise)
+    if validation["consistency_score"] < 75:
+        feedback_text = (
+            f"1차 판정 결과({result_dict.get('recommendedHsCode', '미판정')})에 대한 정합성 위배 경고가 식별되었습니다.\n"
+            f"경고 사유: {', '.join(validation['warnings'])}\n"
+            f"관세율표 제외 조항(Exclusion Note)과 재질 구분을 다시 꼼꼼하게 대조하여 오류가 없는 올바른 HS Code 및 근거 논리로 즉시 재판정해 주십시오."
+        )
+        print(f"[RAG-LLM] 정합성 미달 ({validation['consistency_score']}점). 2차 자가검증 교정 루프를 시작합니다.")
+        
+        # Attempt self-corrected match
+        corrected_result = _query_rag_hs_classification_raw(
+            product_name, material, function_use, db, custom_key, feedback_prompt=feedback_text
+        )
+        corrected_result["product_name"] = product_name
+        corrected_result["material"] = material
+        
+        # Validate corrected result
+        second_validation = HSConsistencyValidator.compute_consistency_score(corrected_result)
+        
+        # Apply corrected result if it matches or yields a better score
+        if second_validation["consistency_score"] >= validation["consistency_score"]:
+            result_dict = corrected_result
+            validation = second_validation
+            print(f"[RAG-LLM] 2차 자가교정 성공: 점수 {validation['consistency_score']}점으로 보정 완료.")
+    
+    # Merge final validation results
     result_dict["consistency_score"] = validation["consistency_score"]
     result_dict["consistency_status"] = validation["status"]
     result_dict["consistency_warnings"] = validation["warnings"]
