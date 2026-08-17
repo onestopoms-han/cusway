@@ -35,6 +35,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [argumentDraft, setArgumentDraft] = useState('');
   const [draftGenerated, setDraftGenerated] = useState(false);
   const [showMobileDetail, setShowMobileDetail] = useState(false); // 모바일에서 상세창 단독 스위칭 제어용
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>('all'); // 기타 관세평가 2차 서브 필터링용
 
   useEffect(() => {
     const handleResize = () => {
@@ -87,6 +88,22 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       const matchesCategory = selectedCategory === 'all' || 
         item.category === selectedCategory ||
         (selectedCategory === 'transfer-pricing-tp' && item.category === 'transfer-pricing');
+      
+      // 기타 관세평가 쟁점(valuation-other)일 때 2차 서브 필터링 적용
+      let matchesSubCategory = true;
+      if (selectedCategory === 'valuation-other' && selectedSubCategory !== 'all') {
+        const textToSearch = `${item.title || ''} ${item.keyIssue || ''} ${item.factualBackground || ''}`.toLowerCase();
+        if (selectedSubCategory === 'penalty') {
+          matchesSubCategory = textToSearch.includes('가산세') || textToSearch.includes('제척기간') || textToSearch.includes('가산금') || textToSearch.includes('의무') || textToSearch.includes('신고의무');
+        } else if (selectedSubCategory === 'reduction') {
+          matchesSubCategory = textToSearch.includes('감면') || textToSearch.includes('사후관리') || textToSearch.includes('학술') || textToSearch.includes('방위');
+        } else if (selectedSubCategory === 'refund') {
+          matchesSubCategory = textToSearch.includes('환급') || textToSearch.includes('소요량') || textToSearch.includes('bom');
+        } else if (selectedSubCategory === 'usage-rate') {
+          matchesSubCategory = textToSearch.includes('용도세율') || textToSearch.includes('덤핑') || textToSearch.includes('할당') || textToSearch.includes('조정관세');
+        }
+      }
+
       const matchesText = !query || 
         (item.title || "").toLowerCase().includes(query) ||
         (item.keyIssue || "").toLowerCase().includes(query) ||
@@ -97,7 +114,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         (item.importerArgument || "").toLowerCase().includes(query) ||
         (item.implicationKo || "").toLowerCase().includes(query) ||
         (item.reasoningSnippet || "").toLowerCase().includes(query);
-      return matchesCategory && matchesText;
+      return matchesCategory && matchesSubCategory && matchesText;
     });
     setMatchedCases(filtered);
     if (filtered.length > 0) {
@@ -105,7 +122,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
     } else {
       setSelectedCase(null);
     }
-  }, [searchQuery, selectedCategory, allPrecedents]);
+  }, [searchQuery, selectedCategory, selectedSubCategory, allPrecedents]);
 
   const handleSearch = () => {
     // 이제 실시간 useEffect가 작동하므로, 검색 버튼을 누르면 강제로 한 번 더 상태가 갱신됩니다.
@@ -114,6 +131,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
+    setSelectedSubCategory('all'); // 대분류 변경 시 서브카테고리 초기화
     // 카테고리 전환 시 검색어를 초기화하여, 해당 카테고리의 모든 리스트가 보이도록 UX 사용성 대폭 개선
     setSearchQuery('');
     setDraftGenerated(false);
@@ -336,6 +354,52 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                 </button>
               ))}
             </div>
+
+            {/* 기타 관세평가 2차 세부 서브 카테고리 탭 (대분류가 valuation-other일 때만 렌더링) */}
+            {selectedCategory === 'valuation-other' && (
+              <div style={{ 
+                marginTop: '8px', 
+                padding: '12px', 
+                background: 'rgba(245, 158, 11, 0.03)', 
+                border: '1px solid rgba(245, 158, 11, 0.15)', 
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <span style={{ fontSize: '0.72rem', color: 'var(--accent-amber)', fontWeight: 700 }}>
+                  🔍 기타 쟁점 세부 필터링 (2차 조회)
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {[
+                    { value: 'all', label: '기타 전체' },
+                    { value: 'penalty', label: '가산세/절차법' },
+                    { value: 'reduction', label: '관세감면/사후관리' },
+                    { value: 'refund', label: '관세환급/소요량' },
+                    { value: 'usage-rate', label: '용도세율/덤핑' }
+                  ].map(sub => (
+                    <button
+                      key={`${sub.value}-${sub.label}`}
+                      onClick={() => setSelectedSubCategory(sub.value)}
+                      style={{
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '0.7rem',
+                        background: selectedSubCategory === sub.value ? 'rgba(245, 158, 11, 0.25)' : 'rgba(255,255,255,0.02)',
+                        color: selectedSubCategory === sub.value ? 'var(--accent-amber)' : 'var(--text-muted)',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {sub.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Matched Case List Header */}
