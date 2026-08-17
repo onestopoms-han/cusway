@@ -244,6 +244,48 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     combined_query = f"{product_name} {material} {function_use}"
     input_lower = combined_query.lower()
 
+    # 0. 우선적으로 정적 룰셋(KOREAN_HS_RULES) 매칭 시도 (RAG 검색 오류보다 정확한 수동 룰 매칭)
+    found = None
+    for rule in KOREAN_HS_RULES:
+        if any(keyword in input_lower for keyword in rule["keywordTrigger"]):
+            found = rule
+            break
+            
+    if found:
+        return {
+            "recommendedHsCode": found["recommendedHsCode"],
+            "headingName": found["headingName"],
+            "subheadingName": found["subheadingName"],
+            "confidence": found["confidence"],
+            "technicalTerms": found["technicalTerms"],
+            "appliedGris": found["appliedGris"],
+            "legalReasoning": found["legalReasoning"],
+            "sectionNote": found["sectionNote"],
+            "chapterNote": found["chapterNote"],
+            "exclusionNote": found["exclusionNote"],
+            "headingExplanation": found["headingExplanation"],
+            "precedents": [
+                {
+                    "id": p["id"],
+                    "title": p["title"],
+                    "code": p["code"],
+                    "issuingBody": p["issuingBody"],
+                    "date": p["date"],
+                    "similarity": p["similarity"],
+                    "reasoningSnippet": p["reasoningSnippet"]
+                } for p in found["precedents"]
+            ],
+            "competingHsCodes": [
+                {
+                    "hsCode": "9503.00-0000" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "8479.89-9099",
+                    "headingName": "완구ㆍ유희용구" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "기타 기계류",
+                    "appliedGri": "통칙 제1호",
+                    "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
+                    "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
+                }
+            ]
+        }
+
     # 선풍기 달린 조끼 검색에 대한 RAG 가이드 (6211.33 메인 추천 및 8414 선풍기 경합 병기)
     if "선풍기" in input_lower and "조끼" in input_lower or "fan vest" in input_lower:
         return {
@@ -331,7 +373,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "subheadingName": "철강제 열쇠고리 (Key ring)",
             "confidence": 90,
             "technicalTerms": "Iron or steel key rings",
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
+            "appliedGris": ["통칙 제1호", "통칙 Hook 제6호"],
             "legalReasoning": "일반적인 금속제(철강) 열쇠고리는 제7326호의 기타 철강 제품에 분류됩니다. 한편, 경량 플라스틱 재질로 제조된 열쇠고리는 제3926호에 분류되므로 재질 사양에 맞추어 아래의 경합 세번과 비교 후 선택하십시오.",
             "sectionNote": "제15부 비열금속과 그 제품",
             "chapterNote": "제73류 철강의 제품 규정",
@@ -352,6 +394,42 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                     "appliedGri": "통칙 제3호 다목",
                     "reasoning": "액세서리용 펜던트 장식이 화려한 비귀금속제 모조 장식용 열쇠고리 경합 세번입니다.",
                     "exclusionReason": "단순 열쇠 묶음 고리로서의 실용적 기능이 우선하는 제품은 7326호로 복귀시킵니다."
+                }
+            ]
+        }
+
+    # 유리 텀블러 예외 매핑
+    if "유리" in input_lower and "텀블러" in input_lower:
+        return {
+            "recommendedHsCode": "7013.37-0000",
+            "headingName": "제7013호의 유리제품 (식탁용ㆍ주방용ㆍ화장용ㆍ필구용ㆍ실내장식용 등)",
+            "subheadingName": "유리 텀블러 (상부 스텐뚜껑, 하부 강화유리)",
+            "confidence": 94,
+            "technicalTerms": "Glassware for table or kitchen (drinking glasses)",
+            "appliedGris": ["통칙 제1호", "통칙 제3호나목", "통칙 제6호"],
+            "legalReasoning": "본 물품은 상부의 스테인리스 뚜껑과 하부의 강화유리 본체로 결합된 복합물품입니다. 통칙 제3호 나목에 의거하여 본질적인 특성을 부여하는 주요 재질인 '강화유리(제7013호)'에 따라 품목분류를 결정합니다.",
+            "sectionNote": "제15부 비열금속과 그 제품 (스테인리스 제품 제외 규정 조율)",
+            "chapterNote": "제70류 유리와 유리제품 (제7013호 식사용 유리 용기 주석)",
+            "exclusionNote": "제7013호 해설서 상 제외 조항: 이중벽을 가진 보온병용 유리 내벽(제7020호) 및 완구용 유리제품(제95류)은 본 호에서 제외됩니다.",
+            "headingExplanation": "제7013호에는 일반적으로 식탁ㆍ주방ㆍ화장실ㆍ사무실ㆍ실내장식용이나 이와 유사한 용도에 사용하는 종류의 유리제품을 분류합니다. 여기에는 음료용 유리컵(drinking glasses, 텀블러 포함)이 명확히 예시되어 있습니다.",
+            "precedents": [
+                {
+                    "id": "DEC-7013-01",
+                    "title": "플라스틱/스텐 캡이 결합된 음료용 유리 텀러의 품목분류 결정",
+                    "code": "7013.37-0000",
+                    "issuingBody": "관세평가분류원",
+                    "date": "2024-11-12",
+                    "similarity": 98,
+                    "reasoningSnippet": "몸체가 강화유리로 제작되고 단순 밀폐 마개로 스테인리스 스틸 캡이 부속된 텀블러는 통칙 제3호 나목을 적용, 본질적 특성을 지닌 유리제 용기로 보아 제7013호에 분류함."
+                }
+            ],
+            "competingHsCodes": [
+                {
+                    "hsCode": "9617.00-1000",
+                    "headingName": "보온병과 그 밖에 진공용기(조립된 것)",
+                    "appliedGri": "통칙 제3호 나목",
+                    "reasoning": "이중벽을 가진 보온 목적의 음료용 용기로 볼 여지가 있어 제9617호 보온용기가 경합 후보로 검토됨.",
+                    "exclusionReason": "본 제품은 단일벽의 강화유리 재질 구조이며 진공 단열 구조가 아니므로 제9617호 보온병 규격에서 제외되어 제7013호로 최종 분류됨."
                 }
             ]
         }
@@ -401,6 +479,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "sectionNote": best_note.section if best_note.section else "제21부 예술품ㆍ수집품과 골동품 (제97류 제외 등)",
             "chapterNote": best_note.chapter if best_note.chapter else "제96류 잡품 (제9608호 필기용구 주석 등)",
             "exclusionNote": f"해당 호({best_note.heading}) 해설서 상 제외 조항: 본 품목이 완구용 또는 타 류에 전용으로 분류되는 제품인 경우 해당 세번에서 제외 처리됩니다.",
+            "exclusion_reason": f"해당 호({best_note.heading}) 해설서 상 제외 조항: 본 품목이 완구용 또는 타 류에 전용으로 분류되는 제품인 경우 해당 세번에서 제외 처리됩니다.",
             "headingExplanation": best_note.content_ko[:1500],
             "precedents": precedents_list,
             "competingHsCodes": [
@@ -414,96 +493,19 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             ]
         }
 
-    input_lower = combined_query.lower()
-    if "유리" in input_lower and "텀블러" in input_lower:
-        return {
-            "recommendedHsCode": "7013.37-0000",
-            "headingName": "제7013호의 유리제품 (식탁용ㆍ주방용ㆍ화장용ㆍ필구용ㆍ실내장식용 등)",
-            "subheadingName": "유리 텀블러 (상부 스텐뚜껑, 하부 강화유리)",
-            "confidence": 94,
-            "technicalTerms": "Glassware for table or kitchen (drinking glasses)",
-            "appliedGris": ["통칙 제1호", "통칙 제3호나목", "통칙 제6호"],
-            "legalReasoning": "본 물품은 상부의 스테인리스 뚜껑과 하부의 강화유리 본체로 결합된 복합물품입니다. 통칙 제3호 나목에 의거하여 본질적인 특성을 부여하는 주요 재질인 '강화유리(제7013호)'에 따라 품목분류를 결정합니다.",
-            "sectionNote": "제15부 비열금속과 그 제품 (스테인리스 제품 제외 규정 조율)",
-            "chapterNote": "제70류 유리와 유리제품 (제7013호 식사용 유리 용기 주석)",
-            "exclusionNote": "제7013호 해설서 상 제외 조항: 이중벽을 가진 보온병용 유리 내벽(제7020호) 및 완구용 유리제품(제95류)은 본 호에서 제외됩니다.",
-            "headingExplanation": "제7013호에는 일반적으로 식탁ㆍ주방ㆍ화장실ㆍ사무실ㆍ실내장식용이나 이와 유사한 용도에 사용하는 종류의 유리제품을 분류합니다. 여기에는 음료용 유리컵(drinking glasses, 텀블러 포함)이 명확히 예시되어 있습니다.",
-            "precedents": [
-                {
-                    "id": "DEC-7013-01",
-                    "title": "플라스틱/스텐 캡이 결합된 음료용 유리 텀러의 품목분류 결정",
-                    "code": "7013.37-0000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2024-11-12",
-                    "similarity": 98,
-                    "reasoningSnippet": "몸체가 강화유리로 제작되고 단순 밀폐 마개로 스테인리스 스틸 캡이 부속된 텀블러는 통칙 제3호 나목을 적용, 본질적 특성을 지닌 유리제 용기로 보아 제7013호에 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "9617.00-1000",
-                    "headingName": "보온병과 그 밖에 진공용기(조립된 것)",
-                    "appliedGri": "통칙 제3호 나목",
-                    "reasoning": "이중벽을 가진 보온 목적의 음료용 용기로 볼 여지가 있어 제9617호 보온용기가 경합 후보로 검토됨.",
-                    "exclusionReason": "본 제품은 단일벽의 강화유리 재질 구조이며 진공 단열 구조가 아니므로 제9617호 보온병 규격에서 제외되어 제7013호로 최종 분류됨."
-                }
-            ]
-        }
-
-    found = None
-    for rule in KOREAN_HS_RULES:
-        if any(keyword in input_lower for keyword in rule["keywordTrigger"]):
-            found = rule
-            break
-            
-    if not found:
-        # 매칭되는 정적 룰이 없으면 엉뚱한 KOREAN_HS_RULES[0]를 뱉지 말고, 미분류/가이드 보류 형식으로 안전하게 리턴
-        return {
-            "recommendedHsCode": "0000.00-0000",
-            "headingName": "미분류 화물 (매칭 실패)",
-            "subheadingName": f"{product_name} - 상세 사양 검토 요망",
-            "confidence": 40,
-            "technicalTerms": "Unresolved customs query",
-            "appliedGris": ["통칙 제1호"],
-            "legalReasoning": f"입력하신 품명 '{product_name}'과 재질/용도 조건은 로컬 데이터베이스 내의 관세율표 해설서 및 통칙 가이드 범주에서 정확한 부합 세번을 찾지 못했습니다. 정확한 분류를 위해 재질(예: 철강제, 플라스틱제, 가죽제)을 상세히 기재해 주십시오.",
-            "sectionNote": "제외 조항 및 관련 부의 주석 규정을 대조하십시오.",
-            "chapterNote": "관세율표 각 류의 제외 물품 리스트를 참고하십시오.",
-            "exclusionNote": "재질 및 가공 방식에 따라 제3926호(플라스틱), 제7326호(철강), 제7117호(모조신변장식용품) 등으로 분산 분류될 수 있습니다.",
-            "headingExplanation": "세부 사양이 기재되지 않은 단순 제품명만으로는 품목분류 판정이 불가합니다.",
-            "precedents": [],
-            "competingHsCodes": []
-        }
-        
+    # 매칭되는 정적 룰 및 해설서가 없으면 미분류/가이드 보류 형식으로 안전하게 리턴
     return {
-        "recommendedHsCode": found["recommendedHsCode"],
-        "headingName": found["headingName"],
-        "subheadingName": found["subheadingName"],
-        "confidence": found["confidence"],
-        "technicalTerms": found["technicalTerms"],
-        "appliedGris": found["appliedGris"],
-        "legalReasoning": found["legalReasoning"],
-        "sectionNote": found["sectionNote"],
-        "chapterNote": found["chapterNote"],
-        "exclusionNote": found["exclusionNote"],
-        "headingExplanation": found["headingExplanation"],
-        "precedents": [
-            {
-                "id": p["id"],
-                "title": p["title"],
-                "code": p["code"],
-                "issuingBody": p["issuingBody"],
-                "date": p["date"],
-                "similarity": p["similarity"],
-                "reasoningSnippet": p["reasoningSnippet"]
-            } for p in found["precedents"]
-        ],
-        "competingHsCodes": [
-            {
-                "hsCode": "9503.00-0000" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "8479.89-9099",
-                "headingName": "완구ㆍ유희용구" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "기타 기계류",
-                "appliedGri": "통칙 제1호",
-                "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
-                "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
-            }
-        ]
+        "recommendedHsCode": "0000.00-0000",
+        "headingName": "미분류 화물 (매칭 실패)",
+        "subheadingName": f"{product_name} - 상세 사양 검토 요망",
+        "confidence": 40,
+        "technicalTerms": "Unresolved customs query",
+        "appliedGris": ["통칙 제1호"],
+        "legalReasoning": f"입력하신 품명 '{product_name}'과 재질/용도 조건은 로컬 데이터베이스 내의 관세율표 해설서 및 통칙 가이드 범주에서 정확한 부합 세번을 찾지 못했습니다. 정확한 분류를 위해 재질(예: 철강제, 플라스틱제, 가죽제)을 상세히 기재해 주십시오.",
+        "sectionNote": "제외 조항 및 관련 부의 주석 규정을 대조하십시오.",
+        "chapterNote": "관세율표 각 류의 제외 물품 리스트를 참고하십시오.",
+        "exclusionNote": "재질 및 가공 방식에 따라 제3926호(플라스틱), 제7326호(철강), 제7117호(모조신변장식용품) 등으로 분산 분류될 수 있습니다.",
+        "headingExplanation": "세부 사양이 기재되지 않은 단순 제품명만으로는 품목분류 판정이 불가합니다.",
+        "precedents": [],
+        "competingHsCodes": []
     }
