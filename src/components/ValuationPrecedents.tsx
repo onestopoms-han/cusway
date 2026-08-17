@@ -181,6 +181,175 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
     setDraftGenerated(true);
   };
 
+  const downloadCaseAsPdf = (caseData: ValuationPrecedent) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('팝업 차단이 활성화되어 있어 PDF를 생성할 수 없습니다. 팝업 차단을 해제해 주세요.');
+      return;
+    }
+
+    const htmlContent = `
+      <html>
+        <head>
+          <title>${caseData.caseNumber} - 판결 내용</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+            body {
+              font-family: 'Inter', 'Noto Sans KR', sans-serif;
+              color: #1e293b;
+              line-height: 1.65;
+              padding: 40px;
+              max-width: 850px;
+              margin: 0 auto;
+              background-color: #ffffff;
+            }
+            .header {
+              border-bottom: 3px solid #0f172a;
+              padding-bottom: 20px;
+              margin-bottom: 30px;
+            }
+            .authority {
+              font-size: 0.85rem;
+              color: #0284c7;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+            .title {
+              font-size: 1.6rem;
+              font-weight: 800;
+              color: #0f172a;
+              margin-top: 6px;
+              margin-bottom: 0;
+              line-height: 1.35;
+            }
+            .section {
+              margin-bottom: 28px;
+            }
+            .section-title {
+              font-size: 1.1rem;
+              font-weight: 700;
+              color: #0f172a;
+              border-left: 4px solid #06b6d4;
+              padding-left: 12px;
+              margin-bottom: 12px;
+            }
+            .box {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              padding: 16px;
+              border-radius: 8px;
+              font-size: 0.92rem;
+              color: #334155;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 20px;
+            }
+            .holding-box {
+              border-left: 4px solid #f59e0b;
+              background: #fffbeb;
+              padding: 16px;
+              border-radius: 0 8px 8px 0;
+              font-weight: 600;
+              color: #78350f;
+              border-top: 1px solid #fef3c7;
+              border-right: 1px solid #fef3c7;
+              border-bottom: 1px solid #fef3c7;
+              font-size: 0.92rem;
+            }
+            .guide-box {
+              border: 1px solid #a7f3d0;
+              background: #f0fdf4;
+              padding: 16px;
+              border-radius: 8px;
+              color: #065f46;
+              font-size: 0.92rem;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 60px;
+              font-size: 0.75rem;
+              color: #94a3b8;
+              border-top: 1px solid #f1f5f9;
+              padding-top: 20px;
+            }
+            @media print {
+              body {
+                padding: 0;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="authority">${caseData.authority} • ${caseData.caseNumber}</div>
+            <h1 class="title">${caseData.title}</h1>
+          </div>
+          
+          <div class="section">
+            <div class="section-title">📌 핵심 쟁점 (Key Issue)</div>
+            <div class="box">${caseData.keyIssue}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">📋 사실 관계 (Factual Background)</div>
+            <div style="font-size: 0.92rem; color: #475569; padding: 0 4px;">${caseData.factualBackground}</div>
+          </div>
+
+          <div class="section grid">
+            <div class="box">
+              <div style="font-weight: 700; color: #ef4444; margin-bottom: 8px; font-size: 0.85rem;">세관 측 과세 주장</div>
+              <div style="line-height: 1.5;">"${caseData.customsArgument}"</div>
+            </div>
+            <div class="box">
+              <div style="font-weight: 700; color: #10b981; margin-bottom: 8px; font-size: 0.85rem;">수입자(화주) 측 소명 주장</div>
+              <div style="line-height: 1.5;">"${caseData.importerArgument}"</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">⚖️ 판결 결정 요지</div>
+            <div class="holding-box">${caseData.holdingKo}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">📖 상세 판결 이유 및 판단 논리</div>
+            <div class="box" style="white-space: pre-wrap; line-height: 1.6;">${caseData.reasoningSnippet || '상세 판결 이유 내용이 기재되지 않았습니다.'}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">💡 실무 소명 가이드 및 대비 방안</div>
+            <div class="guide-box" style="line-height: 1.6;">${caseData.implicationKo}</div>
+          </div>
+
+          <div class="footer">
+            본 리포트는 CustomTax AI 관세평가 소명 시스템에서 생성되었습니다.<br/>
+            발행일자: ${new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} • © CUSWAY AI
+          </div>
+
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                setTimeout(function() { window.close(); }, 500);
+              }, 300);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
@@ -517,14 +686,37 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                 )}
               
               {/* Header Title in detail */}
-              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-                  <Building size={16} color="var(--accent-cyan)" />
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedCase.authority} • {selectedCase.caseNumber}</span>
+              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
+                    <Building size={16} color="var(--accent-cyan)" />
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedCase.authority} • {selectedCase.caseNumber}</span>
+                  </div>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>
+                    {selectedCase.title}
+                  </h3>
                 </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>
-                  {selectedCase.title}
-                </h3>
+                <button
+                  onClick={() => downloadCaseAsPdf(selectedCase)}
+                  style={{
+                    background: 'rgba(6, 182, 212, 0.15)',
+                    border: '1px solid rgba(6, 182, 212, 0.3)',
+                    borderRadius: '6px',
+                    color: 'var(--accent-cyan)',
+                    padding: '6px 12px',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    whiteSpace: 'nowrap',
+                    marginLeft: '12px',
+                    marginTop: '4px'
+                  }}
+                >
+                  <FileText size={12} /> PDF 다운로드
+                </button>
               </div>
 
               {/* Case details sections */}
