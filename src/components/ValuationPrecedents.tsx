@@ -315,7 +315,8 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                 { value: 'assists', label: '생산지원비' },
                 { value: 'transfer-pricing-tp', label: '이전가격' },
                 { value: 'indirect-payment', label: '간접지급액' },
-                { value: 'freight', label: '운임 및 관련비용' }
+                { value: 'freight', label: '운임 및 관련비용' },
+                { value: 'valuation-other', label: '기타 관세평가 쟁점' }
               ].map(cat => (
                 <button
                   key={`${cat.value}-${cat.label}`}
