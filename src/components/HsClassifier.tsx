@@ -58,7 +58,11 @@ import { KOREAN_HS_RULES } from '../data/rules';
 
 
 
-export default function HsClassifier() {
+interface HsClassifierProps {
+  currentUser?: any;
+}
+
+export default function HsClassifier({ currentUser }: HsClassifierProps) {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 768 || 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -563,7 +567,8 @@ export default function HsClassifier() {
           product_name: productName,
           material: material,
           function_use: functionUse,
-          api_key: openaiKey
+          api_key: openaiKey,
+          email: currentUser?.email || null
         })
       });
       if (response.ok) {
@@ -588,7 +593,7 @@ export default function HsClassifier() {
     
     // 1. Attempt backend DB search API first
     try {
-      const response = await fetch(`/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}`);
+      const response = await fetch(`/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}&email=${encodeURIComponent(currentUser?.email || '')}`);
       if (response.ok) {
         const data = await response.json();
         setMatchedRule(data);

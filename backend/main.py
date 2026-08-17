@@ -5,9 +5,10 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
+import re
 
 from .db import engine, Base, get_db
-from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent
+from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog
 from .seed import seed_data
 
 # DB 생성 및 초기 데이터 적재
@@ -308,14 +309,32 @@ def send_kakao_api(req: KakaoSendRequest):
         "message": f"카카오 알림톡이 {req.recipient_phone} 번호로 성공적으로 발송되었습니다."
     }
 
+def log_search(db: Session, search_type: str, query_text: str, email: Optional[str] = None):
+    try:
+        log = SearchLog(
+            email=email,
+            search_type=search_type,
+            query_text=query_text
+        )
+        db.add(log)
+        db.commit()
+        print(f"[SEARCH_LOG] Logged {search_type} query '{query_text}' for user '{email}'")
+    except Exception as e:
+        print(f"[SEARCH_LOG_ERROR] Failed to log search: {e}")
+
 class HsClassifyRequest(BaseModel):
     product_name: str
     material: str
     function_use: str
     api_key: Optional[str] = None
+    email: Optional[str] = None
 
 @app.post("/api/hs/classify")
 def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
+    # Log the search query in database
+    log_query = f"품명: {req.product_name} | 재질: {req.material} | 용도: {req.function_use}"
+    log_search(db, "hs_classify", log_query, req.email)
+
     from backend.rag.classification_processor import AICustomsClassificationProcessor
     try:
         # Execute unified customs RAG, GRI validation and tax risk assessment pipeline
@@ -331,7 +350,10 @@ def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"RAG AI 통합 프로세서 분석 도중 오류가 발생했습니다: {str(e)}")
 
 @app.get("/api/hs/search")
-def hs_manual_search_api(keyword: str, db: Session = Depends(get_db)):
+def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session = Depends(get_db)):
+    # Log the search query in database
+    log_search(db, "hs_manual", keyword, email)
+
     from backend.rag.retriever import retrieve_relevant_notes
     try:
         # 선풍기 조끼 수동 검색 강제 매핑 우회 및 경합세번 병기

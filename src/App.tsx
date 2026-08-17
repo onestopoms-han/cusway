@@ -481,7 +481,7 @@ export default function App() {
       {/* Main Content Area */}
       <main className="app-main">
         {currentView === 'hs-classifier' && (
-          <HsClassifier />
+          <HsClassifier currentUser={currentUser} />
         )}
         {currentView === 'valuation' && (
           <ValuationPrecedents currentUser={currentUser} />

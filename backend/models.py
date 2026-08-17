@@ -92,4 +92,15 @@ class HSCodeMaster(Base):
     name_en = Column(String, nullable=True)
 
 
+class SearchLog(Base):
+    __tablename__ = "search_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, nullable=True) # 조회를 수행한 관세사 계정
+    search_type = Column(String, nullable=False) # 'hs' 또는 'valuation'
+    query_text = Column(String, nullable=False) # 입력 품명 또는 HS Code
+    searched_at = Column(DateTime, default=datetime.utcnow) # 검색 일시
+
+
+
 
