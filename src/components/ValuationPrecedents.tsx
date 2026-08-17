@@ -34,13 +34,16 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [selectedCase, setSelectedCase] = useState<ValuationPrecedent | null>(VALUATION_PRECEDENT_DB[0]);
   const [argumentDraft, setArgumentDraft] = useState('');
   const [draftGenerated, setDraftGenerated] = useState(false);
+  const [showMobileDetail, setShowMobileDetail] = useState(false); // 모바일에서 상세창 단독 스위칭 제어용
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(
-        window.innerWidth < 768 || 
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-      );
+      const mobile = window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+      if (!mobile) {
+        setShowMobileDetail(false); // 데스크톱 복귀 시 토글 강제 해제
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -234,10 +237,19 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       </div>
 
       {/* Main Grid: Left Search/List, Right Detail Case View */}
-      <div className="valuation-grid-layout">
+      <div 
+        className="valuation-grid-layout"
+        style={{
+          display: isMobile ? 'flex' : 'grid',
+          flexDirection: 'column',
+          gridTemplateColumns: isMobile ? 'none' : '1fr 1.3fr',
+          gap: '24px'
+        }}
+      >
         
         {/* Left Side: Search Panel & matched case list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {!isMobile || !showMobileDetail ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%' }}>
           
           {/* Search inputs */}
           <div className="glass-panel" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -338,6 +350,9 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                   onClick={() => {
                     setSelectedCase(item);
                     setDraftGenerated(false);
+                    if (isMobile) {
+                      setShowMobileDetail(true);
+                    }
                   }}
                   style={{
                     background: selectedCase?.id === item.id ? 'rgba(6, 182, 212, 0.08)' : 'rgba(0,0,0,0.2)',
@@ -388,11 +403,37 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             )}
           </div>
         </div>
+      ) : null}
 
         {/* Right Side: Detailed Precedent Viewer & 소명서 작성 보조 */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {selectedCase ? (
-            <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {!isMobile || showMobileDetail ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%' }}>
+            {selectedCase ? (
+              <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                
+                {/* 모바일 뷰 전용 뒤로가기 버튼 */}
+                {isMobile && (
+                  <button 
+                    onClick={() => setShowMobileDetail(false)}
+                    style={{
+                      alignSelf: 'flex-start',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '8px 14px',
+                      borderRadius: '6px',
+                      color: 'var(--accent-cyan)',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    ◀ 판례 목록으로 돌아가기
+                  </button>
+                )}
               
               {/* Header Title in detail */}
               <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '14px' }}>
@@ -517,6 +558,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             </div>
           )}
         </div>
+      ) : null}
 
       </div>
 
