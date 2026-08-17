@@ -172,7 +172,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
 
 3. 소명 논리 적용 방안
 본 건 거래는 ${selectedCase.authority}의 판결 요지상 입증 기준에 따라 다음과 같이 대응합니다.
-- 귀 사의 거래 구조는 ${selectedCase.caseNumber} 판결의 임포터 소명 성공 논리를 준용하여, ${selectedCase.implicationKo}의 방어 가이드라인을 충족하도록 계약서 문구 수정 및 국내 지출 증빙을 보강할 것을 권고합니다.
+- 귀 사의 거래 구조는 ${selectedCase.caseNumber} 판결의 화주 소명 성공 논리를 준용하여, ${selectedCase.implicationKo}의 방어 가이드라인을 충족하도록 계약서 문구 수정 및 국내 지출 증빙을 보강할 것을 권고합니다.
 
 검토일자: ${new Date().toISOString().split('T')[0]}
 작 성 처: CustomTax AI 관세평가 전문 분석 엔진`;
@@ -558,7 +558,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
                   </div>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.72rem', color: '#34d399', fontWeight: 700, marginBottom: '4px' }}>
-                      수입자(임포터) 측 소명 주장
+                      수입자(화주) 측 소명 주장
                     </span>
                     <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
                       "{selectedCase.importerArgument}"
