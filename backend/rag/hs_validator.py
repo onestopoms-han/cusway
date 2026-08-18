@@ -106,6 +106,45 @@ class HSConsistencyValidator:
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 
     @classmethod
+    def check_semantic_consistency(cls, hs_code: str, productName: str, material: str) -> tuple:
+        """
+        Checks if the recommended HS Code chapter semantically matches the product name/materials.
+        Returns: (is_valid: bool, score_deduction: int, warning_msg: str)
+        """
+        clean_code = hs_code.replace(".", "").replace("-", "").strip()
+        if len(clean_code) < 2:
+            return True, 0, ""
+            
+        chapter = clean_code[:2]
+        query_text = (productName + " " + material).lower()
+        score_deduction = 0
+        warnings = []
+        
+        # 1. Food keywords mapped to Non-Food chapters
+        food_keywords = ["파스타", "스파게티", "국수", "누들", "식료품", "빵", "과자", "초콜릿", "밀가루", "전분", "곡물"]
+        has_food_keyword = any(k in query_text for k in food_keywords)
+        
+        if has_food_keyword:
+            chapter_int = int(chapter) if chapter.isdigit() else 0
+            if chapter_int > 24 and chapter_int != 95:
+                score_deduction += 45
+                warnings.append(f"식품/조리 가공식품 키워드가 감지되었으나 기계/화학 등 제{chapter}류로 분류되었습니다.")
+            elif chapter == "04" and any(k in query_text for k in ["파스타", "스파게티", "국수", "누들", "빵", "과자"]):
+                score_deduction += 45
+                warnings.append("면류/파스타/빵류 제품이 단순 낙농품 및 조류의 알(제04류)로 분류되었습니다.")
+
+        # 2. Machinery/Electronics keywords mapped to Food/Agriculture chapters
+        machinery_keywords = ["기계", "모터", "엔진", "pcb", "회로", "센서", "로봇", "전자기기", "펌프"]
+        has_machinery_keyword = any(k in query_text for k in machinery_keywords)
+        if has_machinery_keyword:
+            chapter_int = int(chapter) if chapter.isdigit() else 99
+            if chapter_int <= 24:
+                score_deduction += 45
+                warnings.append(f"기계/전자기기 관련 단어가 감지되었으나 농축수산물/식품류(제{chapter}류)로 분류되었습니다.")
+
+        return len(warnings) == 0, score_deduction, " | ".join(warnings)
+
+    @classmethod
     def compute_consistency_score(cls, classification_data: dict) -> dict:
         """
         Computes the final HS Code classification consistency rating.
@@ -133,20 +172,26 @@ class HSConsistencyValidator:
             base_score -= excl_deduct
             warnings.append(f"[제외조항 저촉] {excl_warn}")
 
+        # 2b. Check Semantic Consistency
+        _, sem_deduct, sem_warn = cls.check_semantic_consistency(hs_code, product_name, material)
+        if sem_deduct > 0:
+            base_score -= sem_deduct
+            warnings.append(f"[대분류 모순] {sem_warn}")
+
         # 3. Check HS Code length format
         clean_code = hs_code.replace(".", "").replace("-", "").strip()
         if not re.match(r'^\d{4}(\.\d{2})?(\-\d{4})?$', hs_code) and clean_code != "0000000000":
             base_score -= 10
-            warnings.append("[코드 규격] 추천된 HS Code 포맷(10단위)이 표준 규격에 어긋납니다.")
+            warnings.append("[코드 규격] 추천된 HS Code 포맷(10자리)이 표준 규격에서 어긋납니다.")
 
         # Cap minimum score at 0
         final_score = max(0, base_score)
         
-        status = "정합성 확실 (상)"
+        status = "적합성 확실 (상)"
         if final_score < 60:
-            status = "정합성 불능 (하) - 검토 보류"
+            status = "적합성 불능 (하 - 검토 보류)"
         elif final_score < 85:
-            status = "정합성 검토 필요 (중)"
+            status = "적합성 검토 필요 (중)"
 
         return {
             "consistency_score": final_score,

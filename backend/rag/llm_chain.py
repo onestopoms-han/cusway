@@ -159,8 +159,16 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     if not groq_key:
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         gkey_path = os.path.join(parent_dir, "groq.key")
+        gkey_root_path = os.path.join(os.path.dirname(parent_dir), "groq.key")
+        
+        target_path = None
         if os.path.exists(gkey_path):
-            with open(gkey_path, "r", encoding="utf-8") as gkf:
+            target_path = gkey_path
+        elif os.path.exists(gkey_root_path):
+            target_path = gkey_root_path
+            
+        if target_path:
+            with open(target_path, "r", encoding="utf-8") as gkf:
                 groq_key = gkf.read().strip()
                 
     if groq_key and groq_key.strip():
@@ -168,10 +176,11 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
             url = "https://api.groq.com/openai/v1/chat/completions"
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {groq_key.strip()}"
+                "Authorization": f"Bearer {groq_key.strip()}",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             }
             data = {
-                "model": "llama-3.3-70b-versatile",
+                "model": "groq/compound",
                 "messages": [
                     {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
                     {"role": "user", "content": prompt}
@@ -196,8 +205,16 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     if not api_key:
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         key_path = os.path.join(parent_dir, "openai.key")
+        key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
+        
+        target_path = None
         if os.path.exists(key_path):
-            with open(key_path, "r", encoding="utf-8") as kf:
+            target_path = key_path
+        elif os.path.exists(key_root_path):
+            target_path = key_root_path
+            
+        if target_path:
+            with open(target_path, "r", encoding="utf-8") as kf:
                 api_key = kf.read().strip()
     
     if not api_key:
@@ -471,26 +488,36 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
         return {
             "recommendedHsCode": hsk_code,
             "headingName": f"제{best_note.heading}호의 품목 해설서 지정 품목 ({product_name})",
-            "subheadingName": f"{product_name} ({material}) - 분류 적격",
-            "confidence": 92,
+            "subheadingName": f"{product_name} ({material}) - 분류 후보",
+            "confidence": 50,
             "technicalTerms": f"Explanatory Note Category {best_note.heading}",
             "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": f"관세율표 해설서 제{best_note.heading}호의 규정에 의거, 본 물품({product_name})은 '{material}'의 구성 성분 및 '{function_use}'의 기계적 기능에 기초하여 해당 호의 분류 범위에 정확하게 부합합니다.",
+            "legalReasoning": f"본 판정은 오프라인 로컬 관세율표 해설서 DB 키워드 검색 결과(제{best_note.heading}호 매칭)에 기반한 참고용 후보입니다. AI 다단계 심층 검증을 거치지 않았으므로, 적법한 세액 신고 및 품목 분류 소명을 위해서는 해설서 주석 및 관세 전문가의 정밀 유선 확인이 필요합니다.",
             "sectionNote": best_note.section if best_note.section else "제21부 예술품ㆍ수집품과 골동품 (제97류 제외 등)",
             "chapterNote": best_note.chapter if best_note.chapter else "제96류 잡품 (제9608호 필기용구 주석 등)",
-            "exclusionNote": f"해당 호({best_note.heading}) 해설서 상 제외 조항: 본 품목이 완구용 또는 타 류에 전용으로 분류되는 제품인 경우 해당 세번에서 제외 처리됩니다.",
-            "exclusion_reason": f"해당 호({best_note.heading}) 해설서 상 제외 조항: 본 품목이 완구용 또는 타 류에 전용으로 분류되는 제품인 경우 해당 세번에서 제외 처리됩니다.",
+            "exclusionNote": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
+            "exclusion_reason": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
             "headingExplanation": best_note.content_ko[:1500],
             "precedents": precedents_list,
             "competingHsCodes": [
                 {
-                    "hsCode": "9617.00-1000" if "유리" in input_lower or "텀블러" in input_lower else "8479.89-9099",
-                    "headingName": "보온병류" if "유리" in input_lower or "텀블러" in input_lower else "기타 기계류",
-                    "appliedGri": "통칙 제3호 다목" if "유리" in input_lower or "텀블러" in input_lower else "통칙 제1호",
-                    "reasoning": "기타 재질과의 결합 및 완제품의 본질적 기능에 따른 다중 세번 검토 구도 형성",
-                    "exclusionReason": "해당 호의 분류 명시 및 관련 제외 주석에 따라 배제됨"
+                    "hsCode": "9617.00-1000",
+                    "headingName": "보온병류",
+                    "appliedGri": "통칙 제3호 다목",
+                    "reasoning": "이중벽 보온 구조 및 다른 재질과의 결합 상태에 따라 보온 용기류로 분류될 여지가 있어 경합 분석됨.",
+                    "exclusionReason": "단일벽 강화유리 본체이고 진공 단열 구조가 아니므로 보온 용기류에서 제외하여 제7013호로 최종 분류됨."
                 }
-            ]
+            ] if ("유리" in input_lower or "텀블러" in input_lower) else (
+                [
+                    {
+                        "hsCode": "8479.89-9099",
+                        "headingName": "기타 기계류",
+                        "appliedGri": "통칙 " + ("제3호 다목" if "84" in hsk_code or "85" in hsk_code else "제1호"),
+                        "reasoning": "기계적 구동 장치 및 완제품의 본질적 동작 성능에 기초한 기계류 세번 경합 검토.",
+                        "exclusionReason": "해당 기계적 성능 및 장치 고유 스펙이 본질적 성격에 우선하여 타 류 제외 규정에 따라 배제됨."
+                    }
+                ] if ("84" in hsk_code or "85" in hsk_code) else []
+            )
         }
 
     # 매칭되는 정적 룰 및 해설서가 없으면 미분류/가이드 보류 형식으로 안전하게 리턴

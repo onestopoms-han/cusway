@@ -19,8 +19,13 @@ def load_korean_hs_rules():
                 with open(filepath, "r", encoding="utf-8") as f:
                     content = f.read()
                 
-                # Locate the array boundary
-                start_idx = content.find("[")
+                # Locate the array boundary after '='
+                eq_idx = content.find("=")
+                if eq_idx != -1:
+                    start_idx = content.find("[", eq_idx)
+                else:
+                    start_idx = content.find("[")
+                
                 end_idx = content.rfind("]")
                 if start_idx != -1 and end_idx != -1:
                     array_str = content[start_idx:end_idx+1]
