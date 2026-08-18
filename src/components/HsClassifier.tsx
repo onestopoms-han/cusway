@@ -589,6 +589,8 @@ export default function HsClassifier({ currentUser }: HsClassifierProps) {
 
   const handleManualSearch = async () => {
     if (!searchKeyword.trim()) return;
+    setMatchedRule(null); // Clear previous results to avoid stale data display
+    setShowAlert(false);
     const query = searchKeyword.toLowerCase();
     
     // 1. Attempt backend DB search API first
