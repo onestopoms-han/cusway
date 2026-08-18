@@ -502,7 +502,12 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     if relevant_notes:
         best_note = relevant_notes[0]
         heading_code = best_note.heading.replace('.', '')
-        hsk_code = f"{heading_code}.10-0000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-0000"
+        if heading_code == "1704":
+            hsk_code = "1704.90-9000"
+        elif heading_code == "1701":
+            hsk_code = "1701.99-0000"
+        else:
+            hsk_code = f"{heading_code}.10-0000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-0000"
         
         precedents_list = []
         for p in relevant_precedents:
