@@ -180,7 +180,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             }
             data = {
-                "model": "groq/compound",
+                "model": "openai/gpt-oss-120b",
                 "messages": [
                     {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
                     {"role": "user", "content": prompt}
@@ -188,7 +188,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 "temperature": 0.0
             }
             req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=7) as response:
+            with urllib.request.urlopen(req, timeout=12) as response:
                 res_body = response.read().decode("utf-8")
                 res_json = json.loads(res_body)
                 output = res_json["choices"][0]["message"]["content"].strip()
