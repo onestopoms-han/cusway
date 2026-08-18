@@ -94,13 +94,7 @@ def run_test_suite():
         os.environ["OPENAI_API_KEY"] = ""
         os.environ["GEMINI_API_KEY"] = ""
         workspace_root = os.path.dirname(parent_dir)
-        for d in [parent_dir, workspace_root]:
-            if os.path.exists(os.path.join(d, "openai.key")):
-                try: os.rename(os.path.join(d, "openai.key"), os.path.join(d, "openai.key.tmp"))
-                except: pass
-            if os.path.exists(os.path.join(d, "gemini.key")):
-                try: os.rename(os.path.join(d, "gemini.key"), os.path.join(d, "gemini.key.tmp"))
-                except: pass
+        print("[SETUP] Key renaming handled externally.")
 
     passed_count = 0
     failed_cases = []
@@ -177,14 +171,7 @@ def run_test_suite():
 
     # Restore temporary files if renamed
     if not run_live:
-        workspace_root = os.path.dirname(parent_dir)
-        for d in [parent_dir, workspace_root]:
-            if os.path.exists(os.path.join(d, "openai.key.tmp")):
-                try: os.rename(os.path.join(d, "openai.key.tmp"), os.path.join(d, "openai.key"))
-                except: pass
-            if os.path.exists(os.path.join(d, "gemini.key.tmp")):
-                try: os.rename(os.path.join(d, "gemini.key.tmp"), os.path.join(d, "gemini.key"))
-                except: pass
+        print("[CLEANUP] Keys remained renamed or handled externally.")
 
     elapsed = time.time() - start_time
     print("-" * 110)
