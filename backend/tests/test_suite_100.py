@@ -60,6 +60,7 @@ TEST_CASES = [
     {"name": "실내 분무용 에어로졸 탈취제", "material": "식물 추출 탈취 성분, LPG 충전제", "use": "실내 공간 악취 제거용 방향 탈취제", "expected_chapter": "33", "group": "chemical"},
     {"name": "일액형 실리콘 코킹 실란트", "material": "실리콘 고무 폴리머", "use": "건축 창틀 및 유리 틈새 씰링 밀폐 충전제", "expected_chapter": "32", "group": "chemical"},
     {"name": "농업용 액상 제초제", "material": "글리포세이트 암모늄 40%, 정제수", "use": "잡초 생장 억제 농업용 화학 제초제", "expected_chapter": "38", "group": "chemical"},
+    {"name": "물티슈", "material": "부직포, 정제수, 화장수 세정 성분", "use": "인체 청결용 위생 티슈", "expected_chapter": "33", "group": "chemical"},
 
     # 3. Textiles/Garments Group (직물/의류군 - Chapters 50-63)
     {"name": "면 100% 티셔츠", "material": "순면 편직물", "use": "신체 일상용 캐주얼 아웃웨어 의류", "expected_chapter": "61", "group": "textile"},
