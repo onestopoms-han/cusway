@@ -2,7 +2,7 @@ import { ClassificationRule } from '../../components/HsClassifier';
 
 export const chapter33Rules: ClassificationRule[] = [
   {
-    keywordTrigger: ['물티슈', '물티슈류', 'wet wipe', 'cleansing tissue', 'wet wipes'],
+    keywordTrigger: ['물티슈', '물티슈류', '물수건', '물휴지', '클렌징티슈', '습윤티슈', 'wet wipe', 'cleansing tissue', 'wet wipes'],
     recommendedHsCode: '3307.90-9000',
     headingName: '제3307호 (면도용 제품류, 인체용 탈취제, 화장품 등)',
     subheadingName: '인체 청결용 화장 물티슈 (Wet Wipe)',

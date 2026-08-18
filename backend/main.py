@@ -527,8 +527,8 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
                 ]
             }
 
-        # 물티슈/물티슈류 수동 검색 강제 매핑 우회 및 재질/용도별 경합 병기
-        if "물티슈" in keyword or "wet wipe" in keyword or "cleansing tissue" in keyword:
+        # 물티슈/물수건/물휴지 수동 검색 강제 매핑 우회 및 재질/용도별 경합 병기
+        if any(w in keyword for w in ["물티슈", "물수건", "물휴지", "클렌징", "wet wipe", "cleansing tissue", "wet wipes"]):
             return {
                 "keywordTrigger": [keyword],
                 "recommendedHsCode": "3307.90-9000",
