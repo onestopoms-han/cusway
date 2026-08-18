@@ -288,6 +288,37 @@ export default function HsClassifier({ currentUser }: HsClassifierProps) {
       };
     }
 
+    // 2. Numeric heading pattern recognition (e.g. 8483, 8504)
+    const numericMatch = query.match(/\b\d{4}\b/);
+    if (numericMatch) {
+      const code = numericMatch[0];
+      const isMachinery = code.startsWith('84') || code.startsWith('85');
+      return {
+        keywordTrigger: [code],
+        recommendedHsCode: `${code.slice(0, 4)}.90-0000`,
+        headingName: `제${code.slice(0, 2)}.${code.slice(2)}호의 품목 해설서 분류 분석`,
+        subheadingName: `${prod} (추천 코드: ${code})`,
+        confidence: 82,
+        technicalTerms: `Customs Heading ${code} Material`,
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: `자가 입력 4자리 호 번호(${code})가 식별되었습니다. 통칙 제1호에 따라 해당 물품(${prod})의 재질('${mat}') 및 용도를 검토하여 분류합니다.`,
+        sectionNote: isMachinery ? "제16부 기계류 및 전자기기 부속품 (제84류 또는 제85류)" : "관세율표 해당 부 주석 규정",
+        chapterNote: `제${code.slice(0, 2)}류 주(Note) 규정 검토`,
+        exclusionNote: "당해 호에서 배제되는 제외규정을 우선적으로 검토하십시오.",
+        headingExplanation: `제${code}호에 속하는 품목의 분류 범위와 해설 주석을 점검하십시오.`,
+        precedents: [],
+        competingHsCodes: isMachinery ? [
+          {
+            hsCode: "8479.89-9099",
+            headingName: "기타 기계류",
+            appliedGri: "통칙 제1호",
+            reasoning: "본 4단위 코드 외에 다른 특정 기능이 있을 수 있어 8479호와 경합됩니다.",
+            exclusionReason: "물품 고유의 특정 기능 및 전용 조항이 우선하므로 일반 기계호(8479호)에서 배제됩니다."
+          }
+        ] : []
+      };
+    }
+
     // 0-4. 전기자전거 로컬 우회 예외 처리
     if (query.includes('전기자전거') || query.includes('자전거') || query.includes('bicycle')) {
       return {
@@ -391,36 +422,6 @@ export default function HsClassifier({ currentUser }: HsClassifierProps) {
       return bestRule;
     }
     
-    // 2. Numeric heading pattern recognition (e.g. 8483, 8504)
-    const numericMatch = query.match(/\b\d{4}\b/);
-    if (numericMatch) {
-      const code = numericMatch[0];
-      return {
-        keywordTrigger: [code],
-        recommendedHsCode: `${code.slice(0, 4)}.90-0000`,
-        headingName: `제${code.slice(0, 2)}.${code.slice(2)}호의 품목 해설 분류 범위`,
-        subheadingName: `${prod} (지정 코드: ${code})`,
-        confidence: 82,
-        technicalTerms: `Customs Heading ${code} Material`,
-        appliedGris: ["통칙 제1호", "통칙 제6호"],
-        legalReasoning: `사용자가 입력한 4단위 호 부호(${code})가 식별되었습니다. 관세율표 해석에 관한 일반통칙 제1호에 따라 해당 물품(${prod})은 '${mat}' 성분 및 용도 기준에 의거하여 당해 호에 정확히 매핑됩니다.`,
-        sectionNote: "제16부 기계류와 전기기기 및 이들의 부분품 (제84류 또는 제85류)",
-        chapterNote: `제${code.slice(0, 2)}류의 주(Note) 규정 적용 범위 검토`,
-        exclusionNote: "완구용 제품 또는 다른 특정 류에 전용되는 물품인지 여부를 대조하십시오.",
-        headingExplanation: `제${code}호에 규정된 물리 사양 및 재질 설명과 일치함을 확인하였습니다.`,
-        precedents: [],
-        competingHsCodes: [
-          {
-            hsCode: "8479.89-9099",
-            headingName: "기타의 기계류와 기계기구",
-            appliedGri: "통칙 제1호",
-            reasoning: "사용자 지정 4단위 코드 외에 다목적 범용 기계 범주에 속할 가능성이 있어 제8479호가 경합됩니다.",
-            exclusionReason: "제품 사양이 특정 호의 설명에 명확히 부합하므로 일반 호(제8479호)보다 전용 호에 우선 분류됩니다."
-          }
-        ]
-      };
-    }
-
     // 3. Material-based heuristic defaults
     if (query.includes('유리') || query.includes('텀블러')) {
       return {
