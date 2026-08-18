@@ -120,14 +120,14 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 
     prompt += f"""
 {{
-  "recommendedHsCode": "10자리 세번 (예: 8483.40-1000)",
-  "headingName": "4단위 호의 용어 요약 (예: 기어와 기어링, 볼스크류)",
-  "subheadingName": "6단위 소호의 용어 요약 (예: 볼스크류)",
+  "recommendedHsCode": "10자리 세번 (예: 1902.11-0000)",
+  "headingName": "4단위 호의 용어 요약 (예: 조리하지 않은 파스타)",
+  "subheadingName": "6단위 소호의 용어 요약",
   "confidence": 95,
-  "technicalTerms": "관세 기술 표준 용어 (예: Ball Screw for Steering)",
-  "appliedGris": ["적용 통칙 번호 (예: 통칙 제1호, 통칙 제6호)"],
+  "technicalTerms": "관세 기술 표준 용어",
+  "appliedGris": ["적용 통칙 번호"],
   "legalReasoning": "법적 품목분류 판정 논리 상세 (가~라 단락 구조로 관세청 양식에 맞추어 서술)",
-  "sectionNote": "부의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
+  "sectionNote": "부의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용 (해당 부가 없으면 공백)",
   "chapterNote": "류의 주(Note) 내용 중 본 품목에 관계된 구체적 조항 인용",
   "exclusionNote": "본 분류의 오적용을 방지하는 주요 제외 주석 요약 및 근거",
   "headingExplanation": "호 해설서 전문 요약 및 대비 방안",
@@ -135,7 +135,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     {{
       "id": "PREC-001",
       "title": "관련 분류 결정례 제목",
-      "code": "결정례 분류 코드 (10자리)",
+      "code": "결정례 분류 코드",
       "issuingBody": "관세평가분류원 또는 WCO",
       "date": "2026-01-01",
       "similarity": 95,
@@ -143,10 +143,13 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     }}
   ],
   "competingHsCodes": [
+    /* 중요: 경합하는 다른 분류 코드가 실제로 존재하는 경우에만 작성하십시오. 
+       식품 등 경합 품목이 전혀 없는 일반 품목의 경우 반드시 빈 배열 []로 출력해야 하며, 
+       아래 예시(기계류 등)를 절대로 그대로 모사하여 출력하지 마십시오. */
     {{
-      "hsCode": "경합 10자리 세번 (예: 8479.89-9099)",
-      "headingName": "경합 호의 용어 (예: 기타 기계류)",
-      "appliedGri": "적용 가능 통칙 (예: 통칙 제1호, 통칙 제3호 다목)",
+      "hsCode": "경합 10자리 세번",
+      "headingName": "경합 호의 용어",
+      "appliedGri": "적용 가능 통칙",
       "reasoning": "경합 후보로 검토 및 비교되는 상세 논리",
       "exclusionReason": "최종 분류에서 배제된 이유 및 법적 제외 규정 근거"
     }}
