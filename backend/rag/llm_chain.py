@@ -222,7 +222,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 
     if gemini_key and gemini_key.strip():
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key.strip()}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key.strip()}"
             headers = {
                 "Content-Type": "application/json"
             }
@@ -342,13 +342,23 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             ],
             "competingHsCodes": [
                 {
-                    "hsCode": "9503.00-0000" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "8479.89-9099",
-                    "headingName": "완구ㆍ유희용구" if "84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"] else "기타 기계류",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
-                    "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
-                }
-            ]
+                    "hsCode": p.get("hsCode"),
+                    "headingName": p.get("headingName"),
+                    "appliedGri": p.get("appliedGri"),
+                    "reasoning": p.get("reasoning"),
+                    "exclusionReason": p.get("exclusionReason")
+                } for p in found.get("competingHsCodes", [])
+            ] if found.get("competingHsCodes") else (
+                [
+                    {
+                        "hsCode": "9503.00-0000",
+                        "headingName": "완구ㆍ유희용구",
+                        "appliedGri": "통칙 제1호",
+                        "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
+                        "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
+                    }
+                ] if ("84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"]) else []
+            )
         }
 
     # 선풍기 달린 조끼 검색에 대한 RAG 가이드 (6211.33 메인 추천 및 8414 선풍기 경합 병기)
