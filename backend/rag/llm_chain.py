@@ -198,7 +198,52 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                     output = output.split("```")[1].split("```")[0].strip()
                 return json.loads(output)
         except Exception as ge:
-            print(f"[RAG-LLM] Groq LPU call failed: {str(ge)}. Cascading to OpenAI.")
+            print(f"[RAG-LLM] Groq LPU call failed: {str(ge)}. Cascading to Gemini.")
+
+    # 2. Try Gemini Engine Second (2nd Priority: Free Tier / Extremely cheap)
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        gemini_key_path = os.path.join(parent_dir, "gemini.key")
+        gemini_key_root_path = os.path.join(os.path.dirname(parent_dir), "gemini.key")
+        
+        target_gemini_path = None
+        if os.path.exists(gemini_key_path):
+            target_gemini_path = gemini_key_path
+        elif os.path.exists(gemini_key_root_path):
+            target_gemini_path = gemini_key_root_path
+            
+        if target_gemini_path:
+            with open(target_gemini_path, "r", encoding="utf-8") as gkf:
+                gemini_key = gkf.read().strip()
+                
+    if gemini_key and gemini_key.strip():
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key.strip()}"
+            headers = {
+                "Content-Type": "application/json"
+            }
+            data = {
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }],
+                "generationConfig": {
+                    "responseMimeType": "application/json",
+                    "temperature": 0.0
+                }
+            }
+            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_body = response.read().decode("utf-8")
+                res_json = json.loads(res_body)
+                output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if output.startswith("```json"):
+                    output = output.split("```json")[1].split("```")[0].strip()
+                elif output.startswith("```"):
+                    output = output.split("```")[1].split("```")[0].strip()
+                return json.loads(output)
+        except Exception as gem_err:
+            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to OpenAI.")
 
     # 2. Check OpenAI API Key. Evaluate both env key or custom client key. Default to user's registered key if empty.
     api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
