@@ -340,6 +340,23 @@ export default function ClearanceWizard({
                 }}>
                   {item.label}
                 </span>
+                
+                {/* 각 단계별 확정된 실제 데이터 동적 요약 노출 */}
+                {item.step === 1 && confirmedData && (
+                  <span style={{ fontSize: '0.68rem', color: 'var(--accent-primary)', marginTop: '2px', fontWeight: 700 }}>
+                    {hsCode}
+                  </span>
+                )}
+                {item.step === 2 && currentStep >= 3 && ratesData && (
+                  <span style={{ fontSize: '0.68rem', color: '#10b981', marginTop: '2px', fontWeight: 700 }}>
+                    {ratesData.rates.recommended_rate}% ({originCountry})
+                  </span>
+                )}
+                {item.step === 3 && currentStep >= 4 && guideData && (
+                  <span style={{ fontSize: '0.68rem', color: 'var(--accent-amber)', marginTop: '2px', fontWeight: 700 }}>
+                    {guideData.is_restricted ? `${guideData.requirements.length}건 요건` : '일반 수입'}
+                  </span>
+                )}
               </div>
               {idx < 3 && (
                 <div style={{ 
