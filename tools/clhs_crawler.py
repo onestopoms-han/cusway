@@ -143,12 +143,11 @@ def main(limit=50):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # 84류, 85류(전기/기계) 및 61, 62류(섬유의류)를 우선 타겟으로 설정
+    # 전체 10자리 HSK 세번을 타겟으로 설정
     cursor.execute("""
         SELECT DISTINCT hs_code 
         FROM hs_code_master 
-        WHERE (hs_code LIKE '85%' OR hs_code LIKE '84%' OR hs_code LIKE '61%' OR hs_code LIKE '62%')
-          AND length(replace(replace(hs_code, '.', ''), '-', '')) = 10
+        WHERE length(replace(replace(hs_code, '.', ''), '-', '')) = 10
     """)
     all_codes = [r[0] for r in cursor.fetchall()]
     
