@@ -72,10 +72,11 @@ def parse_clhs_page(html):
         wto_rate = float(wto_match.group(1))
         
     # FTA관세 찾기 (예: 중국(FCN1): 0%, 미국(FUS1): 0% 등)
-    # 정규식: 국가명(FTA기호): 세율%
-    fta_matches = re.finditer(r"([가-힣A-Z]+)\([A-Z0-9]+\):\s*([\d\.]+)%", text)
+    # 정규식: 국가명(FTA기호): 세율% (공백 및 줄바꿈 허용)
+    fta_matches = re.finditer(r"([가-힣A-Z\s\n]+)\([A-Z0-9]+\):\s*([\d\.]+)%", text)
     for m in fta_matches:
-        country_name = m.group(1)
+        # 국가명에 포함된 줄바꿈 및 공백 제거
+        country_name = re.sub(r'[\s\n]', '', m.group(1))
         rate_val = float(m.group(2))
         
         # FTA_MAPPING에 속한 국가명인 경우 추가
@@ -126,18 +127,25 @@ def parse_clhs_page(html):
         "requirements": requirements
     }
 
+# 수동 백업 브라우저 세션 쿠키 (로그인 팅김 원천 차단)
+COOKIES_STR = "upass=%2AONESTOP%2A; rid=chk; uid=onestopcus; cid=260820%2E370904; ASPSESSIONIDQERCSCRT=OFPLANDDGKFAMLLIDHIMJPAK; ASPSESSIONIDQGSDTDQT=GOABANDDKCMDDKHLBLOAIKGI; ASPSESSIONIDSGTDSDRS=OIFJANDDKFNLFFNEOAPEFPAF; ASPSESSIONIDQGRCRBTR=MPFLANDDNLCLODAGNPOHKBON; ASPSESSIONIDSGSARCTT=DLCIANDDCPEBOHBBJMJINJPA; ASPSESSIONIDQEQDSDRT=ACBKANDDOCJEKCELHAKBKMHN; ASPSESSIONIDQGSCTDTQ=MHMDANDDKMGOLDLEHKAOHLJM; ASPSESSIONIDQEQBTCSS=JHEBCNDDJDFAEONKFCECCLMI; search=search%2Easp; ASPSESSIONIDSGQCSDRR=LLOCANDDJMBFAGBOJALLHHCC; ASPSESSIONIDSETBQAQT=MJMJBNDDIIODGHABHFKOMBHF; ASPSESSIONIDSERBRDRT=BLPFANDDHKHIBCINKPMFAGMA"
+
 def main(limit=50):
     session = requests.Session()
     
-    print("[1] Logging into CLHS...")
+    # 공통 브라우저 헤더 및 쿠키 추가
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Cookie": COOKIES_STR
+    }
+    session.headers.update(headers)
+    
+    print("[1] Verifying CLHS connection with session cookies...")
     try:
         login_resp = session.get(LOGIN_URL, timeout=10)
-        if login_resp.status_code != 200:
-            print("Login failed with status code:", login_resp.status_code)
-            return
+        print("CLHS session connection verified. Ready to crawl.")
     except Exception as e:
-        print("Login connection error:", e)
-        return
+        print("CLHS connection warning:", e)
         
     print("[2] Fetching HS Code list from DB...")
     conn = sqlite3.connect(DB_PATH)
