@@ -279,7 +279,12 @@ def seed_data():
         {"hs_code": "8711.60-0000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 4.0, "fta_name": "한-중 FTA", "recommended_rate": 4.0},
 
         # 지그소 완구 퍼즐 (9503.00-3300)
-        {"hs_code": "9503.00-3300", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0}
+        {"hs_code": "9503.00-3300", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
+
+        # 스마트폰 (8517.13-0000)
+        {"hs_code": "8517.13-0000", "country_code": "US", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0},
+        {"hs_code": "8517.13-0000", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
+        {"hs_code": "8517.13-0000", "country_code": "IT", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0}
     ]
 
     for r in rates_data:
@@ -393,6 +398,14 @@ def seed_data():
             "agency_name": "국가기술표준원",
             "check_type": "세관장확인",
             "description": "어린이제품안전특별법 제22조에 의거 유아 완구로서 안전확인(KC)을 득하고 포장에 한글 경고문구를 표시하여야 함."
+        },
+        # 스마트폰
+        {
+            "hs_code": "8517.13-0000",
+            "law_name": "전파법",
+            "agency_name": "국립전파연구원",
+            "check_type": "세관장확인",
+            "description": "전파법 제58조의2에 따른 방송통신기자재등의 적합성평가(적합인증 또는 적합등록)를 받아야 수입할 수 있음. 다만, 자가사용 목적의 1대에 한해서는 세관장확인 요건이 면제됩니다."
         }
     ]
 
