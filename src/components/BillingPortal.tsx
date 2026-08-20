@@ -16,7 +16,7 @@ interface BillingPortalProps {
 }
 
 export default function BillingPortal({ currentUser, onSubscribeSuccess }: BillingPortalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'pay_per_use' | 'basic' | 'business'>('basic');
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'business'>('basic');
   const [usePoints, setUsePoints] = useState(false);
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
@@ -27,9 +27,8 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
   const userAccruedPoints = currentUser?.accrued_points ?? 15000;
   const planPrices = {
     free: 0,
-    pay_per_use: 990,
-    basic: 4900,
-    business: 19900
+    basic: 44000,
+    business: 290000
   };
 
   const currentPrice = planPrices[selectedPlan];
@@ -47,10 +46,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     }
 
     const planNamesKo = {
-      free: '무료 체험 (매월 10건)',
-      pay_per_use: '건당 과금 (₩990/건)',
-      basic: 'Basic 구독 (₩4,900/월)',
-      business: 'Business 구독 (₩19,900/월)'
+      free: 'Basic 무료 체험 (₩0/월)',
+      basic: 'Pro 실무팀형 구독 (₩44,000/월)',
+      business: 'Enterprise 법인형 구독 (₩290,000/월)'
     };
 
     const payload = {
@@ -77,7 +75,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
       
       const updatedUser = {
         ...currentUser,
-        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'basic' ? 'Basic' : selectedPlan === 'pay_per_use' ? 'PayPerUse' : 'Free',
+        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'basic' ? 'Basic' : 'Free',
         accrued_points: usePoints ? 0 : userAccruedPoints
       };
       onSubscribeSuccess(updatedUser);
@@ -87,7 +85,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
       
       const updatedUser = {
         ...currentUser,
-        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'basic' ? 'Basic' : selectedPlan === 'pay_per_use' ? 'PayPerUse' : 'Free',
+        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'basic' ? 'Basic' : 'Free',
         accrued_points: usePoints ? 0 : userAccruedPoints
       };
       onSubscribeSuccess(updatedUser);
@@ -135,9 +133,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
         {/* 요금제 선택 카드들 (2x2 Grid Layout) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
             
-            {/* 1. 무료 체험 요금제 */}
+            {/* 1. Basic 무료 체험 요금제 */}
             <div 
               onClick={() => setSelectedPlan('free')}
               style={{
@@ -159,57 +157,21 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Free Trial</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>체험 회원 / 영세 소상공인</span>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Basic (Free)</h3>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>신입 / 1인 개업 관세사</span>
               </div>
               <div>
                 <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-secondary)' }}>₩0</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 평생 무료</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 10건</b> 무료 검증 리포트 제공</li>
-                <li>한글 해설서 및 통칙 매칭 기능</li>
-                <li>이메일/카카오톡 리포트 전송</li>
+                <li><b>매월 50건</b> HSK 실시간 조회 한도</li>
+                <li>1인 계정 전용 (동시접속 1대 제한)</li>
+                <li>세율 / 수입 요건 기본 통합 매핑</li>
               </ul>
             </div>
 
-            {/* 2. 건당 과금 요금제 */}
-            <div 
-              onClick={() => setSelectedPlan('pay_per_use')}
-              style={{
-                background: 'rgba(0,0,0,0.2)',
-                border: selectedPlan === 'pay_per_use' ? '2px solid var(--accent-amber)' : '1px solid var(--border-color)',
-                borderRadius: '12px',
-                padding: '20px',
-                cursor: 'pointer',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                transition: 'all 0.2s ease',
-                position: 'relative'
-              }}
-            >
-              {selectedPlan === 'pay_per_use' && (
-                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(245, 158, 11, 0.15)', color: 'var(--accent-amber)', fontSize: '0.62rem', padding: '2px 6px', borderRadius: '8px', fontWeight: 700 }}>
-                  선택됨
-                </div>
-              )}
-              <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Pay-Per-Use</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>수입 건수가 적은 간이 화주</span>
-              </div>
-              <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-amber)' }}>₩990</span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 1건당</span>
-              </div>
-              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>경정청구 소명의견서</b> 정식 다운로드</li>
-                <li>GRI 및 제외규정 법적 검증 리포트</li>
-                <li>분석 완료건 <b>무제한 리포트 재인쇄</b></li>
-              </ul>
-            </div>
-
-            {/* 3. 베이직 요금제 */}
+            {/* 2. Pro (실무팀형) 요금제 */}
             <div 
               onClick={() => setSelectedPlan('basic')}
               style={{
@@ -231,21 +193,22 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Basic Plan</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>개인 관세사 / 일반 기업체</span>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Pro (실무팀형)</h3>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>중소 지사 및 관세사무소</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>₩4,900</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>₩44,000</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 월</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 50건</b> 리포트 다운로드 한도</li>
-                <li>관세평가 판례 RAG 검색 무제한</li>
-                <li>이메일/카카오 다중 전송 편의 지원</li>
+                <li><b>무제한</b> 4단계 수입 통관 시뮬레이션</li>
+                <li><b>5인 계정 기본 포함</b> (초과 시 1인당 5.5천원)</li>
+                <li>AI RAG 해설서 근거 자동 추천</li>
+                <li>화주용 검토서 무제한 PDF 출력</li>
               </ul>
             </div>
 
-            {/* 4. 비즈니스 요금제 */}
+            {/* 3. Enterprise (법인형) 요금제 */}
             <div 
               onClick={() => setSelectedPlan('business')}
               style={{
@@ -267,17 +230,18 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Business Plan</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>관세법인 / 다중 계정 그룹</span>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Enterprise (법인형)</h3>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>50인 이상 중대형 관세법인</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)' }}>₩19,900</span>
+                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)' }}>₩290,000</span>
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 월</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>매월 300건</b> 다운로드 + <b>계정 5개</b> 지원</li>
-                <li>관세법인 공식 로고 박힌 리포트 인쇄</li>
-                <li>적립 캐시백 최대 10만 P 일시 공제</li>
+                <li><b>인원 및 동시접속 무제한 지원</b></li>
+                <li>법인 내부 ERP 및 통관용 API 연동</li>
+                <li>전사 본지사 사전 심사 이력 클라우드 동기화</li>
+                <li>대량 신고서 초안 업로드 오류 자동 감지</li>
               </ul>
             </div>
 
