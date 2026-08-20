@@ -694,6 +694,32 @@ export default function ClearanceWizard({
                       ))}
                     </div>
                   )}
+                  
+                  {/* 3단계 조작 버튼 영역 (이전/다음 단계) */}
+                  <div className="no-print" style={{ display: 'flex', gap: '10px', marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                    <button 
+                      onClick={() => setCurrentStep(2)}
+                      className="btn-secondary"
+                      style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+                    >
+                      이전 단계 (세율/원산지 변경)
+                    </button>
+                    <button 
+                      onClick={() => setCurrentStep(4)}
+                      className="btn-primary"
+                      style={{ 
+                        flex: 1, 
+                        padding: '10px', 
+                        fontSize: '0.85rem',
+                        background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+                        border: 'none',
+                        color: '#000',
+                        fontWeight: 700
+                      }}
+                    >
+                      상세 행정절차 가이드 (다음)
+                    </button>
+                  </div>
                 </div>
               ) : null}
             </div>
