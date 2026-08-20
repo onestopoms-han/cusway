@@ -33,6 +33,20 @@ export default function ClearanceWizard({
   initialFunction = '음료 제조용 원료'
 }: ClearanceWizardProps) {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth < 768 || 
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  );
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(
+        window.innerWidth < 768 || 
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Step 1 states
   const [hsCode, setHsCode] = useState(initialHsCode);
