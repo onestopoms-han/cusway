@@ -480,11 +480,13 @@ export default function ClearanceWizard({
               </span>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}>
-              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>수입 대상 물품 원산지 국가</label>
-              <select 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '320px' }}>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>수입 대상 물품 원산지 국가 코드 (직접 입력 가능)</label>
+              <input 
+                type="text" 
                 value={originCountry} 
-                onChange={(e) => setOriginCountry(e.target.value)}
+                onChange={(e) => setOriginCountry(e.target.value.toUpperCase())}
+                placeholder="예: US, CN, IT, VN, JP, CL 등"
                 style={{
                   width: '100%',
                   padding: '10px',
@@ -492,13 +494,32 @@ export default function ClearanceWizard({
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   color: '#fff',
-                  fontSize: '0.85rem'
+                  fontSize: '0.85rem',
+                  fontWeight: 700
                 }}
-              >
+              />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
                 {countries.map(c => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => setOriginCountry(c.code)}
+                    style={{
+                      padding: '5px 8px',
+                      background: originCountry === c.code ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '4px',
+                      color: originCountry === c.code ? '#000' : '#bbb',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {c.name.split(' ')[0]} ({c.code})
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
             {loadingRates ? (
