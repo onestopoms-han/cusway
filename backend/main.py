@@ -715,27 +715,36 @@ def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):
     # 1. 요건 내역 조회
     reqs = db.query(HSRequirement).filter(HSRequirement.hs_code.in_(formatted_codes)).all()
     
-    response_requirements = []
+    unique_reqs = {}
     for r in reqs:
-        # 2. 각 법률별 상세 절차 조회
-        proc = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == r.law_name).first()
-        
-        guide_data = None
-        if proc:
-            guide_data = {
-                "steps": json.loads(proc.pre_clearance_steps),
-                "documents": json.loads(proc.required_documents),
-                "agency_url": proc.processing_agency,
-                "duration": proc.average_duration
+        key = r.law_name
+        # 동일 법령명이 이미 추가되어 있는 경우 check_type만 병합 처리
+        if key in unique_reqs:
+            existing = unique_reqs[key]
+            if r.check_type and r.check_type not in existing["check_type"]:
+                existing["check_type"] = f"{existing['check_type']}/{r.check_type}"
+        else:
+            # 2. 각 법률별 상세 절차 조회
+            proc = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == r.law_name).first()
+            
+            guide_data = None
+            if proc:
+                guide_data = {
+                    "steps": json.loads(proc.pre_clearance_steps),
+                    "documents": json.loads(proc.required_documents),
+                    "agency_url": proc.processing_agency,
+                    "duration": proc.average_duration
+                }
+                
+            unique_reqs[key] = {
+                "law_name": r.law_name,
+                "agency_name": r.agency_name,
+                "check_type": r.check_type,
+                "description": r.description,
+                "guide": guide_data
             }
             
-        response_requirements.append({
-            "law_name": r.law_name,
-            "agency_name": r.agency_name,
-            "check_type": r.check_type,
-            "description": r.description,
-            "guide": guide_data
-        })
+    response_requirements = list(unique_reqs.values())
         
     return {
         "hs_code": hs_code,
