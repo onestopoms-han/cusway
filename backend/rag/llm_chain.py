@@ -673,12 +673,27 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     if relevant_notes:
         best_note = relevant_notes[0]
         heading_code = best_note.heading.replace('.', '')
-        if heading_code == "1704":
-            hsk_code = "1704.90-9000"
-        elif heading_code == "1701":
-            hsk_code = "1701.99-0000"
-        else:
-            hsk_code = f"{heading_code}.10-0000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-0000"
+        
+        # Validate and format against database master to prevent virtual codes
+        hsk_code = None
+        if len(heading_code) >= 4:
+            prefix = heading_code[:4]
+            db_match = db.execute(
+                "SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1",
+                {"pref": f"{prefix}%"}
+            ).fetchone()
+            if db_match:
+                hsk_code = db_match[0]
+
+        if not hsk_code:
+            if heading_code == "1704":
+                hsk_code = "1704.90-9000"
+            elif heading_code == "1701":
+                hsk_code = "1701.99-0000"
+            elif heading_code == "2009":
+                hsk_code = "2009.90-9000"
+            else:
+                hsk_code = f"{heading_code}.90-9000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-9000"
         
         precedents_list = []
         for p in relevant_precedents:

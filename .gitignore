@@ -30,4 +30,21 @@ dist-ssr
 openai.key
 groq.key
 gemini.key
+*.key.tmp
+
+# Local refund post-audit system exclude
+onestop-post-audit/
+
+# Temporary and simulation assets
+*.png
+*.jpg
+*.xlsx
+onestop_*_classification_results.csv
+strategy_pricing_blueprint.md
+strategy_pricing_blueprint.md.tmp
+test_scenarios/
+test_logs/
+scratch/
+_company/
+
 

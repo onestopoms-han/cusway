@@ -18,9 +18,9 @@ export const chapter19Rules: ClassificationRule[] = [
       "macaroni",
       "noodle"
     ],
-    "recommendedHsCode": "1902.11-0000",
+    "recommendedHsCode": "1902.11-1000",
     "headingName": "제1902호 (파스타, 요리했는지 또는 속을 채웠는지에 상관없다)",
-    "subheadingName": "제1902.11호 (조리하지 않은 것, 속을 채우지 않은 것, 달걀을 함유한 것)",
+    "subheadingName": "제1902.11호 (조리하지 않은 것, 속을 채우지 않은 것, 달걀을 함유한 것 - 스파게티)",
     "confidence": 97.8,
     "technicalTerms": "밀가루나 세몰리나에 물을 혼합하여 혼반 후 압출/성형한 무발효 파스타 제품",
     "appliedGris": [
@@ -36,11 +36,11 @@ export const chapter19Rules: ClassificationRule[] = [
       {
         "id": "분류원-2023-0104",
         "title": "달걀을 함유한 건조 스파게티 파스타면",
-        "code": "1902.11-0000",
+        "code": "1902.11-1000",
         "issuingBody": "관세평가분류원",
         "date": "2023-08-11",
         "similarity": 98.2,
-        "reasoningSnippet": "달걀노른자가 혼입된 건조 상태의 스파게티 면으로, 충전물이 없고 조리되지 않았으므로 1902.11호에 매칭함."
+        "reasoningSnippet": "달걀노른자가 혼입된 건조 상태의 스파게티 면으로, 충전물이 없고 조리되지 않았으므로 1902.11-1000호에 매칭함."
       }
     ]
   },

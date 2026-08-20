@@ -233,9 +233,322 @@ def seed_data():
     # 5. RAG 공식 관세청 결정례 적재
     collect_and_seed_precedents(db)
 
+    # 6. CUSWAY 4단계 마법사용 시드 데이터 추가 (배주스 2009.89-1090, 건조 스파게티 1902.11-1000)
+    from .models import HSRateMaster, HSRequirement, RequirementProcedure
+    import json
+
+    # 6-1. 세율 마스터 시딩
+    rates_data = [
+        # 배주스 (2009.89-1090)
+        {"hs_code": "2009.89-1090", "country_code": "US", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 4.5, "fta_name": "한-미 FTA", "recommended_rate": 4.5},
+        {"hs_code": "2009.89-1090", "country_code": "CN", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 45.0, "fta_name": "한-중 FTA", "recommended_rate": 45.0},
+        {"hs_code": "2009.89-1090", "country_code": "IT", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
+        
+        # 달걀이 포함된 건조 스파게티 면 (1902.11-1000)
+        {"hs_code": "1902.11-1000", "country_code": "IT", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
+        {"hs_code": "1902.11-1000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 6.4, "fta_name": "한-중 FTA", "recommended_rate": 6.4},
+        {"hs_code": "1902.11-1000", "country_code": "VN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-ASEAN FTA", "recommended_rate": 0.0},
+
+        # 갈비살 (0201.30-0000)
+        {"hs_code": "0201.30-0000", "country_code": "US", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 10.6, "fta_name": "한-미 FTA", "recommended_rate": 10.6},
+        {"hs_code": "0201.30-0000", "country_code": "AU", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 13.3, "fta_name": "한-호주 FTA", "recommended_rate": 13.3},
+
+        # 냉동 조기 (0303.89-9000)
+        {"hs_code": "0303.89-9000", "country_code": "CN", "base_rate": 20.0, "wto_rate": 20.0, "fta_rate": 16.0, "fta_name": "한-중 FTA", "recommended_rate": 16.0},
+
+        # 신선 사과 (0808.10-0000)
+        {"hs_code": "0808.10-0000", "country_code": "US", "base_rate": 45.0, "wto_rate": 45.0, "fta_rate": 45.0, "fta_name": "한-미 FTA (혜택외)", "recommended_rate": 45.0},
+
+        # 커피믹스 (2101.12-1000)
+        {"hs_code": "2101.12-1000", "country_code": "IT", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
+
+        # 포도주 (2204.21-1000)
+        {"hs_code": "2204.21-1000", "country_code": "FR", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
+        {"hs_code": "2204.21-1000", "country_code": "CL", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-칠레 FTA", "recommended_rate": 0.0},
+
+        # 인체 세정용 물티슈 (3307.90-9000)
+        {"hs_code": "3307.90-9000", "country_code": "CN", "base_rate": 6.5, "wto_rate": 6.5, "fta_rate": 5.2, "fta_name": "한-중 FTA", "recommended_rate": 5.2},
+
+        # 면제 티셔츠 (6109.10-1000)
+        {"hs_code": "6109.10-1000", "country_code": "VN", "base_rate": 13.0, "wto_rate": 13.0, "fta_rate": 0.0, "fta_name": "한-ASEAN FTA", "recommended_rate": 0.0},
+
+        # 리튬이온 배터리 충전기 (8504.40-1560)
+        {"hs_code": "8504.40-1560", "country_code": "CN", "base_rate": 8.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
+
+        # 전기자전거 (8711.60-0000)
+        {"hs_code": "8711.60-0000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 4.0, "fta_name": "한-중 FTA", "recommended_rate": 4.0},
+
+        # 지그소 완구 퍼즐 (9503.00-3300)
+        {"hs_code": "9503.00-3300", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0}
+    ]
+
+    for r in rates_data:
+        exists = db.query(HSRateMaster).filter(HSRateMaster.hs_code == r["hs_code"], HSRateMaster.country_code == r["country_code"]).first()
+        if not exists:
+            db_r = HSRateMaster(
+                hs_code=r["hs_code"],
+                country_code=r["country_code"],
+                base_rate=r["base_rate"],
+                wto_rate=r["wto_rate"],
+                fta_rate=r["fta_rate"],
+                fta_name=r["fta_name"],
+                recommended_rate=r["recommended_rate"]
+            )
+            db.add(db_r)
+
+    # 6-2. 수입 요건 통합공고 / 세관장확인 시딩
+    requirements_data = [
+        # 배주스
+        {
+            "hs_code": "2009.89-1090",
+            "law_name": "수입식품안전관리 특별법",
+            "agency_name": "식품의약품안전처",
+            "check_type": "세관장확인",
+            "description": "식품위생법 제19조에 의한 수입식품등의 수입신고서가 접수되어 검사 결과 적합 판정을 받아야 통관이 수리됨."
+        },
+        # 건조 스파게티 면
+        {
+            "hs_code": "1902.11-1000",
+            "law_name": "수입식품안전관리 특별법",
+            "agency_name": "식품의약품안전처",
+            "check_type": "세관장확인",
+            "description": "달걀 성분 함유 가공품으로서 식품위생법상 식약처장의 요건 승인을 요하며 정밀검사 대상이 될 수 있음."
+        },
+        # 갈비살
+        {
+            "hs_code": "0201.30-0000",
+            "law_name": "가축전염병 예방법",
+            "agency_name": "농림축산검역본부",
+            "check_type": "세관장확인",
+            "description": "가축전염병예방법 제32조에 의거 지정검역물품으로서 지정검역관의 수입검역에 합격하여야 수입할 수 있음."
+        },
+        # 냉동 조기
+        {
+            "hs_code": "0303.89-9000",
+            "law_name": "수산물방역법",
+            "agency_name": "국립수산물품질관리원",
+            "check_type": "세관장확인",
+            "description": "수산생물질병관리법 제27조에 의거 지정검역대상으로 국립수산물품질관리원장의 수입검역을 필하여야 함."
+        },
+        # 신선 사과
+        {
+            "hs_code": "0808.10-0000",
+            "law_name": "식물방역법",
+            "agency_name": "농림축산검역본부",
+            "check_type": "세관장확인",
+            "description": "식물방역법 제12조에 의거 수입식물검역을 필하여야 하며, 병해충 우려 지역에 따른 수입제한 여부 사전 확인 요망."
+        },
+        # 커피믹스
+        {
+            "hs_code": "2101.12-1000",
+            "law_name": "수입식품안전관리 특별법",
+            "agency_name": "식품의약품안전처",
+            "check_type": "세관장확인",
+            "description": "식품위생법상 해외제조업소 등록 필수 및 수입 시마다 수입신고서 및 한글표시사항 검사 적합 판정 필요."
+        },
+        # 와인
+        {
+            "hs_code": "2204.21-1000",
+            "law_name": "수입식품안전관리 특별법",
+            "agency_name": "식품의약품안전처",
+            "check_type": "세관장확인",
+            "description": "주류 수입 면허 및 성분 정밀검사(최초 수입 시 100ml)에 합격하고 한글표시사항 스티커를 부착해야 함."
+        },
+        # 물티슈
+        {
+            "hs_code": "3307.90-9000",
+            "law_name": "화장품법",
+            "agency_name": "식품의약품안전처",
+            "check_type": "통합공고",
+            "description": "화장품법상 화장품책임판매업 등록이 필요하며 수입 시마다 의약품수출입협회에 표준통관예정보고(EDI) 승인을 득해야 함."
+        },
+        # 면제 티셔츠
+        {
+            "hs_code": "6109.10-1000",
+            "law_name": "전기용품 및 생활용품 안전관리법",
+            "agency_name": "국가기술표준원",
+            "check_type": "통합공고",
+            "description": "전안법상 가정용 섬유제품으로서 안전기준준수대상에 해당하며 한글 표시사항(혼용률, 취급상주의사항 등) 부착이 필수임."
+        },
+        # 배터리 충전기
+        {
+            "hs_code": "8504.40-1560",
+            "law_name": "전파법",
+            "agency_name": "국립전파연구원",
+            "check_type": "세관장확인",
+            "description": "전파법 제58조의2에 따른 방송통신기자재등의 적합성평가(KC 인증)를 득해야 통관이 수리됨."
+        },
+        # 전기자전거
+        {
+            "hs_code": "8711.60-0000",
+            "law_name": "전기용품 및 생활용품 안전관리법",
+            "agency_name": "국가기술표준원",
+            "check_type": "세관장확인",
+            "description": "전안법상 안전확인대상 생활용품(이륜 자전거)으로서 공인 시험기관의 안전성 테스트 완료 및 KC 표시가 필수임."
+        },
+        # 완구 퍼즐
+        {
+            "hs_code": "9503.00-3300",
+            "law_name": "어린이제품 안전 특별법",
+            "agency_name": "국가기술표준원",
+            "check_type": "세관장확인",
+            "description": "어린이제품안전특별법 제22조에 의거 유아 완구로서 안전확인(KC)을 득하고 포장에 한글 경고문구를 표시하여야 함."
+        }
+    ]
+
+    for req in requirements_data:
+        exists = db.query(HSRequirement).filter(HSRequirement.hs_code == req["hs_code"], HSRequirement.law_name == req["law_name"]).first()
+        if not exists:
+            db_req = HSRequirement(
+                hs_code=req["hs_code"],
+                law_name=req["law_name"],
+                agency_name=req["agency_name"],
+                check_type=req["check_type"],
+                description=req["description"]
+            )
+            db.add(db_req)
+
+    # 6-3. 법령별 수입 절차 상세 시딩
+    procedures_data = [
+        {
+            "law_name": "수입식품안전관리 특별법",
+            "pre_clearance_steps": json.dumps([
+                "수입 전 최초 영업등록: 식약처 교육 이수 및 수입식품업 면허 취득",
+                "해외제조업소 등록 확인: 선적 7일 전 유효한 제조업체 등록 여부 확인",
+                "수입신고 접수: 관세청 유니패스(Uni-Pass)를 통해 식약처 전송",
+                "검사 수행: 서류검증, 현물검증, 혹은 무작위 정밀검사(최대 10일 소요) 검사 대기",
+                "적합 판정 수령: 요건수리 완료 문자 확인 후 관세 신고 연동"
+            ]),
+            "required_documents": json.dumps([
+                "한글표시사항 도안 (스티커 시안 포함)",
+                "수입식품 제조공정도 및 성분 분석표 (제조사 서명본)",
+                "해외제조업소 등록 증빙 서류"
+            ]),
+            "processing_agency": "식품의약품안전처 수입식품정보마루 (https://impfood.mfds.go.kr)",
+            "average_duration": "서류 1~2일 / 정밀검사 7~10일"
+        },
+        {
+            "law_name": "가축전염병 예방법",
+            "pre_clearance_steps": json.dumps([
+                "원산지 검역증명서 발급: 수출국 검역당국이 배포한 동물성 성분 위생증 원본 수령",
+                "수입검역 신청서 제출: 한국 농림축산검역본부 포털에 수입신고 연계",
+                "지정 보세구역 입고: 동식물검역 전용 보세창고 반입 완료 확인",
+                "시료 채취 및 역학조사: 전염병 인자(조류독감, 구제역 등) 잔류 검증 수행",
+                "수입검역증명서(C/O) 발급: 관세청 유니패스로 검역완료 전문 연계 전송"
+            ]),
+            "required_documents": json.dumps([
+                "수출국 정부 발행 동물성 위생검역증명서 원본 (Health Certificate)",
+                "수입선하증권(B/L) 및 송장(Invoice)"
+            ]),
+            "processing_agency": "농림축산검역본부 통합시스템 (https://www.qia.go.kr)",
+            "average_duration": "3~5 영업일"
+        },
+        {
+            "law_name": "수산물방역법",
+            "pre_clearance_steps": json.dumps([
+                "검역 신청: 국립수산물품질관리원 지사에 수입수산물 검역신청서 전송",
+                "역학조사 및 현물검사: 보세창고 반입 후 냉동 상태, 이물질 혼입 여부 실물 검증",
+                "검역 필증 수령: 관세청 유니패스로 합격 통보 자동 연동 확인"
+            ]),
+            "required_documents": json.dumps([
+                "수출국 정부 발행 수산물 위생검역증명서 원본",
+                "포장명세서(Packing List) 및 Invoice"
+            ]),
+            "processing_agency": "국립수산물품질관리원 (https://www.nfqs.go.kr)",
+            "average_duration": "2~4 영업일"
+        },
+        {
+            "law_name": "식물방역법",
+            "pre_clearance_steps": json.dumps([
+                "선적 서류 제출: 수출국 정부가 발행한 식물검역증명서 사전 제출",
+                "보세창고 입고 및 시료 채취: 외래 금지 병해충(해충, 바이러스) 전염 가능성 검증",
+                "합격 판정 및 반입 승인: 검역 통과 후 세관 수입신고 수리 진행"
+            ]),
+            "required_documents": json.dumps([
+                "수출국 정부 발행 식물검역증명서 원본 (Phytosanitary Certificate)",
+                "가열 또는 소독처리증명서 (해당 물품 한정)"
+            ]),
+            "processing_agency": "농림축산검역본부 (https://www.qia.go.kr)",
+            "average_duration": "1~3 영업일"
+        },
+        {
+            "law_name": "화장품법",
+            "pre_clearance_steps": json.dumps([
+                "화장품책임판매업 등록: 수입 전 국내 화장품 책임판매업자 자격 선 취득",
+                "표준통관예정보고(EDI): 선적 완료 전 의약품수출입협회에 EDI 시스템으로 수입 정보 보고 및 승인 수령",
+                "품질 관리 검사: 통관 후 화장품 시험검사성적서 작성 및 적합 판정 완료 후 시판"
+            ]),
+            "required_documents": json.dumps([
+                "화장품책임판매업 등록증 사본",
+                "수입화장품 제조/판매 증명서 (Certificate of Free Sale)",
+                "제조 성분 분석표 (전성분 표시 증빙)"
+            ]),
+            "processing_agency": "한국의약품수출입협회 (https://www.kpta.or.kr)",
+            "average_duration": "EDI 승인 1영업일 / 통관 후 품질 검증 3~5일"
+        },
+        {
+            "law_name": "전기용품 및 생활용품 안전관리법",
+            "pre_clearance_steps": json.dumps([
+                "KC 인증 신청: 국가 지정 시험기관에 수입 샘플 테스트 및 안전 인증 신청",
+                "KC 인증 마킹 부착: 수입 통관 전 완제품 포장 및 본체에 KC 마크와 표시사항 인쇄",
+                "안전확인신고 접수: 제품안전정보센터에 승인번호 등록 후 통관 요건 매핑 연동"
+            ]),
+            "required_documents": json.dumps([
+                "안전확인신고 증명서 사본 (KC 인증서)",
+                "전기회로도 및 리튬 배터리 MSDS (배터리 내장형 제품의 경우)",
+                "제품 설명서 및 한글 사양 라벨 도안"
+            ]),
+            "processing_agency": "제품안전정보센터 (https://www.safetykorea.kr)",
+            "average_duration": "시험성적서 발급 3~4주 / 통관 요건 연동 즉시"
+        },
+        {
+            "law_name": "전파법",
+            "pre_clearance_steps": json.dumps([
+                "적합성평가 시험: 국립전파연구원 지정 기관에서 전자파 적합성 시험 수행",
+                "적합등록 필증 발급: 적합성평가 포털에 결과서 등록 후 등록 번호 획득",
+                "수입 요건 확인 부착: 통관 시 세관장 요건 전파법 코드 매핑 제출"
+            ]),
+            "required_documents": json.dumps([
+                "방송통신기자재 적합등록(적합인증) 필증",
+                "제품 전자파 측정 시험성적서",
+                "한글 표기사항 라벨 시안"
+            ]),
+            "processing_agency": "국립전파연구원 (https://rra.go.kr)",
+            "average_duration": "적합등록 시험 1~2주 / 행정 수수료 승인 1영업일"
+        },
+        {
+            "law_name": "어린이제품 안전 특별법",
+            "pre_clearance_steps": json.dumps([
+                "유해물질 안전성 테스트: 국가 공인 시험기관에 납, 카드뮴, 프탈레이트계 가소제 검출 시험 의뢰",
+                "안전확인 신고: 한국제품안전관리원에 시험결과 보고 및 안전확인 신고필증 발급",
+                "통관 전 KC 마킹 확인: 완구 표면에 주의문구 및 연령 경고 표시 완료 점검"
+            ]),
+            "required_documents": json.dumps([
+                "어린이제품 안전성 시험성적서 원본",
+                "어린이제품 안전확인 신고필증",
+                "한글 경고 표시사항 라벨 도안"
+            ]),
+            "processing_agency": "한국제품안전관리원 (https://www.kips.kr)",
+            "average_duration": "화학 정밀분석 5~7 영업일"
+        }
+    ]
+
+    for proc in procedures_data:
+        exists = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == proc["law_name"]).first()
+        if not exists:
+            db_proc = RequirementProcedure(
+                law_name=proc["law_name"],
+                pre_clearance_steps=proc["pre_clearance_steps"],
+                required_documents=proc["required_documents"],
+                processing_agency=proc["processing_agency"],
+                average_duration=proc["average_duration"]
+            )
+            db.add(db_proc)
+
     db.commit()
     db.close()
     print("Database seeding completed.")
 
 if __name__ == "__main__":
     seed_data()
+
