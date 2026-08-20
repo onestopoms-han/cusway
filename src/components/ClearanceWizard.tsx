@@ -56,6 +56,8 @@ export default function ClearanceWizard({
   
   const [confirming, setConfirming] = useState(false);
   const [confirmedData, setConfirmedData] = useState<any>(null);
+  const [warningMessage, setWarningMessage] = useState<string | null>(null);
+  const [suggestedCodes, setSuggestedCodes] = useState<string[]>([]);
   
   // Step 2 states
   const [originCountry, setOriginCountry] = useState('IT'); // Default IT (Italy)
@@ -81,6 +83,8 @@ export default function ClearanceWizard({
 
   const handleConfirmHs = async () => {
     setConfirming(true);
+    setWarningMessage(null);
+    setSuggestedCodes([]);
     try {
       const response = await fetch('/api/hs/confirm', {
         method: 'POST',
@@ -94,8 +98,13 @@ export default function ClearanceWizard({
       });
       if (response.ok) {
         const data = await response.json();
-        setConfirmedData(data);
-        setCurrentStep(2);
+        if (data.status === "warning") {
+          setWarningMessage(data.message);
+          setSuggestedCodes(data.suggested_codes || []);
+        } else {
+          setConfirmedData(data);
+          setCurrentStep(2);
+        }
       } else {
         throw new Error('확정 API 오류');
       }
@@ -440,6 +449,58 @@ export default function ClearanceWizard({
                 />
               </div>
             </div>
+
+            {warningMessage && (
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                padding: '16px',
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                marginTop: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-red)' }}>
+                  <AlertTriangle size={18} />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>품목분류 유효성 검증 오류</span>
+                </div>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                  {warningMessage}
+                </p>
+                {suggestedCodes.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 600 }}>💡 실제 수입 신고용 추천 세번 리스트 (선택 시 즉시 입력):</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {suggestedCodes.map(code => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => {
+                            setHsCode(code);
+                            setWarningMessage(null);
+                            setSuggestedCodes([]);
+                          }}
+                          style={{
+                            padding: '6px 10px',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '4px',
+                            color: 'var(--accent-cyan)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          {code}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <button 
               className="btn-primary" 
