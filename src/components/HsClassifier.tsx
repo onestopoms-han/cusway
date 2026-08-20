@@ -79,9 +79,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const [productName, setProductName] = useState('달걀이 포함된 건조 스파게티 면');
-  const [material, setMaterial] = useState('듀럼밀 세몰리나 85%, 계란 노른자 분말 15%');
-  const [functionUse, setFunctionUse] = useState('이탈리안 건조 파스타 면 조리용 식자재');
+  const [productName, setProductName] = useState('');
+  const [material, setMaterial] = useState('');
+  const [functionUse, setFunctionUse] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState<'reasoning' | 'precedents' | 'originalText'>('reasoning');
   const [approvedStatus, setApprovedStatus] = useState<boolean | null>(null);
