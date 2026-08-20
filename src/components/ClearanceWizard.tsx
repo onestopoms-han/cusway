@@ -803,9 +803,8 @@ export default function ClearanceWizard({
                         1~4단계 확정 정보 및 소관 법령 구비 서류 가이드를 포함하는 공식 검토서
                       </p>
                     </div>
-                    <a 
-                      href={confirmedData.pdf_url} 
-                      download
+                    <button 
+                      onClick={() => window.print()}
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 
@@ -816,16 +815,17 @@ export default function ClearanceWizard({
                         borderRadius: '6px', 
                         color: '#000', 
                         fontWeight: 700, 
-                        textDecoration: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
                         fontSize: '0.85rem'
                       }}
                     >
-                      <FileDown size={16} /> 분석서 PDF 다운로드
-                    </a>
+                      <FileDown size={16} /> 분석서 PDF 저장/출력
+                    </button>
                   </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <div className="no-print" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                   <button 
                     onClick={() => setCurrentStep(2)}
                     className="btn-secondary"
