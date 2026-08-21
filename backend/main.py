@@ -691,6 +691,24 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
         "message": "품목분류 HSK 세번이 공식적으로 확정 승인되었습니다. 아래 단계를 통해 세율 및 요건 검토로 진행하십시오."
     }
 
+# FTA 및 RCEP 가입 회원국 국가 코드 세트 정의 (ISO 2자리 표준)
+EU_COUNTRIES = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"}
+ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN"}
+RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR"}
+
+def get_representative_countries(origin: str) -> List[str]:
+    origin_upper = origin.upper().strip()
+    targets = [origin_upper]
+    
+    if origin_upper in EU_COUNTRIES:
+        targets.append("IT") # EU 대표 적재국 코드 IT 추가
+    if origin_upper in ASEAN_COUNTRIES:
+        targets.append("VN") # 아세안 대표 적재국 코드 VN 추가
+    if origin_upper in RCEP_COUNTRIES:
+        targets.extend(["CN", "JP", "AU", "VN"]) # RCEP 주요 가입국 코드 추가
+        
+    return list(set(targets))
+
 @app.get("/api/hs/rates")
 def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
     # HSK 포맷 클렌징
@@ -703,10 +721,13 @@ def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
         clean_code
     ]
     
+    # 원산지 국가 코드에 따른 FTA 가입국 매핑 검색 범위 확장
+    target_countries = get_representative_countries(origin)
+    
     # 데이터베이스 조회
     records = db.query(HSRateMaster).filter(
         HSRateMaster.hs_code.in_(formatted_codes) & 
-        HSRateMaster.country_code.like(f"%{origin}%")
+        HSRateMaster.country_code.in_(target_countries)
     ).all()
     
     if not records:
@@ -724,7 +745,10 @@ def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
             }
         }
         
+    # 최적 추천 특혜세율 선택을 위해 recommended_rate가 가장 낮은 레코드를 우선 정렬
+    records.sort(key=lambda x: x.recommended_rate if x.recommended_rate is not None else 999)
     best_record = records[0]
+    
     return {
         "hs_code": best_record.hs_code,
         "origin": origin,
