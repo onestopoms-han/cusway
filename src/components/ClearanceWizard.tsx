@@ -1040,25 +1040,23 @@ export default function ClearanceWizard({
                 ) : (
                   <>
                     <p style={{ margin: 0 }}>
-                      모바일 브라우저(Safari, Chrome 등)에서 PDF로 저장하는 방법입니다. 아래 순서대로 진행해 주세요.
+                      [인쇄 화면으로 계속] 버튼을 누르면 기기의 인쇄 창이 바로 열립니다. 아래 가이드에 따라 PDF로 저장해 주세요.
                     </p>
                     <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div>
                         <strong>🍎 아이폰 (Safari):</strong>
                         <ol style={{ margin: '4px 0 0 0', paddingLeft: '16px' }}>
-                          <li>하단 중앙의 <strong>[공유]</strong> 버튼을 누릅니다.</li>
-                          <li>메뉴 중 <strong>[프린트]</strong>를 터치합니다.</li>
-                          <li>미리보기 화면을 <strong>두 손가락으로 펴서 확대(Pinch Out)</strong>하면 PDF 뷰어가 활성화됩니다.</li>
-                          <li>우측 상단 <strong>[공유]</strong> ➔ <strong>'파일에 저장'</strong>을 누르면 PDF 저장이 완료됩니다.</li>
+                          <li>아래 미리보기 화면을 <strong>두 손가락으로 넓게 펼쳐(확대)</strong> 줍니다.</li>
+                          <li>화면이 PDF 뷰어로 바뀌면 우측 상단 <strong>[공유]</strong> 아이콘을 누릅니다.</li>
+                          <li>메뉴에서 <strong>[파일에 저장]</strong>을 터치하여 저장합니다.</li>
                         </ol>
                       </div>
                       <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '4px 0' }} />
                       <div>
                         <strong>🤖 안드로이드 (Chrome / 삼성 인터넷):</strong>
                         <ol style={{ margin: '4px 0 0 0', paddingLeft: '16px' }}>
-                          <li>우측 상단 <strong>[점 3개]</strong> 혹은 하단 <strong>[메뉴]</strong> 버튼 ➔ <strong>[공유]</strong> 또는 <strong>[인쇄]</strong> 클릭</li>
-                          <li>인쇄 창 상단에서 프린터 선택을 <strong>[PDF 파일로 저장]</strong>으로 변경합니다.</li>
-                          <li>우측의 <strong>[PDF 다운로드]</strong> 버튼을 눌러 원하는 위치에 저장합니다.</li>
+                          <li>화면 맨 위의 프린터 목록(기본값: '프린터 선택')을 눌러 **[PDF 파일로 저장]**으로 선택합니다.</li>
+                          <li>화면 우측 상단에 나타나는 <strong>동그란 [PDF 다운로드] 버튼</strong> 또는 <strong>[저장]</strong>을 눌러 기기에 저장합니다.</li>
                         </ol>
                       </div>
                     </div>
