@@ -37,6 +37,29 @@ export default function ClearanceWizard({
     window.innerWidth < 768 || 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
+  const [showPrintGuideModal, setShowPrintGuideModal] = useState(false);
+  const [printGuideType, setPrintGuideType] = useState<'inapp' | 'mobile' | null>(null);
+
+  const handlePdfPrint = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isKakao = /KAKAOTALK/i.test(userAgent);
+    const isInApp = /KAKAOTALK|Instagram|FBAN|FBAV|Line|Webview/i.test(userAgent) || 
+                    (window.navigator as any).standalone || 
+                    (userAgent.indexOf('iPhone') > -1 && userAgent.indexOf('Safari') === -1);
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) || 
+                           window.innerWidth < 768;
+
+    if (isKakao || isInApp) {
+      setPrintGuideType('inapp');
+      setShowPrintGuideModal(true);
+    } else if (isMobileDevice) {
+      setPrintGuideType('mobile');
+      setShowPrintGuideModal(true);
+    } else {
+      window.print();
+    }
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(
@@ -908,7 +931,7 @@ export default function ClearanceWizard({
                       </p>
                     </div>
                     <button 
-                      onClick={() => window.print()}
+                      onClick={handlePdfPrint}
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 
@@ -957,6 +980,172 @@ export default function ClearanceWizard({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* print guide modal */}
+        {showPrintGuideModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '20px',
+            backdropFilter: 'blur(4px)'
+          }}>
+            <div style={{
+              background: '#1e293b',
+              border: '1px solid rgba(6, 182, 212, 0.4)',
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '480px',
+              width: '100%',
+              color: '#fff',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <AlertTriangle size={24} color="#f59e0b" style={{ flexShrink: 0 }} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                  {printGuideType === 'inapp' ? '⚠️ 인앱 브라우저 출력 제한 안내' : '💡 모바일 PDF 저장 안내'}
+                </h3>
+              </div>
+              
+              <div style={{ fontSize: '0.85rem', lineHeight: 1.6, color: '#e2e8f0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {printGuideType === 'inapp' ? (
+                  <>
+                    <p style={{ margin: 0 }}>
+                      현재 <strong>카카오톡, 네이버, 인스타그램 등 앱 내부 브라우저</strong>로 접속해 계십니다. 
+                      앱 보안 및 시스템 기능 제한으로 인해 PDF 인쇄/저장이 동작하지 않습니다.
+                    </p>
+                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '6px', fontSize: '0.8rem' }}>
+                      <strong>정상 저장 방법:</strong>
+                      <ul style={{ margin: '6px 0 0 0', paddingLeft: '16px' }}>
+                        <li><strong>아이폰(iOS):</strong> 우측 하단 <strong>삼점(...)</strong> 또는 <strong>나침반</strong> 아이콘 ➔ <strong>'Safari로 열기'</strong></li>
+                        <li><strong>안드로이드:</strong> 우측 하단 <strong>삼점(...)</strong> 또는 <strong>메뉴</strong> 아이콘 ➔ <strong>'다른 브라우저로 열기'</strong> (Chrome 등)</li>
+                      </ul>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>
+                      또는 아래 링크를 복사하여 외부 브라우저(크롬, 사파리) 앱에 직접 붙여넣으실 수 있습니다.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ margin: 0 }}>
+                      모바일 브라우저(Safari, Chrome 등)에서 PDF로 저장하는 방법입니다. 아래 순서대로 진행해 주세요.
+                    </p>
+                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div>
+                        <strong>🍎 아이폰 (Safari):</strong>
+                        <ol style={{ margin: '4px 0 0 0', paddingLeft: '16px' }}>
+                          <li>하단 중앙의 <strong>[공유]</strong> 버튼을 누릅니다.</li>
+                          <li>메뉴 중 <strong>[프린트]</strong>를 터치합니다.</li>
+                          <li>미리보기 화면을 <strong>두 손가락으로 펴서 확대(Pinch Out)</strong>하면 PDF 뷰어가 활성화됩니다.</li>
+                          <li>우측 상단 <strong>[공유]</strong> ➔ <strong>'파일에 저장'</strong>을 누르면 PDF 저장이 완료됩니다.</li>
+                        </ol>
+                      </div>
+                      <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '4px 0' }} />
+                      <div>
+                        <strong>🤖 안드로이드 (Chrome / 삼성 인터넷):</strong>
+                        <ol style={{ margin: '4px 0 0 0', paddingLeft: '16px' }}>
+                          <li>우측 상단 <strong>[점 3개]</strong> 혹은 하단 <strong>[메뉴]</strong> 버튼 ➔ <strong>[공유]</strong> 또는 <strong>[인쇄]</strong> 클릭</li>
+                          <li>인쇄 창 상단에서 프린터 선택을 <strong>[PDF 파일로 저장]</strong>으로 변경합니다.</li>
+                          <li>우측의 <strong>[PDF 다운로드]</strong> 버튼을 눌러 원하는 위치에 저장합니다.</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                {printGuideType === 'inapp' ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('링크가 복사되었습니다. 사파리나 크롬 앱을 열어 주소창에 붙여넣어 주세요.');
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '6px',
+                        border: '1px solid var(--accent-cyan)',
+                        background: 'transparent',
+                        color: 'var(--accent-cyan)',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      주소 복사하기
+                    </button>
+                    <button
+                      onClick={() => setShowPrintGuideModal(false)}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#475569',
+                        color: '#fff',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      닫기
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setShowPrintGuideModal(false)}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#475569',
+                        color: '#fff',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowPrintGuideModal(false);
+                        setTimeout(() => window.print(), 100);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+                        color: '#000',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      인쇄 화면으로 계속
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
