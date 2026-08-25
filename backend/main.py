@@ -3,12 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles # 스태틱 서빙을 위한 임포트 추가
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from typing import List, Optional
 import os
 import re
 
 from .db import engine, Base, get_db
-from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog
+from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog, BrokerConfirmation
 from .seed import seed_data
 
 # DB 생성 및 초기 데이터 적재
@@ -631,6 +632,8 @@ class HsConfirmRequest(BaseModel):
     confirmed_hs_code: str
     material: Optional[str] = None
     function_use: Optional[str] = None
+    email: Optional[str] = None
+    legal_reasoning: Optional[str] = None
 
 @app.post("/api/hs/confirm")
 def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
@@ -640,25 +643,23 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
         formatted_code = f"{clean[:4]}.{clean[4:6]}-{clean[6:]}"
         
     # [가드레일] 실제 수집 완료된 신고용 세번인지 검증
-    # 8507.60-0000과 같은 6자리 껍데기나 미수집 오류 세번을 차단
     exists = False
     if len(clean) == 10:
         exists_query = db.execute(
-            "SELECT EXISTS(SELECT 1 FROM hs_rate_master WHERE replace(replace(hs_code, '.', ''), '-', '') = :clean)",
+            text("SELECT EXISTS(SELECT 1 FROM hs_rate_master WHERE replace(replace(hs_code, '.', ''), '-', '') = :clean)"),
             {"clean": clean}
         ).scalar()
         exists = bool(exists_query)
         
     if not exists:
-        # 입력된 코드의 앞부분(4~6자리)으로 시작하는 실제 하부 10자리 세번 제안 리스트를 추출
         prefix = clean[:6] if len(clean) >= 6 else clean[:4]
         suggestions = db.execute(
-            """
+            text("""
             SELECT DISTINCT hs_code 
             FROM hs_rate_master 
             WHERE replace(replace(hs_code, '.', ''), '-', '') LIKE :prefix
             LIMIT 10
-            """,
+            """),
             {"prefix": f"{prefix}%"}
         ).fetchall()
         
@@ -677,18 +678,99 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
                 "suggested_codes": []
             }
         
+    # 1. 사용자 신뢰도 가중치 산정
+    weight = 1.0
+    user_role = "general_user"
+    years = 0
+    if req.email:
+        user = db.query(User).filter(User.email == req.email).first()
+        if user:
+            user_role = user.user_type or "general_user"
+            years = user.years_of_experience or 0
+            if user.credibility_weight is not None:
+                weight = user.credibility_weight
+            else:
+                if user_role == "broker":
+                    weight = 3.0 if years >= 10 else (2.0 if years >= 3 else 1.5)
+                elif user_role == "practitioner":
+                    weight = 2.0 if years >= 10 else (1.5 if years >= 3 else 1.0)
+                else:
+                    weight = 0.0 # 일반 사용자는 확정 투표 가중치 0점 (의견 수렴용)
+
+    # 2. 담당자 세번 확정 이력 기록 저장
+    from datetime import datetime
+    import uuid
+    new_confirm = BrokerConfirmation(
+        user_email=req.email or "anonymous@company.com",
+        product_name=req.keyword,
+        material=req.material,
+        function_use=req.function_use,
+        confirmed_hs_code=formatted_code,
+        legal_reasoning=req.legal_reasoning or "사용자 직접 확정",
+        user_weight=weight
+    )
+    db.add(new_confirm)
+    db.commit()
+
+    # 3. 누적 합의 가중치 및 의견 불일치 쟁점(Conflict) 분석
+    from sqlalchemy import func
+    total_weight = db.query(func.sum(BrokerConfirmation.user_weight)).filter(
+        func.lower(BrokerConfirmation.product_name) == req.keyword.lower(),
+        BrokerConfirmation.confirmed_hs_code == formatted_code
+    ).scalar() or 0.0
+
+    conflicting_records = db.query(BrokerConfirmation.confirmed_hs_code).filter(
+        func.lower(BrokerConfirmation.product_name) == req.keyword.lower(),
+        BrokerConfirmation.confirmed_hs_code != formatted_code
+    ).distinct().all()
+    conflicts = [r[0] for r in conflicting_records]
+
+    # 4. 가중치 합의 임계값(2.0점) 도달 시 마스터 DB 자동 승격 캐싱
+    is_consensus_reached = (total_weight >= 2.0)
+    if is_consensus_reached:
+        exists_prec = db.query(CustomsPrecedent).filter(
+            func.lower(CustomsPrecedent.product_name) == req.keyword.lower()
+        ).first()
+        if not exists_prec:
+            new_prec = CustomsPrecedent(
+                case_number=f"AI-AUTO-{uuid.uuid4().hex[:8].upper()}",
+                hs_code=formatted_code,
+                product_name=req.keyword,
+                material=req.material,
+                function_use=req.function_use,
+                decision_reason=req.legal_reasoning or "관세사 집단지성 가중치 합의 완료 품목",
+                issuing_body="CONSENSUS-MASTER",
+                date=datetime.now().strftime("%Y-%m-%d")
+            )
+            db.add(new_prec)
+        else:
+            exists_prec.hs_code = formatted_code
+            exists_prec.issuing_body = "CONSENSUS-MASTER"
+            exists_prec.decision_reason = req.legal_reasoning or exists_prec.decision_reason
+        db.commit()
+
+    message = f"품목분류 HSK 세번 확정이 접수되었습니다. (현재 누적 가중치: {total_weight:.1f}점 / 마스터 승격 기준: 2.0점)"
+    if is_consensus_reached:
+        message = f"품목분류 HSK 세번이 다중 검증 합의(누적 가중치 {total_weight:.1f}점)를 통해 공식 마스터 데이터(CONSENSUS-MASTER)로 최종 승격/확정되었습니다."
+
+    if conflicts:
+        message += f" [⚠️ 주의: 타 담당자와의 의견 불일치 쟁점 감지됨 - 경합 세번: {', '.join(conflicts)} / AI 중재 분석 대기중]"
+
     return {
         "status": "success",
-        "confirmation_id": f"CONF-2026-{clean[:4]}-0994",
+        "confirmation_id": f"CONF-2026-{clean[:4]}-{uuid.uuid4().hex[:4].upper()}",
         "confirmed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "details": {
             "hs_code": formatted_code,
             "keyword": req.keyword,
             "material": req.material or "스펙 미등록",
-            "function_use": req.function_use or "용도 미등록"
+            "function_use": req.function_use or "용도 미등록",
+            "weight_applied": weight,
+            "total_accumulated_weight": total_weight,
+            "consensus_reached": is_consensus_reached
         },
         "pdf_url": "/assets/reports/customs_hs_report.pdf",
-        "message": "품목분류 HSK 세번이 공식적으로 확정 승인되었습니다. 아래 단계를 통해 세율 및 요건 검토로 진행하십시오."
+        "message": message
     }
 
 # FTA 및 RCEP 가입 회원국 국가 코드 세트 정의 (ISO 2자리 표준)

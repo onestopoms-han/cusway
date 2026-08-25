@@ -14,6 +14,11 @@ class User(Base):
     status = Column(String, default="Active") # Active, Suspended
     accrued_points = Column(Integer, default=15000)
     join_date = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d"))
+    
+    # B2B Consensus Weighting System Columns
+    user_type = Column(String, default="general_user")  # 'broker', 'practitioner', 'general_user'
+    years_of_experience = Column(Integer, default=0)
+    credibility_weight = Column(Float, default=1.0)
 
 class Precedent(Base):
     __tablename__ = "precedents"
@@ -135,6 +140,20 @@ class RequirementProcedure(Base):
     required_documents = Column(Text, nullable=False)               # 구비 서류
     processing_agency = Column(String, nullable=True)               # 관할 신청기관 및 시스템 URL
     average_duration = Column(String, nullable=True)                # 평균 소요 기간
+
+
+class BrokerConfirmation(Base):
+    __tablename__ = "broker_confirmations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_email = Column(String, index=True, nullable=False)
+    product_name = Column(String, index=True, nullable=False)
+    material = Column(Text, nullable=True)
+    function_use = Column(Text, nullable=True)
+    confirmed_hs_code = Column(String, index=True, nullable=False)
+    legal_reasoning = Column(Text, nullable=True)
+    user_weight = Column(Float, default=1.0)
+    confirmed_at = Column(DateTime, default=datetime.utcnow)
 
 
 

@@ -40,6 +40,37 @@ class AICustomsClassificationProcessor:
         for attempt in range(max_retries):
             validation_results = HSConsistencyValidator.compute_consistency_score(result_dict)
             
+            # [가드레일] 추천된 HS Code가 실제 마스터 DB의 10자리 세번으로 존재하는지 검증
+            raw_hs = result_dict.get("recommendedHsCode", "")
+            clean_hs = raw_hs.replace('.', '').replace('-', '').strip()
+            
+            from backend.models import HSCodeMaster
+            master_rec = db.query(HSCodeMaster).filter(
+                (HSCodeMaster.hs_code == raw_hs) | (HSCodeMaster.hs_code == clean_hs)
+            ).first()
+            
+            # 0000.00-0000이 아니고 DB에 존재하지 않거나, HSK 10자리가 아닌 껍데기 세번(예: 6자리/8자리)인 경우 경고 처리
+            is_valid_hsk10 = master_rec and master_rec.hscode_length == 10
+            
+            if raw_hs != "0000.00-0000" and not is_valid_hsk10:
+                validation_results["consistency_score"] = min(validation_results["consistency_score"], 50)
+                
+                # 6자리 소호 하부에 속하는 실제 HSK 10자리 리스트 검색하여 피드백 제공
+                prefix = clean_hs[:6]
+                alternatives = db.query(HSCodeMaster).filter(
+                    (HSCodeMaster.hs_code.like(f"{prefix}%")) & (HSCodeMaster.hscode_length == 10)
+                ).all()
+                
+                alt_list = [f"{a.hs_code} ({a.name_ko})" for a in alternatives]
+                if alt_list:
+                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않거나 신고용 실세번이 아닙니다. 실제 이 품목 분류 하부에 존재하고 신고가 가능한 아래 HSK 10자리 세번 중에서만 선택해 주십시오:\n" + "\n".join([f"  - {alt}" for alt in alt_list])
+                else:
+                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않는 코드입니다. 실존하는 유효한 HSK 10자리 세번으로 전면 수정하십시오."
+                
+                # 중복 추가 방지
+                if not any(warn_msg[:30] in w for w in validation_results["warnings"]):
+                    validation_results["warnings"].append(warn_msg)
+            
             # If no warnings and hs code is resolved, we exit early (Success)
             if not validation_results["warnings"] and result_dict.get("recommendedHsCode") != "0000.00-0000":
                 print(f"[PROCESSOR] Attempt {attempt+1}: Verification passed with no warnings.")
@@ -54,7 +85,7 @@ class AICustomsClassificationProcessor:
             
             feedback_msg = (
                 f"당신의 이전 분류 결과 {result_dict.get('recommendedHsCode')} ({result_dict.get('headingName')}) 에 다음 법적 모순 및 제외 조항 저촉 경고가 감지되었습니다:\n"
-                + "\n".join([f"- {w}" for w in validation_results["warnings"]])
+                + "\n".join([f"- {str(w)}" for w in validation_results["warnings"]])
                 + "\n\n이 제외 조항과 모순을 철저히 대조하여 본 물품에 합당한 세번(GRI 통칙에 입각한 대체 세번)으로 엄격하게 수정하여 반환하십시오."
             )
             
@@ -103,6 +134,38 @@ class AICustomsClassificationProcessor:
             result_dict["confidence"] = min(result_dict["confidence"], 45)
             # Downgrade to warnings-hold
             result_dict["recommendedHsCode"] = "0000.00-0000"
+
+        # [강제 보정 포스트 프로세서] 만약 최종추천 세번이 존재하지 않는 코드인 경우, 가장 적합한 실존 10자리 코드로 강제 변환
+        final_raw_hs = result_dict.get("recommendedHsCode", "")
+        final_clean_hs = final_raw_hs.replace('.', '').replace('-', '').strip()
+        
+        if final_raw_hs != "0000.00-0000" and final_clean_hs:
+            from backend.models import HSCodeMaster
+            final_rec = db.query(HSCodeMaster).filter(
+                (HSCodeMaster.hs_code == final_raw_hs) | (HSCodeMaster.hs_code == final_clean_hs)
+            ).first()
+            
+            is_valid_hsk10 = final_rec and final_rec.hscode_length == 10
+            if not is_valid_hsk10:
+                prefix = final_clean_hs[:6]
+                alternatives = db.query(HSCodeMaster).filter(
+                    (HSCodeMaster.hs_code.like(f"{prefix}%")) & (HSCodeMaster.hscode_length == 10)
+                ).all()
+                
+                if alternatives:
+                    best_alt = None
+                    for alt in alternatives:
+                        clean_alt = alt.hs_code.replace('.', '').replace('-', '')
+                        if clean_alt.endswith("9099") or clean_alt.endswith("9000") or clean_alt.endswith("9090") or clean_alt.endswith("90000"):
+                            best_alt = alt
+                            break
+                    if not best_alt:
+                        best_alt = alternatives[0]
+                    
+                    raw_alt = best_alt.hs_code.replace('.', '').replace('-', '')
+                    formatted_alt = f"{raw_alt[:4]}.{raw_alt[4:6]}-{raw_alt[6:10]}"
+                    print(f"[PROCESSOR] Forced post-correction: '{final_raw_hs}' is invalid. Mapping to closest HSK 10-digit: '{formatted_alt}'")
+                    result_dict["recommendedHsCode"] = formatted_alt
 
         # ----------------------------------------------------
         # Phase 5-2: Real-time HS Code Master validation & autofill
@@ -179,6 +242,33 @@ class AICustomsClassificationProcessor:
                     })
                 print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
             result_dict["precedent_cases"] = precedent_cases
+
+        # Caching the successful result to database for local re-use
+        recommended_hs = result_dict.get("recommendedHsCode")
+        if recommended_hs and recommended_hs != "0000.00-0000" and recommended_hs != "0000000000":
+            from backend.models import CustomsPrecedent
+            from datetime import datetime
+            import uuid
+            exists = db.query(CustomsPrecedent).filter(CustomsPrecedent.product_name == product_name).first()
+            if not exists:
+                case_id = f"AI-AUTO-{uuid.uuid4().hex[:8].upper()}"
+                new_prec = CustomsPrecedent(
+                    case_number=case_id,
+                    hs_code=recommended_hs,
+                    product_name=product_name,
+                    material=material,
+                    function_use=function_use,
+                    decision_reason=result_dict.get("legalReasoning", ""),
+                    issuing_body="AI-SYSTEM",
+                    date=datetime.now().strftime("%Y-%m-%d")
+                )
+                db.add(new_prec)
+                try:
+                    db.commit()
+                    print(f"[PROCESSOR] Successfully cached classification result for '{product_name}' to DB as {case_id}")
+                except Exception as db_err:
+                    db.rollback()
+                    print(f"[PROCESSOR] Failed to cache classification result to DB: {db_err}")
 
         print(f"[PROCESSOR] Pipeline execution completed successfully. HS Code matched: {result_dict.get('recommendedHsCode')}")
         return result_dict

@@ -2,7 +2,9 @@ import os
 import json
 import urllib.request
 import urllib.error
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+
 
 from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_precedents
 from backend.rag.rules import KOREAN_HS_RULES
@@ -305,6 +307,21 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     from backend.models import CustomsPrecedent
     import re
     prec = db.query(CustomsPrecedent).filter(CustomsPrecedent.product_name == product_name).first()
+    if not prec:
+        from backend.rag.retriever import retrieve_relevant_precedents
+        combined_query = f"{product_name} {material} {function_use}"
+        sim_precedents = retrieve_relevant_precedents(combined_query, db)
+        if sim_precedents:
+            best_prec = sim_precedents[0]
+            words_query = set(re.split(r'[\s,\.\-\(\)]+', product_name.lower()))
+            words_prec = set(re.split(r'[\s,\.\-\(\)]+', best_prec.product_name.lower()))
+            common = words_query.intersection(words_prec)
+            from backend.rag.retriever import STOPWORDS
+            common_filtered = [w for w in common if len(w) >= 2 and w not in STOPWORDS]
+            if common_filtered:
+                prec = best_prec
+                print(f"[RAG-LLM] Exact match not found for '{product_name}'. Found highly similar cached precedent: '{prec.product_name}'")
+
     if prec:
         raw_code = prec.hs_code.replace('.', '').replace('-', '').strip()
         raw_code = re.sub(r'[^\d]', '', raw_code)
@@ -678,7 +695,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
         if len(heading_code) >= 4:
             prefix = heading_code[:4]
             db_match = db.execute(
-                "SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1",
+                text("SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1"),
                 {"pref": f"{prefix}%"}
             ).fetchone()
             if db_match:

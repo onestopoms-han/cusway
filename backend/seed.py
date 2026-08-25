@@ -12,10 +12,10 @@ def seed_data():
 
     # 1. 테스트 유저 생성 (CUSWAY 관리자 및 일반 고객들)
     users_data = [
-        {"email": "admin@cusway.kr", "password": "pjhcustoms2026!", "company_name": "CUSWAY 관세팀", "plan": "Business", "status": "Active", "accrued_points": 15000},
-        {"email": "director@seoulcustoms.com", "password": "password123!", "company_name": "서울관세법인", "plan": "Business", "status": "Active", "accrued_points": 25000},
-        {"email": "trade_agent@korea.co.kr", "password": "password123!", "company_name": "한국관세사무소", "plan": "Basic", "status": "Active", "accrued_points": 5000},
-        {"email": "customs_tax@corp.com", "password": "password123!", "company_name": "태평양세무관세", "plan": "Business", "status": "Suspended", "accrued_points": 0}
+        {"email": "admin@cusway.kr", "password": "pjhcustoms2026!", "company_name": "CUSWAY 관세팀", "plan": "Business", "status": "Active", "accrued_points": 15000, "user_type": "broker", "years_of_experience": 12, "credibility_weight": 3.0},
+        {"email": "director@seoulcustoms.com", "password": "password123!", "company_name": "서울관세법인", "plan": "Business", "status": "Active", "accrued_points": 25000, "user_type": "broker", "years_of_experience": 8, "credibility_weight": 2.0},
+        {"email": "trade_agent@korea.co.kr", "password": "password123!", "company_name": "한국관세사무소", "plan": "Basic", "status": "Active", "accrued_points": 5000, "user_type": "practitioner", "years_of_experience": 4, "credibility_weight": 1.5},
+        {"email": "customs_tax@corp.com", "password": "password123!", "company_name": "태평양세무관세", "plan": "Business", "status": "Suspended", "accrued_points": 0, "user_type": "general_user", "years_of_experience": 1, "credibility_weight": 1.0}
     ]
 
     for u in users_data:
@@ -27,7 +27,10 @@ def seed_data():
                 company_name=u["company_name"],
                 plan=u["plan"],
                 status=u["status"],
-                accrued_points=u["accrued_points"]
+                accrued_points=u["accrued_points"],
+                user_type=u["user_type"],
+                years_of_experience=u["years_of_experience"],
+                credibility_weight=u["credibility_weight"]
             )
             db.add(db_user)
 
