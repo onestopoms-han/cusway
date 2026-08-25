@@ -10,14 +10,17 @@ if os.environ.get("VERCEL"):
     DATABASE_URL = "sqlite:////tmp/cusway.db"
     src_db = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cusway.db")
     dest_db = "/tmp/cusway.db"
-    if os.path.exists(src_db):
-        try:
-            shutil.copy2(src_db, dest_db)
-            print(f"[DB_COPY] Successfully copied {src_db} to {dest_db} (size: {os.path.getsize(dest_db)} bytes)")
-        except Exception as e:
-            print(f"[DB_COPY_ERROR] Failed to copy database: {e}")
+    if not os.path.exists(dest_db):
+        if os.path.exists(src_db):
+            try:
+                shutil.copy2(src_db, dest_db)
+                print(f"[DB_COPY] Successfully copied {src_db} to {dest_db} (size: {os.path.getsize(dest_db)} bytes)")
+            except Exception as e:
+                print(f"[DB_COPY_ERROR] Failed to copy database: {e}")
+        else:
+            print(f"[DB_COPY_WARN] Source database not found at {src_db}")
     else:
-        print(f"[DB_COPY_WARN] Source database not found at {src_db}")
+        print("[DB_COPY] /tmp/cusway.db already exists, skipping copy to preserve runtime updates.")
 else:
     DATABASE_URL = "sqlite:///./cusway.db"
 
