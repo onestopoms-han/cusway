@@ -20,17 +20,17 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     result_dict["product_name"] = product_name
     result_dict["material"] = material
     
-    # Run Validator
+    # 2. Consistency Validation (Static call to compute initial score)
     validation = HSConsistencyValidator.compute_consistency_score(result_dict)
     
-    # 2. Self-Correction Loop: If score is under 75, launch a secondary checking query (Slow but extremely precise)
-    if validation["consistency_score"] < 75:
+    # Self-Correction Loop: If score is under 85, trigger secondary self-correction check (ultra-precise)
+    if validation["consistency_score"] < 85:
         feedback_text = (
             f"1차 판정 결과({result_dict.get('recommendedHsCode', '미판정')})에 대한 정합성 위배 경고가 식별되었습니다.\n"
             f"경고 사유: {', '.join(validation['warnings'])}\n"
             f"관세율표 제외 조항(Exclusion Note)과 재질 구분을 다시 꼼꼼하게 대조하여 오류가 없는 올바른 HS Code 및 근거 논리로 즉시 재판정해 주십시오."
         )
-        print(f"[RAG-LLM] 정합성 미달 ({validation['consistency_score']}점). 2차 자가검증 교정 루프를 시작합니다.")
+        print(f"[RAG-LLM] 정합성 미달 ({validation['consistency_score']}점). 2차 자가교정 피드백 루프를 시작합니다.")
         
         # Attempt self-corrected match
         corrected_result = _query_rag_hs_classification_raw(
@@ -47,8 +47,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
             result_dict = corrected_result
             validation = second_validation
             print(f"[RAG-LLM] 2차 자가교정 성공: 점수 {validation['consistency_score']}점으로 보정 완료.")
-    
-    # Merge final validation results
+            
     result_dict["consistency_score"] = validation["consistency_score"]
     result_dict["consistency_status"] = validation["status"]
     result_dict["consistency_warnings"] = validation["warnings"]

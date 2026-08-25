@@ -11,7 +11,7 @@ class HSConsistencyValidator:
         {
             "target_chapter": "95",  # Toys & Games
             "excluded_chapters": ["84", "85", "87"],  # No heavy machinery, electric motors, or passenger vehicles
-            "exception_keywords": ["작동", "완구용", "장난감", "배터리식", "미니어처", "인형"],
+            "exception_keywords": ["작동", "완구용", "장난감", "배터리식", "미니어처", "인형", "완구용자전거", "완구용퍼즐", "유희용"],
             "error_msg": "제95류(완구) 분류 시, 산업용/상업용 기계류(제84/85류) 또는 승용차량(제87류)의 성격이 강하면 일반 기계나 차량으로 분류되어야 합니다."
         },
         {
@@ -31,8 +31,27 @@ class HSConsistencyValidator:
             "excluded_chapters": ["21", "02"],  # No pure meat products or coffee extracts
             "exception_keywords": ["파스타", "면", "스파게티", "마카로니"],
             "error_msg": "제1902호(파스타)는 육류 함량이 20%를 초과하는 조제품(제16류) 또는 커피 혼합물을 함유한 제품은 제외됩니다."
+        },
+        {
+            "target_chapter": "33",  # Cosmetics
+            "excluded_chapters": ["34", "38"],  # Impregnated paper/wipes with soap or disinfectant
+            "exception_keywords": ["화장용", "클렌징", "메이크업", "피부세정"],
+            "error_msg": "제33류(조제화장품/물티슈)는 비누나 계면활성제를 침투시킨 물티슈(제3401호) 또는 알코올/소독제를 침투시킨 물티슈(제3808호)를 제외합니다."
+        },
+        {
+            "target_chapter": "39",  # Plastics
+            "excluded_headings": ["7117", "9503"],  # No plastic toy/accessory imitation jewelry
+            "exception_keywords": ["포장재", "산업용", "건축용", "시트", "필름", "점착테이프"],
+            "error_msg": "제3926호(기타 플라스틱 제품)는 플라스틱제 완구/인형(제9503호) 또는 모조 신변장식용품(제7117호)을 제외하며, 이들은 해당 전용 호로 우선 분류됩니다."
+        },
+        {
+            "target_chapter": "87",  # Vehicles parts
+            "excluded_headings": ["8483", "8511", "8512"],  # Specific machinery parts prioritized over vehicle parts (17부 주2호 마목)
+            "exception_keywords": ["범퍼", "섀시", "차체", "핸들", "브레이크"],
+            "error_msg": "제8708호(차량용 부분품)는 범용 기계요소인 전동축, 기어 장치, 볼스크류(제8483호) 및 시동용 전기 기기(제8511호)를 제외하며, 이들은 해당 기계류 호에 최우선적으로 분류됩니다."
         }
     ]
+
 
     @staticmethod
     def validate_gri_path(applied_gris: list, productName: str, material: str, legalReasoning: str) -> tuple:
@@ -90,18 +109,35 @@ class HSConsistencyValidator:
             # Check Chapter Exclusions
             if chapter == rule.get("target_chapter"):
                 for excl_ch in rule.get("excluded_chapters", []):
-                    # If query text implies an excluded chapter keyword heavily but lacks exceptions
-                    if excl_ch == "84" and ("기계" in query_text or "모터" in query_text or "엔진" in query_text):
+                    # Check Machinery exclusion in Toys
+                    if excl_ch in ["84", "85", "87"] and ("기계" in query_text or "모터" in query_text or "엔진" in query_text or "차량" in query_text):
+                        if not any(exc in query_text for exc in rule["exception_keywords"]):
+                            score_deduction += 35
+                            warnings.append(rule["error_msg"])
+                            break
+                    # Check Soap/Disinfectant exclusion in Cosmetics
+                    elif excl_ch in ["34", "38"] and ("비누" in query_text or "세제" in query_text or "세척" in query_text or "소독" in query_text or "살균" in query_text or "알코올" in query_text):
                         if not any(exc in query_text for exc in rule["exception_keywords"]):
                             score_deduction += 35
                             warnings.append(rule["error_msg"])
                             break
                             
-            # Check Heading Exclusions
+            # Check Heading Exclusions (or heading level mapping logic)
             if heading in rule.get("excluded_headings", []):
-                # If target heading overlaps with exclusion criteria
-                score_deduction += 40
-                warnings.append(rule["error_msg"])
+                # 3926호 플라스틱 제품으로 판정하려 하나 장난감/장신구 키워드가 매치될 때
+                if rule.get("target_chapter") == "39" and ("완구" in query_text or "장난감" in query_text or "인형" in query_text or "장신구" in query_text or "액세서리" in query_text):
+                    if not any(exc in query_text for exc in rule["exception_keywords"]):
+                        score_deduction += 40
+                        warnings.append(rule["error_msg"])
+                # 8708호 차량 부품으로 판정하려 하나 볼스크류/샤프트/기어(8483) 키워드가 매치될 때
+                elif rule.get("target_chapter") == "87" and ("볼스크류" in query_text or "샤프트" in query_text or "기어" in query_text or "전동축" in query_text):
+                    if not any(exc in query_text for exc in rule["exception_keywords"]):
+                        score_deduction += 40
+                        warnings.append(rule["error_msg"])
+                # 기타 일반적 매핑 제외
+                else:
+                    score_deduction += 30
+                    warnings.append(rule["error_msg"])
 
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 

@@ -14,11 +14,11 @@ class AICustomsClassificationProcessor:
     3. Note Exclusions and GRI Validation
     4. Post-Clearance Audit Tax Risk Evaluation
     """
-
+    
     @classmethod
     def run_classification_pipeline(cls, product_name: str, material: str, function_use: str, db: Session, custom_key: str = None) -> dict:
         print(f"[PROCESSOR] Launching AI Classification Pipeline for: '{product_name}'")
-
+        
         # ----------------------------------------------------
         # Phase 1: Retrieve RAG notes & precedents
         # ----------------------------------------------------
@@ -30,7 +30,7 @@ class AICustomsClassificationProcessor:
         # Phase 2: Classification (Runs through LLM Chain with Iterative Feedback Loop up to 3 retries)
         # ----------------------------------------------------
         result_dict = query_rag_hs_classification(product_name, material, function_use, db, custom_key)
-
+        
         # ----------------------------------------------------
         # Phase 3: Legal Consistency & Exclusions Validation with Self-Correction Loop
         # ----------------------------------------------------
@@ -63,7 +63,7 @@ class AICustomsClassificationProcessor:
                 product_name, material, function_use, db, custom_key,
                 feedback_prompt=feedback_msg
             )
-
+        
         result_dict["consistency_score"] = validation_results["consistency_score"]
         result_dict["consistency_status"] = validation_results["status"]
         result_dict["consistency_warnings"] = validation_results["warnings"]
@@ -108,21 +108,58 @@ class AICustomsClassificationProcessor:
         # Phase 5-2: Real-time HS Code Master validation & autofill
         # ----------------------------------------------------
         raw_hs = result_dict.get("recommendedHsCode", "")
+        clean_hs = ""
+        hs_prefix = ""
         if raw_hs and raw_hs != "0000.00-0000":
             from backend.models import HSCodeMaster, CustomsPrecedent
             
             clean_hs = raw_hs.replace('.', '').replace('-', '')
+            # 4자리 Heading 코드 (예: 0811)
+            hs_4 = clean_hs[:4] if len(clean_hs) >= 4 else ""
+            # 6자리 Subheading 코드 (예: 081190)
+            hs_6 = clean_hs[:6] if len(clean_hs) >= 6 else ""
+
+            # 4단위 호 용어 쿼리
+            heading_rec = None
+            if hs_4:
+                hs_4_dot = f"{hs_4[:2]}.{hs_4[2:]}"
+                heading_rec = db.query(HSCodeMaster).filter(
+                    (HSCodeMaster.hs_code == hs_4) | (HSCodeMaster.hs_code == hs_4_dot)
+                ).first()
+
+            # 6단위 소호 용어 쿼리
+            subheading_rec = None
+            if hs_6:
+                hs_6_dot = f"{hs_6[:4]}.{hs_6[4:]}"
+                subheading_rec = db.query(HSCodeMaster).filter(
+                    (HSCodeMaster.hs_code == hs_6) | (HSCodeMaster.hs_code == hs_6_dot)
+                ).first()
+
+            # 10단위 세번 레코드 쿼리 (백업용)
             master_rec = db.query(HSCodeMaster).filter(
                 (HSCodeMaster.hs_code == raw_hs) | (HSCodeMaster.hs_code == clean_hs)
             ).first()
-            
-            if master_rec:
+
+            # 계층별 최적 명칭 지정
+            if heading_rec:
+                result_dict["headingName"] = heading_rec.name_ko
+            elif master_rec:
                 result_dict["headingName"] = master_rec.name_ko
+            else:
+                result_dict["headingName"] = "기타 품목"
+
+            if subheading_rec:
+                result_dict["subheadingName"] = subheading_rec.name_en or subheading_rec.name_ko or ""
+            elif master_rec:
                 result_dict["subheadingName"] = master_rec.name_en or ""
-                print(f"[PROCESSOR] Matched official master names: {master_rec.name_ko} ({master_rec.name_en})")
+            else:
+                result_dict["subheadingName"] = ""
+
+            if master_rec or heading_rec or subheading_rec:
+                print(f"[PROCESSOR] Matched official master names: {result_dict.get('headingName')} ({result_dict.get('subheadingName')})")
             else:
                 print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
-                
+
             # ----------------------------------------------------
             # Phase 5-3: Match real customs precedents by prefix (first 4 digits)
             # ----------------------------------------------------
