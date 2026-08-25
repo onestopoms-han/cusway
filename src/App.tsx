@@ -38,6 +38,15 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing'>('hs-classifier');
   
+  // Signup states
+  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupCompanyName, setSignupCompanyName] = useState('');
+  const [signupUserType, setSignupUserType] = useState<string>('general_user');
+  const [signupYears, setSignupYears] = useState<number>(0);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
   const [wizardKeyword, setWizardKeyword] = useState('배 주스');
@@ -48,20 +57,85 @@ export default function App() {
     e.preventDefault();
     setLoginError('');
 
-    // 로컬 데모 모드로 즉시 로그인하여 서버 충돌을 완전히 우회
-    if (email === 'admin@cusway.kr' && password === 'pjhcustoms2026!') {
-      const fallbackUser = {
-        email: 'admin@cusway.kr',
-        company_name: 'CUSWAY 관세팀 (데모 모드)',
-        plan: 'Business',
-        status: 'Active',
-        accrued_points: 15000
-      };
-      setCurrentUser(fallbackUser);
-      setIsLoggedIn(true);
-      console.log('로컬 목업 세션으로 시뮬레이션 작동합니다.');
-    } else {
-      setLoginError('이메일 또는 비밀번호가 올바르지 않습니다.');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUser(data);
+        setIsLoggedIn(true);
+        console.log('API 로그인 성공:', data);
+      } else {
+        const errData = await response.json();
+        setLoginError(errData.detail || '이메일 또는 비밀번호가 올바르지 않습니다.');
+      }
+    } catch (err) {
+      console.warn('API 로그인 실패, 데모 모드로 가동합니다:', err);
+      // 로컬 데모 모드 (오프라인/로컬 빌드 시에도 정상 진입하도록 세이프 가드)
+      if (email === 'admin@cusway.kr' && password === 'pjhcustoms2026!') {
+        const fallbackUser = {
+          email: 'admin@cusway.kr',
+          company_name: 'CUSWAY 관세팀 (데모 모드)',
+          plan: 'Business',
+          status: 'Active',
+          accrued_points: 15000,
+          user_type: 'broker',
+          years_of_experience: 12,
+          credibility_weight: 3.0
+        };
+        setCurrentUser(fallbackUser);
+        setIsLoggedIn(true);
+      } else {
+        setLoginError('서버 연결 실패 및 매칭되는 데모 계정이 아닙니다.');
+      }
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setSignupSuccess(false);
+
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: signupEmail,
+          password: signupPassword,
+          company_name: signupCompanyName,
+          user_type: signupUserType,
+          years_of_experience: Number(signupYears)
+        })
+      });
+
+      if (response.ok) {
+        setSignupSuccess(true);
+        // Automatically populate login inputs
+        setEmail(signupEmail);
+        setPassword(signupPassword);
+        setIsSigningUp(false);
+        setSignupEmail('');
+        setSignupPassword('');
+        setSignupCompanyName('');
+        setSignupUserType('general_user');
+        setSignupYears(0);
+        alert('회원가입이 성공적으로 완료되었습니다! 가입하신 정보가 로그인 창에 자동 설정되었습니다.');
+      } else {
+        const errData = await response.json();
+        setLoginError(errData.detail || '회원 가입에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      setLoginError('서버와의 통신에 실패했습니다.');
     }
   };
 
@@ -213,98 +287,287 @@ export default function App() {
               </div>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
-                  관세사 계정 이메일
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Mail size={16} style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }} />
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px 10px 40px',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '0.85rem'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
-                  비밀번호
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <Lock size={16} style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }} />
-                  <input 
-                    type="password" 
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 14px 10px 40px',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '0.85rem'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {loginError && (
-                <div style={{
-                  padding: '10px 14px',
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                  borderRadius: '6px',
-                  color: '#fca5a5',
-                  fontSize: '0.78rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <ShieldAlert size={14} />
-                  <span>{loginError}</span>
-                </div>
-              )}
-
+            {/* Form Mode Toggle Header */}
+            <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '8px' }}>
               <button 
-                type="submit"
-                className="btn-primary"
+                onClick={() => { setIsSigningUp(false); setLoginError(''); }}
                 style={{
-                  width: '100%',
-                  justifyContent: 'center',
+                  flex: 1,
                   padding: '12px',
-                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+                  background: 'none',
                   border: 'none',
-                  borderRadius: '8px',
-                  color: '#000',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)'
+                  borderBottom: !isSigningUp ? '2px solid var(--accent-primary)' : 'none',
+                  color: !isSigningUp ? '#fff' : 'var(--text-muted)',
+                  fontWeight: !isSigningUp ? 700 : 500,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
                 }}
               >
                 로그인
               </button>
-            </form>
+              <button 
+                onClick={() => { setIsSigningUp(true); setLoginError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: isSigningUp ? '2px solid var(--accent-primary)' : 'none',
+                  color: isSigningUp ? '#fff' : 'var(--text-muted)',
+                  fontWeight: isSigningUp ? 700 : 500,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer'
+                }}
+              >
+                무료 회원가입
+              </button>
+            </div>
+
+            {/* Login Form */}
+            {!isSigningUp ? (
+              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                    계정 이메일
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Mail size={16} style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }} />
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px 10px 40px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                    비밀번호
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <Lock size={16} style={{ position: 'absolute', left: '14px', top: '12px', color: 'var(--text-muted)' }} />
+                    <input 
+                      type="password" 
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px 10px 40px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {loginError && (
+                  <div style={{
+                    padding: '10px 14px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '6px',
+                    color: '#fca5a5',
+                    fontSize: '0.78rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <ShieldAlert size={14} />
+                    <span>{loginError}</span>
+                  </div>
+                )}
+
+                <button 
+                  type="submit"
+                  className="btn-primary"
+                  style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#000',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)'
+                  }}
+                >
+                  로그인
+                </button>
+              </form>
+            ) : (
+              /* Signup Form */
+              <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                    이메일 주소
+                  </label>
+                  <input 
+                    type="email" 
+                    required
+                    placeholder="name@example.com"
+                    value={signupEmail}
+                    onChange={(e) => setSignupEmail(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                    비밀번호
+                  </label>
+                  <input 
+                    type="password" 
+                    required
+                    placeholder="8자리 이상 입력"
+                    value={signupPassword}
+                    onChange={(e) => setSignupPassword(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                    회사명 / 법인명
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="예: 서울관세법인, 개인화주"
+                    value={signupCompanyName}
+                    onChange={(e) => setSignupCompanyName(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '0.82rem'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                      회원 구분
+                    </label>
+                    <select
+                      value={signupUserType}
+                      onChange={(e) => setSignupUserType(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        background: '#1e293b',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.82rem'
+                      }}
+                    >
+                      <option value="general_user">일반인 / 일반 화주 (가중치 0.5~)</option>
+                      <option value="practitioner">수출입 기업 실무자 (가중치 1.0~)</option>
+                      <option value="broker">전문 관세사 (가중치 1.5~)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
+                      실무 경력 (년)
+                    </label>
+                    <input 
+                      type="number" 
+                      min="0"
+                      max="60"
+                      value={signupYears}
+                      onChange={(e) => setSignupYears(Number(e.target.value))}
+                      disabled={signupUserType === 'general_user'}
+                      style={{
+                        width: '100%',
+                        padding: '8px',
+                        background: signupUserType === 'general_user' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: signupUserType === 'general_user' ? 'rgba(255,255,255,0.2)' : '#fff',
+                        fontSize: '0.82rem'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {loginError && (
+                  <div style={{
+                    padding: '8px 12px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '6px',
+                    color: '#fca5a5',
+                    fontSize: '0.75rem'
+                  }}>
+                    <span>{loginError}</span>
+                  </div>
+                )}
+
+                <button 
+                  type="submit"
+                  className="btn-primary"
+                  style={{
+                    width: '100%',
+                    justifyContent: 'center',
+                    padding: '10px',
+                    background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#000',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    boxShadow: '0 4px 15px rgba(20, 184, 166, 0.15)',
+                    marginTop: '4px'
+                  }}
+                >
+                  가입 및 본인 가중치 자동 생성
+                </button>
+              </form>
+            )}
 
             {/* Social Logins Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '4px' }}>
               <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
               <span>또는 간편 로그인</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
@@ -369,15 +632,13 @@ export default function App() {
             <div style={{
               background: 'rgba(255,255,255,0.02)',
               border: '1px dashed rgba(255,255,255,0.08)',
-              padding: '12px 16px',
+              padding: '10px 14px',
               borderRadius: '8px',
-              fontSize: '0.75rem',
+              fontSize: '0.72rem',
               color: 'var(--text-muted)',
               lineHeight: '1.4'
             }}>
-              🔑 <b>테스트 계정 정보:</b><br />
-              - 이메일: <code style={{ color: 'var(--accent-primary)' }}>admin@cusway.kr</code><br />
-              - 비밀번호: <code style={{ color: 'var(--accent-primary)' }}>pjhcustoms2026!</code>
+              🔑 <b>테스트 데모 계정:</b> <code style={{ color: 'var(--accent-primary)' }}>admin@cusway.kr</code> / <code style={{ color: 'var(--accent-primary)' }}>pjhcustoms2026!</code>
             </div>
           </div>
         </div>

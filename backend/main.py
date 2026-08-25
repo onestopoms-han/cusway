@@ -54,6 +54,13 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+class SignupRequest(BaseModel):
+    email: str
+    password: str
+    company_name: str
+    user_type: str # "broker" | "practitioner" | "general_user"
+    years_of_experience: int
+
 class UserResponse(BaseModel):
     email: str
     company_name: str
@@ -61,6 +68,9 @@ class UserResponse(BaseModel):
     status: str
     accrued_points: int
     join_date: str
+    user_type: str = "general_user"
+    years_of_experience: int = 0
+    credibility_weight: float = 1.0
 
     class Config:
         from_attributes = True
@@ -134,6 +144,52 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
             detail="이용이 일시 정지된 계정입니다. 관리자팀에 문의하세요."
         )
     return user
+
+@app.post("/api/auth/signup", response_model=UserResponse)
+def signup(req: SignupRequest, db: Session = Depends(get_db)):
+    # 중복 이메일 체크
+    exists = db.query(User).filter(User.email == req.email).first()
+    if exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="이미 가입된 이메일 계정입니다."
+        )
+    
+    # 등급별 가중치 산정 로직
+    # 관세사(broker): 기본 1.5점 + 년수 * 0.1, 최대 3.0점
+    # 기업실무자(practitioner): 기본 1.0점 + 년수 * 0.05, 최대 2.0점
+    # 일반인(general_user): 기본 0.5점 + 년수 * 0.02, 최대 1.0점
+    y = max(0, req.years_of_experience)
+    if req.user_type == "broker":
+        weight = min(3.0, 1.5 + y * 0.1)
+    elif req.user_type == "practitioner":
+        weight = min(2.0, 1.0 + y * 0.05)
+    else:
+        weight = min(1.0, 0.5 + y * 0.02)
+        
+    db_user = User(
+        email=req.email,
+        password=req.password,
+        company_name=req.company_name,
+        plan="Basic",
+        status="Active",
+        accrued_points=1000, # 가입 축하 포인트
+        user_type=req.user_type,
+        years_of_experience=y,
+        credibility_weight=weight
+    )
+    db.add(db_user)
+    try:
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"회원 가입 처리 중 오류 발생: {e}"
+        )
+
 
 @app.get("/api/valuation/precedents", response_model=List[PrecedentResponse])
 def get_precedents(db: Session = Depends(get_db)):
