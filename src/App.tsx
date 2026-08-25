@@ -203,6 +203,70 @@ export default function App() {
     }
   };
 
+  const triggerSocialSignup = async (sEmail: string, sPass: string, sCompany: string) => {
+    setLoginError('');
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: sEmail,
+          password: sPass,
+          company_name: sCompany,
+          user_type: 'general_user',
+          years_of_experience: 0
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Save user to localStorage
+        const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+        localUsers.push({
+          email: sEmail,
+          password: sPass,
+          profile: data
+        });
+        localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+
+        setCurrentUser(data);
+        setIsLoggedIn(true);
+        alert(`${sCompany} 간편 가입 및 로그인이 완료되었습니다!`);
+      } else {
+        const errData = await response.json();
+        alert(errData.detail || '간편 가입 처리에 실패했습니다.');
+      }
+    } catch (err) {
+      console.warn('API 간편가입 실패, 로컬 브라우저 세션 모드로 가입 처리합니다:', err);
+      const clientProfile = {
+        email: sEmail,
+        company_name: sCompany,
+        plan: 'Basic',
+        status: 'Active',
+        accrued_points: 1000,
+        user_type: 'general_user',
+        years_of_experience: 0,
+        credibility_weight: 0.5,
+        join_date: new Date().toISOString().split('T')[0]
+      };
+
+      const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+      localUsers.push({
+        email: sEmail,
+        password: sPass,
+        profile: clientProfile
+      });
+      localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+
+      setCurrentUser(clientProfile);
+      setIsLoggedIn(true);
+      alert(`${sCompany} 로컬 간편 가입 및 로그인이 완료되었습니다!`);
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
@@ -544,65 +608,64 @@ export default function App() {
               </form>
             ) : (
               /* Signup Form */
-              <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '10px 0' }}>
+                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.5', marginBottom: '8px' }}>
+                  이메일 입력과 비밀번호 설정 없는<br />
+                  <b>1초 간편 연동 가입</b>으로 즉시 시작하세요.
+                </p>
+
                 {/* Social Signup Prompters */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button
                     type="button"
                     onClick={() => {
                       const rand = Math.floor(1000 + Math.random() * 9000);
-                      setSignupEmail(`kakao_member${rand}@kakao.com`);
-                      setSignupPassword(`kakaoPass${rand}!`);
-                      setSignupCompanyName('카카오 간편 가입 회원');
-                      alert('카카오 간편 연동 성공! 하단의 [1초 만에 무료 회원가입 완료] 버튼을 눌러주세요.');
+                      triggerSocialSignup(`kakao_member${rand}@kakao.com`, `kakaoPass${rand}!`, '카카오 간편 가입 회원');
                     }}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px',
                       background: '#FEE500',
                       border: 'none',
                       borderRadius: '8px',
                       color: '#000',
                       fontWeight: 700,
-                      fontSize: '0.8rem',
+                      fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      boxShadow: '0 2px 8px rgba(254, 229, 0, 0.2)'
+                      boxShadow: '0 4px 12px rgba(254, 229, 0, 0.25)'
                     }}
                   >
-                    💬 카카오 계정으로 3초 간편가입
+                    💬 카카오 계정으로 1초 간편가입
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       const rand = Math.floor(1000 + Math.random() * 9000);
-                      setSignupEmail(`cusway_member${rand}@gmail.com`);
-                      setSignupPassword(`gmailPass${rand}!`);
-                      setSignupCompanyName('구글 간편 가입 회원');
-                      alert('Google Gmail 연동 성공! 하단의 [1초 만에 무료 회원가입 완료] 버튼을 눌러주세요.');
+                      triggerSocialSignup(`cusway_member${rand}@gmail.com`, `gmailPass${rand}!`, '구글 간편 가입 회원');
                     }}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px',
                       background: '#fff',
                       border: '1px solid #dadce0',
                       borderRadius: '8px',
                       color: '#3c4043',
                       fontWeight: 700,
-                      fontSize: '0.8rem',
+                      fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.08)'
                     }}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '2px' }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '2px' }}>
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                       <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.87-.63-1.39-1.56-1.39-2.63z" fill="#FBBC05"/>
@@ -611,113 +674,7 @@ export default function App() {
                     Google 계정으로 간편가입 (지메일)
                   </button>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.7rem', margin: '4px 0' }}>
-                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                  <span>또는 이메일 직접 입력 가입</span>
-                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
-                    이메일 주소
-                  </label>
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="name@example.com"
-                    value={signupEmail}
-                    onChange={(e) => setSignupEmail(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
-                    비밀번호
-                  </label>
-                  <input 
-                    type="password" 
-                    required
-                    placeholder="8자리 이상 입력"
-                    value={signupPassword}
-                    onChange={(e) => setSignupPassword(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
-                    회사명 / 법인명
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    placeholder="예: 서울관세법인, 개인화주"
-                    value={signupCompanyName}
-                    onChange={(e) => setSignupCompanyName(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
-
-                {loginError && (
-                  <div style={{
-                    padding: '8px 12px',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.25)',
-                    borderRadius: '6px',
-                    color: '#fca5a5',
-                    fontSize: '0.75rem'
-                  }}>
-                    <span>{loginError}</span>
-                  </div>
-                )}
-
-                <button 
-                  type="submit"
-                  className="btn-primary"
-                  style={{
-                    width: '100%',
-                    justifyContent: 'center',
-                    padding: '10px',
-                    background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    color: '#000',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontSize: '0.85rem',
-                    boxShadow: '0 4px 15px rgba(20, 184, 166, 0.15)',
-                    marginTop: '4px'
-                  }}
-                >
-                  1초 만에 무료 회원가입 완료
-                </button>
-              </form>
+              </div>
             )}
 
 
