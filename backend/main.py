@@ -58,7 +58,12 @@ class SignupRequest(BaseModel):
     email: str
     password: str
     company_name: str
-    user_type: str # "broker" | "practitioner" | "general_user"
+    user_type: str = "general_user" # "broker" | "practitioner" | "general_user"
+    years_of_experience: int = 0
+
+class UpgradeWeightRequest(BaseModel):
+    email: str
+    user_type: str
     years_of_experience: int
 
 class UserResponse(BaseModel):
@@ -189,6 +194,39 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"회원 가입 처리 중 오류 발생: {e}"
         )
+
+@app.patch("/api/users/upgrade-weight", response_model=UserResponse)
+def upgrade_weight(req: UpgradeWeightRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="사용자를 찾을 수 없습니다."
+        )
+    
+    y = max(0, req.years_of_experience)
+    if req.user_type == "broker":
+        weight = min(3.0, 1.5 + y * 0.1)
+    elif req.user_type == "practitioner":
+        weight = min(2.0, 1.0 + y * 0.05)
+    else:
+        weight = min(1.0, 0.5 + y * 0.02)
+        
+    user.user_type = req.user_type
+    user.years_of_experience = y
+    user.credibility_weight = weight
+    
+    try:
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"가중치 업데이트 중 오류 발생: {e}"
+        )
+
 
 
 @app.get("/api/valuation/precedents", response_model=List[PrecedentResponse])

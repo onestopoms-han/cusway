@@ -47,6 +47,11 @@ export default function App() {
   const [signupYears, setSignupYears] = useState<number>(0);
   const [signupSuccess, setSignupSuccess] = useState(false);
 
+  // Upgrade weight states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeUserType, setUpgradeUserType] = useState<string>('broker');
+  const [upgradeYears, setUpgradeYears] = useState<number>(1);
+
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
   const [wizardKeyword, setWizardKeyword] = useState('배 주스');
@@ -204,6 +209,71 @@ export default function App() {
     setEmail('');
     setPassword('');
     setLoginError('');
+  };
+
+  const handleUpgradeWeight = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    try {
+      const response = await fetch('/api/users/upgrade-weight', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: currentUser.email,
+          user_type: upgradeUserType,
+          years_of_experience: Number(upgradeYears)
+        })
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+        
+        // Update local storage backup
+        const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+        const idx = localUsers.findIndex((u: any) => u.email === currentUser.email);
+        if (idx !== -1) {
+          localUsers[idx].profile = updatedUser;
+          localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+        }
+
+        alert(`전문가 가중치 인증 완료! 등급: ${upgradeUserType === 'broker' ? '관세사' : '실무자'}, 가중치: ${updatedUser.credibility_weight}점으로 승격되었습니다.`);
+        setShowUpgradeModal(false);
+      } else {
+        alert('가중치 업데이트에 실패했습니다.');
+      }
+    } catch (err) {
+      console.warn('API 업데이트 실패, 로컬 브라우저 상태를 변경합니다:', err);
+      // Fallback local updates for offline/serverless
+      const y = Number(upgradeYears);
+      let weight = 1.0;
+      if (upgradeUserType === 'broker') {
+        weight = Math.min(3.0, 1.5 + y * 0.1);
+      } else if (upgradeUserType === 'practitioner') {
+        weight = Math.min(2.0, 1.0 + y * 0.05);
+      }
+      
+      const updatedUser = {
+        ...currentUser,
+        user_type: upgradeUserType,
+        years_of_experience: y,
+        credibility_weight: weight
+      };
+      setCurrentUser(updatedUser);
+
+      const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+      const idx = localUsers.findIndex((u: any) => u.email === currentUser.email);
+      if (idx !== -1) {
+        localUsers[idx].profile = updatedUser;
+        localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+      }
+
+      alert(`전문가 가중치 로컬 승인 완료! 등급: ${upgradeUserType === 'broker' ? '관세사' : '실무자'}, 가중치: ${weight}점`);
+      setShowUpgradeModal(false);
+    }
   };
 
   if (!isLoggedIn) {
@@ -484,7 +554,7 @@ export default function App() {
                       setSignupEmail(`kakao_member${rand}@kakao.com`);
                       setSignupPassword(`kakaoPass${rand}!`);
                       setSignupCompanyName('카카오 간편 가입 회원');
-                      alert('카카오 간편 연동 성공! 가입 마무리를 위해 하단의 회원 구분과 경력을 선택하고 [가입 완료] 버튼을 눌러주세요.');
+                      alert('카카오 간편 연동 성공! 하단의 [1초 만에 무료 회원가입 완료] 버튼을 눌러주세요.');
                     }}
                     style={{
                       width: '100%',
@@ -513,7 +583,7 @@ export default function App() {
                       setSignupEmail(`cusway_member${rand}@gmail.com`);
                       setSignupPassword(`gmailPass${rand}!`);
                       setSignupCompanyName('구글 간편 가입 회원');
-                      alert('Google Gmail 연동 성공! 가입 마무리를 위해 하단의 회원 구분과 경력을 선택하고 [가입 완료] 버튼을 눌러주세요.');
+                      alert('Google Gmail 연동 성공! 하단의 [1초 만에 무료 회원가입 완료] 버튼을 눌러주세요.');
                     }}
                     style={{
                       width: '100%',
@@ -614,54 +684,6 @@ export default function App() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
-                      회원 구분
-                    </label>
-                    <select
-                      value={signupUserType}
-                      onChange={(e) => setSignupUserType(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        background: '#1e293b',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        color: '#fff',
-                        fontSize: '0.82rem'
-                      }}
-                    >
-                      <option value="general_user">일반인 / 일반 화주 (가중치 0.5~)</option>
-                      <option value="practitioner">수출입 기업 실무자 (가중치 1.0~)</option>
-                      <option value="broker">전문 관세사 (가중치 1.5~)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
-                      실무 경력 (년)
-                    </label>
-                    <input 
-                      type="number" 
-                      min="0"
-                      max="60"
-                      value={signupYears}
-                      onChange={(e) => setSignupYears(Number(e.target.value))}
-                      disabled={signupUserType === 'general_user'}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        background: signupUserType === 'general_user' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        color: signupUserType === 'general_user' ? 'rgba(255,255,255,0.2)' : '#fff',
-                        fontSize: '0.82rem'
-                      }}
-                    />
-                  </div>
-                </div>
-
                 {loginError && (
                   <div style={{
                     padding: '8px 12px',
@@ -693,10 +715,11 @@ export default function App() {
                     marginTop: '4px'
                   }}
                 >
-                  가입 및 본인 가중치 자동 생성
+                  1초 만에 무료 회원가입 완료
                 </button>
               </form>
             )}
+
 
             {/* Social Logins Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.72rem', marginTop: '4px' }}>
@@ -945,7 +968,35 @@ export default function App() {
               </div>
               <div>
                 <p style={{ fontSize: '0.85rem', fontWeight: 600 }}>{currentUser?.company_name || 'CUSWAY 관세팀'}</p>
-                <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{currentUser?.email || 'admin@cusway.kr'}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                  <span style={{
+                    fontSize: '0.62rem',
+                    background: 'rgba(20, 184, 166, 0.12)',
+                    color: 'var(--accent-primary)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: 700
+                  }}>
+                    가중치 {currentUser?.credibility_weight || 1.0}점
+                  </span>
+                  {currentUser?.user_type === 'general_user' && (
+                    <span 
+                      onClick={() => setShowUpgradeModal(true)}
+                      style={{
+                        fontSize: '0.62rem',
+                        background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                        color: '#000',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        boxShadow: '0 0 5px rgba(6,182,212,0.3)'
+                      }}
+                    >
+                      업그레이드 ⚡
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
@@ -993,6 +1044,128 @@ export default function App() {
           <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />
         )}
       </main>
+
+      {/* Weight Upgrade Modal */}
+      {showUpgradeModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+            border: '1px solid rgba(6, 182, 212, 0.3)',
+            borderRadius: '16px',
+            padding: '28px',
+            maxWidth: '460px',
+            width: '100%',
+            boxShadow: '0 10px 40px rgba(6, 182, 212, 0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚡ 전문가 권한 및 가중치 업그레이드</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
+                관세사 면허 또는 수출입 실무 경력을 인증하시면, 합의 판결 참여 시 귀하의 의견 반영 비율(가중치)이 상향 조정됩니다.
+              </p>
+            </div>
+
+            <form onSubmit={handleUpgradeWeight} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  인증 등급 선택
+                </label>
+                <select
+                  value={upgradeUserType}
+                  onChange={(e) => setUpgradeUserType(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: '#1e293b',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  <option value="broker">전문 관세사 (기본 1.5점 ~ 최대 3.0점)</option>
+                  <option value="practitioner">수출입 기업 실무자 (기본 1.0점 ~ 최대 2.0점)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  실무 경력 년수
+                </label>
+                <input 
+                  type="number"
+                  required
+                  min="0"
+                  max="60"
+                  value={upgradeYears}
+                  onChange={(e) => setUpgradeYears(Number(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.85rem'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowUpgradeModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#000',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)'
+                  }}
+                >
+                  인증 및 상향 적용
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
