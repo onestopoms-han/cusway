@@ -33,8 +33,8 @@ export default function App() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@cusway.kr');
+  const [password, setPassword] = useState('pjhcustoms2026!');
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing'>('hs-classifier');
   
