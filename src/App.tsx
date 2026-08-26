@@ -91,24 +91,8 @@ export default function App() {
         setLoginError(errData.detail || '이메일 또는 비밀번호가 올바르지 않습니다.');
       }
     } catch (err) {
-      console.warn('API 로그인 실패, 데모 모드로 가동합니다:', err);
-      // 로컬 데모 모드 (오프라인/로컬 빌드 시에도 정상 진입하도록 세이프 가드)
-      if (email === 'admin@cusway.kr' && password === 'pjhcustoms2026!') {
-        const fallbackUser = {
-          email: 'admin@cusway.kr',
-          company_name: 'CUSWAY 관세팀 (데모 모드)',
-          plan: 'Business',
-          status: 'Active',
-          accrued_points: 15000,
-          user_type: 'broker',
-          years_of_experience: 12,
-          credibility_weight: 3.0
-        };
-        setCurrentUser(fallbackUser);
-        setIsLoggedIn(true);
-      } else {
-        setLoginError('서버 연결 실패 및 매칭되는 데모 계정이 아닙니다.');
-      }
+      console.error('API 로그인 실패:', err);
+      setLoginError('서버 연결에 실패했거나 로그인 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -642,19 +626,7 @@ export default function App() {
                   </button>
                 </div>
 
-                {/* Test Account Helper */}
-                <div style={{
-                  background: 'rgba(255,255,255,0.02)',
-                  border: '1px dashed rgba(255,255,255,0.08)',
-                  padding: '10px 14px',
-                  borderRadius: '8px',
-                  fontSize: '0.72rem',
-                  color: 'var(--text-muted)',
-                  lineHeight: '1.4',
-                  marginTop: '12px'
-                }}>
-                  🔑 <b>테스트 데모 계정:</b> <code style={{ color: 'var(--accent-primary)' }}>admin@cusway.kr</code> / <code style={{ color: 'var(--accent-primary)' }}>pjhcustoms2026!</code>
-                </div>
+
               </>
             ) : (
               /* Signup Form */
