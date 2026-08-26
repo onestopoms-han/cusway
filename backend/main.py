@@ -8,6 +8,23 @@ from typing import List, Optional
 import os
 import re
 
+def load_env():
+    # Load .env file from project root if exists
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.dirname(current_dir)
+    env_path = os.path.join(project_root, ".env")
+    if os.path.exists(env_path):
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ[key.strip()] = val.strip()
+
+load_env()
+
 from .db import engine, Base, get_db
 from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog, BrokerConfirmation
 from .seed import seed_data
@@ -80,6 +97,9 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class SocialCallbackRequest(BaseModel):
+    code: str
+
 class PrecedentResponse(BaseModel):
     id: str
     category: str
@@ -134,6 +154,158 @@ class BillingRequest(BaseModel):
     final_price: int
 
 # --- API Endpoints ---
+
+@app.get("/api/auth/social/config")
+def get_social_config():
+    return {
+        "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "demo_kakao_client_id_12345"),
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "demo_google_client_id_12345.apps.googleusercontent.com")
+    }
+
+@app.post("/api/auth/social/kakao", response_model=UserResponse)
+def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)):
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    code = req.code
+    client_id = os.environ.get("KAKAO_CLIENT_ID", "demo_kakao_client_id_12345")
+    # For local/demo fallback, if code is mock or client_id is demo, bypass external request
+    if client_id == "demo_kakao_client_id_12345" or code.startswith("demo_"):
+        email = "demo_kakao@cusway.kr"
+        nickname = "카카오 데모 유저"
+    else:
+        try:
+            # 1. Exchange code for access token
+            token_url = "https://kauth.kakao.com/oauth/token"
+            data = urllib.parse.urlencode({
+                "grant_type": "authorization_code",
+                "client_id": client_id,
+                "redirect_uri": "http://localhost:5173/",
+                "code": code
+            }).encode("utf-8")
+            
+            token_req = urllib.request.Request(token_url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+            with urllib.request.urlopen(token_req, timeout=10) as resp:
+                token_data = json.loads(resp.read().decode("utf-8"))
+                access_token = token_data.get("access_token")
+                
+            # 2. Get user info
+            user_url = "https://kapi.kakao.com/v2/user/me"
+            user_req = urllib.request.Request(user_url, headers={"Authorization": f"Bearer {access_token}"})
+            with urllib.request.urlopen(user_req, timeout=10) as resp:
+                user_info = json.loads(resp.read().decode("utf-8"))
+                kakao_account = user_info.get("kakao_account", {})
+                email = kakao_account.get("email", f"kakao_{user_info.get('id')}@cusway.kr")
+                properties = user_info.get("properties", {})
+                nickname = properties.get("nickname", "카카오 사용자")
+        except Exception as e:
+            import urllib.error
+            error_detail = str(e)
+            if isinstance(e, urllib.error.HTTPError):
+                try:
+                    error_detail += f" - Response: {e.read().decode('utf-8')}"
+                except Exception:
+                    pass
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"카카오 소셜 연동 실패: {error_detail}"
+            )
+            
+    # Check if user exists
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(
+            email=email,
+            password="social_login_secure_password_placeholder_kakao",
+            company_name=f"{nickname} (카카오 가입)",
+            plan="Basic",
+            status="Active",
+            accrued_points=1000,
+            user_type="general_user",
+            years_of_experience=0,
+            credibility_weight=0.5
+        )
+        db.add(user)
+        try:
+            db.commit()
+            db.refresh(user)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"소셜 계정 생성 실패: {e}"
+            )
+    return user
+
+@app.post("/api/auth/social/google", response_model=UserResponse)
+def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db)):
+    import urllib.request
+    import urllib.parse
+    import json
+    
+    code = req.code
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", "demo_google_client_id_12345.apps.googleusercontent.com")
+    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "demo_google_secret")
+    
+    if client_id == "demo_google_client_id_12345.apps.googleusercontent.com" or code.startswith("demo_"):
+        email = "demo_google@cusway.kr"
+        nickname = "구글 데모 유저"
+    else:
+        try:
+            # 1. Exchange code for access token
+            token_url = "https://oauth2.googleapis.com/token"
+            data = urllib.parse.urlencode({
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": "http://localhost:5173/",
+                "grant_type": "authorization_code"
+            }).encode("utf-8")
+            
+            token_req = urllib.request.Request(token_url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+            with urllib.request.urlopen(token_req, timeout=10) as resp:
+                token_data = json.loads(resp.read().decode("utf-8"))
+                access_token = token_data.get("access_token")
+                
+            # 2. Get user info
+            user_url = f"https://www.googleapis.com/oauth2/v2/userinfo?access_token={access_token}"
+            user_req = urllib.request.Request(user_url)
+            with urllib.request.urlopen(user_req, timeout=10) as resp:
+                user_info = json.loads(resp.read().decode("utf-8"))
+                email = user_info.get("email")
+                nickname = user_info.get("name", "구글 사용자")
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"구글 소셜 연동 실패: {e}"
+            )
+            
+    # Check if user exists
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(
+            email=email,
+            password="social_login_secure_password_placeholder_google",
+            company_name=f"{nickname} (구글 가입)",
+            plan="Basic",
+            status="Active",
+            accrued_points=1000,
+            user_type="general_user",
+            years_of_experience=0,
+            credibility_weight=0.5
+        )
+        db.add(user)
+        try:
+            db.commit()
+            db.refresh(user)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"소셜 계정 생성 실패: {e}"
+            )
+    return user
 
 @app.post("/api/auth/login", response_model=UserResponse)
 def login(req: LoginRequest, db: Session = Depends(get_db)):

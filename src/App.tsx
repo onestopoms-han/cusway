@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
@@ -57,6 +57,83 @@ export default function App() {
   const [wizardKeyword, setWizardKeyword] = useState('배 주스');
   const [wizardMaterial, setWizardMaterial] = useState('배 과즙 100%');
   const [wizardFunction, setWizardFunction] = useState('음료 제조용 원료');
+
+  interface SocialConfig {
+    kakao_client_id: string;
+    google_client_id: string;
+  }
+  const [socialConfig, setSocialConfig] = useState<SocialConfig | null>(null);
+  const [isSocialProcessing, setIsSocialProcessing] = useState(false);
+
+  useEffect(() => {
+    // 1. Fetch social config
+    fetch('/api/auth/social/config')
+      .then(res => res.json())
+      .then(data => setSocialConfig(data))
+      .catch(err => console.warn('Failed to load social config', err));
+
+    // 2. Detect OAuth callback code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && (state === 'kakao' || state === 'google')) {
+      setIsSocialProcessing(true);
+      
+      // Clean query parameters from URL without reloading
+      const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      const endpoint = state === 'kakao' ? '/api/auth/social/kakao' : '/api/auth/social/google';
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      })
+      .then(async (res) => {
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data);
+          setIsLoggedIn(true);
+          alert('소셜 로그인/가입이 완료되었습니다!');
+        } else {
+          const errData = await res.json();
+          alert(`소셜 인증 실패: ${errData.detail || '알 수 없는 오류'}`);
+        }
+      })
+      .catch(err => {
+        console.error('Social auth error:', err);
+        alert('소셜 로그인 통신 중 오류가 발생했습니다.');
+      })
+      .finally(() => {
+        setIsSocialProcessing(false);
+      });
+    }
+  }, []);
+
+  const handleKakaoRedirect = () => {
+    const clientId = socialConfig?.kakao_client_id || 'demo_kakao_client_id_12345';
+    const redirectUri = window.location.origin + "/";
+    if (clientId === 'demo_kakao_client_id_12345') {
+      alert('데모 간편 로그인을 실행합니다 (데모 인증 코드 전달)');
+      window.location.href = `${window.location.protocol}//${window.location.host}/?code=demo_kakao_code_12345&state=kakao`;
+    } else {
+      const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=kakao`;
+      window.location.href = authUrl;
+    }
+  };
+
+  const handleGoogleRedirect = () => {
+    const clientId = socialConfig?.google_client_id || 'demo_google_client_id_12345.apps.googleusercontent.com';
+    const redirectUri = window.location.origin + "/";
+    if (clientId.startsWith('demo_')) {
+      alert('데모 간편 로그인을 실행합니다 (데모 인증 코드 전달)');
+      window.location.href = `${window.location.protocol}//${window.location.host}/?code=demo_google_code_12345&state=google`;
+    } else {
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent('email profile')}&state=google`;
+      window.location.href = authUrl;
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,6 +328,57 @@ export default function App() {
     }
   };
 
+  const triggerSocialLogin = async (sEmail: string, sPass: string) => {
+    setLoginError('');
+    // 1. Check local storage first
+    const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+    const matchedLocal = localUsers.find((u: any) => u.email === sEmail && u.password === sPass);
+    if (matchedLocal) {
+      setCurrentUser(matchedLocal.profile);
+      setIsLoggedIn(true);
+      console.log('로컬 저장소 간편 로그인 성공:', matchedLocal.profile);
+      alert('간편 로그인 성공!');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: sEmail, password: sPass })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentUser(data);
+        setIsLoggedIn(true);
+        console.log('API 간편 로그인 성공:', data);
+        alert('간편 로그인 성공!');
+      } else {
+        alert('간편 가입이 되어 있지 않은 계정입니다. 회원가입 탭에서 먼저 가입을 진행해 주세요.');
+        setIsSigningUp(true); // Switch to signup tab
+      }
+    } catch (err) {
+      console.warn('API 로그인 실패, 데모 모드로 로그인합니다:', err);
+      const clientProfile = {
+        email: sEmail,
+        company_name: sEmail.includes('kakao') ? '카카오 연동 데모기업' : '구글 연동 데모기업',
+        plan: 'Basic',
+        status: 'Active',
+        accrued_points: 1000,
+        user_type: 'general_user',
+        years_of_experience: 0,
+        credibility_weight: 0.5,
+        join_date: new Date().toISOString().split('T')[0]
+      };
+      setCurrentUser(clientProfile);
+      setIsLoggedIn(true);
+      alert('간편 데모 로그인 완료 (오프라인 모드)');
+    }
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
@@ -323,6 +451,25 @@ export default function App() {
       setShowUpgradeModal(false);
     }
   };
+
+  if (isSocialProcessing) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#0f172a',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        gap: '16px'
+      }}>
+        <RefreshCw className="animate-spin" size={48} color="var(--accent-primary)" />
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>소셜 로그인 처리 중...</h3>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>잠시만 기다려 주세요.</p>
+      </div>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
@@ -464,8 +611,47 @@ export default function App() {
               </div>
             </div>
 
-            {/* Form Mode Toggle Header */}
-                    {/* Login / Signup Forms */}
+            {/* Form Mode Toggle Tabs */}
+            <div style={{ display: 'flex', borderBottom: '2px solid rgba(255,255,255,0.06)', marginBottom: '8px' }}>
+              <button 
+                type="button"
+                onClick={() => { setIsSigningUp(false); setLoginError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: !isSigningUp ? '2px solid var(--accent-primary)' : 'none',
+                  color: !isSigningUp ? '#fff' : 'var(--text-muted)',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.3s'
+                }}
+              >
+                로그인
+              </button>
+              <button 
+                type="button"
+                onClick={() => { setIsSigningUp(true); setLoginError(''); }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: isSigningUp ? '2px solid var(--accent-primary)' : 'none',
+                  color: isSigningUp ? '#fff' : 'var(--text-muted)',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                  transition: 'all 0.3s'
+                }}
+              >
+                회원가입
+              </button>
+            </div>
+
+            {/* Login / Signup Forms */}
             {!isSigningUp ? (
               <>
                 {/* Login Form */}
@@ -570,63 +756,64 @@ export default function App() {
                   {/* Kakao Login */}
                   <button 
                     onClick={() => {
-                      alert('카카오 간편 로그인 페이지로 이동합니다. (데모 자동 승인)');
-                      setIsLoggedIn(true);
+                      alert('카카오 간편 로그인 페이지로 이동합니다.');
+                      handleKakaoRedirect();
                     }}
                     style={{
                       width: '100%',
-                      padding: '10px',
+                      padding: '12px',
                       background: '#FEE500',
                       border: 'none',
                       borderRadius: '8px',
                       color: '#000000',
-                      fontWeight: 600,
+                      fontWeight: 700,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 2px 8px rgba(254, 229, 0, 0.15)'
+                      gap: '8px'
                     }}
                   >
                     <span style={{ fontSize: '1.05rem', fontWeight: 800 }}>💬</span> 카카오 계정으로 로그인
                   </button>
 
-                  {/* Google Login (changed from Naver to maintain consistency) */}
+                  {/* Google Login */}
                   <button 
                     onClick={() => {
-                      alert('Google 간편 로그인 페이지로 이동합니다. (데모 자동 승인)');
-                      setIsLoggedIn(true);
+                      alert('Google 간편 로그인 페이지로 이동합니다.');
+                      handleGoogleRedirect();
                     }}
                     style={{
                       width: '100%',
-                      padding: '10px',
-                      background: '#fff',
-                      border: '1px solid #dadce0',
+                      padding: '12px',
+                      background: '#ffffff',
+                      border: '1px solid #d1d5db',
                       borderRadius: '8px',
-                      color: '#3c4043',
-                      fontWeight: 600,
+                      color: '#374151',
+                      fontWeight: 700,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+                      gap: '8px'
                     }}
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '2px' }}>
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.87-.63-1.39-1.56-1.39-2.63z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
                     Google 계정으로 로그인 (지메일)
                   </button>
                 </div>
 
-
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>아직 계정이 없으신가요? </span>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsSigningUp(true); setLoginError(''); }}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', padding: 0 }}
+                  >
+                    회원가입하기
+                  </button>
+                </div>
               </>
             ) : (
               /* Signup Form */
@@ -641,7 +828,8 @@ export default function App() {
                   <button 
                     type="button"
                     onClick={() => {
-                      alert('소셜 간편가입/로그인 기능은 현재 정식 연동 준비 중입니다. 일반 이메일 회원가입을 이용해 주시기 바랍니다.');
+                      alert('카카오 간편 회원가입 페이지로 이동합니다.');
+                      handleKakaoRedirect();
                     }}
                     style={{
                       width: '100%',
@@ -656,8 +844,7 @@ export default function App() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 4px 12px rgba(254, 229, 0, 0.25)'
+                      gap: '8px'
                     }}
                   >
                     💬 카카오 계정으로 1초 간편가입
@@ -666,13 +853,14 @@ export default function App() {
                   <button 
                     type="button"
                     onClick={() => {
-                      alert('소셜 간편가입/로그인 기능은 현재 정식 연동 준비 중입니다. 일반 이메일 회원가입을 이용해 주시기 바랍니다.');
+                      alert('Google 간편 회원가입 페이지로 이동합니다.');
+                      handleGoogleRedirect();
                     }}
                     style={{
                       width: '100%',
                       padding: '12px',
-                      background: '#fff',
-                      border: '1px solid #dadce0',
+                      background: '#ffffff',
+                      border: '1px solid #d1d5db',
                       borderRadius: '8px',
                       color: '#3c4043',
                       fontWeight: 700,
@@ -681,29 +869,22 @@ export default function App() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.08)'
+                      gap: '8px'
                     }}
                   >
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginRight: '2px' }}>
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.87-.63-1.39-1.56-1.39-2.63z" fill="#FBBC05"/>
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
                     Google 계정으로 간편가입 (지메일)
                   </button>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.72rem', margin: '14px 0 6px 0' }}>
-                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', fontSize: '0.72rem', margin: '14px 0 6px 0' }}>
+                  <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
                   <span>또는 이메일 회원가입</span>
-                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+                  <div style={{ flex: 1, height: '1px', background: '#e5e7eb' }} />
                 </div>
 
                 <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#4b5563', marginBottom: '6px', fontWeight: 700 }}>
                       이메일 주소
                     </label>
                     <input 
@@ -715,17 +896,17 @@ export default function App() {
                       style={{
                         width: '100%',
                         padding: '10px 14px',
-                        background: 'rgba(0,0,0,0.3)',
-                        border: '1px solid var(--border-color)',
+                        background: '#ffffff',
+                        border: '1px solid #d1d5db',
                         borderRadius: '8px',
-                        color: '#fff',
+                        color: '#111827',
                         fontSize: '0.85rem'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#4b5563', marginBottom: '6px', fontWeight: 700 }}>
                       비밀번호 (8자리 이상)
                     </label>
                     <input 
@@ -738,17 +919,17 @@ export default function App() {
                       style={{
                         width: '100%',
                         padding: '10px 14px',
-                        background: 'rgba(0,0,0,0.3)',
-                        border: '1px solid var(--border-color)',
+                        background: '#ffffff',
+                        border: '1px solid #d1d5db',
                         borderRadius: '8px',
-                        color: '#fff',
+                        color: '#111827',
                         fontSize: '0.85rem'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: '#4b5563', marginBottom: '6px', fontWeight: 700 }}>
                       회사명 / 법인명 / 이름
                     </label>
                     <input 
@@ -760,10 +941,10 @@ export default function App() {
                       style={{
                         width: '100%',
                         padding: '10px 14px',
-                        background: 'rgba(0,0,0,0.3)',
-                        border: '1px solid var(--border-color)',
+                        background: '#ffffff',
+                        border: '1px solid #d1d5db',
                         borderRadius: '8px',
-                        color: '#fff',
+                        color: '#111827',
                         fontSize: '0.85rem'
                       }}
                     />
@@ -771,7 +952,7 @@ export default function App() {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: '#4b5563', marginBottom: '6px', fontWeight: 700 }}>
                         회원 구분
                       </label>
                       <select 
@@ -780,10 +961,10 @@ export default function App() {
                         style={{
                           width: '100%',
                           padding: '10px 14px',
-                          background: 'rgba(15, 23, 42, 0.95)',
-                          border: '1px solid var(--border-color)',
+                          background: '#ffffff',
+                          border: '1px solid #d1d5db',
                           borderRadius: '8px',
-                          color: '#fff',
+                          color: '#111827',
                           fontSize: '0.85rem',
                           cursor: 'pointer'
                         }}
@@ -795,7 +976,7 @@ export default function App() {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: '#4b5563', marginBottom: '6px', fontWeight: 700 }}>
                         실무 경력 (년)
                       </label>
                       <input 
@@ -808,10 +989,10 @@ export default function App() {
                         style={{
                           width: '100%',
                           padding: '10px 14px',
-                          background: 'rgba(0,0,0,0.3)',
-                          border: '1px solid var(--border-color)',
+                          background: '#ffffff',
+                          border: '1px solid #d1d5db',
                           borderRadius: '8px',
-                          color: '#fff',
+                          color: '#111827',
                           fontSize: '0.85rem'
                         }}
                       />
@@ -821,10 +1002,10 @@ export default function App() {
                   {loginError && (
                     <div style={{
                       padding: '10px 14px',
-                      background: 'rgba(239, 68, 68, 0.1)',
-                      border: '1px solid rgba(239, 68, 68, 0.25)',
-                      borderRadius: '6px',
-                      color: '#fca5a5',
+                      background: '#fef2f2',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '8px',
+                      color: '#991b1b',
                       fontSize: '0.78rem'
                     }}>
                       <span>{loginError}</span>
@@ -833,25 +1014,34 @@ export default function App() {
 
                   <button 
                     type="submit"
-                    className="btn-primary"
                     style={{
                       width: '100%',
                       justifyContent: 'center',
                       padding: '12px',
-                      background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                      background: '#000000',
                       border: 'none',
                       borderRadius: '8px',
-                      color: '#000',
-                      fontWeight: 700,
+                      color: '#ffffff',
+                      fontWeight: 750,
                       cursor: 'pointer',
                       fontSize: '0.9rem',
-                      boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)',
                       marginTop: '8px'
                     }}
                   >
                     무료 회원가입 완료
                   </button>
                 </form>
+
+                <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>이미 계정이 있으신가요? </span>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsSigningUp(false); setLoginError(''); }}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.8rem', padding: 0 }}
+                  >
+                    로그인하기
+                  </button>
+                </div>
               </div>
             )}
           </div>

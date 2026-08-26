@@ -163,33 +163,124 @@ export default function ClearanceWizard({
         throw new Error('세율 조회 오류');
       }
     } catch (err) {
-      // Fallback rates mockup based on db seeding
-      if (hsCode.includes('2009.89-1090') && originCountry === 'IT') {
-        setRatesData({
-          hs_code: '2009.89-1090',
-          origin: 'IT',
-          rates: {
-            base_rate: 50.0,
-            wto_rate: 50.0,
-            fta_rate: 0.0,
-            fta_name: '한-EU FTA',
-            recommended_rate: 0.0,
-            notice: "최적 특혜 적용에 따라 한-EU FTA 세율 0.0% 적용을 추천합니다. 통관 시 EU 수출자의 원산지 신고문구(Origin Declaration)가 포함된 상업송장이 필수입니다."
-          }
-        });
-      } else if (hsCode.includes('1902.11-1000') && originCountry === 'IT') {
-        setRatesData({
-          hs_code: '1902.11-1000',
-          origin: 'IT',
-          rates: {
-            base_rate: 8.0,
-            wto_rate: 8.0,
-            fta_rate: 0.0,
-            fta_name: '한-EU FTA',
-            recommended_rate: 0.0,
-            notice: "최적 특혜 적용에 따라 한-EU FTA 세율 0.0% 적용을 추천합니다. 통관 시 원산지 인증수출자 번호 기재가 필요합니다."
-          }
-        });
+      // Fallback rates mockup based on db seeding (Synchronized with backend country sets)
+      const EU_COUNTRIES = ["AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK"];
+      const ASEAN_COUNTRIES = ["VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN"];
+      const RCEP_COUNTRIES = ["CN", "JP", "AU", "NZ", "KR"]; // Vietnam, Singapore, etc are handled by ASEAN priority first
+
+      const originUpper = originCountry.toUpperCase().strip ? originCountry.toUpperCase().trim() : originCountry.toUpperCase();
+      const isEU = EU_COUNTRIES.includes(originUpper);
+      const isASEAN = ASEAN_COUNTRIES.includes(originUpper);
+      const isRCEP = RCEP_COUNTRIES.includes(originUpper);
+
+      if (hsCode.includes('2009.89-1090')) {
+        if (isEU) {
+          setRatesData({
+            hs_code: '2009.89-1090',
+            origin: originCountry,
+            rates: {
+              base_rate: 50.0,
+              wto_rate: 50.0,
+              fta_rate: 0.0,
+              fta_name: '한-EU FTA',
+              recommended_rate: 0.0,
+              notice: `최적 특혜 적용에 따라 한-EU FTA 세율 0.0% 적용을 추천합니다. [${originCountry}] 통관 시 EU 수출자의 원산지 신고문구(Origin Declaration)가 포함된 상업송장이 필수입니다.`
+            }
+          });
+        } else if (isASEAN) {
+          setRatesData({
+            hs_code: '2009.89-1090',
+            origin: originCountry,
+            rates: {
+              base_rate: 50.0,
+              wto_rate: 50.0,
+              fta_rate: 5.0,
+              fta_name: '한-ASEAN FTA',
+              recommended_rate: 5.0,
+              notice: `최적 특혜 적용에 따라 한-ASEAN FTA 세율 5.0% 적용을 추천합니다. [${originCountry}] 통관 시 AK Form 원산지증명서 제출이 필수입니다.`
+            }
+          });
+        } else if (isRCEP) {
+          setRatesData({
+            hs_code: '2009.89-1090',
+            origin: originCountry,
+            rates: {
+              base_rate: 50.0,
+              wto_rate: 50.0,
+              fta_rate: 20.0,
+              fta_name: 'RCEP 협정세율',
+              recommended_rate: 20.0,
+              notice: `최적 특혜 적용에 따라 RCEP 협정세율 20.0% 적용을 추천합니다. [${originCountry}] 통관 시 RCEP 원산지증명서 제출이 필요합니다.`
+            }
+          });
+        } else {
+          setRatesData({
+            hs_code: '2009.89-1090',
+            origin: originCountry,
+            rates: {
+              base_rate: 50.0,
+              wto_rate: 50.0,
+              fta_rate: null,
+              fta_name: '미협정국',
+              recommended_rate: 50.0,
+              notice: "해당 국가와의 협정세율 정보가 없습니다. 기본세율(A) 50.0%가 추천 적용됩니다."
+            }
+          });
+        }
+      } else if (hsCode.includes('1902.11-1000')) {
+        if (isEU) {
+          setRatesData({
+            hs_code: '1902.11-1000',
+            origin: originCountry,
+            rates: {
+              base_rate: 8.0,
+              wto_rate: 8.0,
+              fta_rate: 0.0,
+              fta_name: '한-EU FTA',
+              recommended_rate: 0.0,
+              notice: `최적 특혜 적용에 따라 한-EU FTA 세율 0.0% 적용을 추천합니다. [${originCountry}] 통관 시 원산지 인증수출자 번호 기재가 필요합니다.`
+            }
+          });
+        } else if (isASEAN) {
+          setRatesData({
+            hs_code: '1902.11-1000',
+            origin: originCountry,
+            rates: {
+              base_rate: 8.0,
+              wto_rate: 8.0,
+              fta_rate: 0.0,
+              fta_name: '한-ASEAN FTA',
+              recommended_rate: 0.0,
+              notice: `최적 특혜 적용에 따라 한-ASEAN FTA 세율 0.0% 적용을 추천합니다. [${originCountry}] 통관 시 AK Form 제출이 요구됩니다.`
+            }
+          });
+        } else if (isRCEP) {
+          setRatesData({
+            hs_code: '1902.11-1000',
+            origin: originCountry,
+            rates: {
+              base_rate: 8.0,
+              wto_rate: 8.0,
+              fta_rate: 4.0,
+              fta_name: 'RCEP 협정세율',
+              recommended_rate: 4.0,
+              notice: `RCEP 협정세율 4.0% 적용이 가능합니다. [${originCountry}] 통관 시 원산지 소명 자료를 확인하십시오.`
+            }
+          });
+        } else {
+          setRatesData({
+            hs_code: '1902.11-1000',
+            origin: originCountry,
+            rates: {
+              base_rate: 8.0,
+              wto_rate: 8.0,
+              fta_rate: null,
+              fta_name: '미협정국',
+              recommended_rate: 8.0,
+              notice: "해당 국가와의 협정세율 정보가 없습니다. 기본세율(A) 8.0%가 추천 적용됩니다."
+            }
+          });
+        }
       } else {
         setRatesData({
           hs_code: hsCode,
@@ -200,7 +291,7 @@ export default function ClearanceWizard({
             fta_rate: null,
             fta_name: '미협정국',
             recommended_rate: 8.0,
-            notice: "해당 국가와의 협정세율 정보가 없습니다. 기본세율 8%가 적용됩니다."
+            notice: "해당 국가와의 협정세율 정보가 없습니다. 기본세율(A) 8%가 적용됩니다."
           }
         });
       }
@@ -283,6 +374,8 @@ export default function ClearanceWizard({
 
   const countries = [
     { code: 'IT', name: '이탈리아 (한-EU)' },
+    { code: 'DE', name: '독일 (한-EU)' },
+    { code: 'FR', name: '프랑스 (한-EU)' },
     { code: 'US', name: '미국 (한-미)' },
     { code: 'CN', name: '중국 (한-중)' },
     { code: 'VN', name: '베트남 (한-ASEAN)' },
