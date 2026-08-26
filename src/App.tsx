@@ -638,11 +638,10 @@ export default function App() {
 
                 {/* Social Signup Prompters */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <button
+                  <button 
                     type="button"
                     onClick={() => {
-                      const rand = Math.floor(1000 + Math.random() * 9000);
-                      triggerSocialSignup(`kakao_member${rand}@kakao.com`, `kakaoPass${rand}!`, '카카오 간편 가입 회원');
+                      alert('소셜 간편가입/로그인 기능은 현재 정식 연동 준비 중입니다. 일반 이메일 회원가입을 이용해 주시기 바랍니다.');
                     }}
                     style={{
                       width: '100%',
@@ -664,11 +663,10 @@ export default function App() {
                     💬 카카오 계정으로 1초 간편가입
                   </button>
 
-                  <button
+                  <button 
                     type="button"
                     onClick={() => {
-                      const rand = Math.floor(1000 + Math.random() * 9000);
-                      triggerSocialSignup(`cusway_member${rand}@gmail.com`, `gmailPass${rand}!`, '구글 간편 가입 회원');
+                      alert('소셜 간편가입/로그인 기능은 현재 정식 연동 준비 중입니다. 일반 이메일 회원가입을 이용해 주시기 바랍니다.');
                     }}
                     style={{
                       width: '100%',
@@ -696,6 +694,164 @@ export default function App() {
                     Google 계정으로 간편가입 (지메일)
                   </button>
                 </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.72rem', margin: '14px 0 6px 0' }}>
+                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+                  <span>또는 이메일 회원가입</span>
+                  <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+                </div>
+
+                <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                      이메일 주소
+                    </label>
+                    <input 
+                      type="email" 
+                      required
+                      placeholder="name@example.com"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                      비밀번호 (8자리 이상)
+                    </label>
+                    <input 
+                      type="password" 
+                      required
+                      minLength={8}
+                      placeholder="비밀번호 설정"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                      회사명 / 법인명 / 이름
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      placeholder="예: 서울관세법인, 개인화주"
+                      value={signupCompanyName}
+                      onChange={(e) => setSignupCompanyName(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '0.85rem'
+                      }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                        회원 구분
+                      </label>
+                      <select 
+                        value={signupUserType}
+                        onChange={(e) => setSignupUserType(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          background: 'rgba(15, 23, 42, 0.95)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.85rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value="general_user">일반 이용자</option>
+                        <option value="practitioner">기업 실무자</option>
+                        <option value="broker">관세사 / 전문가</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                        실무 경력 (년)
+                      </label>
+                      <input 
+                        type="number" 
+                        min="0"
+                        max="60"
+                        required
+                        value={signupYears}
+                        onChange={(e) => setSignupYears(Number(e.target.value))}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          background: 'rgba(0,0,0,0.3)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.85rem'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {loginError && (
+                    <div style={{
+                      padding: '10px 14px',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      borderRadius: '6px',
+                      color: '#fca5a5',
+                      fontSize: '0.78rem'
+                    }}>
+                      <span>{loginError}</span>
+                    </div>
+                  )}
+
+                  <button 
+                    type="submit"
+                    className="btn-primary"
+                    style={{
+                      width: '100%',
+                      justifyContent: 'center',
+                      padding: '12px',
+                      background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#000',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)',
+                      marginTop: '8px'
+                    }}
+                  >
+                    무료 회원가입 완료
+                  </button>
+                </form>
               </div>
             )}
           </div>
