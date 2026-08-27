@@ -179,12 +179,18 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
         try:
             # 1. Exchange code for access token
             token_url = "https://kauth.kakao.com/oauth/token"
-            data = urllib.parse.urlencode({
+            client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "Kv5od18Mu1NP8yQcBVcFbf25AsXs8YQf")
+            
+            token_params = {
                 "grant_type": "authorization_code",
                 "client_id": client_id,
                 "redirect_uri": req.redirect_uri or "http://localhost:5173/",
                 "code": code
-            }).encode("utf-8")
+            }
+            if client_secret and client_secret != "None":
+                token_params["client_secret"] = client_secret
+                
+            data = urllib.parse.urlencode(token_params).encode("utf-8")
             
             token_req = urllib.request.Request(token_url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
             with urllib.request.urlopen(token_req, timeout=10) as resp:
