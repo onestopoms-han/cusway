@@ -899,8 +899,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     ? (material === '수동 검색 대상' ? '수동 검색 품목' : material)
                     : material;
                   
-                  const shareText = `[CUSWAY HS분류 알림]\n\n■ 추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n■ 품목명: ${activeProdName}\n■ 재질성분: ${activeMaterial || '미기재'}\n■ 법적근거: ${matchedRule ? matchedRule.legalReasoning.slice(0, 100) : ''}...\n\n상세 리포트 전문 확인: https://www.cusway.kr`;
-                  const shareUrl = `https://sharer.kakao.com/talk/friends/picker/link?link=${encodeURIComponent("https://www.cusway.kr")}&text=${encodeURIComponent(shareText)}`;
+                  const shareText = `[CUSWAY HS분류 알림]\n\n■ 추천 HS코드: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n■ 품목명: ${activeProdName}\n■ 재질성분: ${activeMaterial || '미기재'}\n■ 법적근거: ${matchedRule ? matchedRule.legalReasoning.slice(0, 100) : ''}...\n\n상세 리포트 전문 확인: ${window.location.origin}`;
+                  const shareUrl = `https://sharer.kakao.com/talk/friends/picker/link?link=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(shareText)}`;
                   
                   window.open(shareUrl, '_blank', 'width=450,height=650');
                 }}

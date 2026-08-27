@@ -99,6 +99,7 @@ class UserResponse(BaseModel):
 
 class SocialCallbackRequest(BaseModel):
     code: str
+    redirect_uri: Optional[str] = None
 
 class PrecedentResponse(BaseModel):
     id: str
@@ -181,7 +182,7 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             data = urllib.parse.urlencode({
                 "grant_type": "authorization_code",
                 "client_id": client_id,
-                "redirect_uri": "http://localhost:5173/",
+                "redirect_uri": req.redirect_uri or "http://localhost:5173/",
                 "code": code
             }).encode("utf-8")
             
@@ -259,7 +260,7 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
                 "code": code,
                 "client_id": client_id,
                 "client_secret": client_secret,
-                "redirect_uri": "http://localhost:5173/",
+                "redirect_uri": req.redirect_uri or "http://localhost:5173/",
                 "grant_type": "authorization_code"
             }).encode("utf-8")
             

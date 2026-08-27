@@ -33,8 +33,8 @@ export default function App() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserInfo | null>(null);
-  const [email, setEmail] = useState('admin@cusway.kr');
-  const [password, setPassword] = useState('pjhcustoms2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing'>('hs-classifier');
   
@@ -88,7 +88,7 @@ export default function App() {
       fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code, redirect_uri: window.location.origin + "/" })
       })
       .then(async (res) => {
         if (res.ok) {
