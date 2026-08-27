@@ -244,32 +244,7 @@ class AICustomsClassificationProcessor:
                 print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
             result_dict["precedent_cases"] = precedent_cases
 
-        # Caching the successful result to database for local re-use
-        recommended_hs = result_dict.get("recommendedHsCode")
-        if recommended_hs and recommended_hs != "0000.00-0000" and recommended_hs != "0000000000":
-            from backend.models import CustomsPrecedent
-            from datetime import datetime
-            import uuid
-            exists = db.query(CustomsPrecedent).filter(CustomsPrecedent.product_name == product_name).first()
-            if not exists:
-                case_id = f"AI-AUTO-{uuid.uuid4().hex[:8].upper()}"
-                new_prec = CustomsPrecedent(
-                    case_number=case_id,
-                    hs_code=recommended_hs,
-                    product_name=product_name,
-                    material=material,
-                    function_use=function_use,
-                    decision_reason=result_dict.get("legalReasoning", ""),
-                    issuing_body="AI-SYSTEM",
-                    date=datetime.now().strftime("%Y-%m-%d")
-                )
-                db.add(new_prec)
-                try:
-                    db.commit()
-                    print(f"[PROCESSOR] Successfully cached classification result for '{product_name}' to DB as {case_id}")
-                except Exception as db_err:
-                    db.rollback()
-                    print(f"[PROCESSOR] Failed to cache classification result to DB: {db_err}")
+        # Do not cache simulated AI results to avoid contaminating official Customs Service data.
 
         print(f"[PROCESSOR] Pipeline execution completed successfully. HS Code matched: {result_dict.get('recommendedHsCode')}")
         return result_dict
