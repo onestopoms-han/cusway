@@ -883,7 +883,13 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
                 ]
             }
 
-        notes = retrieve_relevant_notes(keyword, db)
+        search_term = keyword.strip()
+        if search_term.lower() == "mdf":
+            search_term = "섬유판"
+        elif "mdf" in search_term.lower():
+            search_term = search_term.lower().replace("mdf", "섬유판")
+
+        notes = retrieve_relevant_notes(search_term, db)
         if not notes:
             raise HTTPException(status_code=404, detail="입력하신 키워드에 상응하는 해설서를 데이터베이스에서 찾을 수 없습니다.")
         
@@ -936,6 +942,45 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"수동 데이터베이스 해설서 조회 오류: {str(e)}")
+
+@app.get("/api/hs/structure")
+def get_hs_structure(prefix: str, db: Session = Depends(get_db)):
+    clean_prefix = prefix.replace(".", "").replace("-", "").strip()
+    if not clean_prefix:
+        return []
+    
+    search_prefix = clean_prefix[:4]
+    if len(clean_prefix) >= 6:
+        search_prefix = clean_prefix[:6]
+        
+    try:
+        results = db.execute(
+            text("""
+                SELECT hs_code, name_ko 
+                FROM hs_code_master 
+                WHERE (replace(replace(hs_code, '.', ''), '-', '') LIKE :pref)
+                  AND hscode_length = 10
+                ORDER BY hs_code ASC
+            """),
+            {"pref": f"{search_prefix}%"}
+        ).fetchall()
+        
+        if not results and len(search_prefix) > 4:
+            results = db.execute(
+                text("""
+                    SELECT hs_code, name_ko 
+                    FROM hs_code_master 
+                    WHERE (replace(replace(hs_code, '.', ''), '-', '') LIKE :pref)
+                      AND hscode_length = 10
+                    ORDER BY hs_code ASC
+                """),
+                {"pref": f"{clean_prefix[:4]}%"}
+            ).fetchall()
+            
+        return [{"hs_code": r[0], "name_ko": r[1]} for r in results]
+    except Exception as e:
+        print(f"[HS_STRUCTURE_ERROR] {e}")
+        return []
 
 
 # --- CUSWAY 4단계 파이프라인 신규 API 엔드포인트 ---

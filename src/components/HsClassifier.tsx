@@ -96,6 +96,19 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
   const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
+  const [hsStructure, setHsStructure] = useState<{ hs_code: string; name_ko: string }[]>([]);
+
+  useEffect(() => {
+    if (matchedRule && matchedRule.recommendedHsCode && matchedRule.recommendedHsCode !== "0000.00-0000") {
+      fetch(`/api/hs/structure?prefix=${encodeURIComponent(matchedRule.recommendedHsCode)}`)
+        .then(res => res.json())
+        .then(data => setHsStructure(data))
+        .catch(err => console.warn("Failed to fetch HS structure", err));
+    } else {
+      setHsStructure([]);
+    }
+  }, [matchedRule]);
+
   // Advanced local heuristic classifier to provide relevant fallback logic
   const runLocalHeuristicClassifier = (prod: string, mat: string, func: string): ClassificationRule => {
     const query = (prod + ' ' + mat + ' ' + func).toLowerCase();
@@ -1347,6 +1360,65 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   )}
                 </div>
               </div>
+
+              {/* 10-digit HSK structure list for custom selection/override */}
+              {hsStructure && hsStructure.length > 0 && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '16px',
+                  background: 'rgba(0,0,0,0.3)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 700 }}>
+                      📋 해당 호/소호 10단위 관세청 표준 분류 체계 (HSK)
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                      *실제 규격(두께 등)에 맞는 세번을 아래 목록에서 클릭하여 최종 세번으로 결정할 수 있습니다.
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
+                    {hsStructure.map(item => {
+                      const isSelected = matchedRule.recommendedHsCode.replace(/[\.\-]/g, '') === item.hs_code.replace(/[\.\-]/g, '');
+                      return (
+                        <div
+                          key={item.hs_code}
+                          onClick={() => {
+                            // Update the recommended HS code with the user's manual selection
+                            setMatchedRule({
+                              ...matchedRule,
+                              recommendedHsCode: item.hs_code
+                            });
+                            setApprovedStatus(null); // Reset approval status when code changes
+                          }}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '8px 12px',
+                            background: isSelected ? 'rgba(6, 182, 212, 0.12)' : 'rgba(255,255,255,0.02)',
+                            border: isSelected ? '1px solid var(--accent-cyan)' : '1px solid rgba(255,255,255,0.05)',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: isSelected ? 'var(--accent-cyan)' : '#fff' }}>
+                            {item.hs_code}
+                          </span>
+                          <span style={{ fontSize: '0.75rem', color: isSelected ? '#fff' : 'var(--text-muted)', flex: 1, marginLeft: '12px', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {item.name_ko}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Exclusion Note Highlight Alert (Critical for Customs Clearance) */}
               {matchedRule.recommendedHsCode === "0000.00-0000" ? (
