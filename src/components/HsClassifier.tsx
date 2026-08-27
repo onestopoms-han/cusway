@@ -96,7 +96,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
   const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
-  const [hsStructure, setHsStructure] = useState<{ hs_code: string; name_ko: string }[]>([]);
+  const [hsStructure, setHsStructure] = useState<{ hs_code: string; name_ko: string; length: number }[]>([]);
 
   useEffect(() => {
     if (matchedRule && matchedRule.recommendedHsCode && matchedRule.recommendedHsCode !== "0000.00-0000") {
@@ -1375,39 +1375,98 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                     <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', fontWeight: 700 }}>
-                      📋 해당 호/소호 10단위 관세청 표준 분류 체계 (HSK)
+                      📋 관세청 표준 분류 품목 체계도 (HSK Hierarchy Tree)
                     </span>
                     <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                      *실제 규격(두께 등)에 맞는 세번을 아래 목록에서 클릭하여 최종 세번으로 결정할 수 있습니다.
+                      *실제 규격에 맞는 최하위 10단위 세번을 클릭하여 최종 세번으로 결정할 수 있습니다.
                     </span>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '180px', overflowY: 'auto' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '6px', 
+                    maxHeight: '260px', 
+                    overflowY: 'auto',
+                    padding: '8px',
+                    background: 'rgba(0,0,0,0.2)',
+                    borderRadius: '6px'
+                  }}>
                     {hsStructure.map(item => {
-                      const isSelected = matchedRule.recommendedHsCode.replace(/[\.\-]/g, '') === item.hs_code.replace(/[\.\-]/g, '');
+                      const isLeaf = item.length === 10;
+                      const isSelected = isLeaf && matchedRule.recommendedHsCode.replace(/[\.\-]/g, '') === item.hs_code.replace(/[\.\-]/g, '');
+                      
+                      // Calculate indentation
+                      let indent = '0px';
+                      if (item.length === 5 || item.length === 6) indent = '12px';
+                      else if (item.length === 7 || item.length === 8) indent = '24px';
+                      else if (item.length === 10) indent = '36px';
+                      
+                      if (!isLeaf) {
+                        const isHeading = item.length <= 4;
+                        return (
+                          <div
+                            key={item.hs_code}
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '6px 8px',
+                              marginLeft: indent,
+                              borderBottom: isHeading ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                              marginTop: isHeading ? '10px' : '2px',
+                              background: 'transparent',
+                              opacity: 0.85
+                            }}
+                          >
+                            <span style={{ 
+                              fontSize: isHeading ? '0.8rem' : '0.75rem', 
+                              fontWeight: 700, 
+                              color: isHeading ? 'var(--accent-primary)' : 'rgba(255,255,255,0.6)' 
+                            }}>
+                              {item.hs_code}
+                            </span>
+                            <span style={{ 
+                              fontSize: isHeading ? '0.75rem' : '0.7rem', 
+                              fontWeight: isHeading ? 700 : 500,
+                              color: isHeading ? '#fff' : 'var(--text-muted)', 
+                              flex: 1, 
+                              marginLeft: '12px', 
+                              textAlign: 'right',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {item.name_ko}
+                            </span>
+                          </div>
+                        );
+                      }
+                      
                       return (
                         <div
                           key={item.hs_code}
                           onClick={() => {
-                            // Update the recommended HS code with the user's manual selection
                             setMatchedRule({
                               ...matchedRule,
                               recommendedHsCode: item.hs_code
                             });
-                            setApprovedStatus(null); // Reset approval status when code changes
+                            setApprovedStatus(null);
                           }}
                           style={{
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
                             padding: '8px 12px',
+                            marginLeft: indent,
                             background: isSelected ? 'rgba(6, 182, 212, 0.12)' : 'rgba(255,255,255,0.02)',
                             border: isSelected ? '1px solid var(--accent-cyan)' : '1px solid rgba(255,255,255,0.05)',
                             borderRadius: '6px',
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease'
+                            transition: 'all 0.15s ease',
+                            boxShadow: isSelected ? '0 0 8px rgba(6, 182, 212, 0.2)' : 'none'
                           }}
                         >
-                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: isSelected ? 'var(--accent-cyan)' : '#fff' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? 'var(--accent-cyan)' : '#fff' }}>
                             {item.hs_code}
                           </span>
                           <span style={{ fontSize: '0.75rem', color: isSelected ? '#fff' : 'var(--text-muted)', flex: 1, marginLeft: '12px', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
