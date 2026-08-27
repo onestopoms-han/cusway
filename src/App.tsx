@@ -52,6 +52,12 @@ export default function App() {
   const [upgradeUserType, setUpgradeUserType] = useState<string>('broker');
   const [upgradeYears, setUpgradeYears] = useState<number>(1);
 
+  // Settings modal states (for updating company name / password change)
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsCompanyName, setSettingsCompanyName] = useState('');
+  const [settingsPassword, setSettingsPassword] = useState('');
+  const [settingsError, setSettingsError] = useState('');
+
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
   const [wizardKeyword, setWizardKeyword] = useState('배 주스');
@@ -449,6 +455,46 @@ export default function App() {
 
       alert(`전문가 가중치 로컬 승인 완료! 등급: ${upgradeUserType === 'broker' ? '관세사' : '실무자'}, 가중치: ${weight}점`);
       setShowUpgradeModal(false);
+    }
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+    setSettingsError('');
+
+    try {
+      const response = await fetch('/api/users/update-profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: currentUser.email,
+          company_name: settingsCompanyName,
+          password: settingsPassword || undefined
+        })
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCurrentUser(updatedUser);
+        alert('회원 정보가 성공적으로 수정되었습니다.');
+        setShowSettingsModal(false);
+      } else {
+        const errData = await response.json();
+        setSettingsError(errData.detail || '정보 수정에 실패했습니다.');
+      }
+    } catch (err) {
+      console.warn('API 업데이트 실패, 로컬 브라우저 상태를 변경합니다:', err);
+      // Local fallback for offline/demo mode
+      const updatedUser = {
+        ...currentUser,
+        company_name: settingsCompanyName
+      };
+      setCurrentUser(updatedUser);
+      alert('회원 정보 로컬 수정 완료 (오프라인 모드)');
+      setShowSettingsModal(false);
     }
   };
 
@@ -1249,7 +1295,16 @@ export default function App() {
               </div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
-              <Settings size={18} style={{ cursor: 'pointer' }} />
+              <Settings 
+                size={18} 
+                onClick={() => {
+                  setSettingsCompanyName(currentUser?.company_name || '');
+                  setSettingsPassword('');
+                  setSettingsError('');
+                  setShowSettingsModal(true);
+                }}
+                style={{ cursor: 'pointer' }} 
+              />
               <Bell size={18} style={{ cursor: 'pointer' }} />
               <LogOut size={18} onClick={handleLogout} style={{ cursor: 'pointer' }} />
             </div>
@@ -1409,6 +1464,152 @@ export default function App() {
                   }}
                 >
                   인증 및 상향 적용
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Settings / Password Change Modal */}
+      {showSettingsModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            borderRadius: '16px',
+            padding: '28px',
+            maxWidth: '460px',
+            width: '100%',
+            boxShadow: '0 10px 40px rgba(16, 185, 129, 0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
+            <div>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚙️ 회원정보 및 비밀번호 변경</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
+                회사명(이름)을 수정하거나, 계정의 새로운 접속 비밀번호를 안전하게 설정할 수 있습니다.
+              </p>
+            </div>
+
+            {settingsError && (
+              <div style={{ color: '#ef4444', fontSize: '0.8rem', background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '4px' }}>
+                ⚠️ {settingsError}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  가입 계정 이메일
+                </label>
+                <input 
+                  type="text"
+                  disabled
+                  value={currentUser?.email || ''}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#94a3b8',
+                    fontSize: '0.85rem',
+                    cursor: 'not-allowed'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  회사명 / 성함
+                </label>
+                <input 
+                  type="text"
+                  required
+                  value={settingsCompanyName}
+                  onChange={(e) => setSettingsCompanyName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.85rem'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                  새로운 비밀번호 (변경시에만 입력)
+                </label>
+                <input 
+                  type="password"
+                  value={settingsPassword}
+                  onChange={(e) => setSettingsPassword(e.target.value)}
+                  placeholder="새로운 비밀번호 입력 (4자 이상)"
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontSize: '0.85rem'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowSettingsModal(false)}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontSize: '0.85rem'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)'
+                  }}
+                >
+                  수정 사항 저장
                 </button>
               </div>
             </form>

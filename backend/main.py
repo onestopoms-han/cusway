@@ -400,6 +400,36 @@ def upgrade_weight(req: UpgradeWeightRequest, db: Session = Depends(get_db)):
             detail=f"가중치 업데이트 중 오류 발생: {e}"
         )
 
+class UpdateProfileRequest(BaseModel):
+    email: str
+    company_name: Optional[str] = None
+    password: Optional[str] = None
+
+@app.patch("/api/users/update-profile", response_model=UserResponse)
+def update_profile(req: UpdateProfileRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    
+    if req.company_name:
+        user.company_name = req.company_name
+    if req.password:
+        clean_pwd = req.password.strip()
+        if len(clean_pwd) < 4:
+            raise HTTPException(status_code=400, detail="비밀번호는 최소 4자 이상이어야 합니다.")
+        user.password = clean_pwd
+        
+    try:
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"프로필 업데이트 중 오류 발생: {e}"
+        )
+
 
 
 @app.get("/api/valuation/precedents", response_model=List[PrecedentResponse])
