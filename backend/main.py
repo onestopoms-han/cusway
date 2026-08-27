@@ -428,6 +428,18 @@ def get_match_count(query: str, type: str, db: Session = Depends(get_db)):
         ).count()
         return {"count": count}
 
+@app.get("/api/debug/env")
+def debug_env():
+    # 보안을 위해 전체 키가 아닌 첫 4글자와 자릿수만 리턴해 실서버가 키값을 정상 인식하는지 진단합니다.
+    k_id = os.environ.get("KAKAO_CLIENT_ID", "")
+    g_id = os.environ.get("GOOGLE_CLIENT_ID", "")
+    return {
+        "kakao_len": len(k_id),
+        "kakao_prefix": k_id[:4] if k_id else "None",
+        "google_len": len(g_id),
+        "google_prefix": g_id[:4] if g_id else "None"
+    }
+
 @app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):
     try:
