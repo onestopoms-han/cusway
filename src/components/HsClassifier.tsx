@@ -1771,17 +1771,24 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                         gap: '8px'
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
-                            🏛️ [실제 판례] {prec.case_number}
+                          <span style={{ fontSize: '0.85rem', fontWeight: 800, color: (prec.case_number || '').startsWith('AI-AUTO-') ? 'var(--accent-cyan)' : 'var(--accent-primary)' }}>
+                            {(prec.case_number || '').startsWith('AI-AUTO-') ? `🤖 [AI 예측 세번] ${prec.case_number}` : `🏛️ [관세청 유권해석] ${prec.case_number}`}
                           </span>
-                          <span style={{ fontSize: '0.72rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                            관세청 데이터 대조 완료
+                          <span style={{ 
+                            fontSize: '0.72rem', 
+                            color: (prec.case_number || '').startsWith('AI-AUTO-') ? 'var(--accent-cyan)' : '#10b981', 
+                            background: (prec.case_number || '').startsWith('AI-AUTO-') ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)', 
+                            padding: '2px 6px', 
+                            borderRadius: '4px', 
+                            fontWeight: 700 
+                          }}>
+                            {(prec.case_number || '').startsWith('AI-AUTO-') ? 'AI 자가 학습 결과' : '관세청 공식 대조 완료'}
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          <span>발행기관: <b>관세평가분류원</b></span>
+                          <span>발행기관: <b>{prec.issuing_body || ((prec.case_number || '').startsWith('AI-AUTO-') ? 'CUSWAY AI 엔진' : '관세평가분류원')}</b></span>
                           <span>결정세번: <b style={{ color: 'var(--accent-cyan)' }}>{(() => { const clean = (prec.hs_code || '').replace(/\./g, '').replace(/-/g, ''); return clean.length >= 6 ? `${clean.slice(0,4)}.${clean.slice(4,6)}-${clean.slice(6)}` : prec.hs_code; })()}</b></span>
-                          {prec.date && <span>결정일자: {prec.date}</span>}
+                          {prec.date && <span>{(prec.case_number || '').startsWith('AI-AUTO-') ? 'AI 학습일자' : '결정일자'}: {prec.date}</span>}
                         </div>
                         <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
                           • 품명: {prec.product_name}

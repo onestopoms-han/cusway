@@ -238,6 +238,7 @@ class AICustomsClassificationProcessor:
                         "hs_code": c.hs_code,
                         "product_name": c.product_name,
                         "decision_reason": c.decision_reason,
+                        "issuing_body": c.issuing_body or "관세평가분류원",
                         "date": c.date or ""
                     })
                 print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
