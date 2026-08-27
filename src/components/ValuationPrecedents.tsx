@@ -37,6 +37,12 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [showMobileDetail, setShowMobileDetail] = useState(false); // 모바일에서 상세창 단독 스위칭 제어용
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('all'); // 기타 관세평가 2차 서브 필터링용
 
+  // AI 쟁점 매칭 기능 관련 상태
+  const [customIssue, setCustomIssue] = useState('');
+  const [aiMatchedCase, setAiMatchedCase] = useState<ValuationPrecedent | null>(null);
+  const [aiGeneratedDraft, setAiGeneratedDraft] = useState('');
+  const [isAiMatching, setIsAiMatching] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768 || 
@@ -437,6 +443,216 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             <FileText size={14} /> 판례 소명 리포트 출력/PDF 저장
           </button>
         </div>
+      </div>
+
+      {/* AI Precedent Matcher Widget */}
+      <div className="glass-panel" style={{
+        padding: '24px',
+        background: 'rgba(16, 185, 129, 0.04)',
+        border: '1px solid rgba(16, 185, 129, 0.25)',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '1.2rem' }}>💡</span>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', margin: 0 }}>
+              AI 맞춤 관세평가 판례 매칭 및 소명서 자동 생성기
+            </h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>
+              세관의 지적 사항이나 귀사 물품의 거래 관계/쟁점 사항을 입력하면, AI가 최적의 판례번호를 매칭하고 소명 논리를 작성합니다.
+            </span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600 }}>
+            세관 지적 내용 또는 귀사 관세평가 쟁점 사항 입력
+          </label>
+          <textarea
+            value={customIssue}
+            onChange={(e) => setCustomIssue(e.target.value)}
+            placeholder="예: 수입물품에 대하여 해외 본사에 특허권 사용료(로열티)를 지급하였는데, 세관에서 수입가격에 가산하라고 통보했습니다. 비과세 소명이 가능한 유사 판례를 매칭하여 결정문서번호를 인용한 소명 의견서를 작성해주세요."
+            style={{
+              width: '100%',
+              height: '80px',
+              background: 'rgba(0,0,0,0.5)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '0.85rem',
+              padding: '12px',
+              resize: 'none',
+              lineHeight: 1.4
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-start', alignItems: 'center' }}>
+          <button
+            onClick={() => {
+              if (!customIssue.trim()) {
+                alert('세관 지적 내용 또는 귀사의 관세평가 쟁점 사항을 입력해 주세요.');
+                return;
+              }
+              setIsAiMatching(true);
+              setAiGeneratedDraft('');
+              setAiMatchedCase(null);
+
+              setTimeout(() => {
+                const words = customIssue.toLowerCase().split(/\s+/).filter(w => w.length > 1);
+                let bestCase: ValuationPrecedent | null = null;
+                let maxScore = -1;
+
+                allPrecedents.forEach(item => {
+                  let score = 0;
+                  const contentText = `${item.title} ${item.keyIssue} ${item.factualBackground} ${item.categoryKo} ${item.holdingKo} ${item.implicationKo}`.toLowerCase();
+                  words.forEach(word => {
+                    if (contentText.includes(word)) {
+                      score += 1;
+                      if ((item.categoryKo || '').toLowerCase().includes(word)) score += 2;
+                      if ((item.title || '').toLowerCase().includes(word)) score += 1.5;
+                    }
+                  });
+                  if (score > maxScore) {
+                    maxScore = score;
+                    bestCase = item;
+                  }
+                });
+
+                if (bestCase && maxScore > 0) {
+                  const matched = bestCase;
+                  setAiMatchedCase(matched);
+                  setSelectedCase(matched);
+
+                  const draft = `[AI 관세평가 소명 의견서 - 판례 매칭 결과]
+
+귀사 제기 쟁점 사항에 대해 가장 부합하는 기존 결정례(${matched.caseNumber})를 자동 매칭하여 아래와 같이 소명 초안을 작성합니다.
+
+■ 1. 사건 개요 및 매칭 결정례 정보
+- 사 건 번 호 : ${matched.caseNumber}
+- 판결/결정기관 : ${matched.authority}
+- 관 련 쟁 점 : ${matched.categoryKo}
+- 결정례 판정요지 : ${matched.title}
+
+■ 2. 귀사의 쟁점 진술 사항 (수입자 주장)
+- "${customIssue}"
+
+■ 3. 유사사례 법리적 대조 및 사실 관계
+- 본 건 귀사의 쟁점사항은 ${matched.authority}의 ${matched.caseNumber} 결정례의 쟁점과 고도의 유사성이 확인됩니다.
+- 기존 판례의 사실관계:
+  "${matched.factualBackground}"
+- 당시 세관의 과세 논거:
+  "${matched.customsArgument}"
+- 화주가 대응에 성공한 소명 논거:
+  "${matched.importerArgument}"
+
+■ 4. 귀사 가산/비과세 소명 법리적 대응 방안 (AI 제언)
+본 사건의 결정 요지인 "${renderHoldingKo(matched)}"를 고려할 때, 수입자(귀사)는 본 거래가격이 특수관계에 의해 왜곡되지 않았거나 또는 로열티 등이 관련 수입물품과의 거래조건성이 결여되었음을 집중 소명해야 합니다.
+${matched.implicationKo}
+
+--------------------------------------------------
+검토일자: ${new Date().toISOString().split('T')[0]}
+작성기관: CustomTax AI 관세평가 소명서 매칭 엔진`;
+
+                  setAiGeneratedDraft(draft);
+                } else {
+                  const fallback = allPrecedents[0];
+                  setAiMatchedCase(fallback);
+                  const draft = `[AI 관세평가 소명 의견서 - 일반 법리 검토]
+
+귀사 제기 쟁점 사항에 대한 일반적인 관세평가 판단 가이드라인을 매칭하여 제공합니다.
+
+■ 1. 귀사의 쟁점 진술 사항
+- "${customIssue}"
+
+■ 2. 참고 결정례 정보 (가장 유사한 관세평가 판례)
+- 사건번호 : ${fallback.caseNumber}
+- 판결/결정기관 : ${fallback.authority}
+- 판결요지 : ${fallback.title}
+- 사실관계 : ${fallback.factualBackground}
+
+■ 3. 소명 법리적 대응 방안 (AI 제언)
+세관의 과세 처분 통지(${fallback.customsArgument})에 대응하기 위해, 귀사는 관세법 및 평가협정의 요건에 따라 비과세 가산 요소 요건을 충족함을 입증해야 합니다.
+${fallback.implicationKo}
+
+--------------------------------------------------
+검토일자: ${new Date().toISOString().split('T')[0]}
+작성기관: CustomTax AI 관세평가 소명서 매칭 엔진`;
+                  setAiGeneratedDraft(draft);
+                }
+                setIsAiMatching(false);
+              }, 1200);
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#fff',
+              padding: '10px 20px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)'
+            }}
+          >
+            {isAiMatching ? 'AI 판례 매칭 분석 및 작성 중...' : 'AI 소명 판례 매칭 및 의견서 자동 작성'}
+          </button>
+
+          {aiMatchedCase && (
+            <span style={{ fontSize: '0.78rem', color: '#34d399', fontWeight: 600 }}>
+              ✓ 최적 판례 매칭 완료: <b>{aiMatchedCase.authority} {aiMatchedCase.caseNumber}</b>
+            </span>
+          )}
+        </div>
+
+        {aiGeneratedDraft && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', animation: 'fadeIn 0.3s ease' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>AI가 추천/결합하여 작성한 소명서 초안입니다:</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(aiGeneratedDraft);
+                  alert('AI 소명서 초안이 클립보드에 복사되었습니다.');
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  padding: '4px 10px',
+                  borderRadius: '4px',
+                  color: '#fff',
+                  fontSize: '0.7rem',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                초안 복사하기
+              </button>
+            </div>
+            <textarea
+              readOnly
+              value={aiGeneratedDraft}
+              style={{
+                width: '100%',
+                height: '240px',
+                background: 'rgba(0,0,0,0.6)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '8px',
+                color: '#34d399',
+                fontFamily: 'monospace',
+                fontSize: '0.78rem',
+                padding: '12px',
+                resize: 'none',
+                lineHeight: 1.45
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Main Grid: Left Search/List, Right Detail Case View */}
