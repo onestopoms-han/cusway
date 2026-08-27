@@ -949,46 +949,40 @@ def get_hs_structure(prefix: str, db: Session = Depends(get_db)):
     if not clean_prefix:
         return []
     
-    search_prefix = clean_prefix[:4]
-    if len(clean_prefix) >= 6:
-        search_prefix = clean_prefix[:6]
+    heading_prefix = clean_prefix[:4]
         
     try:
         results = db.execute(
             text("""
-                SELECT hs_code, name_ko 
+                SELECT hs_code, name_ko, hscode_length
                 FROM hs_code_master 
                 WHERE (replace(replace(hs_code, '.', ''), '-', '') LIKE :pref)
-                  AND hscode_length = 10
                 ORDER BY hs_code ASC
             """),
-            {"pref": f"{search_prefix}%"}
+            {"pref": f"{heading_prefix}%"}
         ).fetchall()
         
-        if not results and len(search_prefix) > 4:
-            results = db.execute(
-                text("""
-                    SELECT hs_code, name_ko 
-                    FROM hs_code_master 
-                    WHERE (replace(replace(hs_code, '.', ''), '-', '') LIKE :pref)
-                      AND hscode_length = 10
-                    ORDER BY hs_code ASC
-                """),
-                {"pref": f"{clean_prefix[:4]}%"}
-            ).fetchall()
-            
         # Dedup results by clean representation, prioritizing the formatted version (with '.' or '-')
         unique_results = {}
         for r in results:
             raw_code = r[0]
             name = r[1]
+            length = r[2]
             clean_code = raw_code.replace('.', '').replace('-', '')
             if clean_code not in unique_results:
-                unique_results[clean_code] = (raw_code, name)
+                unique_results[clean_code] = (raw_code, name, length)
             elif ('.' in raw_code or '-' in raw_code) and not ('.' in unique_results[clean_code][0] or '-' in unique_results[clean_code][0]):
-                unique_results[clean_code] = (raw_code, name)
+                unique_results[clean_code] = (raw_code, name, length)
                 
-        return [{"hs_code": v[0], "name_ko": v[1]} for v in unique_results.values()]
+        sorted_keys = sorted(unique_results.keys())
+        return [
+            {
+                "hs_code": unique_results[k][0],
+                "name_ko": unique_results[k][1],
+                "length": unique_results[k][2]
+            }
+            for k in sorted_keys
+        ]
     except Exception as e:
         print(f"[HS_STRUCTURE_ERROR] {e}")
         return []
