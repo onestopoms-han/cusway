@@ -977,7 +977,18 @@ def get_hs_structure(prefix: str, db: Session = Depends(get_db)):
                 {"pref": f"{clean_prefix[:4]}%"}
             ).fetchall()
             
-        return [{"hs_code": r[0], "name_ko": r[1]} for r in results]
+        # Dedup results by clean representation, prioritizing the formatted version (with '.' or '-')
+        unique_results = {}
+        for r in results:
+            raw_code = r[0]
+            name = r[1]
+            clean_code = raw_code.replace('.', '').replace('-', '')
+            if clean_code not in unique_results:
+                unique_results[clean_code] = (raw_code, name)
+            elif ('.' in raw_code or '-' in raw_code) and not ('.' in unique_results[clean_code][0] or '-' in unique_results[clean_code][0]):
+                unique_results[clean_code] = (raw_code, name)
+                
+        return [{"hs_code": v[0], "name_ko": v[1]} for v in unique_results.values()]
     except Exception as e:
         print(f"[HS_STRUCTURE_ERROR] {e}")
         return []
