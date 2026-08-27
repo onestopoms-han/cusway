@@ -1780,7 +1780,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                         </div>
                         <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                           <span>발행기관: <b>관세평가분류원</b></span>
-                          <span>결정세번: <b style={{ color: 'var(--accent-cyan)' }}>{prec.hs_code.length >= 6 ? `${prec.hs_code.slice(0,4)}.${prec.hs_code.slice(4,6)}-${prec.hs_code.slice(6)}` : prec.hs_code}</b></span>
+                          <span>결정세번: <b style={{ color: 'var(--accent-cyan)' }}>{(() => { const clean = (prec.hs_code || '').replace(/\./g, '').replace(/-/g, ''); return clean.length >= 6 ? `${clean.slice(0,4)}.${clean.slice(4,6)}-${clean.slice(6)}` : prec.hs_code; })()}</b></span>
                           {prec.date && <span>결정일자: {prec.date}</span>}
                         </div>
                         <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
