@@ -384,13 +384,13 @@ export default function ClearanceWizard({
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', color: '#fff' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', color: 'var(--text-main)' }}>
       
       {/* Header and Stepper */}
       <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#fff' }}>CUSWAY 수입 통관 연동 파이프라인</h2>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>CUSWAY 수입 통관 연동 파이프라인</h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px' }}>
               품목 분류부터 타법령 행정절차까지 유기적으로 흐르는 4단계 원스톱 심사 가이드
             </p>
@@ -744,7 +744,7 @@ export default function ClearanceWizard({
                     <span style={{ fontSize: '0.75rem', color: ratesData.rates.fta_rate !== null ? '#10b981' : 'var(--text-muted)', fontWeight: ratesData.rates.fta_rate !== null ? 700 : 500 }}>
                       FTA 특혜세율 (F)
                     </span>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px', color: ratesData.rates.fta_rate !== null ? '#10b981' : '#fff' }}>
+                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px', color: ratesData.rates.fta_rate !== null ? '#10b981' : 'var(--text-main)' }}>
                       {ratesData.rates.fta_rate !== null ? `${ratesData.rates.fta_rate}%` : 'N/A'}
                     </h4>
                     <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>

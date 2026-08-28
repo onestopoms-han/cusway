@@ -311,3 +311,37 @@ body {
     gap: 16px !important;
   }
 }
+
+/* Global input overrides to enforce light-theme contrast and visibility */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input:not([type]),
+textarea,
+select {
+  background-color: rgba(15, 23, 42, 0.05) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="url"]::placeholder,
+input[type="search"]::placeholder,
+input:not([type])::placeholder,
+textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.8 !important;
+}
+
+select option {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-main) !important;
+}
