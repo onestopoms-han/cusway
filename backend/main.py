@@ -1243,11 +1243,24 @@ def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):
                     "duration": proc.average_duration
                 }
                 
+            desc = r.description
+            if desc:
+                # Fix typo
+                desc = desc.replace("(게 신고하여야 함", "(농림축산검역본부장에게 신고하여야 함")
+                
+            # Append exemption note for highly processed plant products (tablets, capsules)
+            if r.law_name == "식물방역법" or (desc and "식물방역" in desc):
+                exemption_note = "\n\n⚠️ [검역제외 단서조항] 타블렛(정제), 캡슐, 분말 스틱 또는 소매용 포장 액상 등 고도의 가공(열처리, 화학추출 등)을 거쳐 병해충 전파 우려가 없는 완제품 형태의 건강기능식품은 식물방역법 제11조 및 시행규칙에 의거하여 실제 수입 신고 시 식물검역 대상에서 제외(면제)됩니다."
+                if desc:
+                    desc += exemption_note
+                else:
+                    desc = exemption_note
+
             unique_reqs[key] = {
                 "law_name": r.law_name,
                 "agency_name": r.agency_name,
                 "check_type": r.check_type,
-                "description": r.description,
+                "description": desc,
                 "guide": guide_data
             }
             
