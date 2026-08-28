@@ -829,10 +829,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       {/* 법적 고지 면책 배너 (Disclaimer) */}
       <div style={{
         padding: '14px 20px',
-        background: 'rgba(239, 68, 68, 0.08)',
-        border: '1px dashed rgba(239, 68, 68, 0.3)',
+        background: 'rgba(220, 38, 38, 0.05)',
+        border: '1px dashed rgba(220, 38, 38, 0.25)',
         borderRadius: '8px',
-        color: '#fca5a5',
+        color: 'var(--accent-red)',
         fontSize: '0.8rem',
         lineHeight: 1.5,
         display: 'flex',
@@ -918,20 +918,20 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   window.open(shareUrl, '_blank', 'width=450,height=650');
                 }}
                 style={{
-                  background: 'rgba(254, 229, 0, 0.1)',
-                  border: '1px solid rgba(254, 229, 0, 0.3)',
+                  background: 'rgba(250, 204, 21, 0.15)',
+                  border: '1px solid #eab308',
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  color: '#FEE500',
+                  color: '#854d0e',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                💬 카톡으로 전송
+                💬 카카오톡 전송
               </button>
 
               <button 
@@ -952,39 +952,39 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   window.location.href = `mailto:${emailAddr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }}
                 style={{
-                  background: 'rgba(6, 182, 212, 0.1)',
-                  border: '1px solid rgba(6, 182, 212, 0.3)',
+                  background: 'rgba(6, 182, 212, 0.08)',
+                  border: '1px solid #0891b2',
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  color: 'var(--accent-cyan)',
+                  color: '#0e7490',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                ✉️ 이메일로 전송
+                ✉️ 이메일 전송
               </button>
 
               <button 
                 onClick={() => window.print()}
                 style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(15, 23, 42, 0.05)',
+                  border: '1px solid var(--border-color)',
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  color: '#fff',
+                  color: 'var(--text-main)',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  fontWeight: 600,
+                  fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px'
                 }}
               >
-                <FileCheck size={14} /> 리포트 인쇄/PDF 저장
+                <FileCheck size={14} /> 리포트 인쇄 / PDF
               </button>
             </div>
           </div>
@@ -1012,10 +1012,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           style={{
             flex: 1,
             padding: '8px 12px',
-            background: 'rgba(0,0,0,0.4)',
+            background: 'rgba(15, 23, 42, 0.05)',
             border: '1px solid var(--border-color)',
             borderRadius: '6px',
-            color: '#fff',
+            color: 'var(--text-main)',
             fontSize: '0.85rem'
           }}
         />
@@ -1027,10 +1027,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       {showAlert && (
         <div style={{ 
           padding: '12px 16px', 
-          background: 'rgba(239, 68, 68, 0.1)', 
-          border: '1px solid rgba(239, 68, 68, 0.3)', 
+          background: 'rgba(220, 38, 38, 0.05)', 
+          border: '1px solid rgba(220, 38, 38, 0.15)', 
           borderRadius: '8px', 
-          color: '#fca5a5', 
+          color: 'var(--accent-red)', 
           fontSize: '0.85rem',
           display: 'flex',
           alignItems: 'center',
@@ -1062,7 +1062,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               style={{
                 width: '100%',
                 padding: '10px 14px',
-                background: 'rgba(0,0,0,0.3)',
+                background: 'rgba(15, 23, 42, 0.05)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 color: 'var(--text-main)',
@@ -1082,7 +1082,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               style={{
                 width: '100%',
                 padding: '10px 14px',
-                background: 'rgba(0,0,0,0.3)',
+                background: 'rgba(15, 23, 42, 0.05)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 color: 'var(--text-main)',
@@ -1102,7 +1102,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               style={{
                 width: '100%',
                 padding: '10px 14px',
-                background: 'rgba(0,0,0,0.3)',
+                background: 'rgba(15, 23, 42, 0.05)',
                 border: '1px solid var(--border-color)',
                 borderRadius: '6px',
                 color: 'var(--text-main)',
@@ -1366,7 +1366,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 <div style={{
                   marginTop: '16px',
                   padding: '16px',
-                  background: 'rgba(0,0,0,0.3)',
+                  background: 'rgba(15, 23, 42, 0.04)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '8px',
                   display: 'flex',
@@ -1388,7 +1388,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     maxHeight: '260px', 
                     overflowY: 'auto',
                     padding: '8px',
-                    background: 'rgba(0,0,0,0.2)',
+                    background: 'rgba(15, 23, 42, 0.02)',
                     borderRadius: '6px'
                   }}>
                     {hsStructure.map(item => {
@@ -1412,7 +1412,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                               alignItems: 'center',
                               padding: '6px 8px',
                               marginLeft: indent,
-                              borderBottom: isHeading ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                              borderBottom: isHeading ? '1px solid var(--border-color)' : 'none',
                               marginTop: isHeading ? '10px' : '2px',
                               background: 'transparent',
                               opacity: 0.85
@@ -1421,14 +1421,14 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                             <span style={{ 
                               fontSize: isHeading ? '0.8rem' : '0.75rem', 
                               fontWeight: 700, 
-                              color: isHeading ? 'var(--accent-primary)' : 'rgba(255,255,255,0.6)' 
+                              color: isHeading ? 'var(--accent-primary)' : 'var(--text-muted)' 
                             }}>
                               {item.hs_code}
                             </span>
                             <span style={{ 
                               fontSize: isHeading ? '0.75rem' : '0.7rem', 
                               fontWeight: isHeading ? 700 : 500,
-                              color: isHeading ? '#fff' : 'var(--text-muted)', 
+                              color: isHeading ? 'var(--text-main)' : 'var(--text-muted)', 
                               flex: 1, 
                               marginLeft: '12px', 
                               textAlign: 'right',
@@ -1458,18 +1458,18 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                             alignItems: 'center',
                             padding: '8px 12px',
                             marginLeft: indent,
-                            background: isSelected ? 'rgba(6, 182, 212, 0.12)' : 'rgba(255,255,255,0.02)',
-                            border: isSelected ? '1px solid var(--accent-cyan)' : '1px solid rgba(255,255,255,0.05)',
+                            background: isSelected ? 'rgba(6, 182, 212, 0.08)' : 'rgba(15, 23, 42, 0.02)',
+                            border: isSelected ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
                             borderRadius: '6px',
                             cursor: 'pointer',
                             transition: 'all 0.15s ease',
-                            boxShadow: isSelected ? '0 0 8px rgba(6, 182, 212, 0.2)' : 'none'
+                            boxShadow: isSelected ? '0 0 8px rgba(6, 182, 212, 0.15)' : 'none'
                           }}
                         >
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? 'var(--accent-cyan)' : '#fff' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: isSelected ? 'var(--accent-cyan)' : 'var(--text-main)' }}>
                             {item.hs_code}
                           </span>
-                          <span style={{ fontSize: '0.75rem', color: isSelected ? '#fff' : 'var(--text-muted)', flex: 1, marginLeft: '12px', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: '0.75rem', color: isSelected ? 'var(--text-main)' : 'var(--text-muted)', flex: 1, marginLeft: '12px', textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {item.name_ko}
                           </span>
                         </div>
@@ -1482,13 +1482,13 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               {/* Exclusion Note Highlight Alert (Critical for Customs Clearance) */}
               {matchedRule.recommendedHsCode === "0000.00-0000" ? (
                 <div style={{ 
-                  background: 'rgba(239, 68, 68, 0.12)', 
-                  border: '1px solid rgba(239, 68, 68, 0.4)', 
+                  background: 'rgba(220, 38, 38, 0.05)', 
+                  border: '1px solid rgba(220, 38, 38, 0.25)', 
                   borderRadius: '8px', 
                   padding: '16px', 
                   marginBottom: '16px',
                   fontSize: '0.82rem',
-                  color: '#fca5a5',
+                  color: 'var(--accent-red)',
                   display: 'flex',
                   flexWrap: 'wrap',
                   alignItems: 'flex-start',
@@ -1507,13 +1507,13 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 </div>
               ) : (
                 <div style={{ 
-                  background: 'rgba(239, 68, 68, 0.08)', 
-                  border: '1px solid rgba(239, 68, 68, 0.25)', 
+                  background: 'rgba(220, 38, 38, 0.05)', 
+                  border: '1px solid rgba(220, 38, 38, 0.15)', 
                   borderRadius: '8px', 
                   padding: '12px 16px', 
                   marginBottom: '16px',
                   fontSize: '0.8rem',
-                  color: '#fca5a5',
+                  color: 'var(--accent-red)',
                   display: 'flex',
                   flexWrap: 'wrap',
                   alignItems: 'flex-start',
@@ -1561,7 +1561,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
 
               {/* Hierarchy Tree */}
               {matchedRule.recommendedHsCode !== "0000.00-0000" && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'rgba(15, 23, 42, 0.04)', padding: '12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
                   <div>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>4단위 (호의 용어)</span>
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>{matchedRule.headingName}</p>
@@ -1596,14 +1596,14 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {matchedRule.competingHsCodes.map((comp, cIdx) => (
                       <div key={cIdx} style={{
-                        background: 'rgba(0, 0, 0, 0.2)',
-                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                        background: 'rgba(15, 23, 42, 0.03)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         padding: '12px',
                         fontSize: '0.8rem'
                       }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <span style={{ color: '#fff', fontWeight: 700 }}>
+                          <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>
                             경합 코드: <span style={{ color: 'var(--accent-amber)' }}>{comp.hsCode}</span> ({comp.headingName})
                           </span>
                           <span style={{ 
@@ -1629,7 +1629,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                             padding: '8px', 
                             background: 'rgba(239, 68, 68, 0.05)', 
                             borderLeft: '2px solid var(--accent-red)',
-                            color: '#fca5a5',
+                            color: 'var(--accent-red)',
                             fontSize: '0.75rem' 
                           }}>
                             <strong>최종 배제 근거 (제외 규정):</strong> {comp.exclusionReason}
@@ -1654,7 +1654,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               
               {/* 법적 분류 계층 트리 시각화 (Hierarchical Tree View) */}
               <div style={{
-                background: 'rgba(0,0,0,0.2)',
+                background: 'rgba(15, 23, 42, 0.03)',
                 padding: '16px',
                 borderRadius: '8px',
                 border: '1px solid var(--border-color)',
@@ -1667,17 +1667,17 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>Section (부):</span>
-                    <span style={{ color: '#fff' }}>{matchedRule.sectionNote?.split('(')[0] || '해당 부 분류 규정'}</span>
+                    <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>{matchedRule.sectionNote?.split('(')[0] || '해당 부 분류 규정'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '16px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '16px', borderLeft: '1px dashed var(--border-color)' }}>
                     <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>Chapter (류):</span>
-                    <span style={{ color: '#fff' }}>{matchedRule.chapterNote?.split('(')[0] || '해당 류 분류 규정'}</span>
+                    <span style={{ color: 'var(--text-main)', fontWeight: 500 }}>{matchedRule.chapterNote?.split('(')[0] || '해당 류 분류 규정'}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '32px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '32px', borderLeft: '1px dashed var(--border-color)' }}>
                     <span style={{ color: 'var(--accent-amber)', fontWeight: 700 }}>Heading (호):</span>
-                    <span style={{ color: '#fff', fontWeight: 600 }}>{matchedRule.headingName}</span>
+                    <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{matchedRule.headingName}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '48px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingLeft: '48px', borderLeft: '1px dashed var(--border-color)' }}>
                     <span style={{ color: '#10b981', fontWeight: 700 }}>Subheading (소호) & Code:</span>
                     <span style={{ color: '#10b981', fontWeight: 700 }}>{matchedRule.recommendedHsCode} ({matchedRule.subheadingName})</span>
                   </div>
@@ -1709,13 +1709,13 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                       정합 점수: {matchedRule.consistency_score}점
                     </span>
                   </div>
-                  <p style={{ margin: 0, color: '#fff', fontWeight: 600 }}>
+                  <p style={{ margin: 0, color: 'var(--text-main)', fontWeight: 600 }}>
                     판정 분류 등급: <span style={{ color: matchedRule.consistency_score >= 85 ? '#10b981' : 'var(--accent-amber)' }}>{matchedRule.consistency_status}</span>
                   </p>
                   
                   {matchedRule.consistency_warnings && matchedRule.consistency_warnings.length > 0 && (
-                    <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px', color: '#fca5a5', fontSize: '0.78rem', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
-                      <span style={{ fontWeight: 700, color: 'var(--accent-amber)', display: 'block', marginBottom: '2px' }}>⚠️ 확인된 법적 모순 사항:</span>
+                    <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '6px', color: 'var(--accent-red)', fontSize: '0.78rem', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)', padding: '10px', borderRadius: '6px' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--accent-red)', display: 'block', marginBottom: '2px' }}>⚠️ 확인된 법적 모순 사항:</span>
                       {matchedRule.consistency_warnings.map((warn, wIdx) => (
                         <div key={wIdx} style={{ display: 'flex', gap: '6px', alignItems: 'flex-start', lineHeight: 1.4 }}>
                           <span>•</span>
@@ -1829,7 +1829,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                               }}>
                                 {rule}
                               </span>
-                              <span style={{ fontSize: '0.78rem', color: '#fff', fontWeight: 600 }}>GRI 해석 규칙</span>
+                              <span style={{ fontSize: '0.78rem', color: 'var(--text-main)', fontWeight: 600 }}>GRI 해석 규칙</span>
                             </div>
                             <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>
                               {getGriDetail(rule)}
@@ -1841,17 +1841,17 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   </div>
 
                   <div style={{ 
-                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)', 
+                    background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.02) 0%, rgba(15, 23, 42, 0.05) 100%)', 
                     padding: '20px', 
                     borderRadius: '8px', 
                     border: '1px solid var(--border-color)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '10px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
                       <h4 style={{ fontSize: '0.92rem', color: 'var(--accent-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
                         📋 관세청 품목분류 사전심사 규격 소명 리포트
                       </h4>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.05)', padding: '2px 8px', borderRadius: '4px' }}>
                         WCO GRI Standard Formatting
                       </span>
                     </div>
@@ -1863,7 +1863,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                           <div 
                             key={pIdx} 
                             style={{ 
-                              background: isTitleParagraph ? 'rgba(255,255,255,0.01)' : 'transparent',
+                              background: isTitleParagraph ? 'rgba(15,23,42,0.02)' : 'transparent',
                               borderLeft: isTitleParagraph ? '3px solid var(--accent-primary)' : 'none',
                               padding: isTitleParagraph ? '10px 14px' : '0 14px',
                               borderRadius: isTitleParagraph ? '0 6px 6px 0' : '0'
@@ -1872,7 +1872,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                             <p style={{ 
                               fontSize: isTitleParagraph ? '0.85rem' : '0.82rem', 
                               fontWeight: isTitleParagraph ? 700 : 400,
-                              color: isTitleParagraph ? '#fff' : 'var(--text-muted)', 
+                              color: isTitleParagraph ? 'var(--text-main)' : 'var(--text-main)', 
                               lineHeight: 1.6,
                               whiteSpace: 'pre-line',
                               margin: 0
@@ -1921,14 +1921,15 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                           <span>결정세번: <b style={{ color: 'var(--accent-cyan)' }}>{(() => { const clean = (prec.hs_code || '').replace(/\./g, '').replace(/-/g, ''); return clean.length >= 6 ? `${clean.slice(0,4)}.${clean.slice(4,6)}-${clean.slice(6)}` : prec.hs_code; })()}</b></span>
                           {prec.date && <span>{(prec.case_number || '').startsWith('AI-AUTO-') ? 'AI 학습일자' : '결정일자'}: {prec.date}</span>}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-main)', fontWeight: 600 }}>
                           • 품명: {prec.product_name}
                         </div>
                         <div style={{ 
                           fontSize: '0.8rem', 
-                          color: 'var(--text-muted)', 
+                          color: 'var(--text-main)', 
                           marginTop: '4px',
-                          background: 'rgba(0,0,0,0.2)',
+                          background: 'rgba(15, 23, 42, 0.03)',
+                          border: '1px solid var(--border-color)',
                           padding: '10px',
                           borderRadius: '6px',
                           lineHeight: 1.5,

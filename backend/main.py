@@ -907,7 +907,7 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
             prefix = clean_digits[:4]
             # Match formats like 2009.89-1090 or 2009891090
             db_match = db.execute(
-                "SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1",
+                text("SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1"),
                 {"pref": f"{prefix}%"}
             ).fetchone()
             if db_match:

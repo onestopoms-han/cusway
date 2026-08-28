@@ -534,7 +534,7 @@ export default function App() {
         <div style={{ position: 'absolute', width: '400px', height: '400px', top: '-100px', left: '-100px', background: 'rgba(20, 184, 166, 0.15)', filter: 'blur(100px)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', width: '500px', height: '500px', bottom: '-150px', right: '-150px', background: 'rgba(6, 182, 212, 0.12)', filter: 'blur(120px)', borderRadius: '50%', pointerEvents: 'none' }} />
 
-        <div className="glass-panel" style={{
+        <div style={{
           width: '100%',
           maxWidth: isMobile ? '440px' : '960px',
           zIndex: 10,
@@ -543,7 +543,10 @@ export default function App() {
           borderRadius: '20px',
           overflow: 'hidden',
           boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-          border: '1px solid rgba(255,255,255,0.06)'
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(30, 41, 59, 0.75)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)'
         }}>
           {/* Left: CUSWAY Value Proposition Board */}
           {!isMobile && (
@@ -572,7 +575,7 @@ export default function App() {
                 <h1 style={{ fontSize: '2rem', fontWeight: 900, color: '#fff', marginTop: '16px', lineHeight: 1.3 }}>
                   관세 실무를 위한<br />차세대 인텔리전트 Copilot
                 </h1>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.5 }}>
+                <p style={{ fontSize: '0.82rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '8px', lineHeight: 1.5 }}>
                   단순 검색을 넘어, AI RAG 기술과 유기적인 4단계 심사 파이프라인으로 관세사의 정확성과 속도를 10배 늘려줍니다.
                 </p>
               </div>
@@ -585,7 +588,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>동시 무제한 로그인 지원</h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px', lineHeight: 1.4 }}>
                       선착순 접속 대기나 PC 대수 제한 제약 없이, 사무실과 출장지 등 어디서나 전 직원이 동시 다중 접속이 가능합니다.
                     </p>
                   </div>
@@ -598,7 +601,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>4단계 원스톱 심사 가이드</h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px', lineHeight: 1.4 }}>
                       품목분류 ➡️ 협정세율/원산지 ➡️ 통합공고 요건 ➡️ 소관부처 행정 서류 및 타임라인까지 누수 없는 하나의 흐름으로 분석합니다.
                     </p>
                   </div>
@@ -611,7 +614,7 @@ export default function App() {
                   </div>
                   <div>
                     <h4 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>AI RAG 분류 해설 및 결정례 추천</h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                    <p style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px', lineHeight: 1.4 }}>
                       사후 세액 소명과 품목분류 입증을 위해 복잡한 관세율표 해설서에서 최적의 법적 조항을 AI가 실시간으로 매핑해 줍니다.
                     </p>
                   </div>
@@ -1109,24 +1112,23 @@ export default function App() {
           <div className="app-sidebar-logo-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)',
+                background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                 width: '32px',
                 height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '1px solid rgba(6, 182, 212, 0.3)',
-                boxShadow: '0 0 10px rgba(6, 182, 212, 0.2)'
+                boxShadow: '0 4px 10px rgba(13, 148, 136, 0.15)'
               }}>
                 <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M68 28C58 20 42 20 32 30C22 40 22 58 32 68C42 78 58 78 68 70" stroke="var(--accent-cyan)" strokeWidth="8" strokeLinecap="round" />
-                  <path d="M38 46L48 68L56 50L64 68L78 36" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M72 36H78V42" stroke="var(--accent-primary)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M68 28C58 20 42 20 32 30C22 40 22 58 32 68C42 78 58 78 68 70" stroke="#fff" strokeWidth="8" strokeLinecap="round" />
+                  <path d="M38 46L48 68L56 50L64 68L78 36" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M72 36H78V42" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <div>
-                <h1 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1 }}>CUSWAY</h1>
+                <h1 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-main)', margin: 0, lineHeight: 1 }}>CUSWAY</h1>
                 <p style={{ fontSize: '0.55rem', color: 'var(--accent-primary)', fontWeight: 700, margin: 0 }}>AI SERVICE</p>
               </div>
             </div>
