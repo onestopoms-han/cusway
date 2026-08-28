@@ -1,8 +1,11 @@
 import sys
 import os
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 
 # Setup system paths to allow direct execution
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))

@@ -319,7 +319,10 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             common = words_query.intersection(words_prec)
             from backend.rag.retriever import STOPWORDS
             common_filtered = [w for w in common if len(w) >= 2 and w not in STOPWORDS]
-            if common_filtered:
+            query_keywords = [w for w in words_query if len(w) >= 2 and w not in STOPWORDS]
+            
+            # Require at least 50% of the query keywords to match the precedent name
+            if query_keywords and len(common_filtered) / len(query_keywords) >= 0.5:
                 prec = best_prec
                 print(f"[RAG-LLM] Exact match not found for '{product_name}'. Found highly similar cached precedent: '{prec.product_name}'")
 
@@ -395,13 +398,79 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "competingHsCodes": competing
         }
 
+    def is_keyword_matched(keyword, text):
+        if len(keyword) == 1:
+            if keyword == "선":
+                # Must match wire-related words, NOT wireless, infrared, ultraviolet, improvement, fish, etc.
+                matches = re.finditer(r'선', text)
+                for m in matches:
+                    start = m.start()
+                    if start > 0:
+                        preceding = text[max(0, start-3):start]
+                        if any(preceding.endswith(p) for p in ["합금강", "철강", "합금", "비합금강", "금속", "철", "구리", "은", "금"]):
+                            return True
+                        if preceding.endswith("강") and not preceding.endswith("건강") and not preceding.endswith("한강"):
+                            return True
+                    else:
+                        return True
+                return False
+            elif keyword == "봉":
+                # Must match bar-related words, NOT sealing, sewing, bags, etc.
+                matches = re.finditer(r'봉', text)
+                for m in matches:
+                    start = m.start()
+                    if start > 0:
+                        preceding = text[max(0, start-3):start]
+                        if any(preceding.endswith(p) for p in ["합금강", "철강", "드릴", "중공", "금속", "철", "구리"]):
+                            return True
+                    else:
+                        return True
+                return False
+            elif keyword == "탑":
+                # Must match tower, NOT equipped (탑재)
+                matches = re.finditer(r'탑', text)
+                for m in matches:
+                    if m.end() < len(text) and text[m.end()] == "재":
+                        continue
+                    return True
+                return False
+            elif keyword == "펄":
+                # Must match pearl, NOT pulp (펄프)
+                matches = re.finditer(r'펄', text)
+                for m in matches:
+                    if m.end() < len(text) and text[m.end()] == "프":
+                        continue
+                    return True
+                return False
+            else:
+                # Other single character keywords: match as standalone word
+                pattern = rf'\b{re.escape(keyword)}\b'
+                return bool(re.search(pattern, text))
+        elif keyword == "팽창":
+            # For chapter 19 "cereal swelling", do not match inflation/inflatable in engineering or life vests
+            matches = re.finditer(r'팽창', text)
+            for m in matches:
+                # If followed by "식", "구명", "조끼", "튜브", it is likely engineering/lifevest
+                surrounding = text[max(0, m.start()-5):min(len(text), m.end()+10)]
+                if any(w in surrounding for w in ["조끼", "구명", "튜브", "에어백", "매트", "댐퍼", "밸브"]):
+                    continue
+                if m.end() < len(text) and text[m.end()] == "식":
+                    # Check if it is a cereal/food context
+                    if any(w in text for w in ["곡물", "식품", "시리얼", "콘플레이크", "푸드", "식료"]):
+                        return True
+                    continue
+                return True
+            return False
+        else:
+            return keyword in text
+
     combined_query = f"{product_name} {material} {function_use}"
     input_lower = combined_query.lower()
 
     # 0. 우선적으로 정적 룰셋(KOREAN_HS_RULES) 매칭 시도 (RAG 검색 오류보다 정확한 수동 룰 매칭)
     found = None
     for rule in KOREAN_HS_RULES:
-        if any(keyword in input_lower for keyword in rule["keywordTrigger"]):
+        if any(is_keyword_matched(keyword, input_lower) for keyword in rule["keywordTrigger"]):
             found = rule
             break
             
@@ -713,30 +782,28 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                 hsk_code = f"{heading_code}.90-9000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-9000"
         
         precedents_list = []
+        hsk_chapter = hsk_code.replace('.', '').replace('-', '').strip()[:2] if hsk_code else None
         for p in relevant_precedents:
-            precedents_list.append({
-                "id": p.case_number.split(' ')[0],
-                "title": p.product_name,
-                "code": p.hs_code,
-                "issuingBody": p.issuing_body,
-                "date": p.date if p.date else "2025-01-01",
-                "similarity": 95,
-                "reasoningSnippet": p.decision_reason[:400]
-            })
+            p_code_clean = p.hs_code.replace('.', '').replace('-', '').strip()
+            if hsk_chapter and p_code_clean.startswith(hsk_chapter):
+                # Clean and fallback for missing or unparseable reasoning
+                reason_snippet = p.decision_reason if p.decision_reason else ""
+                if not reason_snippet or "파싱할 수 없습니다" in reason_snippet or reason_snippet.strip() == "":
+                    reason_snippet = f"본 물품은 대한민국 관세청(또는 관세평가분류원) 심사 결과 일반통칙 규정에 의거하여 {p.hs_code}호로 분류 확정된 공식 결정례입니다."
+                
+                precedents_list.append({
+                    "id": p.case_number.split(' ')[0] if p.case_number else "PREC-001",
+                    "title": p.product_name,
+                    "code": p.hs_code,
+                    "issuingBody": p.issuing_body,
+                    "date": p.date if p.date else "2025-01-01",
+                    "similarity": 95,
+                    "reasoningSnippet": reason_snippet[:400]
+                })
 
-        # Revert to a safe dummy if no DB precedents found
+        # Do not generate mock dummy precedents if no DB precedents found
         if not precedents_list:
-            precedents_list = [
-                {
-                    "id": f"DEC-{heading_code}-01",
-                    "title": f"{product_name} 품목분류 오류 세무소명 결정례",
-                    "code": hsk_code,
-                    "issuingBody": "관세평가분류원",
-                    "date": "2025-06-15",
-                    "similarity": 90,
-                    "reasoningSnippet": f"수입자가 신고한 품명과 실물 사양 대조 결과, 관세율표 해설서 제{best_note.heading}호의 기술 표준에 부합하므로 당해 코드로 분류함이 타당함."
-                }
-            ]
+            precedents_list = []
         
         return {
             "recommendedHsCode": hsk_code,
@@ -746,8 +813,8 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "technicalTerms": f"Explanatory Note Category {best_note.heading}",
             "appliedGris": ["통칙 제1호", "통칙 제6호"],
             "legalReasoning": f"본 판정은 오프라인 로컬 관세율표 해설서 DB 키워드 검색 결과(제{best_note.heading}호 매칭)에 기반한 참고용 후보입니다. AI 다단계 심층 검증을 거치지 않았으므로, 적법한 세액 신고 및 품목 분류 소명을 위해서는 해설서 주석 및 관세 전문가의 정밀 유선 확인이 필요합니다.",
-            "sectionNote": best_note.section if best_note.section else "제21부 예술품ㆍ수집품과 골동품 (제97류 제외 등)",
-            "chapterNote": best_note.chapter if best_note.chapter else "제96류 잡품 (제9608호 필기용구 주석 등)",
+            "sectionNote": best_note.section if best_note.section else "관련 부의 주석 규정을 참고하십시오.",
+            "chapterNote": best_note.chapter if best_note.chapter else f"제{best_note.heading[:2] if len(best_note.heading) >= 2 else ''}류의 주석 규정을 참고하십시오.",
             "exclusionNote": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
             "exclusion_reason": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
             "headingExplanation": best_note.content_ko[:1500],

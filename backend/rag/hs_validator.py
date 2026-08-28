@@ -160,7 +160,7 @@ class HSConsistencyValidator:
         food_keywords = ["파스타", "스파게티", "국수", "누들", "식료품", "빵", "과자", "초콜릿", "밀가루", "전분", "곡물"]
         has_food_keyword = any(k in query_text for k in food_keywords)
         
-        if has_food_keyword:
+        if has_food_keyword and not any(m in query_text for m in ["기계", "장치", "기구", "로봇", "로보트", "드론", "프린터", "수확", "탈곡", "도정", "제조기"]):
             chapter_int = int(chapter) if chapter.isdigit() else 0
             if chapter_int > 24 and chapter_int != 95:
                 score_deduction += 45
