@@ -64,26 +64,51 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         if (response.ok) {
           const data = await response.json();
           // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정
-          const mapped = data.map((item: any) => ({
-            ...item,
-            categoryKo: item.category_ko,
-            caseNumber: item.case_number,
-            keyIssue: item.key_issue,
-            factualBackground: item.factual_background,
-            holdingKo: item.holding_ko,
-            customsArgument: item.customs_argument,
-            importerArgument: item.importer_argument,
-            reasoningSnippet: item.reasoning_snippet,
-            implicationKo: item.implication_ko
-          }));
+          const mapped = data.map((item: any) => {
+            // 로컬에 등록된 정적 정보 중 동일 ID 데이터를 매핑하여 백업용으로 확보
+            const localBackup = VALUATION_PRECEDENT_DB.find(l => l.id === item.id);
+            
+            // 데이터베이스 내 데이터가 짧거나 예전 요약본 상태(처분개요 등 핵심 단어가 없고 120자 미만 등)라면, 
+            // 프론트엔드의 검증된 장문 로컬 데이터를 강제로 덮어씌워 매핑합니다.
+            const dbFact = item.factual_background || '';
+            const dbReason = item.reasoning_snippet || '';
+            
+            const isFactualBackgroundSummary = dbFact.length < 200 || !dbFact.includes('사실관계 요약');
+            const isReasoningSummary = dbReason.length < 200 || !dbReason.includes('판단 이유');
+
+            return {
+              ...item,
+              categoryKo: item.category_ko,
+              caseNumber: item.case_number,
+              keyIssue: item.key_issue,
+              factualBackground: (isFactualBackgroundSummary && localBackup) ? localBackup.factualBackground : dbFact,
+              holdingKo: item.holding_ko,
+              customsArgument: item.customs_argument,
+              importerArgument: item.importer_argument,
+              reasoningSnippet: (isReasoningSummary && localBackup) ? localBackup.reasoningSnippet : dbReason,
+              implicationKo: item.implication_ko
+            };
+          });
           setAllPrecedents(mapped);
           setMatchedCases(mapped);
           if (mapped.length > 0) {
             setSelectedCase(mapped[0]);
           }
+        } else {
+          // 백엔드가 비정상 응답을 주면 로컬 데이터를 사용합니다.
+          setAllPrecedents(VALUATION_PRECEDENT_DB);
+          setMatchedCases(VALUATION_PRECEDENT_DB);
+          if (VALUATION_PRECEDENT_DB.length > 0) {
+            setSelectedCase(VALUATION_PRECEDENT_DB[0]);
+          }
         }
       } catch (err) {
         console.warn('FastAPI 백엔드가 켜져 있지 않아 로컬 정적 판례 DB를 사용합니다.');
+        setAllPrecedents(VALUATION_PRECEDENT_DB);
+        setMatchedCases(VALUATION_PRECEDENT_DB);
+        if (VALUATION_PRECEDENT_DB.length > 0) {
+          setSelectedCase(VALUATION_PRECEDENT_DB[0]);
+        }
       }
     };
     fetchPrecedents();
