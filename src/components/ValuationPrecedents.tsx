@@ -63,30 +63,21 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         const response = await fetch('/api/valuation/precedents');
         if (response.ok) {
           const data = await response.json();
-          // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정
+          // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정하되, 
+          // 검증된 로컬 장문 데이터를 100% 최우선 반영하여 요약본 노출을 원천 방어합니다.
           const mapped = data.map((item: any) => {
-            // 로컬에 등록된 정적 정보 중 동일 ID 데이터를 매핑하여 백업용으로 확보
             const localBackup = VALUATION_PRECEDENT_DB.find(l => l.id === item.id);
-            
-            // 데이터베이스 내 데이터가 짧거나 예전 요약본 상태(처분개요 등 핵심 단어가 없고 120자 미만 등)라면, 
-            // 프론트엔드의 검증된 장문 로컬 데이터를 강제로 덮어씌워 매핑합니다.
-            const dbFact = item.factual_background || '';
-            const dbReason = item.reasoning_snippet || '';
-            
-            const isFactualBackgroundSummary = dbFact.length < 200 || !dbFact.includes('사실관계 요약');
-            const isReasoningSummary = dbReason.length < 200 || !dbReason.includes('판단 이유');
-
             return {
               ...item,
-              categoryKo: item.category_ko,
-              caseNumber: item.case_number,
-              keyIssue: item.key_issue,
-              factualBackground: (isFactualBackgroundSummary && localBackup) ? localBackup.factualBackground : dbFact,
-              holdingKo: item.holding_ko,
-              customsArgument: item.customs_argument,
-              importerArgument: item.importer_argument,
-              reasoningSnippet: (isReasoningSummary && localBackup) ? localBackup.reasoningSnippet : dbReason,
-              implicationKo: item.implication_ko
+              categoryKo: item.category_ko || (localBackup ? localBackup.categoryKo : ''),
+              caseNumber: item.case_number || (localBackup ? localBackup.caseNumber : ''),
+              keyIssue: localBackup ? localBackup.keyIssue : item.key_issue,
+              factualBackground: localBackup ? localBackup.factualBackground : item.factual_background,
+              holdingKo: localBackup ? localBackup.holdingKo : item.holding_ko,
+              customsArgument: localBackup ? localBackup.customsArgument : item.customs_argument,
+              importerArgument: localBackup ? localBackup.importerArgument : item.importer_argument,
+              reasoningSnippet: localBackup ? localBackup.reasoningSnippet : item.reasoning_snippet,
+              implicationKo: localBackup ? localBackup.implicationKo : item.implication_ko
             };
           });
           setAllPrecedents(mapped);
