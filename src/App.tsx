@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
 import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
 import ClearanceWizard from './components/ClearanceWizard'
+import LawNewsPortal from './components/LawNewsPortal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -36,7 +37,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing'>('hs-classifier');
+  const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('hs-classifier');
   
   // Signup states
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -1177,6 +1178,22 @@ export default function App() {
             </button>
 
             <button 
+              onClick={() => setCurrentView('law-news')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'law-news' ? 'rgba(20, 184, 166, 0.12)' : 'transparent',
+                color: currentView === 'law-news' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontWeight: currentView === 'law-news' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'var(--transition-smooth)'
+              }}
+            >
+              <BookOpen size={14} color={currentView === 'law-news' ? 'var(--accent-primary)' : 'gray'} />
+              <span style={{ color: currentView === 'law-news' ? 'var(--accent-primary)' : 'inherit' }}>법령/뉴스</span>
+            </button>
+
+
+            <button 
               onClick={() => setCurrentView('valuation')}
               className="app-sidebar-nav-btn"
               style={{
@@ -1337,6 +1354,10 @@ export default function App() {
             initialFunction={wizardFunction}
           />
         )}
+        {currentView === 'law-news' && (
+          <LawNewsPortal currentUser={currentUser} />
+        )}
+
         {currentView === 'valuation' && (
           <ValuationPrecedents currentUser={currentUser} />
         )}
