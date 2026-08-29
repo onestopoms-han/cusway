@@ -1177,8 +1177,39 @@ def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
         HSRateMaster.country_code.in_(target_countries)
     ).all()
     
-    if not records:
-        # DB에 없을 경우 기본 리턴 대체 로직 (Fallback)
+    # Filter records to ensure the FTA is actually applicable to the requested origin country
+    applicable_records = []
+    origin_upper = origin.upper().strip()
+    
+    for r in records:
+        rec_country = r.country_code.upper().strip()
+        fta_name = r.fta_name or ""
+        
+        # 1. If country code matches exactly, it is always applicable
+        if rec_country == origin_upper:
+            applicable_records.append(r)
+            continue
+            
+        # 2. EU countries can share EU FTAs
+        if origin_upper in EU_COUNTRIES and rec_country in EU_COUNTRIES:
+            if "EU" in fta_name or "유럽" in fta_name:
+                applicable_records.append(r)
+                continue
+                
+        # 3. ASEAN countries can share ASEAN FTAs
+        if origin_upper in ASEAN_COUNTRIES and rec_country in ASEAN_COUNTRIES:
+            if "ASEAN" in fta_name or "아세안" in fta_name:
+                applicable_records.append(r)
+                continue
+                
+        # 4. RCEP countries can only share RCEP rates
+        if origin_upper in RCEP_COUNTRIES and rec_country in RCEP_COUNTRIES:
+            if "RCEP" in fta_name or "역내" in fta_name:
+                applicable_records.append(r)
+                continue
+
+    if not applicable_records:
+        # Fallback if no applicable FTA record is found
         return {
             "hs_code": hs_code,
             "origin": origin,
@@ -1193,8 +1224,8 @@ def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
         }
         
     # 최적 추천 특혜세율 선택을 위해 recommended_rate가 가장 낮은 레코드를 우선 정렬
-    records.sort(key=lambda x: x.recommended_rate if x.recommended_rate is not None else 999)
-    best_record = records[0]
+    applicable_records.sort(key=lambda x: x.recommended_rate if x.recommended_rate is not None else 999)
+    best_record = applicable_records[0]
     
     return {
         "hs_code": best_record.hs_code,
