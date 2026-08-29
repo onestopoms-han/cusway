@@ -232,8 +232,9 @@ class AICustomsClassificationProcessor:
                 # Format to standard HSK 10-digit format (e.g. 8507.60-3000) for strict matching
                 formatted_hsk = f"{clean_hs[:4]}.{clean_hs[4:6]}-{clean_hs[6:]}" if len(clean_hs) == 10 else clean_hs
                 db_cases = db.query(CustomsPrecedent).filter(
-                    (CustomsPrecedent.hs_code == clean_hs) | 
-                    (CustomsPrecedent.hs_code == formatted_hsk)
+                    ((CustomsPrecedent.hs_code == clean_hs) | 
+                     (CustomsPrecedent.hs_code == formatted_hsk)) &
+                    (~CustomsPrecedent.decision_reason.like("%파싱할 수 없습니다%"))
                 ).limit(3).all()
                 for c in db_cases:
                     precedent_cases.append({
@@ -248,6 +249,7 @@ class AICustomsClassificationProcessor:
             result_dict["precedent_cases"] = precedent_cases
             
             # Filter precedents list in the result to ensure they match the recommendedHsCode exactly (10-digit)
+            # and do not contain corrupted parser error messages
             if "precedents" in result_dict and isinstance(result_dict["precedents"], list):
                 recommended_hs = result_dict.get("recommendedHsCode", "")
                 rec_clean = re.sub(r'[^\d]', '', recommended_hs)
@@ -257,7 +259,12 @@ class AICustomsClassificationProcessor:
                     for p in result_dict["precedents"]:
                         p_code = p.get("code") or p.get("hsCode") or ""
                         p_clean = re.sub(r'[^\d]', '', p_code)
+                        p_reason = p.get("reasoningSnippet") or p.get("decision_reason") or p.get("reasoning") or ""
                         
+                        if "파싱할 수 없습니다" in p_reason:
+                            print(f"[PROCESSOR] Filtering out precedent {p.get('id')} due to corrupted parser error message.")
+                            continue
+                            
                         if p_clean == rec_clean:
                             filtered_precedents.append(p)
                         else:
