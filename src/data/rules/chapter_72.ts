@@ -46,8 +46,8 @@ export const chapter72Rules: ClassificationRule[] = [
   },
   {
     "keywordTrigger": [
-      "합금강",
-      "봉",
+      "합금강봉",
+      "합금강 봉",
       "열간압연",
       "감은 코일",
       "코일 모양",
@@ -132,8 +132,9 @@ export const chapter72Rules: ClassificationRule[] = [
   },
   {
     "keywordTrigger": [
-      "합금강",
-      "선",
+      "합금강선",
+      "합금강 선",
+      "실리코망간강선",
       "와이어",
       "실리코망간강",
       "7229",

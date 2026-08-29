@@ -18,3 +18,8 @@
 * **임의 변경 금지**: 기존에 잘 작동하는 핵심 로직이나 페이지를 사용자 동의 없이 리팩토링이라는 명목으로 완전히 엎어치지 마십시오.
 * **상호 작용 우선**: 기능이나 컴포넌트 구조가 모호할 때는 에이전트 스스로 추측하여 개발하지 말고, 사용자에게 질문하거나 계획 단계에서 확인을 받으십시오.
 * **피드백 루프**: 주요 마일스톤이 끝날 때마다 작동 상태를 점검하고 피드백을 수용하십시오.
+
+## 4. 실행 및 배포 제약 사항 (Execution & Deployment Constraints)
+* **Windows 실행 환경 준수**: Windows PowerShell 환경에서 노드 관련 명령어(`npm`, `npx`) 실행 시 execution policy 이슈가 발생하므로 반드시 `.cmd` 확장자를 붙여 실행하십시오. (예: `npm.cmd run dev`, `npm.cmd run build`)
+* **백엔드 실행**: FastAPI 백엔드는 포트 8090에서 실행해야 합니다. (`python -m uvicorn backend.main:app --host 127.0.0.1 --port 8090`)
+* **DB 정밀성 검증**: 중대한 백엔드 스키마나 DB 데이터 수정 완료 시, 반드시 `tools/audit_hs_master.py`를 실행하여 데이터 무결성을 검증하십시오.

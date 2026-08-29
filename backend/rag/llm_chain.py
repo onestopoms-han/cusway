@@ -10,6 +10,27 @@ from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_pre
 from backend.rag.rules import KOREAN_HS_RULES
 from backend.rag.hs_validator import HSConsistencyValidator
 
+def normalize_llm_response(res: dict) -> dict:
+    if not isinstance(res, dict):
+        return res
+    if "recommendedHsCode" in res:
+        res["recommendedHsCode"] = str(res["recommendedHsCode"]).strip()
+    if "legalReasoning" in res:
+        lr = res["legalReasoning"]
+        if isinstance(lr, dict):
+            res["legalReasoning"] = "\n".join([f"{k}: {v}" for k, v in lr.items()])
+        elif isinstance(lr, list):
+            res["legalReasoning"] = "\n".join([str(v) for v in lr])
+        else:
+            res["legalReasoning"] = str(lr)
+    if "appliedGris" in res:
+        gris = res["appliedGris"]
+        if isinstance(gris, str):
+            res["appliedGris"] = [gris]
+        elif isinstance(gris, list):
+            res["appliedGris"] = [str(g) for g in gris]
+    return res
+
 def query_rag_hs_classification(product_name: str, material: str, function_use: str, db: Session, custom_key: str = None, feedback_prompt: str = None):
     """
     Wrapper around RAG classification flow that appends legal consistency validation and
@@ -17,6 +38,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     """
     # 1. First Classification Attempt
     result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key, feedback_prompt)
+    result_dict = normalize_llm_response(result_dict)
     
     # Inject variables for validator context
     result_dict["product_name"] = product_name
@@ -38,6 +60,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
         corrected_result = _query_rag_hs_classification_raw(
             product_name, material, function_use, db, custom_key, feedback_prompt=feedback_text
         )
+        corrected_result = normalize_llm_response(corrected_result)
         corrected_result["product_name"] = product_name
         corrected_result["material"] = material
         
@@ -113,6 +136,8 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 * [중요 - 물리적 스펙 구분 준수 규정]: 수입품이 목재 섬유판(MDF, 제4411호), 철강(제72류), 플라스틱(제39류) 등 두께(thickness), 넓이, 중량 등 '물리적 측정 스펙'에 따라 법정 세번(HSK)이 분기되는 품목인 경우, 사용자가 입력한 품목 정보에 해당 물리적 스펙이 누락되었다면 단정적으로 특정 10자리 세번을 확정하지 마십시오. 이 경우 경합하는 두께/규격별 세번들(예: 4411.12-1000, 4411.13-1000, 4411.14-1000)을 competingHsCodes 및 legalReasoning에 나열하고, '두께 스펙 추가 확인 후 최종 세번 확정 필요'라는 취지의 경고 및 잠정적 판단 유보 사항을 법적 논거(legalReasoning)에 명확히 기술하십시오.
 * 물품의 본질적인 기술 사양과 추천하려는 HS Code 호(Heading)의 용어 및 정의가 정면으로 위배되거나 모순될 경우 (예: "AI로봇"인데 "단백질 제품 제3504호"를 추천하려는 경우), 그 즉시 당해 코드를 100% 철회 및 기각하십시오.
 * 기각 시, RAG 후보군에 들어 있는 올바른 기계류(84류), 전자기기(85류), 또는 완구류(95류) 해설을 대조하여 결과를 강제 정정하십시오. 만약 RAG 데이터가 소실되어 매칭 근거가 존재하지 않는다면 recommendedHsCode를 "0000.00-0000" (판정보류/분류불가)로 즉각 리턴하여 잘못된 정보가 사용자에게 노출되는 것을 차단하십시오.
+* [반려 로봇/스마트 화분 분류 지침]: 단순 완구(제95류)와 달리, 실제로 식물을 재배하거나(수중 펌프, 센서 등 작동) 실용적인 기능(조정, 교육, 실용적 비서 기능 등)을 수행하는 반려 로봇/스마트 화분 장치는 고유의 기능을 가진 기계류로서 제84류(특히 제8479호)에 분류되어야 하며, 제95류로 분류해서는 안 됩니다.
+
 
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
 """
@@ -159,7 +184,100 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 }}
 """
 
-    # 1. Try Groq LPU Engine First (1st Priority: Ultra-fast, free/cost-effective)
+    # 1. Try OpenAI Engine First (1st Priority: Stable, fast, high rate limits)
+    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        key_path = os.path.join(parent_dir, "openai.key")
+        key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
+        
+        target_path = None
+        if os.path.exists(key_path):
+            target_path = key_path
+        elif os.path.exists(key_root_path):
+            target_path = key_root_path
+            
+        if target_path:
+            with open(target_path, "r", encoding="utf-8") as kf:
+                api_key = kf.read().strip()
+
+    if api_key and api_key.strip():
+        try:
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}"
+            }
+            data = {
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.0
+            }
+            
+            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_body = response.read().decode("utf-8")
+                res_json = json.loads(res_body)
+                gpt_output = res_json["choices"][0]["message"]["content"].strip()
+                
+                if gpt_output.startswith("```json"):
+                    gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
+                elif gpt_output.startswith("```"):
+                    gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+                    
+                return json.loads(gpt_output)
+        except Exception as e:
+            print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to Gemini.")
+
+    # 2. Try Gemini Engine Second (2nd Priority: Backup)
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        gemini_key_path = os.path.join(parent_dir, "gemini.key")
+        gemini_key_root_path = os.path.join(os.path.dirname(parent_dir), "gemini.key")
+        
+        target_gemini_path = None
+        if os.path.exists(gemini_key_path):
+            target_gemini_path = gemini_key_path
+        elif os.path.exists(gemini_key_root_path):
+            target_gemini_path = gemini_key_root_path
+            
+        if target_gemini_path:
+            with open(target_gemini_path, "r", encoding="utf-8") as gkf:
+                gemini_key = gkf.read().strip()
+                
+    if gemini_key and gemini_key.strip():
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key.strip()}"
+            headers = {
+                "Content-Type": "application/json"
+            }
+            data = {
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }],
+                "generationConfig": {
+                    "responseMimeType": "application/json",
+                    "temperature": 0.0
+                }
+            }
+            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_body = response.read().decode("utf-8")
+                res_json = json.loads(res_body)
+                output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if output.startswith("```json"):
+                    output = output.split("```json")[1].split("```")[0].strip()
+                elif output.startswith("```"):
+                    output = output.split("```")[1].split("```")[0].strip()
+                return json.loads(output)
+        except Exception as gem_err:
+            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to Groq.")
+
+    # 3. Try Groq LPU Engine Third (3rd Priority: Backup)
     groq_key = os.environ.get("GROQ_API_KEY")
     if not groq_key:
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -203,107 +321,65 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                     output = output.split("```")[1].split("```")[0].strip()
                 return json.loads(output)
         except Exception as ge:
-            print(f"[RAG-LLM] Groq LPU call failed: {str(ge)}. Cascading to Gemini.")
+            print(f"[RAG-LLM] Groq LPU call failed: {str(ge)}. Fallback to local RAG offline database matcher.")
+            return run_local_fallback_match(product_name, material, function_use, db)
 
-    # 2. Try Gemini Engine Second (2nd Priority: Free Tier / Extremely cheap)
-    gemini_key = os.environ.get("GEMINI_API_KEY")
-    if not gemini_key:
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        gemini_key_path = os.path.join(parent_dir, "gemini.key")
-        gemini_key_root_path = os.path.join(os.path.dirname(parent_dir), "gemini.key")
+    # Fallback to local RAG matcher if all keys or calls fail
+    print("[RAG-LLM] All LLM engines failed or keys missing. Fallback to local RAG offline database matcher.")
+    return run_local_fallback_match(product_name, material, function_use, db)
+
+def send_email_alert_async(subject: str, body: str):
+    import threading
+    def send_action():
+        import smtplib
+        from email.mime.text import MIMEText
         
-        target_gemini_path = None
-        if os.path.exists(gemini_key_path):
-            target_gemini_path = gemini_key_path
-        elif os.path.exists(gemini_key_root_path):
-            target_gemini_path = gemini_key_root_path
+        # Load env vars
+        smtp_host = os.environ.get("SMTP_HOST") or "smtp.naver.com"
+        smtp_port = os.environ.get("SMTP_PORT") or "465"
+        smtp_user = os.environ.get("SMTP_USER")
+        smtp_password = os.environ.get("SMTP_PASSWORD")
+        
+        if not smtp_user or not smtp_password:
+            print("[RAG-LLM] SMTP credentials not set (SMTP_USER/SMTP_PASSWORD in .env). Skipping admin email alert.")
+            return
             
-        if target_gemini_path:
-            with open(target_gemini_path, "r", encoding="utf-8") as gkf:
-                gemini_key = gkf.read().strip()
-                
-    if gemini_key and gemini_key.strip():
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key.strip()}"
-            headers = {
-                "Content-Type": "application/json"
-            }
-            data = {
-                "contents": [{
-                    "parts": [{"text": prompt}]
-                }],
-                "generationConfig": {
-                    "responseMimeType": "application/json",
-                    "temperature": 0.0
-                }
-            }
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=12) as response:
-                res_body = response.read().decode("utf-8")
-                res_json = json.loads(res_body)
-                output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if output.startswith("```json"):
-                    output = output.split("```json")[1].split("```")[0].strip()
-                elif output.startswith("```"):
-                    output = output.split("```")[1].split("```")[0].strip()
-                return json.loads(output)
-        except Exception as gem_err:
-            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to OpenAI.")
-
-    # 2. Check OpenAI API Key. Evaluate both env key or custom client key. Default to user's registered key if empty.
-    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        key_path = os.path.join(parent_dir, "openai.key")
-        key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
-        
-        target_path = None
-        if os.path.exists(key_path):
-            target_path = key_path
-        elif os.path.exists(key_root_path):
-            target_path = key_root_path
+            msg = MIMEText(body, "plain", "utf-8")
+            msg["Subject"] = subject
+            msg["From"] = smtp_user
+            msg["To"] = "geovenice@naver.com"
             
-        if target_path:
-            with open(target_path, "r", encoding="utf-8") as kf:
-                api_key = kf.read().strip()
-    
-    if not api_key:
-        print("[RAG-LLM] OpenAI and Groq keys missing. Fallback to local RAG offline database matcher.")
-        return run_local_fallback_match(product_name, material, function_use, db)
-
-    # 3. Invoke OpenAI Chat Completion API (2nd Priority: Stable backup)
-    try:
-        url = "https://api.openai.com/v1/chat/completions"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
-        }
-        data = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot."},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.0
-        }
-        
-        req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=12) as response:
-            res_body = response.read().decode("utf-8")
-            res_json = json.loads(res_body)
-            gpt_output = res_json["choices"][0]["message"]["content"].strip()
-            
-            if gpt_output.startswith("```json"):
-                gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
-            elif gpt_output.startswith("```"):
-                gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+            if smtp_port == "465":
+                server = smtplib.SMTP_SSL(smtp_host, int(smtp_port), timeout=10)
+            else:
+                server = smtplib.SMTP(smtp_host, int(smtp_port), timeout=10)
+                server.starttls()
                 
-            return json.loads(gpt_output)
-    except Exception as e:
-        print(f"[RAG-LLM] GPT call failed: {str(e)}. Fallback to local RAG offline database matcher.")
-        return run_local_fallback_match(product_name, material, function_use, db)
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, ["geovenice@naver.com"], msg.as_string())
+            server.quit()
+            print("[RAG-LLM] Email alert successfully sent to geovenice@naver.com")
+        except Exception as mail_err:
+            print(f"[RAG-LLM] Failed to send email alert: {str(mail_err)}")
+            
+    threading.Thread(target=send_action, daemon=True).start()
 
 def run_local_fallback_match(product_name: str, material: str, function_use: str, db: Session):
+    import datetime
+    
+    # Send async email alert to geovenice@naver.com
+    send_email_alert_async(
+        subject="[CUSWAY] AI API 연동 실패 및 오프라인 폴백 발생 경보",
+        body=(
+            f"안녕하세요, CUSWAY AI 시스템 경보 메일입니다.\n\n"
+            f"실시간 AI 엔진(OpenAI/Gemini/Groq) 호출이 실패하여 오프라인 매칭(Fallback) 모드가 작동했습니다.\n\n"
+            f"■ 대상 물품명: {product_name}\n"
+            f"■ 일시: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+            f"API 크레딧 고갈, 토큰 한도 초과(429), 또는 API Key의 유효성을 점검해 주시기 바랍니다.\n"
+        )
+    )
+
     # 0. 로컬 데이터베이스 내 기존 결정례(CustomsPrecedent)에서 제품명 매칭 검색 시도 (가장 정확한 100% 정합성 복원)
     from backend.models import CustomsPrecedent
     import re
@@ -354,12 +430,14 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
 
         # 소명 사유 클렌징 및 공식 텍스트 주입
         reasoning = prec.decision_reason
+        warning_prefix = "[AI 엔진 연동 오프라인 폴백 안내] 현재 API 크레딧/토큰 고갈 또는 한도 초과로 인해 실시간 AI 분석이 임시 제한되었습니다. 본 결과는 로컬 오프라인 데이터베이스에 축적된 유사 판례 및 결정례를 기반으로 자동 복원 매칭된 결과입니다. API 설정을 점검해 주십시오.\n\n"
         if not reasoning or "파싱할 수 없습니다" in reasoning or reasoning.strip() == "":
             if official_name_ko:
                 reasoning = f"본 물품은 제시된 성분 및 사양 정보에 따라 관세율표 일반통칙 제1호 및 제6호에 의거하여 제{formatted_code}호의 대한민국 관세청 공식 품목인 [{official_name_ko}]에 정확하게 부합하여 분류됩니다."
             else:
                 reasoning = f"본 물품은 재질 및 기능에 기초하여 관세율표 일반통칙 제1호 및 제6호에 따라 제{formatted_code}호에 적합하게 분류됩니다."
 
+        reasoning = warning_prefix + reasoning
         competing = []
         if heading_prefix.startswith("84") or heading_prefix.startswith("85"):
             competing = [
