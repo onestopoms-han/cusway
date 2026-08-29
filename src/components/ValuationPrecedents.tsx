@@ -36,6 +36,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [draftGenerated, setDraftGenerated] = useState(false);
   const [showMobileDetail, setShowMobileDetail] = useState(false); // 모바일에서 상세창 단독 스위칭 제어용
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('all'); // 기타 관세평가 2차 서브 필터링용
+  const [showFullTextModal, setShowFullTextModal] = useState(false); // 전체 내용 팝업 모달 상태
 
   // AI 쟁점 매칭 기능 관련 상태
   const [customIssue, setCustomIssue] = useState('');
@@ -912,27 +913,49 @@ ${fallback.implicationKo}
                     {selectedCase.title}
                   </h3>
                 </div>
-                <button
-                  onClick={() => downloadCaseAsPdf(selectedCase)}
-                  style={{
-                    background: 'rgba(6, 182, 212, 0.15)',
-                    border: '1px solid rgba(6, 182, 212, 0.3)',
-                    borderRadius: '6px',
-                    color: 'var(--accent-cyan)',
-                    padding: '6px 12px',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    whiteSpace: 'nowrap',
-                    marginLeft: '12px',
-                    marginTop: '4px'
-                  }}
-                >
-                  <FileText size={12} /> PDF 다운로드
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => setShowFullTextModal(true)}
+                    style={{
+                      background: 'rgba(56, 189, 248, 0.15)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      borderRadius: '6px',
+                      color: '#38bdf8',
+                      padding: '6px 12px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap',
+                      marginTop: '4px'
+                    }}
+                  >
+                    <BookOpen size={12} /> 전체 내용 확인
+                  </button>
+                  <button
+                    onClick={() => downloadCaseAsPdf(selectedCase)}
+                    style={{
+                      background: 'rgba(6, 182, 212, 0.15)',
+                      border: '1px solid rgba(6, 182, 212, 0.3)',
+                      borderRadius: '6px',
+                      color: 'var(--accent-cyan)',
+                      padding: '6px 12px',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap',
+                      marginLeft: '4px',
+                      marginTop: '4px'
+                    }}
+                  >
+                    <FileText size={12} /> PDF 다운로드
+                  </button>
+                </div>
               </div>
 
               {/* Case details sections */}
@@ -1050,6 +1073,138 @@ ${fallback.implicationKo}
       ) : null}
 
       </div>
+
+      {/* Full Precedent Text Modal */}
+      {showFullTextModal && selectedCase && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+            border: '1px solid rgba(56, 189, 248, 0.4)',
+            borderRadius: '16px',
+            padding: '28px',
+            maxWidth: '800px',
+            width: '100%',
+            maxHeight: '90vh',
+            boxShadow: '0 15px 45px rgba(56, 189, 248, 0.15)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            color: '#f8fafc'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 700 }}>
+                  {selectedCase.authority} • {selectedCase.caseNumber} (전체 결정문 원문)
+                </span>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '4px 0 0 0', color: '#ffffff' }}>
+                  {selectedCase.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowFullTextModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  fontWeight: 300,
+                  lineHeight: 1
+                }}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div style={{ 
+              overflowY: 'auto', 
+              paddingRight: '8px', 
+              fontSize: '0.88rem', 
+              lineHeight: 1.6,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px'
+            }}>
+              <div>
+                <h4 style={{ color: '#38bdf8', fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>1. 핵심 쟁점 및 법적 소송 고지</h4>
+                <p style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  {selectedCase.keyIssue}
+                </p>
+              </div>
+
+              <div>
+                <h4 style={{ color: '#38bdf8', fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>2. 상세 사실 관계 및 거래 실질 내역</h4>
+                <p style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', whiteSpace: 'pre-wrap' }}>
+                  {selectedCase.factualBackground}
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '14px' }}>
+                <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239,68,68,0.2)', padding: '12px', borderRadius: '8px' }}>
+                  <h5 style={{ color: '#f87171', fontWeight: 700, marginTop: 0, marginBottom: '6px', fontSize: '0.8rem' }}>세관 당국 과세 논거 전문</h5>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#cbd5e1' }}>"{selectedCase.customsArgument}"</p>
+                </div>
+                <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16,185,129,0.2)', padding: '12px', borderRadius: '8px' }}>
+                  <h5 style={{ color: '#34d399', fontWeight: 700, marginTop: 0, marginBottom: '6px', fontSize: '0.8rem' }}>청구인(수입 화주) 방어 변론 요지</h5>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#cbd5e1' }}>"{selectedCase.importerArgument}"</p>
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ color: '#f59e0b', fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>3. 재판부/심판원 최종 판결 이유 및 판단 논거 (Reasoning)</h4>
+                <div style={{ 
+                  background: 'rgba(245, 158, 11, 0.05)', 
+                  border: '1px solid rgba(245, 158, 11, 0.25)', 
+                  padding: '16px', 
+                  borderRadius: '8px', 
+                  whiteSpace: 'pre-wrap',
+                  color: '#fef08a'
+                }}>
+                  {selectedCase.reasoningSnippet}
+                </div>
+              </div>
+
+              <div>
+                <h4 style={{ color: '#10b981', fontWeight: 700, marginBottom: '6px', fontSize: '0.9rem' }}>4. 실무 평가 영향 및 자문 가이드</h4>
+                <p style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16,185,129,0.2)', padding: '12px', borderRadius: '8px' }}>
+                  {selectedCase.implicationKo}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '14px' }}>
+              <button
+                onClick={() => setShowFullTextModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: '#ffffff',
+                  padding: '8px 20px',
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
