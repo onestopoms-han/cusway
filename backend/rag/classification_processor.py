@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 import json
+import re
 
 from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_precedents
 from backend.rag.llm_chain import query_rag_hs_classification
@@ -243,6 +244,25 @@ class AICustomsClassificationProcessor:
                     })
                 print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
             result_dict["precedent_cases"] = precedent_cases
+            
+            # Filter precedents list in the result to ensure they share the same 2-digit HS Chapter as recommendedHsCode
+            if "precedents" in result_dict and isinstance(result_dict["precedents"], list):
+                recommended_hs = result_dict.get("recommendedHsCode", "")
+                rec_clean = re.sub(r'[^\d]', '', recommended_hs)
+                rec_chapter = rec_clean[:2] if len(rec_clean) >= 2 else None
+                
+                if rec_chapter:
+                    filtered_precedents = []
+                    for p in result_dict["precedents"]:
+                        p_code = p.get("code") or p.get("hsCode") or ""
+                        p_clean = re.sub(r'[^\d]', '', p_code)
+                        p_chapter = p_clean[:2] if len(p_clean) >= 2 else None
+                        
+                        if p_chapter == rec_chapter:
+                            filtered_precedents.append(p)
+                        else:
+                            print(f"[PROCESSOR] Filtering out irrelevant precedent {p.get('id')} with code {p_code} (mismatched chapter with recommended {recommended_hs})")
+                    result_dict["precedents"] = filtered_precedents
 
         # Do not cache simulated AI results to avoid contaminating official Customs Service data.
 
