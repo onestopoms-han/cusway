@@ -225,13 +225,15 @@ class AICustomsClassificationProcessor:
                 print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
 
             # ----------------------------------------------------
-            # Phase 5-3: Match real customs precedents by prefix (first 4 digits)
+            # Phase 5-3: Match real customs precedents by exact 10-digit HS Code
             # ----------------------------------------------------
             precedent_cases = []
-            hs_prefix = clean_hs[:4]
-            if hs_prefix:
+            if clean_hs:
+                # Format to standard HSK 10-digit format (e.g. 8507.60-3000) for strict matching
+                formatted_hsk = f"{clean_hs[:4]}.{clean_hs[4:6]}-{clean_hs[6:]}" if len(clean_hs) == 10 else clean_hs
                 db_cases = db.query(CustomsPrecedent).filter(
-                    CustomsPrecedent.hs_code.like(f"{hs_prefix}%")
+                    (CustomsPrecedent.hs_code == clean_hs) | 
+                    (CustomsPrecedent.hs_code == formatted_hsk)
                 ).limit(3).all()
                 for c in db_cases:
                     precedent_cases.append({
@@ -242,26 +244,24 @@ class AICustomsClassificationProcessor:
                         "issuing_body": c.issuing_body or "관세평가분류원",
                         "date": c.date or ""
                     })
-                print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for prefix {hs_prefix}")
+                print(f"[PROCESSOR] Enriched {len(precedent_cases)} matching customs precedents for exact HS code {clean_hs}")
             result_dict["precedent_cases"] = precedent_cases
             
-            # Filter precedents list in the result to ensure they share the same 2-digit HS Chapter as recommendedHsCode
+            # Filter precedents list in the result to ensure they match the recommendedHsCode exactly (10-digit)
             if "precedents" in result_dict and isinstance(result_dict["precedents"], list):
                 recommended_hs = result_dict.get("recommendedHsCode", "")
                 rec_clean = re.sub(r'[^\d]', '', recommended_hs)
-                rec_chapter = rec_clean[:2] if len(rec_clean) >= 2 else None
                 
-                if rec_chapter:
+                if rec_clean:
                     filtered_precedents = []
                     for p in result_dict["precedents"]:
                         p_code = p.get("code") or p.get("hsCode") or ""
                         p_clean = re.sub(r'[^\d]', '', p_code)
-                        p_chapter = p_clean[:2] if len(p_clean) >= 2 else None
                         
-                        if p_chapter == rec_chapter:
+                        if p_clean == rec_clean:
                             filtered_precedents.append(p)
                         else:
-                            print(f"[PROCESSOR] Filtering out irrelevant precedent {p.get('id')} with code {p_code} (mismatched chapter with recommended {recommended_hs})")
+                            print(f"[PROCESSOR] Filtering out mismatched precedent {p.get('id')} with code {p_code} (exact HS code mismatch with recommended {recommended_hs})")
                     result_dict["precedents"] = filtered_precedents
 
         # Do not cache simulated AI results to avoid contaminating official Customs Service data.
