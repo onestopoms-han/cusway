@@ -127,25 +127,31 @@ def parse_clhs_page(html):
         "requirements": requirements
     }
 
-# 수동 백업 브라우저 세션 쿠키 (로그인 팅김 원천 차단)
-COOKIES_STR = "upass=%2AONESTOP%2A; rid=chk; uid=onestopcus; cid=260820%2E370904; ASPSESSIONIDQERCSCRT=OFPLANDDGKFAMLLIDHIMJPAK; ASPSESSIONIDQGSDTDQT=GOABANDDKCMDDKHLBLOAIKGI; ASPSESSIONIDSGTDSDRS=OIFJANDDKFNLFFNEOAPEFPAF; ASPSESSIONIDQGRCRBTR=MPFLANDDNLCLODAGNPOHKBON; ASPSESSIONIDSGSARCTT=DLCIANDDCPEBOHBBJMJINJPA; ASPSESSIONIDQEQDSDRT=ACBKANDDOCJEKCELHAKBKMHN; ASPSESSIONIDQGSCTDTQ=MHMDANDDKMGOLDLEHKAOHLJM; ASPSESSIONIDQEQBTCSS=JHEBCNDDJDFAEONKFCECCLMI; search=search%2Easp; ASPSESSIONIDSGQCSDRR=LLOCANDDJMBFAGBOJALLHHCC; ASPSESSIONIDSETBQAQT=MJMJBNDDIIODGHABHFKOMBHF; ASPSESSIONIDSERBRDRT=BLPFANDDHKHIBCINKPMFAGMA"
+def get_clhs_session():
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    })
+    
+    print("[CLHS] Accessing login page...")
+    session.get("https://www.clhs.co.kr/login/login.asp")
+    
+    print("[CLHS] Submitting login credentials...")
+    resp = session.get(LOGIN_URL)
+    if resp.status_code == 200:
+        print("[CLHS] Login response success.")
+        return session
+    else:
+        raise Exception(f"CLHS login failed with status code: {resp.status_code}")
 
 def main(limit=50):
-    session = requests.Session()
-    
-    # 공통 브라우저 헤더 및 쿠키 추가
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Cookie": COOKIES_STR
-    }
-    session.headers.update(headers)
-    
-    print("[1] Verifying CLHS connection with session cookies...")
+    print("[1] Logging in to CLHS dynamically...")
     try:
-        login_resp = session.get(LOGIN_URL, timeout=10)
+        session = get_clhs_session()
         print("CLHS session connection verified. Ready to crawl.")
     except Exception as e:
         print("CLHS connection warning:", e)
+        return
         
     print("[2] Fetching HS Code list from DB...")
     conn = sqlite3.connect(DB_PATH)

@@ -918,11 +918,11 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   window.open(shareUrl, '_blank', 'width=450,height=650');
                 }}
                 style={{
-                  background: 'rgba(250, 204, 21, 0.15)',
-                  border: '1px solid #eab308',
+                  background: '#fef08a',
+                  border: '1px solid #ca8a04',
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  color: '#854d0e',
+                  color: '#713f12',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   fontWeight: 700,
@@ -952,11 +952,11 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   window.location.href = `mailto:${emailAddr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }}
                 style={{
-                  background: 'rgba(6, 182, 212, 0.08)',
+                  background: '#cffafe',
                   border: '1px solid #0891b2',
                   padding: '6px 12px',
                   borderRadius: '6px',
-                  color: '#0e7490',
+                  color: '#0891b2',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   fontWeight: 700,
