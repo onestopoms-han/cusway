@@ -153,12 +153,12 @@ def parse_detail_page(html):
         "title": title,
         "authority": authority,
         "date": date_str if date_str else "",
-        "key_issue": key_issue[:1000] if key_issue else title,
-        "factual_background": factual_background[:2000] if factual_background else "",
-        "holding_ko": holding_ko[:3000] if holding_ko else "",
-        "customs_argument": customs_argument[:2000] if customs_argument else "",
-        "importer_argument": importer_argument[:2000] if importer_argument else "",
-        "reasoning_snippet": reasoning_snippet[:3000] if reasoning_snippet else "",
+        "key_issue": key_issue if key_issue else title,
+        "factual_background": factual_background if factual_background else "",
+        "holding_ko": holding_ko if holding_ko else "",
+        "customs_argument": customs_argument if customs_argument else "",
+        "importer_argument": importer_argument if importer_argument else "",
+        "reasoning_snippet": reasoning_snippet if reasoning_snippet else "",
         "implication_ko": "CLHS 수집 판례 기초 분석 데이터"
     }
 
@@ -172,7 +172,7 @@ def main():
     except Exception as e:
         print(f"Login failed: {e}")
         return
-        
+    
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
