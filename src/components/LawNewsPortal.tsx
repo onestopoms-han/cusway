@@ -9,6 +9,12 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [notices, setNotices] = useState<any[]>([]);
   const [loadingNews, setLoadingNews] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page to 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Fallback CLHS News Headlines
   const fallbackNotices = [
@@ -272,52 +278,83 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               }}
             >
               {filteredNotices.length > 0 ? (
-                filteredNotices.map((notice) => (
-                  <div 
-                    key={notice.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255,255,255,0.08)',
-                      paddingBottom: '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{
-                        background: notice.tag.includes('고시') ? 'rgba(20, 184, 166, 0.2)' : 'rgba(99, 102, 241, 0.2)',
-                        color: notice.tag.includes('고시') ? '#2dd4bf' : '#a5b4fc',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.72rem',
-                        fontWeight: 700
-                      }}>
-                        {notice.tag}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{notice.date}</span>
-                    </div>
+                <>
+                  {filteredNotices.slice((currentPage - 1) * 5, currentPage * 5).map((notice) => (
+                    <div 
+                      key={notice.id}
+                      style={{
+                        borderBottom: '1px solid rgba(255,255,255,0.08)',
+                        paddingBottom: '14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{
+                          background: notice.tag && notice.tag.includes('고시') ? 'rgba(20, 184, 166, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+                          color: notice.tag && notice.tag.includes('고시') ? '#2dd4bf' : '#a5b4fc',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700
+                        }}>
+                          {notice.tag}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{notice.date}</span>
+                      </div>
 
-                    <h4 style={{ fontSize: '0.92rem', fontWeight: 700, margin: 0, lineHeight: 1.35, color: 'var(--text-main)' }}>
-                      {notice.title}
-                    </h4>
-                    
-                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.45 }}>
-                      {notice.summary}
-                    </p>
+                      <h4 style={{ fontSize: '0.92rem', fontWeight: 700, margin: 0, lineHeight: 1.35, color: 'var(--text-main)' }}>
+                        {notice.title}
+                      </h4>
+                      
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.45 }}>
+                        {notice.summary}
+                      </p>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>담당: {notice.agency}</span>
-                      <a 
-                        href={notice.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
-                      >
-                        상세보기 <ExternalLink size={10} />
-                      </a>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>담당: {notice.agency}</span>
+                        <a 
+                          href={notice.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
+                        >
+                          상세보기 <ExternalLink size={10} />
+                        </a>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                  
+                  {/* Pagination Controls */}
+                  {Math.ceil(filteredNotices.length / 5) > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      {Array.from({ length: Math.ceil(filteredNotices.length / 5) }).map((_, pIdx) => {
+                        const pageNum = pIdx + 1;
+                        const isActive = pageNum === currentPage;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            style={{
+                              border: isActive ? '1px solid var(--accent-cyan)' : '1px solid transparent',
+                              background: isActive ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+                              color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
               ) : (
                 <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                   검색어에 매칭되는 최근 고시 뉴스가 없습니다.
