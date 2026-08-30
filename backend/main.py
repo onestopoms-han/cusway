@@ -590,7 +590,7 @@ def get_customs_news(db: Session = Depends(get_db)):
 
     # Query all accumulated news from DB, order by date desc
     try:
-        news_list = db.query(CustomsNews).order_index = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).all()
+        news_list = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).all()
         return news_list
     except Exception as e:
         print(f"[QUERY NEWS DB ERROR] {e}")
