@@ -142,10 +142,10 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               style={{
                 width: '100%',
                 padding: '8px 12px 8px 36px',
-                background: '#0f172a',
-                border: '1px solid #334155',
+                background: '#0f172a !important',
+                border: '1px solid #475569 !important',
                 borderRadius: '6px',
-                color: '#ffffff',
+                color: '#ffffff !important',
                 fontSize: '0.8rem'
               }}
             />
