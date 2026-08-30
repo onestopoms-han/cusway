@@ -156,6 +156,19 @@ class BrokerConfirmation(Base):
     confirmed_at = Column(DateTime, default=datetime.utcnow)
 
 
+class CustomsNews(Base):
+    __tablename__ = "customs_news"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tag = Column(String, nullable=False)
+    title = Column(String, unique=True, index=True, nullable=False)
+    date = Column(String, nullable=False)
+    agency = Column(String, nullable=False)
+    summary = Column(Text, nullable=False)
+    link = Column(String, nullable=False)
+
+
+
 
 
 

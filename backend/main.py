@@ -26,7 +26,7 @@ def load_env():
 load_env()
 
 from .db import engine, Base, get_db
-from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog, BrokerConfirmation
+from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog, BrokerConfirmation, CustomsNews
 from .seed import seed_data
 
 # DB 생성 및 초기 데이터 적재
@@ -466,7 +466,7 @@ def get_match_count(query: str, type: str, db: Session = Depends(get_db)):
         return {"count": count}
 
 @app.get("/api/customs/news")
-def get_customs_news():
+def get_customs_news(db: Session = Depends(get_db)):
     import urllib.request
     import xml.etree.ElementTree as ET
     import urllib.parse
@@ -477,10 +477,10 @@ def get_customs_news():
     encoded_query = urllib.parse.quote(query)
     rss_url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ko&gl=KR&ceid=KR:ko"
     
+    # Check if we have fallback items in DB, if empty populate initially
     fallback_notices = [
         {
-            "id": 1,
-            "tag": "압수 소식",
+            "tag": "세관 단속",
             "title": "백꾸, 뽑기방 유행에 인천세관 압수 짝퉁 80%는 키링, 인형",
             "date": "2026-08-28",
             "agency": "인천세관",
@@ -488,7 +488,6 @@ def get_customs_news():
             "link": "https://n.news.naver.com/mnews/article/001/0016273395?sid=102"
         },
         {
-            "id": 2,
             "tag": "무역 동향",
             "title": "중국 때렸더니 베트남이 1위 관세전쟁이 뒤집은 미국 무역흑자국",
             "date": "2026-08-26",
@@ -497,7 +496,6 @@ def get_customs_news():
             "link": "https://n.news.naver.com/mnews/article/016/0002688937?sid=104"
         },
         {
-            "id": 3,
             "tag": "안전성 검사",
             "title": "중국산 배추 포름알데히드 검사 최근 수입 8건 모두 불검출",
             "date": "2026-08-25",
@@ -506,8 +504,7 @@ def get_customs_news():
             "link": "https://n.news.naver.com/mnews/article/001/0016270688?sid=101"
         },
         {
-            "id": 4,
-            "tag": "의약 직구",
+            "tag": "세관 단속",
             "title": "위고비, 마운자로 불법 직구 기승 작년 연간치 3.5배 적발",
             "date": "2026-08-24",
             "agency": "관세청",
@@ -516,39 +513,36 @@ def get_customs_news():
         }
     ]
     
+    # Try fetching and inserting new items into DB
     try:
         req = urllib.request.Request(
             rss_url, 
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
         )
-        with urllib.request.urlopen(req, timeout=8) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:
             xml_data = response.read()
             
         root = ET.fromstring(xml_data)
         items = root.findall(".//item")
         
-        parsed_news = []
-        for idx, item in enumerate(items[:10]):
+        for item in items[:15]:
             title_text = item.find("title").text if item.find("title") is not None else ""
             link_text = item.find("link").text if item.find("link") is not None else ""
             pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
             source_text = item.find("source").text if item.find("source") is not None else "관세 속보"
             
-            # Clean title (e.g. remove publisher name suffix like " - 연합뉴스")
             clean_title = title_text
             if " - " in title_text:
                 clean_title = title_text.rsplit(" - ", 1)[0]
                 
-            # Parse date
+            # Date parse
             date_str = ""
             try:
-                # pubDate format: Sun, 30 Aug 2026 01:23:45 GMT
                 dt = datetime.strptime(pub_date, "%a, %d %b %Y %H:%M:%S %Z")
                 date_str = dt.strftime("%Y-%m-%d")
             except Exception:
                 date_str = pub_date[:16] if pub_date else datetime.now().strftime("%Y-%m-%d")
                 
-            # Determine tag based on keywords
             tag = "관세 행정"
             if any(k in clean_title for k in ["압수", "적발", "밀수", "세관"]):
                 tag = "세관 단속"
@@ -559,21 +553,48 @@ def get_customs_news():
             elif any(k in clean_title for k in ["검사", "위반", "식품", "안전"]):
                 tag = "안전성 검사"
                 
-            parsed_news.append({
-                "id": idx + 100,
-                "tag": tag,
-                "title": clean_title,
-                "date": date_str,
-                "agency": source_text,
-                "summary": clean_title + "에 대한 신속한 유관기관 소식 및 관련 규제 변동 동향입니다.",
-                "link": link_text
-            })
-            
-        if parsed_news:
-            return parsed_news
-        return fallback_notices
+            # Avoid duplicates check using title
+            exists = db.query(CustomsNews).filter(CustomsNews.title == clean_title).first()
+            if not exists:
+                db_news = CustomsNews(
+                    tag=tag,
+                    title=clean_title,
+                    date=date_str,
+                    agency=source_text,
+                    summary=clean_title + "에 대한 신속한 유관기관 소식 및 관련 규제 변동 동향입니다.",
+                    link=link_text
+                )
+                db.add(db_news)
+        db.commit()
     except Exception as e:
-        print(f"[RSS NEWS API ERROR] {e}")
+        print(f"[RSS NEWS CRAWL/SAVE ERROR] {e}")
+        db.rollback()
+        
+    # Populate fallbacks if DB is empty
+    try:
+        if db.query(CustomsNews).count() == 0:
+            for fallback in fallback_notices:
+                db_news = CustomsNews(
+                    tag=fallback["tag"],
+                    title=fallback["title"],
+                    date=fallback["date"],
+                    agency=fallback["agency"],
+                    summary=fallback["summary"],
+                    link=fallback["link"]
+                )
+                db.add(db_news)
+            db.commit()
+    except Exception as e:
+        print(f"[POPULATE FALLBACK ERROR] {e}")
+        db.rollback()
+
+    # Query all accumulated news from DB, order by date desc
+    try:
+        news_list = db.query(CustomsNews).order_index = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).all()
+        return news_list
+    except Exception as e:
+        print(f"[QUERY NEWS DB ERROR] {e}")
+        # Final emergency array return
         return fallback_notices
 
 @app.get("/api/health")
