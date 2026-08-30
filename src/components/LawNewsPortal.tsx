@@ -124,8 +124,8 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
           justifyContent: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <BookOpen size={24} color="var(--accent-cyan)" />
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>주요 법령 및 관세 행정 정보 포털</h2>
+            <BookOpen size={24} color="var(--accent-primary)" />
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>주요 법령 및 관세 행정 정보 포털</h2>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
             공식 관세청 고시 기준 실시간 무역 동향 및 4대 수출입 법령/고시 개정을 원스탑 고대비 다크모드 뷰로 통합 조회합니다.
