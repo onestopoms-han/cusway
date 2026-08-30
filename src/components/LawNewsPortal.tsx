@@ -114,26 +114,26 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
         
         {/* Header Banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%)',
+        <div className="glass-panel" style={{
+          background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(217, 70, 239, 0.08) 100%)',
           padding: '24px',
           borderRadius: '12px',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid rgba(6, 182, 212, 0.2)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <BookOpen size={24} color="#06b6d4" />
+            <BookOpen size={24} color="var(--accent-cyan)" />
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>주요 법령 및 관세 행정 정보 포털</h2>
           </div>
-          <p style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '6px', lineHeight: 1.4 }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
             공식 관세청 고시 기준 실시간 무역 동향 및 4대 수출입 법령/고시 개정을 원스탑 고대비 다크모드 뷰로 통합 조회합니다.
           </p>
 
           {/* Search bar inside header */}
           <div style={{ display: 'flex', gap: '10px', marginTop: '16px', maxWidth: '400px', position: 'relative' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: '#cbd5e1' }} />
+            <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--text-muted)' }} />
             <input 
               type="text" 
               placeholder="개정 고시 또는 뉴스 키워드 검색..."
@@ -142,10 +142,10 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               style={{
                 width: '100%',
                 padding: '8px 12px 8px 36px',
-                background: '#0f172a !important',
-                border: '1px solid #475569 !important',
+                background: '#0f172a',
+                border: '1px solid #475569',
                 borderRadius: '6px',
-                color: '#ffffff !important',
+                color: '#cbd5e1',
                 fontSize: '0.8rem'
               }}
             />
@@ -167,9 +167,10 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
             {laws.map((law, idx) => (
               <div 
                 key={idx}
+                className="glass-panel premium-card"
                 style={{
-                  background: 'rgba(15, 23, 42, 0.65)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'var(--card-bg)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '12px',
                   padding: '20px',
                   display: 'flex',
@@ -185,12 +186,12 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.borderColor = 'var(--border-color)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#38bdf8', margin: 0 }}>{law.title}</h4>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--accent-cyan)', margin: 0 }}>{law.title}</h4>
                   <a 
                     href={law.url} 
                     target="_blank" 
@@ -200,7 +201,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                       alignItems: 'center',
                       gap: '4px',
                       fontSize: '0.75rem',
-                      color: '#94a3b8',
+                      color: 'var(--text-muted)',
                       textDecoration: 'none',
                       padding: '4px 8px',
                       background: 'rgba(255,255,255,0.06)',
@@ -208,14 +209,14 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                       transition: 'all 0.2s',
                       fontWeight: 600
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#94a3b8'}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-cyan)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
                   >
                     전문 보기 <ArrowUpRight size={12} />
                   </a>
                 </div>
 
-                <p style={{ fontSize: '0.85rem', color: '#cbd5e1', margin: 0, lineHeight: 1.5 }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
                   {law.desc}
                 </p>
 
@@ -224,13 +225,13 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                     <span 
                       key={pIdx}
                       style={{
-                        background: 'rgba(6, 182, 212, 0.15)',
-                        color: '#06b6d4',
+                        background: 'rgba(6, 182, 212, 0.08)',
+                        color: 'var(--accent-cyan)',
                         padding: '4px 8px',
                         borderRadius: '6px',
                         fontSize: '0.75rem',
                         fontWeight: 600,
-                        border: '1px solid rgba(6, 182, 212, 0.3)'
+                        border: '1px solid rgba(6, 182, 212, 0.15)'
                       }}
                     >
                       {pt}
@@ -248,19 +249,22 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
           {/* Section: News & Notices */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Bell size={18} color="#06b6d4" />
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>최신 관세 고시 및 개정 뉴스</h3>
+              <Bell size={18} color="var(--accent-cyan)" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>최신 관세 고시 및 개정 뉴스</h3>
             </div>
 
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.65)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px'
-            }}>
+            <div 
+              className="glass-panel"
+              style={{
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px'
+              }}
+            >
               {filteredNotices.length > 0 ? (
                 filteredNotices.map((notice) => (
                   <div 
@@ -287,21 +291,21 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                       <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{notice.date}</span>
                     </div>
 
-                    <h4 style={{ fontSize: '0.92rem', fontWeight: 700, margin: 0, lineHeight: 1.35, color: '#ffffff' }}>
+                    <h4 style={{ fontSize: '0.92rem', fontWeight: 700, margin: 0, lineHeight: 1.35, color: 'var(--text-main)' }}>
                       {notice.title}
                     </h4>
                     
-                    <p style={{ fontSize: '0.82rem', color: '#cbd5e1', margin: 0, lineHeight: 1.45 }}>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.45 }}>
                       {notice.summary}
                     </p>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                      <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>담당: {notice.agency}</span>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>담당: {notice.agency}</span>
                       <a 
                         href={notice.link} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        style={{ fontSize: '0.75rem', color: '#06b6d4', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
+                        style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '3px', fontWeight: 600 }}
                       >
                         상세보기 <ExternalLink size={10} />
                       </a>
@@ -309,7 +313,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                   </div>
                 ))
               ) : (
-                <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8', fontSize: '0.8rem' }}>
+                <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
                   검색어에 매칭되는 최근 고시 뉴스가 없습니다.
                 </div>
               )}
@@ -320,7 +324,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Star size={18} color="#f59e0b" />
-              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>실무 추천 바로가기</h3>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>실무 추천 바로가기</h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -330,9 +334,10 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="glass-panel premium-card"
                   style={{
-                    background: 'rgba(15, 23, 42, 0.65)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '10px',
                     padding: '14px',
                     display: 'flex',
@@ -344,18 +349,18 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.4)';
-                    e.currentTarget.style.background = 'rgba(15, 23, 42, 0.85)';
+                    e.currentTarget.style.background = 'var(--card-bg)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    e.currentTarget.style.background = 'rgba(15, 23, 42, 0.65)';
+                    e.currentTarget.style.borderColor = 'var(--border-color)';
+                    e.currentTarget.style.background = 'var(--card-bg)';
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#ffffff' }}>{link.name}</span>
-                    <ExternalLink size={12} color="#94a3b8" />
+                    <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-main)' }}>{link.name}</span>
+                    <ExternalLink size={12} color="var(--text-muted)" />
                   </div>
-                  <span style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.35 }}>{link.desc}</span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>{link.desc}</span>
                 </a>
               ))}
             </div>
