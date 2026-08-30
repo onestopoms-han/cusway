@@ -164,7 +164,7 @@ def parse_detail_page(html):
 
 def main():
     parser = argparse.ArgumentParser(description="Crawl CLHS Valuation Precedents")
-    parser.add_argument("--limit", type=int, default=1000, help="Max number of precedents to crawl")
+    parser.add_argument("--limit", type=int, default=50000, help="Max number of precedents to crawl")
     args = parser.parse_args()
     
     try:

@@ -378,19 +378,19 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       
       {/* Disclaimer Banner */}
       <div style={{
-        padding: '14px 20px',
-        background: 'rgba(239, 68, 68, 0.08)',
-        border: '1px dashed rgba(239, 68, 68, 0.3)',
+        padding: '16px 20px',
+        background: '#7f1d1d', // Dark red background for high contrast
+        border: '1px solid #f87171',
         borderRadius: '8px',
-        color: '#fca5a5',
-        fontSize: '0.8rem',
+        color: '#fecaca', // Bright high contrast text color
+        fontSize: '0.85rem',
         lineHeight: 1.5,
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
         gap: '12px'
       }}>
-        <AlertTriangle size={18} style={{ color: 'var(--accent-red)', flexShrink: 0 }} />
+        <AlertTriangle size={18} style={{ color: '#fca5a5', flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: '240px' }}>
           <strong>⚠️ 법적 고지 및 판례 참고 면책 조항 (Legal Disclaimer)</strong><br />
           본 CustomTax AI 관세평가 판례 매칭 엔진이 제공하는 결정례, 판결 요약 및 소명 가이드는 <strong>법적 공식 효력이 없는 실무 참고용 분석</strong>입니다. 각 수입물품별 계약 실질과 지출 명세에 따라 세관의 해석이 달라질 수 있으므로, 반드시 정식 과세처분 소명서 제출 시 전문 관세사와의 대면 법률 검토를 거치시기 바라며 본 처분 결과에 대한 법적 책임은 지지 않습니다.
@@ -495,10 +495,10 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             style={{
               width: '100%',
               height: '80px',
-              background: 'rgba(0,0,0,0.5)',
-              border: '1px solid var(--border-color)',
+              background: '#0f172a', // Solid dark background
+              border: '1px solid #475569', // Visible border
               borderRadius: '8px',
-              color: '#fff',
+              color: '#cbd5e1', // High contrast text color
               fontSize: '0.85rem',
               padding: '12px',
               resize: 'none',
@@ -701,10 +701,10 @@ ${fallback.implicationKo}
                   style={{
                     width: '100%',
                     padding: '8px 12px 8px 36px',
-                    background: 'rgba(0,0,0,0.4)',
-                    border: '1px solid var(--border-color)',
+                    background: '#0f172a', // Solid dark background
+                    border: '1px solid #475569', // Visible border
                     borderRadius: '6px',
-                    color: '#fff',
+                    color: '#cbd5e1', // High contrast text color
                     fontSize: '0.85rem'
                   }}
                 />

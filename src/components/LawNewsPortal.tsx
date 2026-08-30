@@ -110,8 +110,8 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   return (
     <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', color: '#f8fafc' }}>
       
-      {/* Top Section: Header & Exchange Rates widget */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px' }}>
+      {/* Top Section: Header Banner */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
         
         {/* Header Banner */}
         <div style={{
@@ -128,7 +128,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>주요 법령 및 관세 행정 정보 포털</h2>
           </div>
           <p style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '6px', lineHeight: 1.4 }}>
-            CLHS의 대표적 통관 요건, 실시간 환율 동향 및 4대 수출입 법령/고시 개정을 원스탑 고대비 다크모드 뷰로 통합 조회합니다.
+            공식 관세청 고시 기준 실시간 무역 동향 및 4대 수출입 법령/고시 개정을 원스탑 고대비 다크모드 뷰로 통합 조회합니다.
           </p>
 
           {/* Search bar inside header */}
@@ -150,76 +150,6 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               }}
             />
           </div>
-        </div>
-
-        {/* Real-time Exchange Rates Widget */}
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.75)',
-          border: '1px solid rgba(6, 182, 212, 0.25)',
-          borderRadius: '12px',
-          padding: '16px 20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
-            <span style={{ fontSize: '0.8rem', color: '#06b6d4', fontWeight: 700 }}>💵 관세청 고시 기준 환율 (CLHS 동기화)</span>
-            <span style={{ fontSize: '0.7rem', color: '#cbd5e1' }}>금주 기준율</span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-            {exchangeRates.map((rate, rIdx) => (
-              <div key={rIdx} style={{ display: 'flex', flexDirection: 'column', gap: '2px', background: 'rgba(0,0,0,0.2)', padding: '6px', borderRadius: '6px', textAlign: 'center' }}>
-                <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 700 }}>{rate.code}</span>
-                <span style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 800 }}>{rate.rate}</span>
-                <span style={{ fontSize: '0.62rem', color: rate.change.startsWith('+') ? '#ef4444' : '#3b82f6' }}>{rate.change}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Chapter Navigation Jumper */}
-      <div style={{
-        background: 'rgba(15, 23, 42, 0.65)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px',
-        padding: '16px 20px'
-      }}>
-        <span style={{ display: 'block', fontSize: '0.78rem', color: '#06b6d4', fontWeight: 700, marginBottom: '8px' }}>
-          📂 관세율표 제1류 ~ 제97류 품목 분류 바로가기 (관세법령포털 CLIP 연동)
-        </span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {hsChapters.map((ch) => (
-            <a 
-              key={ch.id}
-              href="https://unipass.customs.go.kr/clip/index.do"
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{
-                fontSize: '0.72rem',
-                color: '#cbd5e1',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                padding: '4px 8px',
-                borderRadius: '4px',
-                textDecoration: 'none',
-                transition: 'all 0.2s',
-                fontWeight: 600
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#06b6d4';
-                e.currentTarget.style.background = 'rgba(6, 182, 212, 0.08)';
-                e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#cbd5e1';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-              }}
-            >
-              {ch.id}류 {ch.name}
-            </a>
-          ))}
         </div>
       </div>
 
