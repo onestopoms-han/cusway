@@ -465,17 +465,116 @@ def get_match_count(query: str, type: str, db: Session = Depends(get_db)):
         ).count()
         return {"count": count}
 
-@app.get("/api/debug/env")
-def debug_env():
-    # 보안을 위해 전체 키가 아닌 첫 4글자와 자릿수만 리턴해 실서버가 키값을 정상 인식하는지 진단합니다.
-    k_id = os.environ.get("KAKAO_CLIENT_ID", "")
-    g_id = os.environ.get("GOOGLE_CLIENT_ID", "")
-    return {
-        "kakao_len": len(k_id),
-        "kakao_prefix": k_id[:4] if k_id else "None",
-        "google_len": len(g_id),
-        "google_prefix": g_id[:4] if g_id else "None"
-    }
+@app.get("/api/customs/news")
+def get_customs_news():
+    import urllib.request
+    import xml.etree.ElementTree as ET
+    import urllib.parse
+    from datetime import datetime
+    
+    # Naver News RSS for query '관세청' (encoded)
+    query = "관세청"
+    encoded_query = urllib.parse.quote(query)
+    rss_url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ko&gl=KR&ceid=KR:ko"
+    
+    fallback_notices = [
+        {
+            "id": 1,
+            "tag": "압수 소식",
+            "title": "백꾸, 뽑기방 유행에 인천세관 압수 짝퉁 80%는 키링, 인형",
+            "date": "2026-08-28",
+            "agency": "인천세관",
+            "summary": "가방 꾸미기 유행으로 짝퉁 캐릭터 인형 및 키링 등의 무단 지식재산권 침해 물품 수입 급증 및 세관 압수 조치.",
+            "link": "https://n.news.naver.com/mnews/article/001/0016273395?sid=102"
+        },
+        {
+            "id": 2,
+            "tag": "무역 동향",
+            "title": "중국 때렸더니 베트남이 1위 관세전쟁이 뒤집은 미국 무역흑자국",
+            "date": "2026-08-26",
+            "agency": "기획재정부",
+            "summary": "미국의 고율 관세 부과 여파로 중국의 대미 수출 우회 기지로 급부상한 베트남의 대미 무역 흑자 규모 사상 최대 기록.",
+            "link": "https://n.news.naver.com/mnews/article/016/0002688937?sid=104"
+        },
+        {
+            "id": 3,
+            "tag": "안전성 검사",
+            "title": "중국산 배추 포름알데히드 검사 최근 수입 8건 모두 불검출",
+            "date": "2026-08-25",
+            "agency": "식품의약품안전처",
+            "summary": "소비자 안전 확보를 위해 긴급 전수 조사한 중국산 배추에 대해 잔류 화학 성분 불검출 판정 및 통관 절차 재개.",
+            "link": "https://n.news.naver.com/mnews/article/001/0016270688?sid=101"
+        },
+        {
+            "id": 4,
+            "tag": "의약 직구",
+            "title": "위고비, 마운자로 불법 직구 기승 작년 연간치 3.5배 적발",
+            "date": "2026-08-24",
+            "agency": "관세청",
+            "summary": "해외 직구를 악용한 오남용 우려 전문의약품의 개인 무단 밀수 통관 시도 단속 강화 및 적합성 위반 건수 급증.",
+            "link": "https://n.news.naver.com/mnews/article/001/0016265892?sid=101"
+        }
+    ]
+    
+    try:
+        req = urllib.request.Request(
+            rss_url, 
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+        )
+        with urllib.request.urlopen(req, timeout=8) as response:
+            xml_data = response.read()
+            
+        root = ET.fromstring(xml_data)
+        items = root.findall(".//item")
+        
+        parsed_news = []
+        for idx, item in enumerate(items[:10]):
+            title_text = item.find("title").text if item.find("title") is not None else ""
+            link_text = item.find("link").text if item.find("link") is not None else ""
+            pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
+            source_text = item.find("source").text if item.find("source") is not None else "관세 속보"
+            
+            # Clean title (e.g. remove publisher name suffix like " - 연합뉴스")
+            clean_title = title_text
+            if " - " in title_text:
+                clean_title = title_text.rsplit(" - ", 1)[0]
+                
+            # Parse date
+            date_str = ""
+            try:
+                # pubDate format: Sun, 30 Aug 2026 01:23:45 GMT
+                dt = datetime.strptime(pub_date, "%a, %d %b %Y %H:%M:%S %Z")
+                date_str = dt.strftime("%Y-%m-%d")
+            except Exception:
+                date_str = pub_date[:16] if pub_date else datetime.now().strftime("%Y-%m-%d")
+                
+            # Determine tag based on keywords
+            tag = "관세 행정"
+            if any(k in clean_title for k in ["압수", "적발", "밀수", "세관"]):
+                tag = "세관 단속"
+            elif any(k in clean_title for k in ["무역", "수출", "수입", "통상"]):
+                tag = "무역 동향"
+            elif any(k in clean_title for k in ["고시", "개정", "법률", "법령"]):
+                tag = "관세 고시"
+            elif any(k in clean_title for k in ["검사", "위반", "식품", "안전"]):
+                tag = "안전성 검사"
+                
+            parsed_news.append({
+                "id": idx + 100,
+                "tag": tag,
+                "title": clean_title,
+                "date": date_str,
+                "agency": source_text,
+                "summary": clean_title + "에 대한 신속한 유관기관 소식 및 관련 규제 변동 동향입니다.",
+                "link": link_text
+            })
+            
+        if parsed_news:
+            return parsed_news
+        return fallback_notices
+    except Exception as e:
+        print(f"[RSS NEWS API ERROR] {e}")
+        return fallback_notices
 
 @app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):

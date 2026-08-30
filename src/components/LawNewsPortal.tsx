@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { BookOpen, ExternalLink, FileText, Bell, Star, Search, ShieldAlert, ArrowUpRight } from 'lucide-react'
 
 interface LawNewsPortalProps {
@@ -7,27 +7,11 @@ interface LawNewsPortalProps {
 
 export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [notices, setNotices] = useState<any[]>([]);
+  const [loadingNews, setLoadingNews] = useState(true);
 
-  // CLHS Exchange Rates Integration
-  const exchangeRates = [
-    { code: 'USD', rate: '1,382.44', change: '+0.15%' },
-    { code: 'EUR', rate: '1,612.63', change: '-0.08%' },
-    { code: 'CNY', rate: '205.55', change: '+0.02%' },
-    { code: 'GBP', rate: '1,883.48', change: '+0.12%' }
-  ];
-
-  // CLHS Chapter shortcuts
-  const hsChapters = [
-    { id: '01', name: '산 동물' }, { id: '02', name: '육류' }, { id: '03', name: '어패류' }, 
-    { id: '08', name: '과실류' }, { id: '09', name: '커피·차' }, { id: '21', name: '조제식품' }, 
-    { id: '33', name: '화장품' }, { id: '39', name: '플라스틱' }, { id: '61', name: '편물의류' }, 
-    { id: '62', name: '직물의류' }, { id: '72', name: '철강' }, { id: '84', name: '기계류' }, 
-    { id: '85', name: '전기기기' }, { id: '87', name: '자동차' }, { id: '90', name: '정밀의료' },
-    { id: '95', name: '완구운동구' }
-  ];
-
-  // CLHS News Headlines
-  const notices = [
+  // Fallback CLHS News Headlines
+  const fallbackNotices = [
     {
       id: 1,
       tag: '압수 소식',
@@ -66,6 +50,28 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     }
   ];
 
+  useEffect(() => {
+    fetch('/api/customs/news')
+      .then(res => {
+        if (!res.ok) throw new Error('Network error');
+        return res.json();
+      })
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setNotices(data);
+        } else {
+          setNotices(fallbackNotices);
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load real-time customs news, falling back to static lists', err);
+        setNotices(fallbackNotices);
+      })
+      .finally(() => {
+        setLoadingNews(false);
+      });
+  }, []);
+
   // CLHS laws mapping
   const laws = [
     {
@@ -102,9 +108,9 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   ];
 
   const filteredNotices = notices.filter(n => 
-    n.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    n.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    n.tag.toLowerCase().includes(searchTerm.toLowerCase())
+    (n.title || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (n.summary || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (n.tag || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
