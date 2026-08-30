@@ -178,26 +178,37 @@ def main():
     
     page = 1
     total_saved = 0
+    consecutive_empty_pages = 0
     
     print("[START] Crawling valuation precedents...")
-    while total_saved < args.limit:
+    while total_saved < args.limit and page <= 5000:
         list_url = f"https://www.clhs.co.kr/Cuslist.asp?pageno={page}"
         print(f"\n[PAGE {page}] Fetching list: {list_url}")
         
         try:
-            resp = session.get(list_url, timeout=15)
+            resp = session.get(list_url, timeout=20)
             if resp.status_code != 200:
-                print(f"Page {page} return status {resp.status_code}. Stopping.")
-                break
+                print(f"Page {page} return status {resp.status_code}. Attempting to re-login...")
+                time.sleep(5)
+                session = get_clhs_session()
+                continue
                 
             resp.encoding = "euc-kr"
             soup = BeautifulSoup(resp.text, "html.parser")
             links = soup.find_all("a", href=re.compile(r"cusread\.asp"))
             
             if not links:
-                print("No precedent links found on this page. Finished.")
-                break
+                consecutive_empty_pages += 1
+                print(f"No precedent links found on page {page}. Empty count: {consecutive_empty_pages}")
+                if consecutive_empty_pages >= 10:
+                    print("Reached 10 consecutive empty pages. Finishing.")
+                    break
+                page += 1
+                time.sleep(2)
+                continue
                 
+            consecutive_empty_pages = 0
+            
             # 중복 링크 제거 (id 기반 고유화)
             unique_links = []
             seen_ids = set()
@@ -226,50 +237,64 @@ def main():
                     
                 print(f"   [CRAWL] Fetching {val_id} (url: {href})...")
                 
-                # 방화벽 우회 딜레이
-                time.sleep(random.uniform(0.5, 1.0))
+                # 방화벽 우회 딜레이 (안전하게 0.8초 ~ 1.5초)
+                time.sleep(random.uniform(0.8, 1.5))
                 
                 detail_url = "https://www.clhs.co.kr/" + href
-                det_resp = session.get(detail_url, timeout=15)
-                if det_resp.status_code == 200:
-                    det_resp.encoding = "euc-kr"
-                    data = parse_detail_page(det_resp.text)
-                    if data:
-                        cursor.execute("""
-                            INSERT OR REPLACE INTO precedents (
-                                id, category, category_ko, case_number, title, authority, date,
-                                key_issue, factual_background, holding_ko, customs_argument,
-                                importer_argument, reasoning_snippet, implication_ko
-                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        """, (
-                            val_id,
-                            data["category"],
-                            data["category_ko"],
-                            data["case_number"],
-                            data["title"],
-                            data["authority"],
-                            data["date"],
-                            data["key_issue"],
-                            data["factual_background"],
-                            data["holding_ko"],
-                            data["customs_argument"],
-                            data["importer_argument"],
-                            data["reasoning_snippet"],
-                            data["implication_ko"]
-                        ))
-                        conn.commit()
-                        total_saved += 1
-                        print(f"   [SUCCESS] Saved {val_id} | {data['case_number'][:30]}")
+                try:
+                    det_resp = session.get(detail_url, timeout=20)
+                    if det_resp.status_code == 200:
+                        det_resp.encoding = "euc-kr"
+                        data = parse_detail_page(det_resp.text)
+                        if data:
+                            cursor.execute("""
+                                INSERT OR REPLACE INTO precedents (
+                                    id, category, category_ko, case_number, title, authority, date,
+                                    key_issue, factual_background, holding_ko, customs_argument,
+                                    importer_argument, reasoning_snippet, implication_ko
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """, (
+                                val_id,
+                                data["category"],
+                                data["category_ko"],
+                                data["case_number"],
+                                data["title"],
+                                data["authority"],
+                                data["date"],
+                                data["key_issue"],
+                                data["factual_background"],
+                                data["holding_ko"],
+                                data["customs_argument"],
+                                data["importer_argument"],
+                                data["reasoning_snippet"],
+                                data["implication_ko"]
+                            ))
+                            conn.commit()
+                            total_saved += 1
+                            print(f"   [SUCCESS] Saved {val_id} | {data['case_number'][:30]}")
+                        else:
+                            print(f"   [WARN] Parsing failed for {val_id}")
+                    elif det_resp.status_code in [403, 302, 401]:
+                        print(f"   [SESSION EXPIRED] status {det_resp.status_code}. Re-logging in...")
+                        session = get_clhs_session()
+                        time.sleep(3)
                     else:
-                        print(f"   [WARN] Parsing failed for {val_id}")
-                else:
-                    print(f"   [WARN] Failed to fetch {val_id}: status {det_resp.status_code}")
+                        print(f"   [WARN] Failed to fetch {val_id}: status {det_resp.status_code}")
+                except Exception as detail_err:
+                    print(f"   [ERROR] Failed fetching detail for {val_id}: {detail_err}")
+                    time.sleep(5)
                     
             page += 1
             
         except Exception as e:
             print(f"Error processing page {page}: {e}")
-            break
+            print("Retrying in 10 seconds...")
+            time.sleep(10)
+            try:
+                session = get_clhs_session()
+            except Exception:
+                pass
+            page += 1
             
     conn.close()
     print(f"\n[FINISHED] Process completed. Saved {total_saved} valuation precedents.")
