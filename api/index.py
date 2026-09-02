@@ -234,6 +234,90 @@ def get_customs_news():
         print(f"[NEWS_ERROR] {e}")
         return []
 
+@app.get("/api/customs/precedents")
+def search_customs_precedents(
+    q: Optional[str] = None,
+    chapter: Optional[str] = None,
+    page: int = 1,
+    limit: int = 20
+):
+    import sqlite3
+    db_candidates = [
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/tmp/cusway.db",
+        "cusway.db"
+    ]
+    db_file = None
+    for cand in db_candidates:
+        if os.path.exists(cand):
+            db_file = cand
+            break
+            
+    if not db_file:
+        return {"total": 0, "items": []}
+
+    try:
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+        
+        conditions = []
+        params = []
+        
+        if q and q.strip():
+            kw = f"%{q.strip()}%"
+            conditions.append("(product_name LIKE ? OR hs_code LIKE ? OR case_number LIKE ? OR decision_reason LIKE ?)")
+            params.extend([kw, kw, kw, kw])
+            
+        if chapter and chapter.strip():
+            ch_clean = chapter.strip().zfill(2)
+            conditions.append("(hs_code LIKE ? OR hs_code LIKE ?)")
+            params.extend([f"{ch_clean}%", f"{int(ch_clean)}%"])
+            
+        where_clause = " WHERE " + " AND ".join(conditions) if conditions else ""
+        
+        # Count total
+        count_sql = f"SELECT COUNT(*) FROM customs_precedents{where_clause}"
+        cursor.execute(count_sql, params)
+        total = cursor.fetchone()[0]
+        
+        # Fetch paged items
+        offset = (page - 1) * limit
+        data_sql = f"""
+            SELECT id, case_number, hs_code, product_name, material, function_use, decision_reason, issuing_body, date
+            FROM customs_precedents
+            {where_clause}
+            ORDER BY date DESC, id DESC
+            LIMIT ? OFFSET ?
+        """
+        cursor.execute(data_sql, params + [limit, offset])
+        rows = cursor.fetchall()
+        conn.close()
+        
+        items = []
+        for r in rows:
+            items.append({
+                "id": str(r[0]),
+                "caseNumber": r[1],
+                "hsCode": r[2],
+                "productName": r[3],
+                "material": r[4],
+                "functionUse": r[5],
+                "decisionReason": r[6],
+                "issuingBody": r[7] or "관세평가분류원",
+                "date": r[8]
+            })
+            
+        return {
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "items": items
+        }
+    except Exception as e:
+        print(f"[CUSTOMS_PRECEDENT_ERROR] {e}")
+        return {"total": 0, "items": [], "error": str(e)}
+
 # Try importing and mounting full backend routes if available
 try:
     from backend.main import app as backend_app
