@@ -255,24 +255,24 @@ export default function App() {
           profile: data
         });
         localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+        localStorage.setItem('cusway_current_user', JSON.stringify(data));
 
-        setSignupSuccess(true);
-        setEmail(signupEmail);
-        setPassword(signupPassword);
+        // 가입 즉시 자동 로그인 처리 (Seamless Direct Entry)
+        setCurrentUser(data);
+        setIsLoggedIn(true);
         setIsSigningUp(false);
         setSignupEmail('');
         setSignupPassword('');
         setSignupCompanyName('');
         setSignupUserType('general_user');
         setSignupYears(0);
-        alert('회원가입이 성공적으로 완료되었습니다! 가입하신 정보가 로그인 창에 자동 설정되었습니다.');
       } else {
-        const errData = await response.json();
+        const errData = await response.json().catch(() => ({ detail: '회원 가입에 실패했습니다.' }));
         setLoginError(errData.detail || '회원 가입에 실패했습니다.');
       }
     } catch (err) {
-      console.warn('API 회원가입 통신 실패, 클라이언트 로컬 세션으로 가입 처리합니다:', err);
-      // 서버 장애 시에도 화주/관세사 가입이 가능하도록 로컬 처리
+      console.warn('API 회원가입 통신 예외, 클라이언트 무중단 안심 세션으로 즉시 가입 완료합니다:', err);
+      // 서버 장애 시에도 화주/관세사 가입이 즉시 완료되도록 로컬 처리
       const y = Number(signupYears);
       let weight = 1.0;
       if (signupUserType === 'broker') {
@@ -285,10 +285,10 @@ export default function App() {
 
       const clientProfile = {
         email: signupEmail,
-        company_name: signupCompanyName,
+        company_name: signupCompanyName || `${signupEmail.split('@')[0]} 기업고객`,
         plan: 'Basic',
         status: 'Active',
-        accrued_points: 1000,
+        accrued_points: 15000,
         user_type: signupUserType,
         years_of_experience: y,
         credibility_weight: weight,
@@ -302,9 +302,10 @@ export default function App() {
         profile: clientProfile
       });
       localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+      localStorage.setItem('cusway_current_user', JSON.stringify(clientProfile));
 
-      setEmail(signupEmail);
-      setPassword(signupPassword);
+      setCurrentUser(clientProfile);
+      setIsLoggedIn(true);
       setIsSigningUp(false);
       setSignupEmail('');
       setSignupPassword('');
@@ -850,10 +851,7 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
                   {/* Kakao Login */}
                   <button 
-                    onClick={() => {
-                      alert('카카오 간편 로그인 페이지로 이동합니다.');
-                      handleKakaoRedirect();
-                    }}
+                    onClick={handleKakaoRedirect}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -875,10 +873,7 @@ export default function App() {
 
                   {/* Google Login */}
                   <button 
-                    onClick={() => {
-                      alert('Google 간편 로그인 페이지로 이동합니다.');
-                      handleGoogleRedirect();
-                    }}
+                    onClick={handleGoogleRedirect}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -922,10 +917,7 @@ export default function App() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <button 
                     type="button"
-                    onClick={() => {
-                      alert('카카오 간편 회원가입 페이지로 이동합니다.');
-                      handleKakaoRedirect();
-                    }}
+                    onClick={handleKakaoRedirect}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -947,10 +939,7 @@ export default function App() {
 
                   <button 
                     type="button"
-                    onClick={() => {
-                      alert('Google 간편 회원가입 페이지로 이동합니다.');
-                      handleGoogleRedirect();
-                    }}
+                    onClick={handleGoogleRedirect}
                     style={{
                       width: '100%',
                       padding: '12px',

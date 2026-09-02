@@ -184,11 +184,48 @@ def social_login_google(req: SocialCallbackRequest):
         company_name=f"{nickname} (구글 가입)",
         plan="Basic",
         status="Active",
-        accrued_points=1000,
+        accrued_points=15000,
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type="general_user",
         years_of_experience=0,
         credibility_weight=0.5
+    )
+
+@app.post("/api/auth/signup", response_model=UserResponse)
+def signup(req: SignupRequest):
+    y = int(req.years_of_experience or 0)
+    weight = 1.0
+    if req.user_type == "broker":
+        weight = min(3.0, 1.5 + y * 0.1)
+    elif req.user_type == "practitioner":
+        weight = min(2.0, 1.0 + y * 0.05)
+    else:
+        weight = min(1.0, 0.5 + y * 0.02)
+        
+    return UserResponse(
+        email=req.email,
+        company_name=req.company_name or "CUSWAY 회원사",
+        plan="Basic",
+        status="Active",
+        accrued_points=15000,
+        join_date=datetime.now().strftime("%Y-%m-%d"),
+        user_type=req.user_type or "general_user",
+        years_of_experience=y,
+        credibility_weight=weight
+    )
+
+@app.post("/api/auth/login", response_model=UserResponse)
+def login(req: LoginRequest):
+    return UserResponse(
+        email=req.email,
+        company_name="CUSWAY 관세팀",
+        plan="Business",
+        status="Active",
+        accrued_points=15000,
+        join_date=datetime.now().strftime("%Y-%m-%d"),
+        user_type="broker",
+        years_of_experience=10,
+        credibility_weight=2.5
     )
 
 @app.get("/api/news")
