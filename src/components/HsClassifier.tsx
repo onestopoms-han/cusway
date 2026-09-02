@@ -9,8 +9,10 @@ import {
   FileCheck,
   AlertTriangle,
   HelpCircle,
-  Search
+  Search,
+  Share2
 } from 'lucide-react';
+import ResultShareModal from './ResultShareModal';
 
 export interface Precedent {
   id: string;
@@ -91,6 +93,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   
   // RAG 매칭 결과 상태
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [showAlert, setShowAlert] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
@@ -1329,37 +1332,75 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   </div>
                 </div>
 
-                {/* Human-in-the-Loop Approval Action */}
-                <div style={{ display: 'flex', gap: '8px', width: isMobile ? '100%' : 'auto' }}>
+                {/* Human-in-the-Loop Approval & Share Actions */}
+                <div style={{ display: 'flex', gap: '8px', width: isMobile ? '100%' : 'auto', flexWrap: 'wrap' }}>
                   {matchedRule.recommendedHsCode !== "0000.00-0000" && (
-                    <button 
-                      onClick={() => {
-                        setApprovedStatus(true);
-                        if (onNavigateToWizard) {
-                          onNavigateToWizard(matchedRule.recommendedHsCode, searchKeyword || productName, material, functionUse);
-                        }
-                      }}
-                      style={{
-                        background: approvedStatus === true ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
-                        color: approvedStatus === true ? '#fff' : '#10b981',
-                        border: '1px solid #10b981',
-                        borderRadius: '6px',
-                        padding: '8px 16px',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        width: '100%'
-                      }}
-                    >
-                      <ShieldCheck size={16} /> {approvedStatus === true ? '관세사 최종 확인완료' : '세율 적용 확정 승인'}
-                    </button>
+                    <>
+                      <button 
+                        onClick={() => setShowShareModal(true)}
+                        style={{
+                          background: '#FEE500',
+                          color: '#000',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '8px 14px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <Share2 size={15} /> 카톡/이메일 전송
+                      </button>
+
+                      <button 
+                        onClick={() => {
+                          setApprovedStatus(true);
+                          if (onNavigateToWizard) {
+                            onNavigateToWizard(matchedRule.recommendedHsCode, searchKeyword || productName, material, functionUse);
+                          }
+                        }}
+                        style={{
+                          background: approvedStatus === true ? '#10b981' : 'rgba(16, 185, 129, 0.1)',
+                          color: approvedStatus === true ? '#fff' : '#10b981',
+                          border: '1px solid #10b981',
+                          borderRadius: '6px',
+                          padding: '8px 16px',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <ShieldCheck size={16} /> {approvedStatus === true ? '관세사 최종 확인완료' : '세율 적용 확정 승인'}
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
+
+              {/* Share Modal */}
+              {showShareModal && (
+                <ResultShareModal 
+                  isOpen={showShareModal}
+                  onClose={() => setShowShareModal(false)}
+                  title={`[AI HS 분류] ${searchKeyword || productName || '품목분류 분석'}`}
+                  category="hs-classification"
+                  data={{
+                    productName: searchKeyword || productName || '대상 물품',
+                    hsCode: matchedRule.recommendedHsCode,
+                    dutyRate: '2026 관세율표 연동',
+                    legalReasoning: matchedRule.legalReasoning,
+                    requirements: matchedRule.exclusionNote
+                  }}
+                />
+              )}
 
               {/* 10-digit HSK structure list for custom selection/override */}
               {hsStructure && hsStructure.length > 0 && (

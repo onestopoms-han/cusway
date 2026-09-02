@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Scale, 
   Search, 
@@ -11,12 +11,12 @@ import {
   Building,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Share2
 } from 'lucide-react';
+import ResultShareModal from './ResultShareModal';
 
 import { VALUATION_PRECEDENT_DB, ValuationPrecedent } from '../data/rules/valuation_precedents';
-
-import { useEffect } from 'react';
 
 interface ValuationPrecedentsProps {
   currentUser: any;
@@ -43,6 +43,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [aiMatchedCase, setAiMatchedCase] = useState<ValuationPrecedent | null>(null);
   const [aiGeneratedDraft, setAiGeneratedDraft] = useState('');
   const [isAiMatching, setIsAiMatching] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -631,27 +632,62 @@ ${fallback.implicationKo}
 
         {aiGeneratedDraft && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', animation: 'fadeIn 0.3s ease' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>AI가 추천/결합하여 작성한 소명서 초안입니다:</span>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(aiGeneratedDraft);
-                  alert('AI 소명서 초안이 클립보드에 복사되었습니다.');
-                }}
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  padding: '4px 10px',
-                  borderRadius: '4px',
-                  color: '#fff',
-                  fontSize: '0.7rem',
-                  cursor: 'pointer',
-                  fontWeight: 600
-                }}
-              >
-                초안 복사하기
-              </button>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  style={{
+                    background: '#FEE500',
+                    border: 'none',
+                    padding: '5px 12px',
+                    borderRadius: '4px',
+                    color: '#000',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Share2 size={13} /> 카톡/이메일 전송
+                </button>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(aiGeneratedDraft);
+                    alert('AI 소명서 초안이 클립보드에 복사되었습니다.');
+                  }}
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    padding: '5px 12px',
+                    borderRadius: '4px',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    cursor: 'pointer',
+                    fontWeight: 600
+                  }}
+                >
+                  초안 복사하기
+                </button>
+              </div>
             </div>
+
+            {/* Share Modal */}
+            {showShareModal && (
+              <ResultShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                title={`[AI 관세평가 소명서] ${aiMatchedCase?.caseNumber || '과세가격 평가 판례'}`}
+                category="valuation"
+                data={{
+                  caseNumber: aiMatchedCase?.caseNumber,
+                  holdingKo: aiMatchedCase?.holdingKo || aiMatchedCase?.title,
+                  legalReasoning: aiGeneratedDraft
+                }}
+              />
+            )}
             <textarea
               readOnly
               value={aiGeneratedDraft}

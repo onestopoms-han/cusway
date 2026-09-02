@@ -14,8 +14,10 @@ import {
   CheckCircle,
   FileDown,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Share2
 } from 'lucide-react';
+import ResultShareModal from './ResultShareModal';
 
 interface ClearanceWizardProps {
   currentUser?: any;
@@ -38,6 +40,7 @@ export default function ClearanceWizard({
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
   );
   const [showPrintGuideModal, setShowPrintGuideModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [printGuideType, setPrintGuideType] = useState<'inapp' | 'mobile' | null>(null);
 
   const handlePdfPrint = () => {
@@ -1042,6 +1045,24 @@ export default function ClearanceWizard({
                     >
                       <FileDown size={16} /> 분석서 PDF 저장/출력
                     </button>
+                    <button
+                      onClick={() => setShowShareModal(true)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: '#FEE500',
+                        color: '#000',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.85rem'
+                      }}
+                    >
+                      <Share2 size={16} /> 카톡/이메일 전송
+                    </button>
                   </div>
                 )}
 
@@ -1074,6 +1095,23 @@ export default function ClearanceWizard({
               </div>
             )}
           </div>
+        )}
+
+        {/* Share Modal */}
+        {showShareModal && (
+          <ResultShareModal
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            title={`[통관 파이프라인] ${initialKeyword || '수출입 통관 종합 분석'}`}
+            category="clearance-pipeline"
+            data={{
+              productName: initialKeyword || '원재료/제품',
+              hsCode: hsCode,
+              dutyRate: '8% (기본세율)',
+              ftaRate: '0% (최적 FTA 협정세율)',
+              requirements: '세관장확인 수입요건 대상 및 검역 절차 적합'
+            }}
+          />
         )}
 
         {/* print guide modal */}
