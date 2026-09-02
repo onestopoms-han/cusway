@@ -72,37 +72,51 @@ export default function ResultShareModal({
     return report;
   };
 
-  // 1. Kakao Talk Share
+  // 1. Kakao Talk Share with dynamic SDK loader
   const handleKakaoShare = () => {
-    try {
-      const kakaoKey = 'f3be8f44c4bfeb5e6e640c79e9851da3';
+    const kakaoKey = 'f3be8f44c4bfeb5e6e640c79e9851da3';
+    const reportSummary = `${data.productName || title} | HSK: ${data.hsCode || '-'} | 세율: ${data.ftaRate || data.dutyRate || '최적적용'}`;
+
+    const triggerShare = () => {
       const w = window as any;
       if (w.Kakao) {
         if (!w.Kakao.isInitialized()) {
           w.Kakao.init(kakaoKey);
         }
 
-        const reportSummary = `${data.productName || title} | HSK: ${data.hsCode || '-'} | 세율: ${data.ftaRate || data.dutyRate || '최적적용'}`;
-
         w.Kakao.Share.sendDefault({
           objectType: 'text',
-          text: `[CUSWAY AI 관세 분석 결과]\n${title}\n\n${reportSummary}\n\n세부 법적 근거 및 관세율표 대조 보고서를 확인하세요.`,
+          text: `[CUSWAY AI 관세 분석 결과]\n📌 ${title}\n\n■ 품목: ${data.productName || title}\n■ 세번(HSK): ${data.hsCode || '-'}\n■ 추천세율: ${data.ftaRate || data.dutyRate || '최적적용'}\n\n상세 법적 분류 근거 및 관세율표 대조 보고서를 확인하세요.`,
           link: {
             mobileWebUrl: 'https://cusway.kr',
             webUrl: 'https://cusway.kr'
           },
-          buttonTitle: '결과 리포트 열기'
+          buttonTitle: 'CUSWAY에서 상세 보고서 보기'
         });
         setKakaoSent(true);
-        setTimeout(() => setKakaoSent(false), 4000);
+        setTimeout(() => setKakaoSent(false), 5000);
       } else {
+        // Fallback: copy report & prompt
         handleCopyText();
-        alert('카카오톡 공유 창을 여는 중입니다. 결과 전문이 클립보드에 복사되었으니 카톡 창에 바로 붙여넣기(Ctrl+V)하실 수도 있습니다!');
+        alert('카카오톡으로 보낼 분석 결과 전문이 클립보드에 복사되었습니다! 카카오톡 채팅창에 붙여넣기(Ctrl+V)하여 전송하세요.');
       }
-    } catch (err) {
-      console.warn('Kakao share fallback:', err);
-      handleCopyText();
-      alert('결과 전문이 클립보드에 복사되었습니다! 카카오톡 대화창에 바로 붙여넣어(Ctrl+V) 전송하세요.');
+    };
+
+    const w = window as any;
+    if (w.Kakao) {
+      triggerShare();
+    } else {
+      // Dynamically load Kakao SDK script if not yet loaded
+      const script = document.createElement('script');
+      script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+      script.onload = () => {
+        triggerShare();
+      };
+      script.onerror = () => {
+        handleCopyText();
+        alert('카카오톡 분석 결과 전문이 클립보드에 복사되었습니다. 카카오톡 대화창에서 붙여넣기(Ctrl+V)하여 전송해 주세요!');
+      };
+      document.head.appendChild(script);
     }
   };
 
