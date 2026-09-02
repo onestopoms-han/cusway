@@ -104,13 +104,13 @@ export default function App() {
           setIsLoggedIn(true);
           alert('소셜 로그인/가입이 완료되었습니다!');
         } else {
-          const errData = await res.json();
+          const errData = await res.json().catch(() => ({ detail: `HTTP ${res.status} 오류 발생` }));
           alert(`소셜 인증 실패: ${errData.detail || '알 수 없는 오류'}`);
         }
       })
       .catch(err => {
         console.error('Social auth error:', err);
-        alert('소셜 로그인 통신 중 오류가 발생했습니다.');
+        alert(`소셜 로그인 통신 중 오류가 발생했습니다: ${err.message || '네트워크 연결 상태를 확인해주세요.'}`);
       })
       .finally(() => {
         setIsSocialProcessing(false);
