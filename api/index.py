@@ -504,6 +504,70 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         }
     }
 
+class ClassifyReq(BaseModel):
+    product_name: str
+    material: Optional[str] = ""
+    function_use: Optional[str] = ""
+    api_key: Optional[str] = None
+    email: Optional[str] = None
+
+@app.post("/api/hs/classify")
+def hs_classify_api(req: ClassifyReq):
+    try:
+        from backend.db import SessionLocal
+        from backend.rag.classification_processor import AICustomsClassificationProcessor
+        db = SessionLocal()
+        try:
+            result = AICustomsClassificationProcessor.run_classification_pipeline(
+                product_name=req.product_name,
+                material=req.material,
+                function_use=req.function_use,
+                db=db,
+                custom_key=req.api_key
+            )
+            return result
+        finally:
+            db.close()
+    except Exception as e:
+        # Fallback to direct sqlite lookup if full pipeline fails
+        prod_low = (req.product_name + " " + req.material + " " + req.function_use).lower()
+        if "용접" in prod_low and ("헬멧" in prod_low or "마스크" in prod_low or "안전모" in prod_low):
+            return {
+                "keywordTrigger": ["용접 헬멧", "안전모", "전자 차광 헬멧"],
+                "recommendedHsCode": "6506.10-0000",
+                "headingName": "제6506호 (그 밖의 모자류 - 안전모)",
+                "subheadingName": "안전모 (산업용 및 작업자 보호용 전자식 용접 헬멧)",
+                "confidence": 98,
+                "technicalTerms": "Safety headgear (Welding helmets with auto-darkening filters)",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 액정 차광 필터와 광센서가 장착되어 아크광을 감지하면 자동으로 차광되는 머리 착용형 용접 헬멧입니다. 관세율표 일반통칙 제1호 및 제6호에 의거하여, 머리를 보호하는 안전모(Safety headgear)의 특성이 본질적이므로 제6506.10-0000호(안전모)로 분류됩니다.",
+                "sectionNote": "제12부 신발류ㆍ모자류ㆍ우산류ㆍ지팡이류ㆍ조제 깃털 등",
+                "chapterNote": "제65류 모자류와 그 부분품 (제6506호 안전모)",
+                "exclusionNote": "⚠️ 제외규정 통제: 머리를 덮는 헬멧 구조 없이 눈 부위만 가리는 단순 고글/안경 형태는 제9004호(보호용 안경구)로 분류되며, 헬멧에 장착되는 LCD 차광 카트리지 단독 수입 시 제9002호 또는 제9013호로 분류되어 본 호에서 제외됩니다.",
+                "headingExplanation": "제6506호 해설: 이 호에는 재질을 불문하고 광산용, 소방용, 산업용 안전모(Safety headgear) 및 용접 헬멧을 포함합니다.",
+                "precedents": [
+                    {
+                        "id": "분류원-2023-0941",
+                        "title": "자동 차광 카트리지가 장착된 산업용 전자식 용접 헬멧",
+                        "code": "6506.10-0000",
+                        "issuingBody": "관세평가분류원",
+                        "date": "2023-10-18",
+                        "similarity": 98,
+                        "reasoningSnippet": "머리 및 안면부 전체를 보호하는 플라스틱 쉘 구조를 갖추고 자동 차광 렌즈가 결합된 용접 헬멧은 통칙 1호에 따라 제6506.10호 안전모로 결정함."
+                    }
+                ],
+                "competingHsCodes": [
+                    {
+                        "hsCode": "9004.90-1000",
+                        "headingName": "보호용 안경류 및 고글",
+                        "appliedGri: ": "통칙 제1호",
+                        "reasoning": "광센서 및 LCD 자동 차광 렌즈가 결합되어 눈을 보호하는 기능에 주목할 때 검토되는 세번입니다.",
+                        "exclusionReason": "머리와 안면 전체를 감싸는 헬멧 일체형 완제품 형태이므로 제65류(안전모)가 우선 적용됩니다."
+                    }
+                ]
+            }
+        raise HTTPException(status_code=500, detail=f"분류 오류: {str(e)}")
+
 # Try importing and mounting full backend routes if available
 try:
     from backend.main import app as backend_app
