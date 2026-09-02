@@ -191,19 +191,48 @@ def social_login_google(req: SocialCallbackRequest):
         credibility_weight=0.5
     )
 
-@app.post("/api/auth/login", response_model=UserResponse)
-def login(req: LoginRequest):
-    return UserResponse(
-        email=req.email,
-        company_name="CUSWAY 관세팀",
-        plan="Business",
-        status="Active",
-        accrued_points=15000,
-        join_date=datetime.now().strftime("%Y-%m-%d"),
-        user_type="broker",
-        years_of_experience=10,
-        credibility_weight=2.5
-    )
+@app.get("/api/news")
+def get_customs_news():
+    import sqlite3
+    db_candidates = [
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/tmp/cusway.db",
+        "cusway.db"
+    ]
+    db_file = None
+    for cand in db_candidates:
+        if os.path.exists(cand):
+            db_file = cand
+            break
+    
+    if not db_file:
+        return []
+        
+    try:
+        conn = sqlite3.connect(db_file)
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, tag, title, date, agency, summary, link, full_content, attached_files FROM customs_news ORDER BY date DESC, id DESC LIMIT 30")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        news_list = []
+        for r in rows:
+            news_list.append({
+                "id": str(r[0]),
+                "tag": r[1],
+                "title": r[2],
+                "date": r[3],
+                "agency": r[4],
+                "summary": r[5],
+                "link": r[6],
+                "full_content": r[7],
+                "attached_files": json.loads(r[8]) if r[8] else []
+            })
+        return news_list
+    except Exception as e:
+        print(f"[NEWS_ERROR] {e}")
+        return []
 
 # Try importing and mounting full backend routes if available
 try:
