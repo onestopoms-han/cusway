@@ -102,7 +102,7 @@ class UserResponse(BaseModel):
     plan: str
     status: str
     accrued_points: int
-    join_date: str
+    join_date: Optional[str] = "2026-09-02"
     user_type: str = "general_user"
     years_of_experience: int = 0
     credibility_weight: float = 1.0
@@ -252,6 +252,8 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
         print(f"[AUTH] DB query fallback: {e}")
 
     if not user:
+        from datetime import datetime
+        today_str = datetime.now().strftime("%Y-%m-%d")
         user = User(
             id=99999,
             email=email,
@@ -260,6 +262,7 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             plan="Basic",
             status="Active",
             accrued_points=1000,
+            join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
             credibility_weight=0.5
@@ -271,6 +274,7 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
         except Exception as e:
             db.rollback()
             print(f"[AUTH] DB write skipped (read-only environment): {e}")
+            user.join_date = today_str
             # Vercel 읽기 전용 DB 환경에서도 로그인이 가능하도록 인메모리 유저 객체 반환
     return user
 
@@ -338,6 +342,8 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
         print(f"[AUTH] DB query fallback: {e}")
 
     if not user:
+        from datetime import datetime
+        today_str = datetime.now().strftime("%Y-%m-%d")
         user = User(
             id=99998,
             email=email,
@@ -346,6 +352,7 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
             plan="Basic",
             status="Active",
             accrued_points=1000,
+            join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
             credibility_weight=0.5
@@ -357,6 +364,7 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
         except Exception as e:
             db.rollback()
             print(f"[AUTH] DB write skipped (read-only environment): {e}")
+            user.join_date = today_str
             # Vercel 읽기 전용 DB 환경에서도 로그인이 가능하도록 인메모리 유저 객체 반환
     return user
 
