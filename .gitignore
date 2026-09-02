@@ -47,4 +47,9 @@ test_logs/
 scratch/
 _company/
 
-
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/

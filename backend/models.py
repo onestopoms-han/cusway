@@ -166,6 +166,9 @@ class CustomsNews(Base):
     agency = Column(String, nullable=False)
     summary = Column(Text, nullable=False)
     link = Column(String, nullable=False)
+    full_content = Column(Text, nullable=True)
+    attached_files = Column(Text, nullable=True)
+
 
 
 

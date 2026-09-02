@@ -47,6 +47,9 @@ def startup_event():
     from backend.db import SessionLocal
     from backend.seed import seed_data
     from backend.models import User
+    import threading
+    from backend.customs_news_daemon import start_daemon_loop
+
     db = SessionLocal()
     try:
         if db.query(User).count() == 0:
@@ -56,6 +59,14 @@ def startup_event():
         print(f"[STARTUP] Seeding failed: " + str(e))
     finally:
         db.close()
+
+    # Launch background real-time customs news sync daemon
+    try:
+        daemon_thread = threading.Thread(target=start_daemon_loop, daemon=True)
+        daemon_thread.start()
+        print("[STARTUP] Real-time Customs News Sync Daemon started successfully in background.")
+    except Exception as e:
+        print(f"[STARTUP DAEMON ERROR] {e}")
 
 # 프론트엔드 연동을 위한 CORS 설정
 app.add_middleware(
@@ -467,135 +478,142 @@ def get_match_count(query: str, type: str, db: Session = Depends(get_db)):
 
 @app.get("/api/customs/news")
 def get_customs_news(db: Session = Depends(get_db)):
-    import urllib.request
-    import xml.etree.ElementTree as ET
-    import urllib.parse
-    from datetime import datetime
-    
-    # Naver News RSS for query '관세청' (encoded)
-    query = "관세청"
-    encoded_query = urllib.parse.quote(query)
-    rss_url = f"https://news.google.com/rss/search?q={encoded_query}&hl=ko&gl=KR&ceid=KR:ko"
-    
-    # Check if we have fallback items in DB, if empty populate initially
-    fallback_notices = [
-        {
-            "tag": "세관 단속",
-            "title": "백꾸, 뽑기방 유행에 인천세관 압수 짝퉁 80%는 키링, 인형",
-            "date": "2026-08-28",
-            "agency": "인천세관",
-            "summary": "가방 꾸미기 유행으로 짝퉁 캐릭터 인형 및 키링 등의 무단 지식재산권 침해 물품 수입 급증 및 세관 압수 조치.",
-            "link": "https://n.news.naver.com/mnews/article/001/0016273395?sid=102"
-        },
-        {
-            "tag": "무역 동향",
-            "title": "중국 때렸더니 베트남이 1위 관세전쟁이 뒤집은 미국 무역흑자국",
-            "date": "2026-08-26",
-            "agency": "기획재정부",
-            "summary": "미국의 고율 관세 부과 여파로 중국의 대미 수출 우회 기지로 급부상한 베트남의 대미 무역 흑자 규모 사상 최대 기록.",
-            "link": "https://n.news.naver.com/mnews/article/016/0002688937?sid=104"
-        },
-        {
-            "tag": "안전성 검사",
-            "title": "중국산 배추 포름알데히드 검사 최근 수입 8건 모두 불검출",
-            "date": "2026-08-25",
-            "agency": "식품의약품안전처",
-            "summary": "소비자 안전 확보를 위해 긴급 전수 조사한 중국산 배추에 대해 잔류 화학 성분 불검출 판정 및 통관 절차 재개.",
-            "link": "https://n.news.naver.com/mnews/article/001/0016270688?sid=101"
-        },
-        {
-            "tag": "세관 단속",
-            "title": "위고비, 마운자로 불법 직구 기승 작년 연간치 3.5배 적발",
-            "date": "2026-08-24",
-            "agency": "관세청",
-            "summary": "해외 직구를 악용한 오남용 우려 전문의약품의 개인 무단 밀수 통관 시도 단속 강화 및 적합성 위반 건수 급증.",
-            "link": "https://n.news.naver.com/mnews/article/001/0016265892?sid=101"
-        }
-    ]
-    
-    # Try fetching and inserting new items into DB
-    try:
-        req = urllib.request.Request(
-            rss_url, 
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
-        )
-        with urllib.request.urlopen(req, timeout=5) as response:
-            xml_data = response.read()
-            
-        root = ET.fromstring(xml_data)
-        items = root.findall(".//item")
-        
-        for item in items[:15]:
-            title_text = item.find("title").text if item.find("title") is not None else ""
-            link_text = item.find("link").text if item.find("link") is not None else ""
-            pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
-            source_text = item.find("source").text if item.find("source") is not None else "관세 속보"
-            
-            clean_title = title_text
-            if " - " in title_text:
-                clean_title = title_text.rsplit(" - ", 1)[0]
-                
-            # Date parse
-            date_str = ""
-            try:
-                dt = datetime.strptime(pub_date, "%a, %d %b %Y %H:%M:%S %Z")
-                date_str = dt.strftime("%Y-%m-%d")
-            except Exception:
-                date_str = pub_date[:16] if pub_date else datetime.now().strftime("%Y-%m-%d")
-                
-            tag = "관세 행정"
-            if any(k in clean_title for k in ["압수", "적발", "밀수", "세관"]):
-                tag = "세관 단속"
-            elif any(k in clean_title for k in ["무역", "수출", "수입", "통상"]):
-                tag = "무역 동향"
-            elif any(k in clean_title for k in ["고시", "개정", "법률", "법령"]):
-                tag = "관세 고시"
-            elif any(k in clean_title for k in ["검사", "위반", "식품", "안전"]):
-                tag = "안전성 검사"
-                
-            # Avoid duplicates check using title
-            exists = db.query(CustomsNews).filter(CustomsNews.title == clean_title).first()
-            if not exists:
-                db_news = CustomsNews(
-                    tag=tag,
-                    title=clean_title,
-                    date=date_str,
-                    agency=source_text,
-                    summary=clean_title + "에 대한 신속한 유관기관 소식 및 관련 규제 변동 동향입니다.",
-                    link=link_text
-                )
-                db.add(db_news)
-        db.commit()
-    except Exception as e:
-        print(f"[RSS NEWS CRAWL/SAVE ERROR] {e}")
-        db.rollback()
-        
-    # Populate fallbacks if DB is empty
-    try:
-        if db.query(CustomsNews).count() == 0:
-            for fallback in fallback_notices:
-                db_news = CustomsNews(
-                    tag=fallback["tag"],
-                    title=fallback["title"],
-                    date=fallback["date"],
-                    agency=fallback["agency"],
-                    summary=fallback["summary"],
-                    link=fallback["link"]
-                )
-                db.add(db_news)
-            db.commit()
-    except Exception as e:
-        print(f"[POPULATE FALLBACK ERROR] {e}")
-        db.rollback()
-
-    # Query all accumulated news from DB, order by date desc
     try:
         news_list = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).all()
-        return news_list
+        return [
+            {
+                "id": item.id,
+                "tag": item.tag,
+                "title": item.title,
+                "date": item.date,
+                "agency": item.agency,
+                "summary": item.summary,
+                "link": item.link,
+                "full_content": item.full_content,
+                "attached_files": item.attached_files
+            }
+            for item in news_list
+        ]
     except Exception as e:
         print(f"[QUERY NEWS DB ERROR] {e}")
-        # Final emergency array return
-        return fallback_notices
+        return []
+
+@app.get("/api/customs/download-pdf")
+def download_customs_pdf(id: int, filename: str, db: Session = Depends(get_db)):
+    from fastapi.responses import Response
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable, Table, TableStyle
+    from reportlab.lib import colors
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import io
+    import urllib.parse
+
+    item = db.query(CustomsNews).filter(CustomsNews.id == id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Notice not found")
+
+    # Register Korean Font
+    font_path = "C:/Windows/Fonts/malgun.ttf"
+    font_name = "Helvetica"
+    if os.path.exists(font_path):
+        try:
+            pdfmetrics.registerFont(TTFont("MalgunGothic", font_path))
+            font_name = "MalgunGothic"
+        except Exception:
+            pass
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        leftMargin=40,
+        rightMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+
+    styles = getSampleStyleSheet()
+    
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=16,
+        leading=22,
+        textColor=colors.HexColor("#0284c7"),
+        spaceAfter=10
+    )
+
+    meta_style = ParagraphStyle(
+        'CustomMeta',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=9.5,
+        leading=15,
+        textColor=colors.HexColor("#475569")
+    )
+
+    body_style = ParagraphStyle(
+        'CustomBody',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=9.5,
+        leading=16,
+        textColor=colors.HexColor("#0f172a"),
+        spaceAfter=8
+    )
+
+    elements = []
+
+    # Title & Header
+    elements.append(Paragraph(f"<b>[관세청 공인 통관 지침 전문] {item.title}</b>", title_style))
+    elements.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#0284c7"), spaceAfter=10))
+
+    # Meta Info Box
+    meta_text = f"<b>소관 부처:</b> {item.agency} &nbsp;&nbsp;|&nbsp;&nbsp; <b>공표 일자:</b> {item.date} &nbsp;&nbsp;|&nbsp;&nbsp; <b>문서 분류:</b> {item.tag}"
+    elements.append(Paragraph(meta_text, meta_style))
+    elements.append(HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#cbd5e1"), spaceBefore=8, spaceAfter=14))
+
+    # Full Content Paragraphs
+    full_text = item.full_content or item.summary
+    for line in full_text.split("\n"):
+        clean_line = line.strip()
+        if not clean_line:
+            elements.append(Spacer(1, 6))
+        elif clean_line.startswith("■"):
+            header_style = ParagraphStyle(
+                'SectionHeader',
+                parent=body_style,
+                fontName=font_name,
+                fontSize=11,
+                leading=16,
+                textColor=colors.HexColor("#0369a1"),
+                spaceBefore=8,
+                spaceAfter=4
+            )
+            elements.append(Paragraph(f"<b>{clean_line}</b>", header_style))
+        elif clean_line.startswith("【") or clean_line.startswith("━"):
+            elements.append(Paragraph(f"<b>{clean_line}</b>", body_style))
+        else:
+            elements.append(Paragraph(clean_line, body_style))
+
+    # Build Document across multiple pages dynamically
+    doc.build(elements)
+    buffer.seek(0)
+
+    safe_filename = filename if filename.lower().endswith(".pdf") else f"{filename}.pdf"
+    encoded_filename = urllib.parse.quote(safe_filename)
+
+    return Response(
+        content=buffer.getvalue(),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}",
+            "Content-Type": "application/pdf"
+        }
+    )
 
 @app.get("/api/health")
 def health_check(db: Session = Depends(get_db)):

@@ -63,21 +63,20 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
         const response = await fetch('/api/valuation/precedents');
         if (response.ok) {
           const data = await response.json();
-          // API 응답 구조를 프론트 키값인 categoryKo 등으로 조정하되, 
-          // 검증된 로컬 장문 데이터를 100% 최우선 반영하여 요약본 노출을 원천 방어합니다.
+          // API 응답 데이터를 별도의 목업 변조(localBackup 매핑) 없이 
+          // DB에 적재된 순수 Raw 데이터 필드 그대로 화면에 연동합니다.
           const mapped = data.map((item: any) => {
-            const localBackup = VALUATION_PRECEDENT_DB.find(l => l.id === item.id);
             return {
               ...item,
-              categoryKo: item.category_ko || (localBackup ? localBackup.categoryKo : ''),
-              caseNumber: item.case_number || (localBackup ? localBackup.caseNumber : ''),
-              keyIssue: localBackup ? localBackup.keyIssue : item.key_issue,
-              factualBackground: localBackup ? localBackup.factualBackground : item.factual_background,
-              holdingKo: localBackup ? localBackup.holdingKo : item.holding_ko,
-              customsArgument: localBackup ? localBackup.customsArgument : item.customs_argument,
-              importerArgument: localBackup ? localBackup.importerArgument : item.importer_argument,
-              reasoningSnippet: localBackup ? localBackup.reasoningSnippet : item.reasoning_snippet,
-              implicationKo: localBackup ? localBackup.implicationKo : item.implication_ko
+              categoryKo: item.category_ko || item.category,
+              caseNumber: item.case_number || '',
+              keyIssue: item.key_issue || '',
+              factualBackground: item.factual_background || '',
+              holdingKo: item.holding_ko || '',
+              customsArgument: item.customs_argument || '',
+              importerArgument: item.importer_argument || '',
+              reasoningSnippet: item.reasoning_snippet || '',
+              implicationKo: item.implication_ko || ''
             };
           });
           setAllPrecedents(mapped);
@@ -465,27 +464,28 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       {/* AI Precedent Matcher Widget */}
       <div className="glass-panel" style={{
         padding: '24px',
-        background: 'rgba(16, 185, 129, 0.04)',
-        border: '1px solid rgba(16, 185, 129, 0.25)',
-        borderRadius: '8px',
+        background: '#ffffff',
+        border: '1.5px solid #a7f3d0',
+        borderRadius: '12px',
+        boxShadow: '0 4px 20px rgba(16, 185, 129, 0.08)',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '1.2rem' }}>💡</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '1.4rem' }}>💡</span>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', margin: 0 }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
               AI 맞춤 관세평가 판례 매칭 및 소명서 자동 생성기
             </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)' }}>
+            <span style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 600 }}>
               세관의 지적 사항이나 귀사 물품의 거래 관계/쟁점 사항을 입력하면, AI가 최적의 판례번호를 매칭하고 소명 논리를 작성합니다.
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <label style={{ fontSize: '0.8rem', color: '#cbd5e1', fontWeight: 600 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <label style={{ fontSize: '0.84rem', color: '#1e293b', fontWeight: 700 }}>
             세관 지적 내용 또는 귀사 관세평가 쟁점 사항 입력
           </label>
           <textarea
@@ -494,15 +494,16 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
             placeholder="예: 수입물품에 대하여 해외 본사에 특허권 사용료(로열티)를 지급하였는데, 세관에서 수입가격에 가산하라고 통보했습니다. 비과세 소명이 가능한 유사 판례를 매칭하여 결정문서번호를 인용한 소명 의견서를 작성해주세요."
             style={{
               width: '100%',
-              height: '80px',
-              background: '#0f172a', // Solid dark background
-              border: '1px solid #475569', // Visible border
+              height: '85px',
+              background: '#f8fafc',
+              border: '1.5px solid #cbd5e1',
               borderRadius: '8px',
-              color: '#cbd5e1', // High contrast text color
-              fontSize: '0.85rem',
+              color: '#0f172a',
+              fontSize: '0.88rem',
+              fontWeight: 500,
               padding: '12px',
               resize: 'none',
-              lineHeight: 1.4
+              lineHeight: 1.5
             }}
           />
         </div>
@@ -700,12 +701,13 @@ ${fallback.implicationKo}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                   style={{
                     width: '100%',
-                    padding: '8px 12px 8px 36px',
-                    background: '#0f172a', // Solid dark background
-                    border: '1px solid #475569', // Visible border
+                    padding: '9px 12px 9px 36px',
+                    background: '#ffffff',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '6px',
-                    color: '#cbd5e1', // High contrast text color
-                    fontSize: '0.85rem'
+                    color: '#0f172a',
+                    fontSize: '0.88rem',
+                    fontWeight: 500
                   }}
                 />
               </div>
@@ -838,8 +840,9 @@ ${fallback.implicationKo}
                     }
                   }}
                   style={{
-                    background: selectedCase?.id === item.id ? 'rgba(6, 182, 212, 0.08)' : 'rgba(0,0,0,0.2)',
-                    border: selectedCase?.id === item.id ? '1px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                    background: selectedCase?.id === item.id ? 'rgba(8, 145, 178, 0.08)' : '#ffffff',
+                    border: selectedCase?.id === item.id ? '2px solid #0284c7' : '1px solid #e2e8f0',
+                    boxShadow: selectedCase?.id === item.id ? '0 4px 12px rgba(2, 132, 199, 0.12)' : '0 1px 3px rgba(0,0,0,0.05)',
                     borderRadius: '8px',
                     padding: '14px',
                     cursor: 'pointer',
@@ -850,22 +853,22 @@ ${fallback.implicationKo}
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.72rem', padding: '3px 8px', borderRadius: '12px', background: 'rgba(8, 145, 178, 0.1)', color: '#0369a1', fontWeight: 700 }}>
                       {item.categoryKo}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.78rem', color: '#0284c7', fontWeight: 800 }}>
                       {item.caseNumber}
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff', lineHeight: '1.4' }}>
+                  <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#0f172a', lineHeight: '1.45' }}>
                     {item.title}
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  <p style={{ fontSize: '0.82rem', color: '#334155', lineHeight: '1.5', fontWeight: 500, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {item.keyIssue}
                   </p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-muted)', borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: '6px' }}>
-                    <span>판정기관: <b>{item.authority}</b></span>
-                    <span>일자: {item.date}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem', color: '#64748b', borderTop: '1px solid rgba(15, 23, 42, 0.06)', paddingTop: '8px', fontWeight: 600 }}>
+                    <span>판정기관: <b style={{ color: '#1e293b' }}>{item.authority}</b></span>
+                    <span>일자: <b style={{ color: '#1e293b' }}>{item.date}</b></span>
                   </div>
                 </div>
               ))
@@ -919,13 +922,13 @@ ${fallback.implicationKo}
                 )}
               
               {/* Header Title in detail */}
-              <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ borderBottom: '1.5px solid #e2e8f0', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '8px' }}>
-                    <Building size={16} color="var(--accent-cyan)" />
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{selectedCase.authority} • {selectedCase.caseNumber}</span>
+                    <Building size={16} color="#0284c7" />
+                    <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 600 }}>{selectedCase.authority} • {selectedCase.caseNumber}</span>
                   </div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', lineHeight: 1.4 }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', lineHeight: 1.45 }}>
                     {selectedCase.title}
                   </h3>
                 </div>
@@ -933,68 +936,68 @@ ${fallback.implicationKo}
                   <button
                     onClick={() => setShowFullTextModal(true)}
                     style={{
-                      background: 'rgba(56, 189, 248, 0.15)',
-                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      background: '#e0f2fe',
+                      border: '1px solid #7dd3fc',
                       borderRadius: '6px',
-                      color: '#38bdf8',
-                      padding: '6px 12px',
-                      fontSize: '0.72rem',
+                      color: '#0369a1',
+                      padding: '7px 14px',
+                      fontSize: '0.78rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '5px',
                       whiteSpace: 'nowrap',
                       marginTop: '4px'
                     }}
                   >
-                    <BookOpen size={12} /> 전체 내용 확인
+                    <BookOpen size={14} /> 전체 내용 확인
                   </button>
                   <button
                     onClick={() => downloadCaseAsPdf(selectedCase)}
                     style={{
-                      background: 'rgba(6, 182, 212, 0.15)',
-                      border: '1px solid rgba(6, 182, 212, 0.3)',
+                      background: '#f0fdf4',
+                      border: '1px solid #86efac',
                       borderRadius: '6px',
-                      color: 'var(--accent-cyan)',
-                      padding: '6px 12px',
-                      fontSize: '0.72rem',
+                      color: '#15803d',
+                      padding: '7px 14px',
+                      fontSize: '0.78rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '5px',
                       whiteSpace: 'nowrap',
                       marginLeft: '4px',
                       marginTop: '4px'
                     }}
                   >
-                    <FileText size={12} /> PDF 다운로드
+                    <FileText size={14} /> PDF 다운로드
                   </button>
                 </div>
               </div>
 
               {/* Case details sections */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', fontSize: '0.88rem' }}>
                 <div>
-                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 700, marginBottom: '4px' }}>
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: '#0369a1', fontWeight: 800, marginBottom: '6px' }}>
                     📌 핵심 쟁점 (Key Issue)
                   </span>
-                  <p style={{ color: 'var(--text-main)', lineHeight: 1.5, background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '6px' }}>
+                  <p style={{ color: '#0f172a', lineHeight: 1.6, background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 14px', borderRadius: '8px', fontWeight: 600 }}>
                     {selectedCase.keyIssue}
                   </p>
                 </div>
 
                 <div>
-                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 700, marginBottom: '4px' }}>
+                  <span style={{ display: 'block', fontSize: '0.8rem', color: '#0369a1', fontWeight: 800, marginBottom: '6px' }}>
                     📋 사실 관계 (Factual Background)
                   </span>
-                  <p style={{ color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  <p style={{ color: '#334155', lineHeight: 1.6, background: '#ffffff', border: '1px solid #e2e8f0', padding: '12px 14px', borderRadius: '8px', fontWeight: 500 }}>
                     {selectedCase.factualBackground}
                   </p>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                   <div>
                     <span style={{ display: 'block', fontSize: '0.72rem', color: '#f87171', fontWeight: 700, marginBottom: '4px' }}>
                       세관 측 과세 주장
