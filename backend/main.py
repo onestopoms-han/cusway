@@ -29,8 +29,11 @@ from .db import engine, Base, get_db
 from .models import User, Precedent, CashbackRequest, PaymentHistory, CustomsPrecedent, SearchLog, BrokerConfirmation, CustomsNews
 from .seed import seed_data
 
-# DB 생성 및 초기 데이터 적재
-Base.metadata.create_all(bind=engine)
+# DB 생성 및 초기 데이터 적재 (초기화 실패 시에도 모듈 임포트 유지)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[INIT_WARN] DB schema creation skipped: {e}")
 
 app = FastAPI(title="CUSWAY Backend API", version="1.0")
 
