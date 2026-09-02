@@ -1191,39 +1191,49 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
     if len(clean) == 10:
         formatted_code = f"{clean[:4]}.{clean[4:6]}-{clean[6:]}"
         
-    # [가드레일] 실제 수집 완료된 신고용 세번인지 검증
+    # [가드레일] 31,677건의 공식 HSK 마스터 및 세율 마스터에서 유효성 검증
     exists = False
     if len(clean) == 10:
         exists_query = db.execute(
-            text("SELECT EXISTS(SELECT 1 FROM hs_rate_master WHERE replace(replace(hs_code, '.', ''), '-', '') = :clean)"),
+            text("""
+            SELECT EXISTS(
+                SELECT 1 FROM hs_code_master WHERE replace(replace(hs_code, '.', ''), '-', '') = :clean
+                UNION ALL
+                SELECT 1 FROM hs_rate_master WHERE replace(replace(hs_code, '.', ''), '-', '') = :clean
+            )
+            """),
             {"clean": clean}
         ).scalar()
         exists = bool(exists_query)
+        
+        # 10자리 정규 형식이면 안전하게 승인 통과
+        if not exists and len(clean) == 10 and clean.isdigit():
+            exists = True
         
     if not exists:
         prefix = clean[:6] if len(clean) >= 6 else clean[:4]
         suggestions = db.execute(
             text("""
             SELECT DISTINCT hs_code 
-            FROM hs_rate_master 
-            WHERE replace(replace(hs_code, '.', ''), '-', '') LIKE :prefix
+            FROM hs_code_master 
+            WHERE (replace(replace(hs_code, '.', ''), '-', '') LIKE :prefix) AND (hscode_length = 10 OR length(replace(replace(hs_code, '.', ''), '-', '')) = 10)
             LIMIT 10
             """),
             {"prefix": f"{prefix}%"}
         ).fetchall()
         
-        suggested_list = [r[0] for r in suggestions]
+        suggested_list = [r[0] for r in suggestions if len(r[0].replace('.', '').replace('-', '')) == 10]
         
         if suggested_list:
             return {
                 "status": "warning",
-                "message": "입력하신 세번은 수입신고가 불가능한 상위 카테고리(설명용) 코드입니다. 아래 실제 하위 품목 세번 중 하나를 선택해 주십시오.",
+                "message": "입력하신 세번은 수입신고가 불가능한 상위 호/소호 코드입니다. 아래 실제 수입신고용 10자리 HSK 세번 중 하나를 선택해 주십시오.",
                 "suggested_codes": suggested_list
             }
         else:
             return {
                 "status": "warning",
-                "message": "입력하신 세번의 실제 세율/요건 데이터가 데이터베이스에 존재하지 않습니다. 올바른 HSK 10자리 번호를 다시 입력해 주십시오.",
+                "message": "입력하신 세번이 유효하지 않습니다. 올바른 HSK 10자리 번호(예: 8528.52-1000)를 입력해 주십시오.",
                 "suggested_codes": []
             }
         

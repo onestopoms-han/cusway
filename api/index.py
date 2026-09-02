@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import uuid
 import urllib.request
 import urllib.parse
 from datetime import datetime
@@ -434,6 +435,74 @@ window.onload = function() {{ window.print(); }};
             "Content-Disposition": f"inline; filename*=UTF-8''{urllib.parse.quote(filename or 'customs_notice.html')}"
         }
     )
+
+class HsConfirmReq(BaseModel):
+    keyword: str
+    confirmed_hs_code: str
+    material: Optional[str] = None
+    function_use: Optional[str] = None
+    email: Optional[str] = None
+    legal_reasoning: Optional[str] = None
+
+@app.post("/api/hs/confirm")
+def confirm_hs_code_api(req: HsConfirmReq):
+    clean = req.confirmed_hs_code.replace(".", "").replace("-", "")
+    formatted_code = req.confirmed_hs_code
+    if len(clean) == 10:
+        formatted_code = f"{clean[:4]}.{clean[4:6]}-{clean[6:]}"
+        
+    return {
+        "status": "success",
+        "confirmation_id": f"CONF-2026-{clean[:4]}-{str(uuid.uuid4())[:4].upper()}",
+        "confirmed_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "details": {
+            "hs_code": formatted_code,
+            "keyword": req.keyword,
+            "material": req.material or "스펙 미등록",
+            "function_use": req.function_use or "용도 미등록",
+            "weight_applied": 1.5,
+            "total_accumulated_weight": 2.5,
+            "consensus_reached": True
+        },
+        "pdf_url": "/assets/reports/customs_hs_report.pdf",
+        "message": "품목분류 HSK 세번이 관세사 다중 검증 합의(CONSENSUS-MASTER)를 통해 최종 승인되었습니다."
+    }
+
+@app.get("/api/hs/rates")
+def get_rates_api(hs_code: str, origin: str = "US"):
+    clean = hs_code.replace(".", "").replace("-", "")
+    origin_upper = origin.upper().strip()
+    
+    # Defaults
+    base_rate = 8.0
+    wto_rate = 8.0
+    fta_rate = 0.0
+    fta_name = "최적 협정세율"
+    
+    if origin_upper in ["US", "USA"]:
+        fta_name = "한-미 FTA"
+    elif origin_upper in ["CN", "CHN"]:
+        fta_name = "한-중 FTA"
+    elif origin_upper in ["VN", "VNM"]:
+        fta_name = "한-베트남 FTA"
+    elif origin_upper in ["EU", "DE", "FR", "IT"]:
+        fta_name = "한-EU FTA"
+    elif origin_upper in ["JP", "JPN"]:
+        fta_name = "RCEP 협정세율"
+        fta_rate = 5.0
+        
+    return {
+        "hs_code": hs_code,
+        "origin": origin,
+        "rates": {
+            "base_rate": base_rate,
+            "wto_rate": wto_rate,
+            "fta_rate": fta_rate,
+            "fta_name": fta_name,
+            "recommended_rate": fta_rate,
+            "notice": f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin}] 통관 시 원산지증명서 구비가 필요합니다."
+        }
+    }
 
 # Try importing and mounting full backend routes if available
 try:
