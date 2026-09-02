@@ -60,13 +60,15 @@ def startup_event():
     finally:
         db.close()
 
-    # Launch background real-time customs news sync daemon
-    try:
-        daemon_thread = threading.Thread(target=start_daemon_loop, daemon=True)
-        daemon_thread.start()
-        print("[STARTUP] Real-time Customs News Sync Daemon started successfully in background.")
-    except Exception as e:
-        print(f"[STARTUP DAEMON ERROR] {e}")
+    # Launch background real-time customs news sync daemon (로컬 서버 구동 시에만 가동)
+    if not os.environ.get("VERCEL"):
+        try:
+            from backend.customs_news_daemon import start_daemon_loop
+            daemon_thread = threading.Thread(target=start_daemon_loop, daemon=True)
+            daemon_thread.start()
+            print("[STARTUP] Real-time Customs News Sync Daemon started successfully in background.")
+        except Exception as e:
+            print(f"[STARTUP DAEMON ERROR] {e}")
 
 # 프론트엔드 연동을 위한 CORS 설정
 app.add_middleware(

@@ -5,19 +5,35 @@ import os
 
 import shutil
 
-# Vercel 배포 환경에서는 /tmp 폴더만 쓰기 권한이 허용되므로 파일 복사 후 사용
+# Database connection setup
 if os.environ.get("VERCEL"):
-    DATABASE_URL = "sqlite:////tmp/cusway.db"
-    src_db = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cusway.db")
+    # Vercel 환경에서 cusway.db 위치 자동 탐색
+    possible_src_paths = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "cusway.db"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    src_db = None
+    for p in possible_src_paths:
+        if os.path.exists(p):
+            src_db = p
+            break
+
     dest_db = "/tmp/cusway.db"
-    try:
-        if os.path.exists(src_db):
-            shutil.copy2(src_db, dest_db)
-            print(f"[DB_COPY] Successfully copied and overwrote {src_db} to {dest_db} (size: {os.path.getsize(dest_db)} bytes)")
-        else:
-            print(f"[DB_COPY_WARN] Source database not found at {src_db}")
-    except Exception as e:
-        print(f"[DB_COPY_ERROR] Failed to copy database: {e}")
+    if src_db:
+        # dest_db가 없거나 크기가 다를 때만 1회 복사 (서버리스 렉 및 OOM 방지)
+        if not os.path.exists(dest_db):
+            try:
+                shutil.copy2(src_db, dest_db)
+                print(f"[DB_INIT] Successfully prepared /tmp/cusway.db from {src_db}")
+            except Exception as e:
+                print(f"[DB_INIT_WARN] Copy to /tmp failed, fallback to direct read: {e}")
+                dest_db = src_db
+        DATABASE_URL = f"sqlite:///{dest_db}"
+    else:
+        print("[DB_INIT_WARN] Source database not found in known paths, using /tmp/cusway.db")
+        DATABASE_URL = "sqlite:////tmp/cusway.db"
 else:
     DATABASE_URL = "sqlite:///./cusway.db"
 
@@ -34,3 +50,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
