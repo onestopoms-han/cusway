@@ -706,31 +706,9 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                                 👁️ 화면에서 바로 열기
                               </button>
                               <button
-                                onClick={async () => {
-                                  try {
-                                    const safeName = f.name.endsWith('.pdf') ? f.name : f.name + '.pdf';
-                                    const response = await fetch(`/api/customs/download-pdf?id=${selectedNoticeModal.id}&filename=${encodeURIComponent(safeName)}`);
-                                    if (!response.ok) {
-                                      throw new Error(`서버 응답 오류: ${response.status}`);
-                                    }
-                                    const blob = await response.blob();
-                                    const url = window.URL.createObjectURL(blob);
-                                    
-                                    // 1. Trigger Direct Download
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = safeName;
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-
-                                    // 2. Open PDF in a new tab directly so the user can immediately view and print it
-                                    window.open(url, '_blank');
-
-                                    setTimeout(() => window.URL.revokeObjectURL(url), 60000);
-                                  } catch (err: any) {
-                                    alert(`PDF 다운로드 중 오류가 발생했습니다: ${err.message}`);
-                                  }
+                                onClick={() => {
+                                  const safeName = f.name.endsWith('.pdf') ? f.name : f.name + '.pdf';
+                                  window.open(`/api/customs/download-pdf?id=${selectedNoticeModal.id}&filename=${encodeURIComponent(safeName)}`, '_blank');
                                 }}
                                 style={{
                                   fontSize: '0.78rem',

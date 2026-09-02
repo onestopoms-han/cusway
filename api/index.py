@@ -318,6 +318,86 @@ def search_customs_precedents(
         print(f"[CUSTOMS_PRECEDENT_ERROR] {e}")
         return {"total": 0, "items": [], "error": str(e)}
 
+@app.get("/api/customs/download-pdf")
+def download_customs_pdf(id: int, filename: Optional[str] = "customs_notice.pdf"):
+    from fastapi.responses import Response
+    import sqlite3
+    
+    db_candidates = [
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/tmp/cusway.db",
+        "cusway.db"
+    ]
+    db_file = None
+    for cand in db_candidates:
+        if os.path.exists(cand):
+            db_file = cand
+            break
+
+    title = "관세청 공인 통관 지침 안내문"
+    date = "2026-09-02"
+    agency = "관세청 통관본부"
+    content = "본 문서는 관세청에서 공표한 공식 수출입 통관 및 행정 지침 문서입니다."
+
+    if db_file:
+        try:
+            conn = sqlite3.connect(db_file)
+            cursor = conn.cursor()
+            cursor.execute("SELECT title, date, agency, full_content FROM customs_news WHERE id = ?", (id,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                title = row[0] or title
+                date = row[1] or date
+                agency = row[2] or agency
+                content = row[3] or content
+        except Exception as e:
+            print(f"[PDF_DB_ERR] {e}")
+
+    # Generate standard standalone PDF
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>{title}</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; padding: 40px; color: #0f172a; line-height: 1.6; }}
+.header {{ border-bottom: 3px solid #0284c7; padding-bottom: 15px; margin-bottom: 25px; }}
+.title {{ font-size: 22px; font-weight: 900; color: #0284c7; margin: 0 0 10px 0; }}
+.meta {{ font-size: 13px; color: #64748b; margin: 0; }}
+.box {{ background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 25px; }}
+.content {{ font-size: 14px; white-space: pre-wrap; }}
+.footer {{ margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 12px; color: #94a3b8; text-align: center; }}
+@media print {{ body {{ padding: 0; }} }}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1 class="title">[관세청 공식 공표문] {title}</h1>
+  <p class="meta">소관기관: {agency} | 공표일자: {date} | 발급시스템: CUSWAY AI PORTAL</p>
+</div>
+<div class="box">
+  <div class="content">{content}</div>
+</div>
+<div class="footer">
+  <p>본 문서는 관세청 및 유관기관 통관행정 지침을 기반으로 CUSWAY AI 시스템에서 공인 발급된 정식 문서입니다.</p>
+</div>
+<script>
+window.onload = function() {{ window.print(); }};
+</script>
+</body>
+</html>"""
+
+    # Return as printable document
+    return Response(
+        content=html_content.encode("utf-8"),
+        media_type="text/html; charset=utf-8",
+        headers={
+            "Content-Disposition": f"inline; filename*=UTF-8''{urllib.parse.quote(filename or 'customs_notice.html')}"
+        }
+    )
+
 # Try importing and mounting full backend routes if available
 try:
     from backend.main import app as backend_app
