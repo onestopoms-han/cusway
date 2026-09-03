@@ -186,8 +186,8 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
     import json
     
     code = req.code
-    client_id = os.environ.get("KAKAO_CLIENT_ID", "demo_kakao_client_id_12345")
-    client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "")
+    client_id = os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3")
+    client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "Kv5od18Mu1NP8yQcBVcFbf25AsXs8YQf")
     
     # For local/seamless fallback, if code is mock or client_id is demo, bypass external request
     if client_id == "demo_kakao_client_id_12345" or code.startswith("demo_"):
@@ -201,12 +201,10 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             token_params = {
                 "grant_type": "authorization_code",
                 "client_id": client_id,
+                "client_secret": client_secret.strip(),
                 "redirect_uri": req.redirect_uri or "https://cusway.kr/",
                 "code": code
             }
-            # Only include client_secret if explicitly set in environment
-            if client_secret and client_secret.strip() and client_secret != "None" and client_secret != "Kv5od18Mu1NP8yQcBVcFbf25AsXs8YQf":
-                token_params["client_secret"] = client_secret.strip()
                 
             data = urllib.parse.urlencode(token_params).encode("utf-8")
             

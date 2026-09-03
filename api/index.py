@@ -72,7 +72,7 @@ def get_social_config():
 def social_login_kakao(req: SocialCallbackRequest):
     code = req.code
     client_id = os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3")
-    client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "")
+    client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "Kv5od18Mu1NP8yQcBVcFbf25AsXs8YQf")
     
     email = "kakao_user@cusway.kr"
     nickname = "카카오 회원"
@@ -87,11 +87,10 @@ def social_login_kakao(req: SocialCallbackRequest):
             token_params = {
                 "grant_type": "authorization_code",
                 "client_id": client_id,
-                "redirect_uri": req.redirect_uri or "https://www.cusway.kr/",
+                "client_secret": client_secret.strip(),
+                "redirect_uri": req.redirect_uri or "https://cusway.kr/",
                 "code": code
             }
-            if client_secret and client_secret.strip() and client_secret != "None":
-                token_params["client_secret"] = client_secret.strip()
                 
             data = urllib.parse.urlencode(token_params).encode("utf-8")
             token_req = urllib.request.Request(
