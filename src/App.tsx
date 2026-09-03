@@ -1125,22 +1125,25 @@ export default function App() {
               </span>
             </button>
 
-            <button 
-              onClick={() => setCurrentView('billing')}
-              className="app-sidebar-nav-btn"
-              style={{
-                background: currentView === 'billing' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                color: currentView === 'billing' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'billing' ? 600 : 400,
-                cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
-              }}
-            >
-              <CreditCard size={14} color={currentView === 'billing' ? 'var(--accent-primary)' : 'gray'} />
-              <span style={{ color: currentView === 'billing' ? 'var(--accent-primary)' : 'inherit' }}>
-                요금 구독
-              </span>
-            </button>
+            {/* 요금 구독 메뉴는 오픈 베타 기간 동안 가려둠 */}
+            {false && (
+              <button 
+                onClick={() => setCurrentView('billing')}
+                className="app-sidebar-nav-btn"
+                style={{
+                  background: currentView === 'billing' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                  color: currentView === 'billing' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                  fontWeight: currentView === 'billing' ? 600 : 400,
+                  cursor: 'pointer',
+                  transition: 'var(--transition-smooth)'
+                }}
+              >
+                <CreditCard size={14} color={currentView === 'billing' ? 'var(--accent-primary)' : 'gray'} />
+                <span style={{ color: currentView === 'billing' ? 'var(--accent-primary)' : 'inherit' }}>
+                  요금 구독
+                </span>
+              </button>
+            )}
 
             {currentUser?.email === 'admin@cusway.kr' && (
               <button 
