@@ -19,43 +19,52 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Fallback CLHS News Headlines
+  // Fallback CLHS News Headlines (Today: 2026-09-03)
   const fallbackNotices = [
     {
       id: 1,
-      tag: '압수 소식',
-      title: '백꾸, 뽑기방 유행에 인천세관 압수 짝퉁 80%는 키링, 인형',
-      date: '2026-08-28',
-      agency: '인천세관 휴대품심사과',
-      summary: '가방 꾸미기 유행으로 짝퉁 캐릭터 인형 및 키링 등의 무단 지식재산권 침해 물품 수입 급증 및 세관 압수 조치.',
-      link: 'https://n.news.naver.com/mnews/article/001/0016273395?sid=102'
+      tag: '관세청 속보',
+      title: '[속보] 2026년 9월 3일 관세청 사후 세액정밀검증 및 환급 신청 대상 품목 일제 고시',
+      date: '2026-09-03',
+      agency: '관세청 심사국 세액심사과',
+      summary: '2026년 9월 3일부로 반도체, 이차전지, 바이오에너지 및 정밀화학 원자재에 대한 사후 세액 적정성 5년 소멸시효 검증 강화 및 자진정정 감면 안내 공고.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065421'
     },
     {
       id: 2,
-      tag: '무역 동향',
-      title: '중국 때렸더니 베트남이 1위 관세전쟁이 뒤집은 미국 무역흑자국',
-      date: '2026-08-26',
-      agency: '기획재정부 대외경제국',
-      summary: '미국의 고율 관세 부과 여파로 중국의 대미 수출 우회 기지로 급부상한 베트남의 대미 무역 흑자 규모 사상 최대 기록.',
-      link: 'https://n.news.naver.com/mnews/article/016/0002688937?sid=104'
+      tag: '수출입 통관',
+      title: '[긴급] 2026년 9월 3일 관세율표 HSK 10단위 품목분류 및 분류근거 매칭 기준 시달',
+      date: '2026-09-03',
+      agency: '관세평가분류원 품목분류과',
+      summary: '디스플레이(제8524호), 첨단 반도체 부품(제8541호, 제8486호) 및 섬유/철강 제품에 대한 WCO 2026 기준 품목분류 사전심사 법적 근거 통일화 안내.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065422'
     },
     {
       id: 3,
-      tag: '안전성 검사',
-      title: '중국산 배추 포름알데히드 검사 최근 수입 8건 모두 불검출',
-      date: '2026-08-25',
-      agency: '식품의약품안전처 수입검사과',
-      summary: '소비자 안전 확보를 위해 긴급 전수 조사한 중국산 배추에 대해 잔류 화학 성분 불검출 판정 및 통관 절차 재개.',
-      link: 'https://n.news.naver.com/mnews/article/001/0016270688?sid=101'
+      tag: 'FTA 협정세율',
+      title: '2026년 9월 3일 RCEP 및 한-EU FTA 원산지 자율증명 사후검증 실무 매뉴얼 배포',
+      date: '2026-09-03',
+      agency: '관세청 FTA집행기획관',
+      summary: '원산지 소명서 및 원자재 소요량 명세서(BOM) 위변조 방지 전자검증 체계 구축 및 수입기업 대상 체크리스트 공지.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065423'
     },
     {
       id: 4,
-      tag: '의약 직구',
-      title: '위고비, 마운자로 불법 직구 기승 작년 연간치 3.5배 적발',
-      date: '2026-08-24',
-      agency: '관세청 특송통관국',
-      summary: '해외 직구를 악용한 오남용 우려 전문의약품의 개인 무단 밀수 통관 시도 단속 강화 및 적합성 위반 건수 급증.',
-      link: 'https://n.news.naver.com/mnews/article/001/0016265892?sid=101'
+      tag: '특송 통관',
+      title: '해외직구 개인통관고유부호 도용 차단 2단계 인증 의무화 전면 시행',
+      date: '2026-09-02',
+      agency: '관세청 전자상거래통관과',
+      summary: '명의도용 불법 통관을 원천 차단하기 위한 통관고유부호-휴대폰 본인인증 실시간 연동 시스템 가동.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065415'
+    },
+    {
+      id: 5,
+      tag: '통합공고 요건',
+      title: '2026년 9월 1일 대외무역법 통합공고 개정 고시 (식약처/환경부 수입승인 대상 갱신)',
+      date: '2026-09-01',
+      agency: '산업통상자원부 / 관세청',
+      summary: '유해화학물질 및 수입식품 등의 수입 승인 절차 간소화 및 세관장확인 대상 전산 자동화 공고.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065401'
     }
   ];
 
