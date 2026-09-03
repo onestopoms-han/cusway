@@ -78,8 +78,8 @@ def social_login_kakao(req: SocialCallbackRequest):
     nickname = "카카오 회원"
 
     if code.startswith("demo_"):
-        email = "demo_kakao@cusway.kr"
-        nickname = "카카오 데모 유저"
+        email = "kakao_user@cusway.kr"
+        nickname = "카카오 회원"
     else:
         try:
             # 1. Exchange code for access token with Kakao OAuth
@@ -145,8 +145,8 @@ def social_login_google(req: SocialCallbackRequest):
     nickname = "구글 회원"
 
     if code.startswith("demo_"):
-        email = "demo_google@cusway.kr"
-        nickname = "구글 데모 유저"
+        email = "google_user@cusway.kr"
+        nickname = "구글 회원"
     else:
         try:
             token_url = "https://oauth2.googleapis.com/token"

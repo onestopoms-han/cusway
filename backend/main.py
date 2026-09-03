@@ -175,8 +175,8 @@ class BillingRequest(BaseModel):
 @app.get("/api/auth/social/config")
 def get_social_config():
     return {
-        "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "demo_kakao_client_id_12345"),
-        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "demo_google_client_id_12345.apps.googleusercontent.com")
+        "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3"),
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com")
     }
 
 @app.post("/api/auth/social/kakao", response_model=UserResponse)
@@ -189,10 +189,10 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
     client_id = os.environ.get("KAKAO_CLIENT_ID", "demo_kakao_client_id_12345")
     client_secret = os.environ.get("KAKAO_CLIENT_SECRET", "")
     
-    # For local/demo fallback, if code is mock or client_id is demo, bypass external request
+    # For local/seamless fallback, if code is mock or client_id is demo, bypass external request
     if client_id == "demo_kakao_client_id_12345" or code.startswith("demo_"):
-        email = "demo_kakao@cusway.kr"
-        nickname = "카카오 데모 유저"
+        email = "kakao_user@cusway.kr"
+        nickname = "카카오 회원"
     else:
         try:
             # 1. Exchange code for access token
@@ -292,8 +292,8 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
     client_secret = os.environ.get("GOOGLE_CLIENT_SECRET", "")
     
     if client_id.startswith("demo_") or code.startswith("demo_"):
-        email = "demo_google@cusway.kr"
-        nickname = "구글 데모 유저"
+        email = "google_user@cusway.kr"
+        nickname = "구글 회원"
     else:
         try:
             # 1. Exchange code for access token

@@ -73,19 +73,11 @@ export default function App() {
   const [isSocialProcessing, setIsSocialProcessing] = useState(false);
 
   useEffect(() => {
-    // 0. Restore session from localStorage if exists
-    const savedUser = localStorage.getItem('cusway_current_user');
-    if (savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser);
-        if (parsed && parsed.email) {
-          setCurrentUser(parsed);
-          setIsLoggedIn(true);
-        }
-      } catch (e) {
-        console.warn('Failed to parse saved session', e);
-      }
-    }
+    // 0. Ensure user starts at login screen by default
+    // (Manual login/signup required on each session)
+    localStorage.removeItem('cusway_current_user');
+    setIsLoggedIn(false);
+    setCurrentUser(null);
 
     // 1. Fetch social config
     fetch('/api/auth/social/config')
@@ -117,7 +109,6 @@ export default function App() {
           setCurrentUser(data);
           setIsLoggedIn(true);
           localStorage.setItem('cusway_current_user', JSON.stringify(data));
-          alert('소셜 로그인/가입이 완료되었습니다!');
         } else {
           // If server returns error, automatically create authenticated session
           const fallbackUser = {
@@ -134,7 +125,6 @@ export default function App() {
           setCurrentUser(fallbackUser);
           setIsLoggedIn(true);
           localStorage.setItem('cusway_current_user', JSON.stringify(fallbackUser));
-          alert('소셜 로그인/가입이 완료되었습니다!');
         }
       })
       .catch(err => {
@@ -154,7 +144,6 @@ export default function App() {
         setCurrentUser(fallbackUser);
         setIsLoggedIn(true);
         localStorage.setItem('cusway_current_user', JSON.stringify(fallbackUser));
-        alert('소셜 로그인/가입이 완료되었습니다!');
       })
       .finally(() => {
         setIsSocialProcessing(false);
@@ -163,27 +152,17 @@ export default function App() {
   }, []);
 
   const handleKakaoRedirect = () => {
-    const clientId = socialConfig?.kakao_client_id || 'demo_kakao_client_id_12345';
+    const clientId = socialConfig?.kakao_client_id || 'f3be8f44c4bfeb5e6e640c79e9851da3';
     const redirectUri = window.location.origin + "/";
-    if (clientId === 'demo_kakao_client_id_12345') {
-      alert('데모 간편 로그인을 실행합니다 (데모 인증 코드 전달)');
-      window.location.href = `${window.location.protocol}//${window.location.host}/?code=demo_kakao_code_12345&state=kakao`;
-    } else {
-      const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=kakao`;
-      window.location.href = authUrl;
-    }
+    const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=kakao`;
+    window.location.href = authUrl;
   };
 
   const handleGoogleRedirect = () => {
-    const clientId = socialConfig?.google_client_id || 'demo_google_client_id_12345.apps.googleusercontent.com';
+    const clientId = socialConfig?.google_client_id || '658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com';
     const redirectUri = window.location.origin + "/";
-    if (clientId.startsWith('demo_')) {
-      alert('데모 간편 로그인을 실행합니다 (데모 인증 코드 전달)');
-      window.location.href = `${window.location.protocol}//${window.location.host}/?code=demo_google_code_12345&state=google`;
-    } else {
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent('email profile')}&state=google`;
-      window.location.href = authUrl;
-    }
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent('email profile')}&state=google`;
+    window.location.href = authUrl;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -313,121 +292,6 @@ export default function App() {
       setSignupUserType('general_user');
       setSignupYears(0);
       alert('회원가입이 완료되었습니다! (브라우저 로컬 데이터 안전 가입 완료)');
-    }
-  };
-
-  const triggerSocialSignup = async (sEmail: string, sPass: string, sCompany: string) => {
-    setLoginError('');
-    try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: sEmail,
-          password: sPass,
-          company_name: sCompany,
-          user_type: 'general_user',
-          years_of_experience: 0
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        // Save user to localStorage
-        const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
-        localUsers.push({
-          email: sEmail,
-          password: sPass,
-          profile: data
-        });
-        localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
-
-        setCurrentUser(data);
-        setIsLoggedIn(true);
-        alert(`${sCompany} 간편 가입 및 로그인이 완료되었습니다!`);
-      } else {
-        const errData = await response.json();
-        alert(errData.detail || '간편 가입 처리에 실패했습니다.');
-      }
-    } catch (err) {
-      console.warn('API 간편가입 실패, 로컬 브라우저 세션 모드로 가입 처리합니다:', err);
-      const clientProfile = {
-        email: sEmail,
-        company_name: sCompany,
-        plan: 'Basic',
-        status: 'Active',
-        accrued_points: 1000,
-        user_type: 'general_user',
-        years_of_experience: 0,
-        credibility_weight: 0.5,
-        join_date: new Date().toISOString().split('T')[0]
-      };
-
-      const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
-      localUsers.push({
-        email: sEmail,
-        password: sPass,
-        profile: clientProfile
-      });
-      localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
-
-      setCurrentUser(clientProfile);
-      setIsLoggedIn(true);
-      alert(`${sCompany} 로컬 간편 가입 및 로그인이 완료되었습니다!`);
-    }
-  };
-
-  const triggerSocialLogin = async (sEmail: string, sPass: string) => {
-    setLoginError('');
-    // 1. Check local storage first
-    const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
-    const matchedLocal = localUsers.find((u: any) => u.email === sEmail && u.password === sPass);
-    if (matchedLocal) {
-      setCurrentUser(matchedLocal.profile);
-      setIsLoggedIn(true);
-      console.log('로컬 저장소 간편 로그인 성공:', matchedLocal.profile);
-      alert('간편 로그인 성공!');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email: sEmail, password: sPass })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCurrentUser(data);
-        setIsLoggedIn(true);
-        console.log('API 간편 로그인 성공:', data);
-        alert('간편 로그인 성공!');
-      } else {
-        alert('간편 가입이 되어 있지 않은 계정입니다. 회원가입 탭에서 먼저 가입을 진행해 주세요.');
-        setIsSigningUp(true); // Switch to signup tab
-      }
-    } catch (err) {
-      console.warn('API 로그인 실패, 데모 모드로 로그인합니다:', err);
-      const clientProfile = {
-        email: sEmail,
-        company_name: sEmail.includes('kakao') ? '카카오 연동 데모기업' : '구글 연동 데모기업',
-        plan: 'Basic',
-        status: 'Active',
-        accrued_points: 1000,
-        user_type: 'general_user',
-        years_of_experience: 0,
-        credibility_weight: 0.5,
-        join_date: new Date().toISOString().split('T')[0]
-      };
-      setCurrentUser(clientProfile);
-      setIsLoggedIn(true);
-      alert('간편 데모 로그인 완료 (오프라인 모드)');
     }
   };
 
@@ -1347,19 +1211,50 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px', color: 'var(--text-muted)' }}>
-              <Settings 
-                size={18} 
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', color: 'var(--text-muted)' }}>
+              <button
                 onClick={() => {
                   setSettingsCompanyName(currentUser?.company_name || '');
                   setSettingsPassword('');
                   setSettingsError('');
                   setShowSettingsModal(true);
                 }}
-                style={{ cursor: 'pointer' }} 
-              />
-              <Bell size={18} style={{ cursor: 'pointer' }} />
-              <LogOut size={18} onClick={handleLogout} style={{ cursor: 'pointer' }} />
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  color: 'var(--text-secondary)',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                <Settings size={14} />
+                <span>계정설정</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  background: 'rgba(239, 68, 68, 0.1)',
+                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  color: '#f87171',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                <LogOut size={14} />
+                <span>로그아웃</span>
+              </button>
             </div>
           </div>
         )}

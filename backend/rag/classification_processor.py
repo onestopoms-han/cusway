@@ -64,9 +64,9 @@ class AICustomsClassificationProcessor:
                 
                 alt_list = [f"{a.hs_code} ({a.name_ko})" for a in alternatives]
                 if alt_list:
-                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않거나 신고용 실세번이 아닙니다. 실제 이 품목 분류 하부에 존재하고 신고가 가능한 아래 HSK 10자리 세번 중에서만 선택해 주십시오:\n" + "\n".join([f"  - {alt}" for alt in alt_list])
+                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않는 코드입니다. 해당 소호의 다음 세번({', '.join([a.hs_code for a in alternatives[:4]])})을 참고하거나, 호/소호가 부적합한 경우 올바른 류/호의 실존 10자리 세번으로 전면 수정하십시오."
                 else:
-                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않는 코드입니다. 실존하는 유효한 HSK 10자리 세번으로 전면 수정하십시오."
+                    warn_msg = f"[존재하지 않는 HSK 10자리 세번] 추천한 '{raw_hs}'는 관세청 HSK 마스터 DB에 존재하지 않는 코드입니다. 통칙에 맞는 올바른 류/호의 실존하는 유효한 HSK 10자리 세번으로 전면 수정하십시오."
                 
                 # 중복 추가 방지
                 if not any(warn_msg[:30] in w for w in validation_results["warnings"]):

@@ -41,7 +41,7 @@ class HSConsistencyValidator:
         {
             "target_chapter": "39",  # Plastics
             "excluded_headings": ["7117", "9503"],  # No plastic toy/accessory imitation jewelry
-            "exception_keywords": ["포장재", "산업용", "건축용", "시트", "필름", "점착테이프"],
+            "exception_keywords": ["포장재", "산업용", "건축용", "시트", "필름", "점착테이프", "펠릿", "수지"],
             "error_msg": "제3926호(기타 플라스틱 제품)는 플라스틱제 완구/인형(제9503호) 또는 모조 신변장식용품(제7117호)을 제외하며, 이들은 해당 전용 호로 우선 분류됩니다."
         },
         {
@@ -122,22 +122,23 @@ class HSConsistencyValidator:
                             warnings.append(rule["error_msg"])
                             break
                             
-            # Check Heading Exclusions (or heading level mapping logic)
-            if heading in rule.get("excluded_headings", []):
-                # 3926호 플라스틱 제품으로 판정하려 하나 장난감/장신구 키워드가 매치될 때
-                if rule.get("target_chapter") == "39" and ("완구" in query_text or "장난감" in query_text or "인형" in query_text or "장신구" in query_text or "액세서리" in query_text):
-                    if not any(exc in query_text for exc in rule["exception_keywords"]):
-                        score_deduction += 40
+            # Check Heading Exclusions (Ensure target chapter matches before checking excluded heading)
+            if chapter == rule.get("target_chapter"):
+                if heading in rule.get("excluded_headings", []):
+                    # 3926호 플라스틱 제품으로 판정하려 하나 장난감/장신구 키워드가 매치될 때
+                    if rule.get("target_chapter") == "39" and ("완구" in query_text or "장난감" in query_text or "인형" in query_text or "장신구" in query_text or "액세서리" in query_text):
+                        if not any(exc in query_text for exc in rule["exception_keywords"]):
+                            score_deduction += 40
+                            warnings.append(rule["error_msg"])
+                    # 8708호 차량 부품으로 판정하려 하나 볼스크류/샤프트/기어(8483) 키워드가 매치될 때
+                    elif rule.get("target_chapter") == "87" and ("볼스크류" in query_text or "샤프트" in query_text or "기어" in query_text or "전동축" in query_text):
+                        if not any(exc in query_text for exc in rule["exception_keywords"]):
+                            score_deduction += 40
+                            warnings.append(rule["error_msg"])
+                    # 기타 일반적 매핑 제외
+                    else:
+                        score_deduction += 30
                         warnings.append(rule["error_msg"])
-                # 8708호 차량 부품으로 판정하려 하나 볼스크류/샤프트/기어(8483) 키워드가 매치될 때
-                elif rule.get("target_chapter") == "87" and ("볼스크류" in query_text or "샤프트" in query_text or "기어" in query_text or "전동축" in query_text):
-                    if not any(exc in query_text for exc in rule["exception_keywords"]):
-                        score_deduction += 40
-                        warnings.append(rule["error_msg"])
-                # 기타 일반적 매핑 제외
-                else:
-                    score_deduction += 30
-                    warnings.append(rule["error_msg"])
 
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 
@@ -148,6 +149,8 @@ class HSConsistencyValidator:
         Returns: (is_valid: bool, score_deduction: int, warning_msg: str)
         """
         clean_code = hs_code.replace(".", "").replace("-", "").strip()
+        if len(clean_code) < 2 or clean_code.startswith("00"):
+            return True, 0, ""
         if len(clean_code) < 2:
             return True, 0, ""
             

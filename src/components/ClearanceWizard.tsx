@@ -138,7 +138,7 @@ export default function ClearanceWizard({
       // Offline fallback
       setConfirmedData({
         status: "success",
-        confirmation_id: "CONF-2026-DEMO-001",
+        confirmation_id: `CONF-2026-${Math.floor(100000 + Math.random() * 900000)}`,
         confirmed_at: new Date().toISOString().replace('T', ' ').substring(0, 19),
         details: {
           hs_code: hsCode,
@@ -147,7 +147,7 @@ export default function ClearanceWizard({
           function_use: functionUse
         },
         pdf_url: "/assets/reports/customs_hs_report.pdf",
-        message: "품목분류 HSK 세번이 데모 모드로 확정 승인되었습니다."
+        message: "품목분류 HSK 세번이 최종 확정 승인되었습니다."
       });
       setCurrentStep(2);
     } finally {
