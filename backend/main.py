@@ -1409,9 +1409,9 @@ def get_representative_countries(origin: str) -> List[str]:
     return list(set(targets))
 
 @app.get("/api/hs/rates")
-def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
+def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get_db)):
     # HSK 포맷 클렌징
-    clean_code = hs_code.replace(".", "").replace("-", "")
+    clean_code = hs_code.replace(".", "").replace("-", "").strip()
     
     # 10단위 포맷으로 마스터 조회용 원본 코드 복원
     formatted_codes = [
@@ -1420,75 +1420,89 @@ def get_hs_rates_api(hs_code: str, origin: str, db: Session = Depends(get_db)):
         clean_code
     ]
     
-    # 원산지 국가 코드에 따른 FTA 가입국 매핑 검색 범위 확장
-    target_countries = get_representative_countries(origin)
+    # 1. 해당 품목의 공식 기본세율(A) 및 WTO 협정세율(C) 마스터 조회
+    base_record = db.query(HSRateMaster).filter(HSRateMaster.hs_code.in_(formatted_codes)).first()
+    if not base_record and len(clean_code) >= 4:
+        # 정확한 10자리가 아닌 경우 소호/호 단위 유사 레코드 탐색
+        prefix = clean_code[:6] if len(clean_code) >= 6 else clean_code[:4]
+        base_record = db.query(HSRateMaster).filter(HSRateMaster.hs_code.like(f"{prefix}%")).first()
+        
+    actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else 8.0
+    actual_wto_rate = base_record.wto_rate if base_record else None
     
-    # 데이터베이스 조회
+    # 2. 원산지 국가 코드에 따른 FTA 가입국 매핑 검색
+    target_countries = get_representative_countries(origin)
+    origin_upper = origin.upper().strip()
+    
     records = db.query(HSRateMaster).filter(
         HSRateMaster.hs_code.in_(formatted_codes) & 
         HSRateMaster.country_code.in_(target_countries)
     ).all()
     
-    # Filter records to ensure the FTA is actually applicable to the requested origin country
     applicable_records = []
-    origin_upper = origin.upper().strip()
-    
     for r in records:
         rec_country = r.country_code.upper().strip()
         fta_name = r.fta_name or ""
         
-        # 1. If country code matches exactly, it is always applicable
-        if rec_country == origin_upper:
+        # 1) 정확한 국가 코드 매칭
+        if rec_country == origin_upper and r.fta_rate is not None:
             applicable_records.append(r)
             continue
             
-        # 2. EU countries can share EU FTAs
-        if origin_upper in EU_COUNTRIES and rec_country in EU_COUNTRIES:
+        # 2) EU 가입국 협정
+        if origin_upper in EU_COUNTRIES and rec_country in EU_COUNTRIES and r.fta_rate is not None:
             if "EU" in fta_name or "유럽" in fta_name:
                 applicable_records.append(r)
                 continue
                 
-        # 3. ASEAN countries can share ASEAN FTAs
-        if origin_upper in ASEAN_COUNTRIES and rec_country in ASEAN_COUNTRIES:
+        # 3) ASEAN 가입국 협정
+        if origin_upper in ASEAN_COUNTRIES and rec_country in ASEAN_COUNTRIES and r.fta_rate is not None:
             if "ASEAN" in fta_name or "아세안" in fta_name:
                 applicable_records.append(r)
                 continue
                 
-        # 4. RCEP countries can only share RCEP rates
-        if origin_upper in RCEP_COUNTRIES and rec_country in RCEP_COUNTRIES:
+        # 4) RCEP 가입국 협정
+        if origin_upper in RCEP_COUNTRIES and rec_country in RCEP_COUNTRIES and r.fta_rate is not None:
             if "RCEP" in fta_name or "역내" in fta_name:
                 applicable_records.append(r)
                 continue
 
-    if not applicable_records:
-        # Fallback if no applicable FTA record is found
-        return {
-            "hs_code": hs_code,
-            "origin": origin,
-            "rates": {
-                "base_rate": 8.0,
-                "wto_rate": 8.0,
-                "fta_rate": None,
-                "fta_name": "미협정국",
-                "recommended_rate": 8.0,
-                "notice": "해당 국가와의 FTA 특혜세율 정보가 존재하지 않습니다. 기본세율(A) 8%가 추천 적용됩니다."
-            }
-        }
+    # 3. 최적 추천세율 산정 (FTA특혜 vs WTO양허 vs 기본세율)
+    if applicable_records:
+        applicable_records.sort(key=lambda x: x.fta_rate if x.fta_rate is not None else 999)
+        best_fta = applicable_records[0]
+        fta_rate = best_fta.fta_rate
+        fta_name = best_fta.fta_name
+    else:
+        fta_rate = None
+        fta_name = "미체결국"
+
+    # 추천 세율 결정
+    candidate_rates = [actual_base_rate]
+    if actual_wto_rate is not None:
+        candidate_rates.append(actual_wto_rate)
+    if fta_rate is not None:
+        candidate_rates.append(fta_rate)
         
-    # 최적 추천 특혜세율 선택을 위해 recommended_rate가 가장 낮은 레코드를 우선 정렬
-    applicable_records.sort(key=lambda x: x.recommended_rate if x.recommended_rate is not None else 999)
-    best_record = applicable_records[0]
+    recommended_rate = min(candidate_rates)
     
+    if fta_rate is not None and recommended_rate == fta_rate:
+        notice = f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. 통관 시 원산지증명서(C/O) 구비가 필수입니다."
+    elif actual_wto_rate is not None and recommended_rate == actual_wto_rate:
+        notice = f"WTO 협정(양허)세율 {actual_wto_rate}%가 기본세율({actual_base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
+    else:
+        notice = f"기본세율(A) {actual_base_rate}%가 적용됩니다. (원산지: {origin})"
+
     return {
-        "hs_code": best_record.hs_code,
+        "hs_code": hs_code,
         "origin": origin,
         "rates": {
-            "base_rate": best_record.base_rate,
-            "wto_rate": best_record.wto_rate,
-            "fta_rate": best_record.fta_rate,
-            "fta_name": best_record.fta_name,
-            "recommended_rate": best_record.recommended_rate,
-            "notice": f"최적 특혜 적용에 따라 {best_record.fta_name} 세율 {best_record.recommended_rate}% 적용을 추천합니다. 통관 시 원산지증명서(C/O) 발급 요건을 체크하십시오."
+            "base_rate": actual_base_rate,
+            "wto_rate": actual_wto_rate if actual_wto_rate is not None else actual_base_rate,
+            "fta_rate": fta_rate,
+            "fta_name": fta_name,
+            "recommended_rate": recommended_rate,
+            "notice": notice
         }
     }
 

@@ -566,37 +566,67 @@ def confirm_hs_code_api(req: HsConfirmReq):
 
 @app.get("/api/hs/rates")
 def get_rates_api(hs_code: str, origin: str = "US"):
-    clean = hs_code.replace(".", "").replace("-", "")
+    import sqlite3
+    clean = hs_code.replace(".", "").replace("-", "").strip()
     origin_upper = origin.upper().strip()
     
-    # Defaults
+    # 1. DB에서 공식 기본세율 및 WTO세율, FTA세율 조회
     base_rate = 8.0
-    wto_rate = 8.0
-    fta_rate = 0.0
-    fta_name = "최적 협정세율"
+    wto_rate = None
+    fta_rate = None
+    fta_name = "미체결국"
     
-    if origin_upper in ["US", "USA"]:
-        fta_name = "한-미 FTA"
-    elif origin_upper in ["CN", "CHN"]:
-        fta_name = "한-중 FTA"
-    elif origin_upper in ["VN", "VNM"]:
-        fta_name = "한-베트남 FTA"
-    elif origin_upper in ["EU", "DE", "FR", "IT"]:
-        fta_name = "한-EU FTA"
-    elif origin_upper in ["JP", "JPN"]:
-        fta_name = "RCEP 협정세율"
-        fta_rate = 5.0
+    try:
+        conn = sqlite3.connect("cusway.db")
+        cur = conn.cursor()
         
+        # 기본 및 WTO 세율 조회
+        cur.execute("SELECT base_rate, wto_rate FROM hs_rate_master WHERE hs_code = ? LIMIT 1", (clean,))
+        row = cur.fetchone()
+        if not row and len(clean) >= 4:
+            prefix = clean[:6] if len(clean) >= 6 else clean[:4]
+            cur.execute("SELECT base_rate, wto_rate FROM hs_rate_master WHERE hs_code LIKE ? LIMIT 1", (f"{prefix}%",))
+            row = cur.fetchone()
+            
+        if row:
+            if row[0] is not None: base_rate = float(row[0])
+            if row[1] is not None: wto_rate = float(row[1])
+            
+        # FTA 협정세율 조회 (해당 국가)
+        cur.execute("SELECT fta_rate, fta_name FROM hs_rate_master WHERE hs_code = ? AND country_code = ?", (clean, origin_upper))
+        fta_row = cur.fetchone()
+        if fta_row and fta_row[0] is not None:
+            fta_rate = float(fta_row[0])
+            fta_name = fta_row[1]
+        conn.close()
+    except Exception as e:
+        print(f"[RATES API] DB query fallback: {e}")
+
+    # 최적 추천세율 산정
+    candidates = [base_rate]
+    if wto_rate is not None:
+        candidates.append(wto_rate)
+    if fta_rate is not None:
+        candidates.append(fta_rate)
+    recommended_rate = min(candidates)
+
+    if fta_rate is not None and recommended_rate == fta_rate:
+        notice = f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin}] 통관 시 원산지증명서(C/O) 구비가 필수입니다."
+    elif wto_rate is not None and recommended_rate == wto_rate:
+        notice = f"WTO 협정(양허)세율 {wto_rate}%가 기본세율({base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
+    else:
+        notice = f"기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin})"
+
     return {
         "hs_code": hs_code,
         "origin": origin,
         "rates": {
             "base_rate": base_rate,
-            "wto_rate": wto_rate,
+            "wto_rate": wto_rate if wto_rate is not None else base_rate,
             "fta_rate": fta_rate,
             "fta_name": fta_name,
-            "recommended_rate": fta_rate,
-            "notice": f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin}] 통관 시 원산지증명서 구비가 필요합니다."
+            "recommended_rate": recommended_rate,
+            "notice": notice
         }
     }
 
