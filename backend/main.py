@@ -1139,159 +1139,7 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
                         "hsCode": "7117.90-9000",
                         "headingName": "제7117호 (모조 신변장식용품)",
                         "appliedGri": "통칙 제3호 다목",
-                        "reasoning": "액세서리용 펜던트 장식이 화려한 비귀금속제 모조 장식용 열쇠고리 경합 세번입니다.",
-                        "exclusionReason": "단순 열쇠 묶음 고리로서의 실용적 기능이 우선하는 제품은 7326호로 복귀시킵니다."
-                    }
-                ]
-            }
-
-        # 퍼즐/종이퍼즐 수동 검색 강제 매핑 우회 및 경합세번 병기
-        if "퍼즐" in keyword or "puzzle" in keyword:
-            return {
-                "keywordTrigger": [keyword],
-                "recommendedHsCode": "9503.00-3300",
-                "headingName": "제9503호 (완구와 오락용구)",
-                "subheadingName": "퍼즐 (지그소 퍼즐 등 재질 불문)",
-                "confidence": 96,
-                "technicalTerms": "Puzzles of all kinds (Jigsaw puzzles)",
-                "appliedGris": ["통칙 제1호", "통칙 제6호"],
-                "legalReasoning": "본 물품은 종이 판지 재질의 지그소 퍼즐(종이 퍼즐)입니다. 관세율표 제9503호는 재질에 관계없이 모든 퍼즐을 분류하는 특게호(9503.00-3300)를 보유하고 있습니다. 따라서 제48류의 종이 제품에서 배제되어 제9503호 완구류로 최우선 분류됩니다.",
-                "sectionNote": "제20부 잡품 (제95류 완구, 게임용구, 운동용구)",
-                "chapterNote": "제95류 주석 규정: 완구류의 분류 기준",
-                "exclusionNote": "⚠️ 종이 재질의 퍼즐이라 하더라도 완구 목적의 퍼즐은 제48류(종이 제품) 및 제49류(인쇄물)에서 완전 제외되어 제9503호에 귀속됩니다.",
-                "headingExplanation": "제9503호 해설: 이 호에는 재질에 관계없이 모든 종류의 퍼즐(예: 지그소 퍼즐, 입체 퍼즐)이 분류됩니다.",
-                "precedents": [
-                    {
-                        "id": "PREC-9503-01",
-                        "title": "종이 재질 지그소 퍼즐의 품목분류 결정례",
-                        "code": "9503.00-3300",
-                        "issuingBody": "관세평가분류원",
-                        "date": "2024-03-15",
-                        "similarity": 98,
-                        "reasoningSnippet": "종이 판지에 그림을 인쇄하여 커팅한 완구용 지그소 퍼즐은 구성 재질이 종이(48류)라 할지라도 유희용 완구의 본질을 지니므로 통칙 제1호에 따라 제9503.00-3300호에 분류됨."
-                    }
-                ],
-                "competingHsCodes": [
-                    {
-                        "hsCode": "4823.90-9000",
-                        "headingName": "기타 종이 제품",
-                        "appliedGri": "통칙 제1호",
-                        "reasoning": "완구로 설계되지 않은 단순 도안 가공용 두꺼운 종이 판지 형태일 경우 검토되는 코드입니다.",
-                        "exclusionReason": "완제품 지그소 퍼즐 완구로서의 본질적 형상이 완성되어 있으므로 48류 제품군에서 제외됩니다."
-                    }
-                ]
-            }
-
-        # 물티슈/물수건/물휴지 수동 검색 강제 매핑 우회 및 재질/용도별 경합 병기
-        if any(w in keyword for w in ["물티슈", "물수건", "물휴지", "클렌징", "wet wipe", "cleansing tissue", "wet wipes"]):
-            return {
-                "keywordTrigger": [keyword],
-                "recommendedHsCode": "3307.90-9000",
-                "headingName": "제3307호 (면도용 제품류, 인체용 탈취제, 화장품 등)",
-                "subheadingName": "인체 청결용 화장 물티슈 (Wet Wipe)",
-                "confidence": 92,
-                "technicalTerms": "Cosmetic wet wipes, Cleansing tissues impregnated with toilet preparations",
-                "appliedGris": ["통칙 제1호", "통칙 제6호"],
-                "legalReasoning": "본 물품은 부직포에 화장수 또는 인체 세정용 유제를 침투시킨 물티슈(인체 세정용)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라, 인체 세정용/화장용 물티슈는 제3307호의 인체용 탈취제 및 조제화장품류(3307.90-9000)로 분류됩니다. 다만, 알코올 소독제나 세제를 함유한 살균 세척용 물티슈는 제3401호(3401.19-1000)에 분류되며, 단순 메이크업 클렌징용 티슈는 제3304호로 경합하므로 아래의 경합 세번을 비교 검토하십시오.",
-                "sectionNote": "제6부 화학공업이나 연관공업의 생산물 (제28류 내지 제38류)",
-                "chapterNote": "제33류 정유와 레지노이드, 조제화장품ㆍ화장용품ㆍ소도용품",
-                "exclusionNote": "⚠️ 청소 및 산업용 소독 물티슈(세제/소독제 침투)는 제3401호 또는 제3808호로 이송되며, 아무것도 함유하지 않은 건조 상태의 부직포 타월은 제5603호(부직포)로 분류되어 이 호에서 제외됩니다.",
-                "headingExplanation": "제3307호에는 다른 호에 분류되지 않은 조제화장품을 분류하며, 향수나 화장수를 침투시킨 부직포제 물티슈가 여기에 속합니다.",
-                "precedents": [
-                    {
-                        "id": "PREC-3307-01",
-                        "title": "화장수 및 정제수를 침투시킨 영유아용 물티슈의 품목분류",
-                        "code": "3307.90-9000",
-                        "issuingBody": "관세평가분류원",
-                        "date": "2024-05-18",
-                        "similarity": 98,
-                        "reasoningSnippet": "부직포 원단에 정제수, 글리세린 및 방부 효과를 주는 화장 물질을 침투시켜 피부 세정용으로 제작된 물티슈는 통칙 제1호 및 제6호에 의해 조제화장품류인 제3307.90-9000호에 분류됨."
-                    }
-                ],
-                "competingHsCodes": [
-                    {
-                        "hsCode": "3401.19-1000",
-                        "headingName": "제3401호 (비누, 세제 등을 침투시킨 종이ㆍ부직포)",
-                        "appliedGri": "통칙 제1호",
-                        "reasoning": "주방 식기나 바닥 청소용, 혹은 식탁 세척용으로 계면활성제나 세제를 침투시킨 물티슈의 경합 세번입니다.",
-                        "exclusionReason": "인체 피부 세정 및 위생 목적의 화장품 스펙이므로 세제류(3401)에서 배제됩니다."
-                    },
-                    {
-                        "hsCode": "5603.12-0000",
-                        "headingName": "제5603호 (부직포 - 액체를 침투시키지 않은 것)",
-                        "appliedGri": "통칙 제1호",
-                        "reasoning": "액체 성분이 함유되지 않은 단순 마른 부직포 상태의 티슈/원단입니다.",
-                        "exclusionReason": "본 제품은 화장액 및 물기가 침투되어 있는 완제품이므로 제외됩니다."
-                    }
-                ]
-            }
-
-        search_term = keyword.strip()
-        if search_term.lower() == "mdf":
-            search_term = "섬유판"
-        elif "mdf" in search_term.lower():
-            search_term = search_term.lower().replace("mdf", "섬유판")
-
-        notes = retrieve_relevant_notes(search_term, db)
-        if not notes:
-            raise HTTPException(status_code=404, detail="입력하신 키워드에 상응하는 해설서를 데이터베이스에서 찾을 수 없습니다.")
-        
-        # Extract best matched note
-        best_note = notes[0]
-        heading_code = best_note.heading.replace('.', '')
-        
-        # Build valid 10-digit format (Filter non-digits to avoid formats like 48_g)
-        clean_digits = re.sub(r'\D', '', heading_code)
-        
-        # 100% Correct HSK Validation against Master DB
-        hsk_code = None
-        if len(clean_digits) >= 4:
-            # Query if there is a matching 10-digit code starting with this heading
-            prefix = clean_digits[:4]
-            # Match formats like 2009.89-1090 or 2009891090
-            db_match = db.execute(
-                text("SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1"),
-                {"pref": f"{prefix}%"}
-            ).fetchone()
-            if db_match:
-                hsk_code = db_match[0]
-                
-        if not hsk_code:
-            if len(clean_digits) == 2:
-                hsk_code = f"{clean_digits}01.00-0000"
-            elif len(clean_digits) == 4:
-                if clean_digits == "2009":
-                    hsk_code = "2009.90-9000"
-                else:
-                    hsk_code = f"{clean_digits}.90-9000"
-            else:
-                hsk_code = f"{clean_digits[:4].ljust(4, '0')}.90-9000"
-            
-        from backend.rag.retriever import clean_korean_explanatory_note
-        sanitized_content = clean_korean_explanatory_note(best_note.content_ko, best_note.heading)
-
-        # Official Heading Name lookup
-        heading_title = f"제{best_note.heading}호 관련 해설 조문"
-        if len(clean_digits) >= 4:
-            hs_4 = clean_digits[:4]
-            hs_4_dot = f"{hs_4[:2]}.{hs_4[2:]}"
-            h_rec = db.execute(
-                text("SELECT name_ko FROM hs_code_master WHERE hs_code = :c1 OR hs_code = :c2 LIMIT 1"),
-                {"c1": hs_4, "c2": hs_4_dot}
-            ).fetchone()
-            if h_rec and h_rec[0]:
-                heading_title = f"제{best_note.heading}호 ({h_rec[0]})"
-
-        return {
-            "keywordTrigger": [keyword],
-            "recommendedHsCode": hsk_code,
-            "headingName": heading_title,
-            "subheadingName": f"관세율표 제{clean_digits[:2]}류 해설",
-            "confidence": 92,
-            "technicalTerms": "Explanatory Note Match",
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": f"가. 대상 물품 개요\n검색 대상 물품 '{keyword}'에 대한 관세율표 및 WCO 해설서 데이터베이스 매칭 결과입니다.\n\n나. 관련 관세율표 조항\n{heading_title} 규정을 직접적 분류 근거로 적용합니다.\n\n다. 해설서 상세 내용\n{sanitized_content[:800]}...",
-            "sectionNote": best_note.section if best_note.section else "관련 부 및 류의 해설 총설 규정 참고",
+                   "sectionNote": best_note.section if best_note.section else "관련 부 및 류의 해설 총설 규정 참고",
             "chapterNote": best_note.chapter if best_note.chapter else f"제{clean_digits[:2]}류 주석 규정 대조 필요",
             "exclusionNote": "가공 상태(단순 건조 여부, 조미/추가 조리 가공 여부)에 따른 제외 조항 저촉 여부를 대조하십시오.",
             "headingExplanation": sanitized_content[:500],
@@ -1344,7 +1192,6 @@ def get_hs_structure(prefix: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"[HS_STRUCTURE_ERROR] {e}")
         return []
-
 
 # --- CUSWAY 4단계 파이프라인 신규 API 엔드포인트 ---
 from .models import HSRateMaster, HSRequirement, RequirementProcedure
@@ -1459,6 +1306,7 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
     conflicts = [r[0] for r in conflicting_records]
 
     # 4. 가중치 합의 임계값(2.0점) 도달 시 마스터 DB 자동 승격 캐싱
+    from sqlalchemy import func
     is_consensus_reached = (total_weight >= 2.0)
     if is_consensus_reached:
         exists_prec = db.query(CustomsPrecedent).filter(
@@ -1545,6 +1393,23 @@ EU_COUNTRIES = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR"
 ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "ASEAN"}
 RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR", "RCEP"}
 
+# 관세법 및 FTA 특혜관세법상 초민감 농축산물 (양허제외/FTA 특혜 배제 품목)
+SENSITIVE_TRQ_EXCLUDED_PREFIXES = [
+    "120740", "1207.40", # 참깨 (양허제외, TRQ 내 40%, 추천외 630% 또는 6,660원/kg)
+    "120799", "1207.99", # 들깨 (양허제외, TRQ 내 40%, 추천외 40% 또는 369원/kg)
+    "070320", "0703.20", # 마늘 (양허제외, TRQ 내 50%, 추천외 360% 또는 1,800원/kg)
+    "070310", "0703.10", # 양파 (양허제외, TRQ 내 50%, 추천외 135% 또는 206원/kg)
+    "090420", "0904.20", "090421", "0904.21", "090422", "0904.22", # 고추/고춧가루 (양허제외, TRQ 내 50%, 추천외 270% 또는 6,210원/kg)
+    "070190", "0701.90", # 감자 (양허제외, TRQ 내 30%, 추천외 304%)
+    "071234", "0712.34", "071239", "0712.39", # 표고버섯 (양허제외, TRQ 내 30%, 추천외 514% 또는 1,625원/kg)
+    "100610", "1006.10", "100620", "1006.20", "100630", "1006.30", "100640", "1006.40", # 쌀 (양허제외, TRQ 내 5%, 추천외 513%)
+    "071331", "0713.31", "071332", "0713.32", # 녹두/팥 (양허제외, TRQ 내 30%, 추천외 420.8% 또는 639.6%)
+    "091011", "0910.11", "091012", "0910.12", # 생강 (양허제외, TRQ 내 20%, 추천외 377.3% 또는 1,040원/kg)
+    "080810", "0808.10", "080830", "0808.30", # 사과/배 (양허제외)
+    "040210", "0402.10", "040221", "0402.21", # 탈지/전지분유 (양허제외)
+    "081340", "0813.40", # 곶감/대추 (양허제외)
+]
+
 def get_representative_countries(origin: str) -> List[str]:
     origin_upper = origin.upper().strip()
     targets = [origin_upper]
@@ -1552,11 +1417,11 @@ def get_representative_countries(origin: str) -> List[str]:
     if origin_upper in EU_COUNTRIES:
         targets.extend(["EU", "IT", "DE", "FR", "ES", "NL"])
     if origin_upper in ASEAN_COUNTRIES:
-        targets.extend(["ASEAN", "VN", "SG", "TH", "ID"])
+        targets.extend(["ASEAN"])
     if origin_upper in RCEP_COUNTRIES:
-        targets.extend(["RCEP", "JP", "CN", "AU", "NZ", "VN"])
+        targets.extend(["RCEP"])
     if origin_upper in {"CH", "NO", "IS", "LI"}:
-        targets.extend(["EFTA", "CH", "NO"])
+        targets.extend(["EFTA"])
     if origin_upper in {"GB", "UK"}:
         targets.extend(["GB", "UK"])
     if origin_upper == "CL":
@@ -1591,44 +1456,47 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     if not base_record:
         base_record = db.query(HSRateMaster).filter(HSRateMaster.hs_code.in_(formatted_codes)).first()
         
-    actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else (3.0 if clean_code.startswith("1201") else 8.0)
+    actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else (3.0 if clean_code.startswith("1201") else (40.0 if clean_code.startswith("120740") or clean_code.startswith("120799") else (50.0 if clean_code.startswith("0703") or clean_code.startswith("0904") else (30.0 if clean_code.startswith("0701") or clean_code.startswith("0712") else 8.0))))
     actual_wto_rate = base_record.wto_rate if base_record else None
+    
+    # 초민감 양허제외 품목 여부 판단
+    is_sensitive_excluded = any(clean_code.startswith(p.replace(".", "")) for p in SENSITIVE_TRQ_EXCLUDED_PREFIXES)
     
     # 2. 원산지 국가 코드에 따른 FTA 협정 조회
     target_countries = get_representative_countries(origin_upper)
     
-    records = db.query(HSRateMaster).filter(
-        HSRateMaster.hs_code.in_(formatted_codes) & 
-        HSRateMaster.country_code.in_(target_countries)
-    ).all()
-    
     applicable_records = []
-    for r in records:
-        rec_country = (r.country_code or "").upper().strip()
-        fta_name = r.fta_name or ""
-        
-        # 1) 정확한 국가 코드 매칭
-        if rec_country == origin_upper and r.fta_rate is not None:
-            applicable_records.append(r)
-            continue
+    if not is_sensitive_excluded:
+        records = db.query(HSRateMaster).filter(
+            HSRateMaster.hs_code.in_(formatted_codes) & 
+            HSRateMaster.country_code.in_(target_countries)
+        ).all()
+        for r in records:
+            rec_country = (r.country_code or "").upper().strip()
+            fta_name = r.fta_name or ""
             
-        # 2) EU 27개 가입국 전체 호환 매칭
-        if origin_upper in EU_COUNTRIES and (rec_country in EU_COUNTRIES or "EU" in fta_name or "유럽" in fta_name):
-            if r.fta_rate is not None:
+            # 1) 정확한 국가 코드 매칭
+            if rec_country == origin_upper and r.fta_rate is not None:
                 applicable_records.append(r)
                 continue
                 
-        # 3) ASEAN 가입국 협정 호환 매칭
-        if origin_upper in ASEAN_COUNTRIES and (rec_country in ASEAN_COUNTRIES or "ASEAN" in fta_name or "아세안" in fta_name):
-            if r.fta_rate is not None:
-                applicable_records.append(r)
-                continue
-                
-        # 4) RCEP 가입국 협정 호환 매칭
-        if origin_upper in RCEP_COUNTRIES and (rec_country in RCEP_COUNTRIES or "RCEP" in fta_name or "역내" in fta_name):
-            if r.fta_rate is not None:
-                applicable_records.append(r)
-                continue
+            # 2) EU 27개 가입국 전체 호환 매칭
+            if origin_upper in EU_COUNTRIES and (rec_country in EU_COUNTRIES or "EU" in fta_name or "유럽" in fta_name):
+                if r.fta_rate is not None:
+                    applicable_records.append(r)
+                    continue
+                    
+            # 3) ASEAN 가입국 협정 호환 매칭
+            if origin_upper in ASEAN_COUNTRIES and (rec_country in ASEAN_COUNTRIES or "ASEAN" in fta_name or "아세안" in fta_name):
+                if r.fta_rate is not None:
+                    applicable_records.append(r)
+                    continue
+                    
+            # 4) RCEP 가입국 협정 호환 매칭
+            if origin_upper in RCEP_COUNTRIES and (rec_country in RCEP_COUNTRIES or "RCEP" in fta_name or "역내" in fta_name):
+                if r.fta_rate is not None:
+                    applicable_records.append(r)
+                    continue
 
     # 3. 최적 추천세율 산정 (FTA특혜 vs WTO양허 vs 기본세율)
     fta_info = COUNTRY_FTA_MAP.get(origin_upper)

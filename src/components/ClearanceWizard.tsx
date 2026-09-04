@@ -642,7 +642,7 @@ export default function ClearanceWizard({
                       )}
                     </div>
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>
-                      {ratesData.rates.wto_rate}%
+                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate !== undefined ? `${ratesData.rates.wto_rate}%` : (ratesData.rates.trq_in_rate !== null && ratesData.rates.trq_in_rate !== undefined ? `${ratesData.rates.trq_in_rate}%` : 'N/A')}
                     </h4>
                   </div>
                   <div style={{ 

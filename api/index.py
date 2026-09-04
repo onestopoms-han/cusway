@@ -603,6 +603,23 @@ EU_COUNTRIES = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR"
 ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "ASEAN"}
 RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR", "RCEP"}
 
+# 관세법 및 FTA 특혜관세법상 초민감 농축산물 (양허제외/FTA 특혜 배제 품목)
+SENSITIVE_TRQ_EXCLUDED_PREFIXES = [
+    "120740", "1207.40", # 참깨 (양허제외, TRQ 내 40%, 추천외 630% 또는 6,660원/kg)
+    "120799", "1207.99", # 들깨 (양허제외, TRQ 내 40%, 추천외 40% 또는 369원/kg)
+    "070320", "0703.20", # 마늘 (양허제외, TRQ 내 50%, 추천외 360% 또는 1,800원/kg)
+    "070310", "0703.10", # 양파 (양허제외, TRQ 내 50%, 추천외 135% 또는 206원/kg)
+    "090420", "0904.20", "090421", "0904.21", "090422", "0904.22", # 고추/고춧가루 (양허제외, TRQ 내 50%, 추천외 270% 또는 6,210원/kg)
+    "070190", "0701.90", # 감자 (양허제외, TRQ 내 30%, 추천외 304%)
+    "071234", "0712.34", "071239", "0712.39", # 표고버섯 (양허제외, TRQ 내 30%, 추천외 514% 또는 1,625원/kg)
+    "100610", "1006.10", "100620", "1006.20", "100630", "1006.30", "100640", "1006.40", # 쌀 (양허제외, TRQ 내 5%, 추천외 513%)
+    "071331", "0713.31", "071332", "0713.32", # 녹두/팥 (양허제외, TRQ 내 30%, 추천외 420.8% 또는 639.6%)
+    "091011", "0910.11", "091012", "0910.12", # 생강 (양허제외, TRQ 내 20%, 추천외 377.3% 또는 1,040원/kg)
+    "080810", "0808.10", "080830", "0808.30", # 사과/배 (양허제외)
+    "040210", "0402.10", "040221", "0402.21", # 탈지/전지분유 (양허제외)
+    "081340", "0813.40", # 곶감/대추 (양허제외)
+]
+
 def get_representative_countries(origin: str) -> List[str]:
     origin_upper = origin.upper().strip()
     targets = [origin_upper]
@@ -610,11 +627,11 @@ def get_representative_countries(origin: str) -> List[str]:
     if origin_upper in EU_COUNTRIES:
         targets.extend(["EU", "IT", "DE", "FR", "ES", "NL"])
     if origin_upper in ASEAN_COUNTRIES:
-        targets.extend(["ASEAN", "VN", "SG", "TH", "ID"])
+        targets.extend(["ASEAN"])
     if origin_upper in RCEP_COUNTRIES:
-        targets.extend(["RCEP", "JP", "CN", "AU", "NZ", "VN"])
+        targets.extend(["RCEP"])
     if origin_upper in {"CH", "NO", "IS", "LI"}:
-        targets.extend(["EFTA", "CH", "NO"])
+        targets.extend(["EFTA"])
     if origin_upper in {"GB", "UK"}:
         targets.extend(["GB", "UK"])
     if origin_upper == "CL":
@@ -629,13 +646,16 @@ def get_rates_api(hs_code: str, origin: str = "US"):
     origin_upper = origin.upper().strip()
     
     # 1. DB에서 공식 기본세율 및 WTO세율, FTA세율 조회 (국가별 FTA 레코드 오염 배제)
-    base_rate = 3.0 if clean.startswith("1201") else 8.0
+    base_rate = 3.0 if clean.startswith("1201") else (40.0 if clean.startswith("120740") or clean.startswith("120799") else (50.0 if clean.startswith("0703") or clean.startswith("0904") else (30.0 if clean.startswith("0701") or clean.startswith("0712") else 8.0)))
     wto_rate = None
     fta_rate = None
     fta_name = "미체결국"
     
     target_countries = get_representative_countries(origin_upper)
     best_fta = None
+    
+    # 초민감 양허제외 품목 여부 판단
+    is_sensitive_excluded = any(clean.startswith(p.replace(".", "")) for p in SENSITIVE_TRQ_EXCLUDED_PREFIXES)
     
     try:
         conn = sqlite3.connect("cusway.db")
@@ -656,16 +676,17 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             if row[0] is not None: base_rate = float(row[0])
             if row[1] is not None: wto_rate = float(row[1])
             
-        # FTA 협정세율 조회 (대표국가 포함)
-        placeholders = ', '.join(['?'] * len(target_countries))
-        cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (hs_code = ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL", [clean, f"{clean[:6]}%"] + target_countries)
-        fta_rows = cur.fetchall()
-        
-        if fta_rows:
-            fta_rows.sort(key=lambda x: float(x[0]) if x[0] is not None else 999)
-            best_fta = fta_rows[0]
-            fta_rate = float(best_fta[0])
-            fta_name = best_fta[1] or "FTA 협정"
+        # FTA 협정세율 조회 (대표국가 포함) - 초민감 양허제외 품목은 FTA 협정세율 적용 배제
+        if not is_sensitive_excluded:
+            placeholders = ', '.join(['?'] * len(target_countries))
+            cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (hs_code = ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL", [clean, f"{clean[:6]}%"] + target_countries)
+            fta_rows = cur.fetchall()
+            
+            if fta_rows:
+                fta_rows.sort(key=lambda x: float(x[0]) if x[0] is not None else 999)
+                best_fta = fta_rows[0]
+                fta_rate = float(best_fta[0])
+                fta_name = best_fta[1] or "FTA 협정"
             
         conn.close()
     except Exception as e:
@@ -715,7 +736,7 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             duty_formula = row[5]
 
     # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
-    is_trq_item = any(clean.startswith(pref) for pref in ["1201", "1207", "0703", "0712", "0904", "0701", "1006", "0813", "0402"])
+    is_trq_item = any(clean.startswith(pref.replace(".", "")) for pref in ["1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", "1006", "0813", "0402", "0713", "0910"])
     trq_in_rate = None
     trq_out_rate = None
     trq_agency = "한국농수산식품유통공사(aT)"
@@ -725,19 +746,27 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         trq_in_rate = 3.0
         trq_out_rate = "487% 또는 956원/kg (선택세)"
         expert_insight = "본 품목(대두)은 농림축산물 양허관세(TRQ) 대상입니다. aT(한국농수산식품유통공사)의 추천서를 구비하여 수입신고하면 추천내 양허세율 3%가 적용되며, 한-EU/한-미 FTA 원산지증명서 구비 시 0% 특혜 통관이 가능합니다. 추천서가 없는 일반 수입 시에는 기본세율 3%가 적용됩니다."
-    elif clean.startswith("0712.34") or clean.startswith("071234"): # 표고버섯
+    elif clean.startswith("0712.34") or clean.startswith("071234") or clean.startswith("0712.39") or clean.startswith("071239"): # 표고버섯
         trq_in_rate = 30.0
         trq_out_rate = "514% 또는 1,625원/kg (선택세)"
         trq_agency = "산림청 / 산림조합중앙회"
-        expert_insight = "본 품목(건조 표고버섯)은 산림청 추천 양허 품목입니다. 추천서 미구비 수입 시 514% 또는 1,625원/kg의 고액 선택세가 과세되므로, 반드시 수입 전 추천서 발급 요건 및 한-중 FTA 원산지증명서 구비 여부를 확인하십시오."
+        expert_insight = "본 품목(건조 표고버섯)은 산림청 추천 양허 품목(양허제외)입니다. 추천서 미구비 수입 시 514% 또는 1,625원/kg의 고액 선택세가 과세되므로, 반드시 수입 전 추천서 발급 요건 및 관세율을 확인하십시오."
     elif clean.startswith("0703.20") or clean.startswith("070320"): # 마늘
         trq_in_rate = 50.0
         trq_out_rate = "360% 또는 1,800원/kg (선택세)"
-        expert_insight = "본 품목(마늘)은 대표적 민감 농산물로 TRQ 추천 시 50%, 추천 외 수입 시 360% 또는 1,800원/kg 중 고액 과세됩니다."
+        expert_insight = "본 품목(마늘, 0703.20)은 대표적 초민감 농산물로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 추천 외 수입 시 360% 또는 1,800원/kg 중 고액 과세됩니다."
+    elif clean.startswith("0703.10") or clean.startswith("070310"): # 양파
+        trq_in_rate = 50.0
+        trq_out_rate = "135% 또는 206원/kg (선택세)"
+        expert_insight = "본 품목(양파, 0703.10)은 양허제외 품목으로 aT 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 135% 또는 206원/kg의 선택세가 적용됩니다."
+    elif clean.startswith("0904.20") or clean.startswith("090420") or clean.startswith("0904.21") or clean.startswith("090421") or clean.startswith("0904.22") or clean.startswith("090422"): # 고추
+        trq_in_rate = 50.0
+        trq_out_rate = "270% 또는 6,210원/kg (선택세)"
+        expert_insight = "본 품목(고추, 0904.20)은 초민감 품목으로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 270% 또는 6,210원/kg 중 고액 과세됩니다."
     elif clean.startswith("1207.40") or clean.startswith("120740"): # 참깨
         trq_in_rate = 40.0
         trq_out_rate = "630% 또는 6,660원/kg (선택세)"
-        expert_insight = "본 품목(참깨)은 TRQ 추천 내 40%, 추천 외 수입 시 630% 또는 6,660원/kg의 고액 양허세율이 적용됩니다."
+        expert_insight = "본 품목(참깨, 1207.40)은 한-중 FTA 및 RCEP 협정에서 '양허제외(FTA 특혜 배제)' 품목으로 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사)의 TRQ 수입추천서를 발급받아야 40.0%의 양허세율이 적용되며, 추천서 미구비 시 630% 또는 6,660원/kg의 초고율 선택세가 과세됩니다."
     elif clean.startswith("0701"): # 감자
         trq_in_rate = 30.0
         trq_out_rate = "304.0%"
@@ -746,7 +775,11 @@ def get_rates_api(hs_code: str, origin: str = "US"):
     elif clean.startswith("1207.99") or clean.startswith("120799"): # 들깨
         trq_in_rate = 40.0
         trq_out_rate = "40% 또는 369원/kg (선택세)"
-        expert_insight = "본 품목(들깨)은 40% 또는 369원/kg의 선택세가 적용되며, FTA 협정 및 추천서 요건을 점검해야 합니다."
+        expert_insight = "본 품목(들깨, 1207.99)은 양허제외 품목입니다. aT 수입추천서 구비 시 40.0%가 적용되며, 추천서 미구비 시 40% 또는 369원/kg의 선택세가 적용됩니다."
+    elif clean.startswith("1006"): # 쌀
+        trq_in_rate = 5.0
+        trq_out_rate = "513.0%"
+        expert_insight = "본 품목(쌀, 1006호)은 국가 식량안보 핵심 품목으로 모든 FTA에서 양허제외 대상입니다. aT TRQ 추천물량 내 5.0%, 추천 외 513.0%가 적용됩니다."
     elif clean.startswith("85") or clean.startswith("84") or clean.startswith("90"):
         expert_insight = f"본 공산품(전기전자/기계류)은 WTO 정보기술협정(ITA) 또는 {fta_name} 특혜 적용 시 0% 무관세 수입이 가능합니다. 수입 시 원산지증명서(C/O)의 형식적 요건(인증수출자 번호 등)을 철저히 확인하십시오."
     else:
