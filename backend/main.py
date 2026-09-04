@@ -1429,6 +1429,10 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
         
     actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else 8.0
     actual_wto_rate = base_record.wto_rate if base_record else None
+    specific_rate = base_record.specific_rate if base_record else None
+    specific_unit = base_record.specific_unit if base_record else None
+    duty_type = base_record.duty_type if base_record else "AD_VALOREM"
+    duty_formula = base_record.duty_formula if base_record else None
     
     # 2. 원산지 국가 코드에 따른 FTA 가입국 매핑 검색
     target_countries = get_representative_countries(origin)
@@ -1473,6 +1477,11 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
         best_fta = applicable_records[0]
         fta_rate = best_fta.fta_rate
         fta_name = best_fta.fta_name
+        if best_fta.specific_rate:
+            specific_rate = best_fta.specific_rate
+            specific_unit = best_fta.specific_unit
+            duty_type = best_fta.duty_type or "ALTERNATIVE"
+            duty_formula = best_fta.duty_formula or duty_formula
     else:
         fta_rate = None
         fta_name = "미체결국"
@@ -1486,12 +1495,19 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
         
     recommended_rate = min(candidate_rates)
     
+    # Notice 작성 (선택세 안내 포함)
+    notice_prefix = ""
+    if duty_type == "ALTERNATIVE" and duty_formula:
+        notice_prefix = f"[⚠️ 선택세율 대상] {duty_formula} | "
+    elif duty_type == "SPECIFIC" and duty_formula:
+        notice_prefix = f"[종량세율 대상] {duty_formula} | "
+        
     if fta_rate is not None and recommended_rate == fta_rate:
-        notice = f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. 통관 시 원산지증명서(C/O) 구비가 필수입니다."
+        notice = f"{notice_prefix}최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. 통관 시 원산지증명서(C/O) 구비가 필수입니다."
     elif actual_wto_rate is not None and recommended_rate == actual_wto_rate:
-        notice = f"WTO 협정(양허)세율 {actual_wto_rate}%가 기본세율({actual_base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
+        notice = f"{notice_prefix}WTO 협정(양허)세율 {actual_wto_rate}%가 기본세율({actual_base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
     else:
-        notice = f"기본세율(A) {actual_base_rate}%가 적용됩니다. (원산지: {origin})"
+        notice = f"{notice_prefix}기본세율(A) {actual_base_rate}%가 적용됩니다. (원산지: {origin})"
 
     return {
         "hs_code": hs_code,
@@ -1502,6 +1518,10 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
             "fta_rate": fta_rate,
             "fta_name": fta_name,
             "recommended_rate": recommended_rate,
+            "specific_rate": specific_rate,
+            "specific_unit": specific_unit,
+            "duty_type": duty_type,
+            "duty_formula": duty_formula,
             "notice": notice
         }
     }

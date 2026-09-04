@@ -575,29 +575,41 @@ def get_rates_api(hs_code: str, origin: str = "US"):
     wto_rate = None
     fta_rate = None
     fta_name = "미체결국"
+    specific_rate = None
+    specific_unit = None
+    duty_type = "AD_VALOREM"
+    duty_formula = None
     
     try:
         conn = sqlite3.connect("cusway.db")
         cur = conn.cursor()
         
         # 기본 및 WTO 세율 조회
-        cur.execute("SELECT base_rate, wto_rate FROM hs_rate_master WHERE hs_code = ? LIMIT 1", (clean,))
+        cur.execute("SELECT base_rate, wto_rate, specific_rate, specific_unit, duty_type, duty_formula FROM hs_rate_master WHERE hs_code = ? LIMIT 1", (clean,))
         row = cur.fetchone()
         if not row and len(clean) >= 4:
             prefix = clean[:6] if len(clean) >= 6 else clean[:4]
-            cur.execute("SELECT base_rate, wto_rate FROM hs_rate_master WHERE hs_code LIKE ? LIMIT 1", (f"{prefix}%",))
+            cur.execute("SELECT base_rate, wto_rate, specific_rate, specific_unit, duty_type, duty_formula FROM hs_rate_master WHERE hs_code LIKE ? LIMIT 1", (f"{prefix}%",))
             row = cur.fetchone()
             
         if row:
             if row[0] is not None: base_rate = float(row[0])
             if row[1] is not None: wto_rate = float(row[1])
+            if row[2] is not None: specific_rate = float(row[2])
+            if row[3] is not None: specific_unit = row[3]
+            if row[4] is not None: duty_type = row[4]
+            if row[5] is not None: duty_formula = row[5]
             
         # FTA 협정세율 조회 (해당 국가)
-        cur.execute("SELECT fta_rate, fta_name FROM hs_rate_master WHERE hs_code = ? AND country_code = ?", (clean, origin_upper))
+        cur.execute("SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula FROM hs_rate_master WHERE hs_code = ? AND country_code = ?", (clean, origin_upper))
         fta_row = cur.fetchone()
         if fta_row and fta_row[0] is not None:
             fta_rate = float(fta_row[0])
             fta_name = fta_row[1]
+            if fta_row[2] is not None: specific_rate = float(fta_row[2])
+            if fta_row[3] is not None: specific_unit = fta_row[3]
+            if fta_row[4] is not None: duty_type = fta_row[4]
+            if fta_row[5] is not None: duty_formula = fta_row[5]
         conn.close()
     except Exception as e:
         print(f"[RATES API] DB query fallback: {e}")
@@ -610,12 +622,18 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         candidates.append(fta_rate)
     recommended_rate = min(candidates)
 
+    notice_prefix = ""
+    if duty_type == "ALTERNATIVE" and duty_formula:
+        notice_prefix = f"[⚠️ 선택세율 대상] {duty_formula} | "
+    elif duty_type == "SPECIFIC" and duty_formula:
+        notice_prefix = f"[종량세율 대상] {duty_formula} | "
+
     if fta_rate is not None and recommended_rate == fta_rate:
-        notice = f"최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin}] 통관 시 원산지증명서(C/O) 구비가 필수입니다."
+        notice = f"{notice_prefix}최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin}] 통관 시 원산지증명서(C/O) 구비가 필수입니다."
     elif wto_rate is not None and recommended_rate == wto_rate:
-        notice = f"WTO 협정(양허)세율 {wto_rate}%가 기본세율({base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
+        notice = f"{notice_prefix}WTO 협정(양허)세율 {wto_rate}%가 기본세율({base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
     else:
-        notice = f"기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin})"
+        notice = f"{notice_prefix}기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin})"
 
     return {
         "hs_code": hs_code,
@@ -626,6 +644,10 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             "fta_rate": fta_rate,
             "fta_name": fta_name,
             "recommended_rate": recommended_rate,
+            "specific_rate": specific_rate,
+            "specific_unit": specific_unit,
+            "duty_type": duty_type,
+            "duty_formula": duty_formula,
             "notice": notice
         }
     }

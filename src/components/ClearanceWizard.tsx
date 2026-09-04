@@ -638,6 +638,37 @@ export default function ClearanceWizard({
                   </div>
                 </div>
 
+                {/* Alternative Duty / Specific Duty Highlight Box */}
+                {ratesData.rates.duty_formula && (
+                  <div style={{ 
+                    background: 'rgba(239, 68, 68, 0.08)', 
+                    border: '1px solid rgba(239, 68, 68, 0.35)', 
+                    padding: '14px 16px', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px'
+                  }}>
+                    <Scale size={20} style={{ color: '#ef4444', marginTop: '2px', flexShrink: 0 }} />
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '0.82rem', color: '#ef4444', fontWeight: 800 }}>
+                          ⚠️ 종가·종량 선택세(Alternative Duty) 적용 품목
+                        </span>
+                        <span style={{ fontSize: '0.68rem', padding: '2px 8px', background: 'rgba(239,68,68,0.2)', color: '#f87171', borderRadius: '4px', fontWeight: 800 }}>
+                          종가 vs 종량 중 고액 과세
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.88rem', color: '#fca5a5', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.2px' }}>
+                        과세 산식: {ratesData.rates.duty_formula}
+                      </p>
+                      <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                        * 종가세액(과세가격 × 세율)과 종량세액(수입중량 × 단위세액) 중 더 큰 금액이 최종 관세로 확정됩니다. (농축산물 저가 수입 방지 규정)
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Recommended rate banner */}
                 <div style={{ 
                   background: 'rgba(6, 182, 212, 0.08)', 

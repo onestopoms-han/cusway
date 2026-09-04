@@ -119,6 +119,10 @@ class HSRateMaster(Base):
     fta_rate = Column(Float, nullable=True)                         # FTA 특혜세율 (F)
     fta_name = Column(String, nullable=True)                        # FTA 명칭 (예: 한-미 FTA, 한-EU FTA)
     recommended_rate = Column(Float, nullable=True)                 # 추천 최저세율
+    specific_rate = Column(Float, nullable=True)                    # 종량세액 (단위당 세액, 예: 1625.0)
+    specific_unit = Column(String, nullable=True)                   # 종량세 단위 (예: 원/kg, 원/m, 원/개)
+    duty_type = Column(String, default="AD_VALOREM")                # 'AD_VALOREM'(종가세), 'ALTERNATIVE'(선택세), 'SPECIFIC'(종량세)
+    duty_formula = Column(String, nullable=True)                    # 과세 산식 요약 (예: 90% 또는 1,625원/kg 중 고액)
 
 
 class HSRequirement(Base):

@@ -66,67 +66,119 @@ def sync_compact_rates():
         except (ValueError, TypeError):
             rate_val = None
             
+        try:
+            specific_val = float(row[3]) if row[3] is not None else None
+        except (ValueError, TypeError):
+            specific_val = None
+            
+        unit_str = str(row[4]).strip() if (len(row) > 4 and row[4] is not None) else "kg"
+        if not unit_str or unit_str in ['None', '1']: unit_str = "kg"
+            
         if clean_hs not in items:
             items[clean_hs] = {
                 'base': None,
                 'wto': None,
-                'ftas': {} # country_code -> (rate, fta_name)
+                'base_sp': None,
+                'wto_sp': None,
+                'unit': unit_str,
+                'ftas': {} # country_code -> (rate, fta_name, specific_val)
             }
             
-        if rate_val is None:
+        if rate_val is None and specific_val is None:
             continue
             
         if rate_type == 'A':
             items[clean_hs]['base'] = rate_val
+            items[clean_hs]['base_sp'] = specific_val
         elif rate_type == 'C':
             items[clean_hs]['wto'] = rate_val
+            items[clean_hs]['wto_sp'] = specific_val
         else:
             for prefix, (c_code, f_name) in FTA_CODE_MAP.items():
                 if rate_type.startswith(prefix) and c_code in ['US', 'CN', 'VN', 'IT', 'JP', 'AU', 'CA', 'GB', 'IN', 'NZ', 'CL']:
                     # 만약 동일 국가에 복수 FTA가 있으면 더 유리한(낮은) 세율 우선 보존
                     if c_code in items[clean_hs]['ftas']:
-                        existing_rate, _ = items[clean_hs]['ftas'][c_code]
-                        if rate_val < existing_rate:
-                            items[clean_hs]['ftas'][c_code] = (rate_val, f_name)
+                        existing_rate, _, _ = items[clean_hs]['ftas'][c_code]
+                        if rate_val is not None and (existing_rate is None or rate_val < existing_rate):
+                            items[clean_hs]['ftas'][c_code] = (rate_val, f_name, specific_val)
                     else:
-                        items[clean_hs]['ftas'][c_code] = (rate_val, f_name)
+                        items[clean_hs]['ftas'][c_code] = (rate_val, f_name, specific_val)
                     break
 
     records = []
     for hs_code, data in items.items():
         base_rate = data['base'] if data['base'] is not None else 8.0
         wto_rate = data['wto']
+        base_sp = data['base_sp']
+        wto_sp = data['wto_sp']
+        unit = f"원/{data['unit']}"
         
-        # 1. 기본 레코드 (ALL/BASE) - FTA 미적용 시 기본세율/WTO세율 기준
+        # 1. 기본 레코드 (BASE)
         rates_avail = [base_rate]
         if wto_rate is not None: rates_avail.append(wto_rate)
         rec_rate = min(rates_avail)
-        records.append((hs_code, 'BASE', base_rate, wto_rate, None, '기본/WTO', rec_rate))
+        
+        # Determine duty formula & type for BASE/WTO
+        duty_type = "AD_VALOREM"
+        duty_formula = None
+        sp_duty = wto_sp if wto_sp is not None else base_sp
+        
+        if wto_rate is not None and wto_sp is not None:
+            duty_type = "ALTERNATIVE"
+            duty_formula = f"{wto_rate}% 또는 {wto_sp:,.0f}{unit} 중 고액"
+        elif base_rate is not None and base_sp is not None:
+            duty_type = "ALTERNATIVE"
+            duty_formula = f"{base_rate}% 또는 {base_sp:,.0f}{unit} 중 고액"
+        elif sp_duty is not None and (base_rate is None and wto_rate is None):
+            duty_type = "SPECIFIC"
+            duty_formula = f"{sp_duty:,.0f}{unit}"
+            
+        records.append((hs_code, 'BASE', base_rate, wto_rate, None, '기본/WTO', rec_rate, sp_duty, unit if sp_duty else None, duty_type, duty_formula))
         
         # 2. 실제 유효한 FTA가 존재하는 국가들만 추가 적재
-        for cntry, (fta_rate, fta_name) in data['ftas'].items():
+        for cntry, (fta_rate, fta_name, fta_sp) in data['ftas'].items():
             fta_avail = [base_rate]
             if wto_rate is not None: fta_avail.append(wto_rate)
             if fta_rate is not None: fta_avail.append(fta_rate)
             fta_rec_rate = min(fta_avail)
-            records.append((hs_code, cntry, base_rate, wto_rate, fta_rate, fta_name, fta_rec_rate))
+            
+            cntry_duty_type = "AD_VALOREM"
+            cntry_formula = None
+            if fta_rate is not None and fta_sp is not None:
+                cntry_duty_type = "ALTERNATIVE"
+                cntry_formula = f"{fta_name}: {fta_rate}% 또는 {fta_sp:,.0f}{unit} 중 고액"
+            elif duty_formula:
+                cntry_duty_type = duty_type
+                cntry_formula = duty_formula
+                
+            records.append((hs_code, cntry, base_rate, wto_rate, fta_rate, fta_name, fta_rec_rate, fta_sp or sp_duty, unit if (fta_sp or sp_duty) else None, cntry_duty_type, cntry_formula))
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Drop existing indexes on hs_rate_master to avoid duplicates
-    cursor.execute("DROP INDEX IF EXISTS idx_hs_rate_code")
-    cursor.execute("DROP INDEX IF EXISTS idx_hs_rate_country")
-    cursor.execute("DROP INDEX IF EXISTS ix_hs_rate_master_hs_code")
-    cursor.execute("DROP INDEX IF EXISTS ix_hs_rate_master_id")
+    # Check if columns exist in hs_rate_master, if not recreate table
+    cursor.execute("DROP TABLE IF EXISTS hs_rate_master")
+    cursor.execute("""
+        CREATE TABLE hs_rate_master (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            hs_code TEXT NOT NULL,
+            country_code TEXT NOT NULL,
+            base_rate REAL,
+            wto_rate REAL,
+            fta_rate REAL,
+            fta_name TEXT,
+            recommended_rate REAL,
+            specific_rate REAL,
+            specific_unit TEXT,
+            duty_type TEXT DEFAULT 'AD_VALOREM',
+            duty_formula TEXT
+        )
+    """)
     
-    cursor.execute("DELETE FROM hs_rate_master")
-    conn.commit()
-    
-    print(f"💾 고효율 최적화 레코드 일괄 적재 중... (총 {len(records):,}개 세율 레코드)")
+    print(f"💾 종가/종량 선택세율 포함 정밀 레코드 일괄 적재 중... (총 {len(records):,}개 세율 레코드)")
     cursor.executemany("""
-        INSERT INTO hs_rate_master (hs_code, country_code, base_rate, wto_rate, fta_rate, fta_name, recommended_rate)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO hs_rate_master (hs_code, country_code, base_rate, wto_rate, fta_rate, fta_name, recommended_rate, specific_rate, specific_unit, duty_type, duty_formula)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, records)
     
     # 단일 복합 고속 인덱스 생성
