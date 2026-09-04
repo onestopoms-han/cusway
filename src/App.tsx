@@ -7,6 +7,7 @@ import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
 import ClearanceWizard from './components/ClearanceWizard'
 import LawNewsPortal from './components/LawNewsPortal'
+import KakaoConsultModal from './components/KakaoConsultModal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -64,6 +65,9 @@ export default function App() {
   const [settingsCompanyName, setSettingsCompanyName] = useState('');
   const [settingsPassword, setSettingsPassword] = useState('');
   const [settingsError, setSettingsError] = useState('');
+
+  // Kakao 1:1 Live Consultation Modal State
+  const [showKakaoModal, setShowKakaoModal] = useState(false);
 
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
@@ -224,8 +228,7 @@ export default function App() {
   };
 
   const handleOpenKakaoChat = () => {
-    const channelId = socialConfig?.kakao_channel_id || '_onestopcustoms';
-    window.open(`https://pf.kakao.com/${channelId}/chat`, '_blank');
+    setShowKakaoModal(true);
   };
 
   const handleGoogleRedirect = () => {
@@ -1765,6 +1768,62 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* Floating Kakao Consultation Action Button */}
+      <button
+        type="button"
+        onClick={() => setShowKakaoModal(true)}
+        aria-label="카카오톡 1:1 관세 상담"
+        style={{
+          position: 'fixed',
+          bottom: isMobile ? '76px' : '28px',
+          right: '24px',
+          zIndex: 9990,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '9px',
+          background: 'linear-gradient(135deg, #FEE500 0%, #FBBF24 100%)',
+          color: '#111827',
+          padding: isMobile ? '10px 16px' : '12px 20px',
+          borderRadius: '50px',
+          fontWeight: 900,
+          fontSize: isMobile ? '0.82rem' : '0.88rem',
+          boxShadow: '0 8px 24px rgba(254, 229, 0, 0.45), 0 2px 6px rgba(0,0,0,0.35)',
+          border: '2px solid rgba(255,255,255,0.7)',
+          cursor: 'pointer',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-3px) scale(1.03)';
+          e.currentTarget.style.boxShadow = '0 12px 30px rgba(254, 229, 0, 0.6), 0 4px 10px rgba(0,0,0,0.3)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+          e.currentTarget.style.boxShadow = '0 8px 24px rgba(254, 229, 0, 0.45), 0 2px 6px rgba(0,0,0,0.35)';
+        }}
+      >
+        <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>💬</span>
+        <span>카카오 관세상담</span>
+        <span style={{ 
+          background: '#EF4444', 
+          color: '#fff', 
+          fontSize: '0.65rem', 
+          fontWeight: 900, 
+          padding: '2px 7px', 
+          borderRadius: '12px',
+          letterSpacing: '0.04em',
+          boxShadow: '0 1px 3px rgba(239, 68, 68, 0.4)'
+        }}>
+          LIVE
+        </span>
+      </button>
+
+      {/* Kakao 1:1 Live & Dedicated Customs Broker Consultation Modal */}
+      <KakaoConsultModal 
+        isOpen={showKakaoModal} 
+        onClose={() => setShowKakaoModal(false)} 
+        currentUser={currentUser} 
+      />
     </div>
   )
 }

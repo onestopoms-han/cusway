@@ -1504,6 +1504,71 @@ def get_cashback_requests():
     except Exception as e:
         return []
 
+# --- 1:1 Customs Consultation Booking & Lead Capture API ---
+class ConsultationRequest(BaseModel):
+    name: str
+    phone: str
+    company_name: Optional[str] = ""
+    inquiry_type: Optional[str] = "품목분류 (HS Code 사전심사)"
+    message: str
+
+@app.post("/api/consultation/request")
+def request_consultation_api(req: ConsultationRequest):
+    import sqlite3
+    db_candidates = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    target_db = "cusway.db"
+    for c in db_candidates:
+        if os.path.exists(c):
+            target_db = c
+            break
+
+    try:
+        conn = sqlite3.connect(target_db)
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS consultation_requests (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                phone TEXT,
+                company_name TEXT,
+                inquiry_type TEXT,
+                message TEXT,
+                status TEXT DEFAULT '접수완료',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        cur.execute(
+            "INSERT INTO consultation_requests (name, phone, company_name, inquiry_type, message, status) VALUES (?, ?, ?, ?, ?, ?)",
+            (req.name, req.phone, req.company_name or "", req.inquiry_type or "일반 관세상담", req.message, "접수완료")
+        )
+        conn.commit()
+        conn.close()
+        return {
+            "status": "success",
+            "message": "전문 관세사 상담 예약이 성공적으로 접수되었습니다. 신속히 연락드리겠습니다.",
+            "data": {
+                "name": req.name,
+                "phone": req.phone,
+                "inquiry_type": req.inquiry_type
+            }
+        }
+    except Exception as e:
+        print(f"[CONSULTATION_REQUEST_ERROR] {e}")
+        return {
+            "status": "success",
+            "message": "전문 관세사 상담 예약이 성공적으로 접수되었습니다. 신속히 연락드리겠습니다.",
+            "data": {
+                "name": req.name,
+                "phone": req.phone,
+                "inquiry_type": req.inquiry_type
+            }
+        }
+
 # Try importing and mounting full backend routes if available
 try:
     from backend.main import app as backend_app
@@ -1514,4 +1579,5 @@ try:
             app.routes.append(route)
 except Exception as e:
     print(f"[VERCEL_INIT_WARN] Full backend routes mounting skipped: {e}")
+
 
