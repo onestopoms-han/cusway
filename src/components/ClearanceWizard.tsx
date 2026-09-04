@@ -282,6 +282,7 @@ export default function ClearanceWizard({
     { code: 'VN', name: '베트남 (한-ASEAN)' },
     { code: 'AU', name: '호주 (한-호주)' },
     { code: 'CL', name: '칠레 (한-칠레)' },
+    { code: 'PE', name: '페루 (한-페루)' },
     { code: 'JP', name: '일본 (RCEP)' }
   ];
 

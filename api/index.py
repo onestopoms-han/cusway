@@ -816,6 +816,10 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         country_fta_tip = "🇻🇳 [한-베트남 / 한-아세안 실무] 한-베트남 FTA(Form KV) 또는 한-아세안 FTA(Form AK) 중 더 유리한 협정세율을 선택하여 적용할 수 있습니다."
     elif origin_upper == "CL":
         country_fta_tip = "🇨🇱 [한-칠레 FTA 실무] 칠레산 농산물/와인/공산품 협정세율 적용 시 칠레 공인기관(DIRECON/수출진흥국) 발급 C/O 또는 서식이 필요합니다."
+    elif origin_upper == "PE":
+        country_fta_tip = "🇵🇪 [한-페루 FTA 실무] 2011년 8월 발효된 한-페루 FTA에 따라 현재 10년 이상 경과되어 주요 농수산물(아보카도, 망고, 포도, 아스파라거스, 커피, 오징어 등) 및 공산품이 0.0% 무관세 적용 대상입니다. 페루 공인기관 발급 원산지증명서(C/O)를 구비하십시오."
+    elif origin_upper == "IN":
+        country_fta_tip = "🇮🇳 [한-인도 CEPA 실무] 인도 수출검사위원회(EIC) 등 공인기관에서 발급된 원산지증명서(C/O)를 구비하십시오."
     elif origin_upper == "AU":
         country_fta_tip = "🇦🇺 [한-호주 FTA 실무] 호주 상공회의소 등 발급기관 증명서 또는 지정 서식의 원산지증명서가 필요합니다."
     elif origin_upper in {"GB", "UK"}:
