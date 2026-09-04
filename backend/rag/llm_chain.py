@@ -95,9 +95,12 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     relevant_notes = retrieve_relevant_notes(combined_query, db)
     relevant_precedents = retrieve_relevant_precedents(combined_query, db)
     
+    from backend.rag.retriever import clean_korean_explanatory_note
     references_text = ""
     for note in relevant_notes:
-        references_text += f"\n[호 세호 코드: {note.heading}]\n- 부/류명: {note.section} / {note.chapter}\n- 해설내용: {note.content_ko[:1200]}\n"
+        sanitized_note = clean_korean_explanatory_note(note.content_ko, note.heading)
+        references_text += f"\n[호 세호 코드: {note.heading}]\n- 부/류명: {note.section} / {note.chapter}\n- 해설내용: {sanitized_note[:1200]}\n"
+
 
     precedents_context = ""
     for prec in relevant_precedents:

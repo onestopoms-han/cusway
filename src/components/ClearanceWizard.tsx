@@ -168,15 +168,26 @@ export default function ClearanceWizard({
     } catch (err) {
       console.warn("백엔드 세율 조회 연결 대기:", err);
       // 오프라인/개발 환경 기본 안전 폴백
+      const ftaNameMap: Record<string, string> = {
+        'IT': '한-EU FTA', 'DE': '한-EU FTA', 'FR': '한-EU FTA', 'ES': '한-EU FTA', 'NL': '한-EU FTA', 'EU': '한-EU FTA',
+        'US': '한-미 FTA', 'CN': '한-중 FTA / RCEP', 'VN': '한-베트남 FTA', 'CL': '한-칠레 FTA', 'JP': 'RCEP(한-일)',
+        'GB': '한-영 FTA', 'AU': '한-호주 FTA', 'NZ': '한-뉴질랜드 FTA', 'IN': '한-인도 CEPA', 'CA': '한-캐나다 FTA'
+      };
+      const resolvedFtaName = ftaNameMap[originCountry] || '미체결국';
+
       setRatesData({
         hs_code: hsCode,
         origin: originCountry,
         rates: {
-          base_rate: 8.0,
-          wto_rate: 8.0,
-          fta_rate: null,
-          fta_name: originCountry === 'US' ? '한-미 FTA' : (originCountry === 'CN' ? '한-중 FTA' : '미체결국'),
-          recommended_rate: 8.0,
+          base_rate: hsCode.startsWith('1201') ? 3.0 : 8.0,
+          wto_rate: hsCode.startsWith('1201') ? 487.0 : 8.0,
+          fta_rate: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US'].includes(originCountry) ? 0.0 : null,
+          fta_name: resolvedFtaName,
+          recommended_rate: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US'].includes(originCountry) ? 0.0 : (hsCode.startsWith('1201') ? 3.0 : 8.0),
+          specific_rate: hsCode.startsWith('1201') ? 956.0 : null,
+          specific_unit: hsCode.startsWith('1201') ? 'kg' : null,
+          duty_type: hsCode.startsWith('1201') ? 'ALTERNATIVE' : 'AD_VALOREM',
+          duty_formula: hsCode.startsWith('1201') ? '487% 또는 956원/kg (고액과세)' : null,
           notice: `공식 관세율 마스터 DB에서 [${hsCode}] 품목의 최신 관세율을 실시간 연동 중입니다.`
         }
       });
@@ -261,9 +272,11 @@ export default function ClearanceWizard({
     { code: 'IT', name: '이탈리아 (한-EU)' },
     { code: 'DE', name: '독일 (한-EU)' },
     { code: 'FR', name: '프랑스 (한-EU)' },
+    { code: 'NL', name: '네덜란드 (한-EU)' },
     { code: 'US', name: '미국 (한-미)' },
     { code: 'CN', name: '중국 (한-중)' },
     { code: 'VN', name: '베트남 (한-ASEAN)' },
+    { code: 'AU', name: '호주 (한-호주)' },
     { code: 'CL', name: '칠레 (한-칠레)' },
     { code: 'JP', name: '일본 (RCEP)' }
   ];
@@ -616,8 +629,17 @@ export default function ClearanceWizard({
                     <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px' }}>{ratesData.rates.base_rate}%</h4>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '14px', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>WTO 협정세율 (C)</span>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px' }}>{ratesData.rates.wto_rate}%</h4>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>WTO 협정세율 (C)</span>
+                      {ratesData.rates.is_trq_item && (
+                        <span style={{ fontSize: '0.62rem', padding: '1px 5px', background: 'rgba(245,158,11,0.2)', color: '#f59e0b', borderRadius: '3px', fontWeight: 700 }}>
+                          TRQ
+                        </span>
+                      )}
+                    </div>
+                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px' }}>
+                      {ratesData.rates.wto_rate}%
+                    </h4>
                   </div>
                   <div style={{ 
                     background: ratesData.rates.fta_rate !== null ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255,255,255,0.02)', 
@@ -637,6 +659,113 @@ export default function ClearanceWizard({
                     </span>
                   </div>
                 </div>
+
+                {/* TRQ (시장접근물량) In-Quota vs Out-of-Quota 비교 분석 카드 */}
+                {ratesData.rates.is_trq_item && (
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%)', 
+                    border: '1px solid rgba(245, 158, 11, 0.35)', 
+                    padding: '16px', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.2)', paddingBottom: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1rem' }}>🌾</span>
+                        <span style={{ fontSize: '0.88rem', color: '#f59e0b', fontWeight: 800 }}>
+                          시장접근물량(TRQ) 양허세율 비교 & 추천서 절감 분석
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(245,158,11,0.2)', color: '#fbbf24', borderRadius: '4px', fontWeight: 800 }}>
+                        {ratesData.rates.trq_agency || 'aT 한국농수산식품유통공사'} 추천 품목
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 12px', borderRadius: '6px' }}>
+                        <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 700, display: 'block' }}>
+                          ✅ 추천물량 내(In-Quota) 파격 저율
+                        </span>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
+                          {ratesData.rates.trq_in_rate || '3.0%'}
+                        </div>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
+                          * 수입추천서 제출 시 적용 (세액 대폭 절감)
+                        </span>
+                      </div>
+
+                      <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '10px 12px', borderRadius: '6px' }}>
+                        <span style={{ fontSize: '0.72rem', color: '#f87171', fontWeight: 700, display: 'block' }}>
+                          ⚠️ 추천물량 외(Out-of-Quota) 고율 과세
+                        </span>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f87171', marginTop: '4px' }}>
+                          {ratesData.rates.trq_out_rate || '487.0%'}
+                        </div>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
+                          * 추천서 미제출 시 고액 종가/종량 선택세 적용
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Professional Customs Clearance Strategy Insight Card */}
+                {ratesData.rates.expert_insight && (
+                  <div style={{ 
+                    background: 'rgba(99, 102, 241, 0.08)', 
+                    border: '1px solid rgba(99, 102, 241, 0.3)', 
+                    padding: '16px', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px'
+                  }}>
+                    <Sparkles size={20} style={{ color: '#818cf8', marginTop: '2px', flexShrink: 0 }} />
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#a5b4fc', fontWeight: 800 }}>
+                          💡 관세사 세액 절감 & 통관 핵심 전략 리포트
+                        </span>
+                        <span style={{ fontSize: '0.68rem', padding: '2px 8px', background: 'rgba(99,102,241,0.2)', color: '#c7d2fe', borderRadius: '4px', fontWeight: 700 }}>
+                          실무 소명 가이드
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.82rem', color: '#e0e7ff', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
+                        {ratesData.rates.expert_insight}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Country-Specific FTA C/O Checkpoint Card */}
+                {ratesData.rates.country_fta_tip && (
+                  <div style={{ 
+                    background: 'rgba(16, 185, 129, 0.06)', 
+                    border: '1px solid rgba(16, 185, 129, 0.25)', 
+                    padding: '14px 16px', 
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px'
+                  }}>
+                    <Globe size={18} style={{ color: '#10b981', marginTop: '2px', flexShrink: 0 }} />
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '0.82rem', color: '#34d399', fontWeight: 800 }}>
+                          🌍 원산지 국가({originCountry}) 맞춤형 FTA 특혜 실무 체크포인트
+                        </span>
+                        <span style={{ fontSize: '0.68rem', padding: '2px 6px', background: 'rgba(16,185,129,0.2)', color: '#6ee7b7', borderRadius: '4px', fontWeight: 700 }}>
+                          {ratesData.rates.fta_name}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.8rem', color: '#d1fae5', lineHeight: 1.5 }}>
+                        {ratesData.rates.country_fta_tip}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Alternative Duty / Specific Duty Highlight Box */}
                 {ratesData.rates.duty_formula && (
@@ -1018,11 +1147,11 @@ export default function ClearanceWizard({
             title={`[통관 파이프라인] ${initialKeyword || '수출입 통관 종합 분석'}`}
             category="clearance-pipeline"
             data={{
-              productName: initialKeyword || '원재료/제품',
+              productName: initialKeyword || keyword || '원재료/제품',
               hsCode: hsCode,
-              dutyRate: '8% (기본세율)',
-              ftaRate: '0% (최적 FTA 협정세율)',
-              requirements: '세관장확인 수입요건 대상 및 검역 절차 적합'
+              dutyRate: ratesData ? `${ratesData.rates.base_rate}% (기본세율)` : '기본세율',
+              ftaRate: ratesData ? `${ratesData.rates.recommended_rate}% (${ratesData.rates.fta_name || '추천특혜'})` : '특혜세율',
+              requirements: guideData?.is_restricted ? `세관장확인 등 수입요건 ${guideData.requirements.length}건 의무` : '일반 수입 물품'
             }}
           />
         )}

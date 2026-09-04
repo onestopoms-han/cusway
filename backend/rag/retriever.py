@@ -65,6 +65,17 @@ HEADING_ANCHORS = {
     "생 돼지 털": ["05.02", "0502"],
     "돼지 털": ["05.02", "0502"],
     "돈모": ["05.02", "0502"],
+    # Mushroom and agricultural custom items anchors
+    "건조표고버섯": ["07.12", "0712"],
+    "건조 표고버섯": ["07.12", "0712"],
+    "표고버섯": ["07.12", "0712", "07.09", "0709"],
+    "건조 버섯": ["07.12", "0712"],
+    "버섯": ["07.12", "0712", "07.09", "0709"],
+    "건조 송이버섯": ["07.12", "0712"],
+    "송이버섯": ["07.12", "0712", "07.09", "0709"],
+    "목이버섯": ["07.12", "0712"],
+    "양송이버섯": ["07.09", "0709", "07.12", "0712"],
+    "트러플": ["07.12", "0712", "07.09", "0709"],
     "신선 파프리카 (fresh bell pepper)": ["07.09", "0709"],
     "신선 파프리카": ["07.09", "0709"],
     "파프리카": ["07.09", "0709"],
@@ -1496,6 +1507,21 @@ EXCLUSION_RULES = {
         "exclude_headings": ["4903", "9705"],
         "reason": "제49류 주 제3호 및 제97류 주 제4호에 의거하여 아동용 그림책은 4903호, 제작 후 100년이 초과한 역사적 골동 서적은 9705호(수집품)로 우선 분류됩니다."
     },
+    "21": {
+        "keywords": ["건조표고버섯", "표고버섯", "건조 버섯", "건조버섯", "버섯", "건조 채소", "건조채소", "0712", "07.12"],
+        "exclude_headings": ["0712", "07.12"],
+        "reason": "건조 채소 및 건조 표고버섯 등 버섯류는 제21류(각종 조제 식료품)가 아닌 제0712호(건조한 채소)로 분류됩니다 (제21류 주 제1호 가목)."
+    },
+    "21_notes": {
+        "keywords": ["건조표고버섯", "표고버섯", "건조 버섯", "건조버섯", "버섯", "건조 채소", "건조채소", "0712", "07.12"],
+        "exclude_headings": ["0712", "07.12"],
+        "reason": "건조 채소 및 건조 표고버섯 등 버섯류는 제21류(각종 조제 식료품)가 아닌 제0712호(건조한 채소)로 분류됩니다 (제21류 주 제1호 가목)."
+    },
+    "2106": {
+        "keywords": ["건조표고버섯", "표고버섯", "건조 버섯", "건조버섯", "버섯", "건조 채소", "건조채소"],
+        "exclude_headings": ["0712", "07.12"],
+        "reason": "단순 건조한 표고버섯 및 채소류는 조제식료품(제2106호)이 아닌 제0712호로 분류됩니다."
+    },
     "4811": {
         "keywords": ["폴리이미드", "cpi", "에어로겔", "플라스틱", "시트"],
         "exclude_headings": ["3920", "3921"],
@@ -1725,6 +1751,47 @@ KOREAN_TO_ENGLISH_MAP = {
     "살구": "apricot"
 }
 
+FALLBACK_KOREAN_HEADINGS = {
+    "0712": "제0712호: 건조한 채소(원상태인 것ㆍ절단한 것ㆍ얇게 썬 것ㆍ파쇄한 것ㆍ분말상의 것으로서 더 이상 가공하지 않은 것으로 한정한다). 이 호에는 건조한 버섯류(표고버섯, 목이버섯, 양송이버섯, 송이버섯, 트러플 등), 건조 양파, 건조 마늘 등이 포함됩니다. 다만 볶거나 추가 조리 가공한 것은 제외됩니다.",
+    "0709": "제0709호: 그 밖의 채소(신선하거나 냉장한 것으로 한정한다). 이 호에는 신선한 표고버섯, 송이버섯, 양송이버섯 및 파프리카, 아스파라거스 등이 포함됩니다.",
+    "0813": "제0813호: 건조한 과실(제0801호부터 제0806호까지에 해당하는 것은 제외한다)과 이 류의 견과류나 건조한 과실의 혼합물. 설탕이나 알코올을 첨가하지 않고 단순 건조/동결건조한 크랜베리, 곶감, 건살구 등이 분류됩니다.",
+    "1207": "제1207호: 그 밖의 채유용(採油用) 종자와 함유(含油)성이 있는 과실(깨, 들깨, 치아시드 등).",
+    "2101": "제2101호: 커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들의 조제품 또는 커피ㆍ차ㆍ마테를 베이스로 한 조제품, 볶은 치커리와 그 밖의 볶은 커피 대용물과 이들의 추출물ㆍ에센스ㆍ농축물.",
+    "2102": "제2102호: 효모(활성이나 불활성의 것으로 한정한다)와 그 밖의 단세포 미생물(죽은 것으로 한정하며, 제3002호의 백신은 제외한다), 조제한 베이킹파우더.",
+    "2103": "제2103호: 소스와 소스용 조제품, 혼합 조미료, 겨자가루와 조제한 겨자.",
+    "2104": "제2104호: 수프ㆍ브로스(soup and broth)와 수프ㆍ브로스용 조제품, 균질화한 혼합 식료품.",
+    "2106": "제2106호: 따로 분류되지 않은 조제 식료품(건강기능식품, 혼합음료 베이스 등)."
+}
+
+def clean_korean_explanatory_note(content: str, heading: str = "") -> str:
+    """
+    Cleans explanatory note text:
+    1. Strips [ENGLISH VERSION ...] sections and English paragraphs.
+    2. Fallbacks to standard Korean heading explanations if content is purely in English or corrupted.
+    """
+    if not content:
+        heading_clean = heading.replace('.', '').strip()
+        return FALLBACK_KOREAN_HEADINGS.get(heading_clean, f"제{heading}호: 관세율표 및 WCO 품목분류 해설서 법정 규정 품목입니다.")
+
+    # 1. Strip [ENGLISH VERSION...] blocks
+    if "[ENGLISH VERSION" in content:
+        content = content.split("[ENGLISH VERSION")[0].strip()
+    if "ENGLISH VERSION" in content:
+        content = re.split(r'\n+\s*\[?ENGLISH VERSION', content, flags=re.IGNORECASE)[0].strip()
+
+    # 2. Check if remaining content is predominantly English
+    korean_chars = len(re.findall(r'[가-힣]', content))
+    total_chars = len(re.sub(r'\s+', '', content))
+    
+    heading_clean = heading.replace('.', '').strip()
+    if total_chars > 0 and (korean_chars / total_chars) < 0.15:
+        if heading_clean in FALLBACK_KOREAN_HEADINGS:
+            return FALLBACK_KOREAN_HEADINGS[heading_clean]
+        return f"제{heading}호: 관세율표 및 품목분류 해설서 규정에 따른 품목입니다."
+
+    return content.strip()
+
+
 def normalize_korean_keyword(kw: str) -> str:
     """
     Cleans Korean particles (조사) and removes standard material/device suffixes 
@@ -1904,7 +1971,11 @@ def retrieve_relevant_notes(query: str, db: Session):
 
     # Sort matches by calculated score in descending order
     matches.sort(key=lambda x: x[1], reverse=True)
-    return [item[0] for item in matches[:3]]
+    top_notes = [item[0] for item in matches[:3]]
+    for n in top_notes:
+        n.content_ko = clean_korean_explanatory_note(n.content_ko, n.heading)
+    return top_notes
+
 
 
 def retrieve_relevant_precedents(query: str, db: Session):

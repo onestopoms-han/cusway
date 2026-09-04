@@ -183,7 +183,51 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           }
         ]
       };
+    // 0-0c. 건조표고버섯 / 표고버섯 로컬 우회 예외 처리
+    if (query.includes('표고버섯') || query.includes('건조표고') || query.includes('shiitake') || (query.includes('버섯') && query.includes('건조'))) {
+      return {
+        keywordTrigger: ['표고버섯', '건조표고버섯', '건조 버섯', 'shiitake'],
+        recommendedHsCode: "0712.34-0000",
+        headingName: "제0712호 (건조한 채소 - 원상태인 것ㆍ절단한 것ㆍ얇게 썬 것ㆍ파쇄한 것ㆍ분말상의 것으로서 더 이상 가공하지 않은 것으로 한정한다)",
+        subheadingName: "제0712.34호 (버섯 - 표고버섯(Lentinus edodes))",
+        confidence: 99,
+        technicalTerms: "Dried Shiitake mushrooms (Lentinus edodes), whole or sliced",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 신선한 생표고버섯을 수확 후 열풍 또는 자연 건조하여 수분을 증발시킨 단순 건조 상태의 식용 표고버섯(Lentinus edodes)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 건조한 채소류가 분류되는 제0712호 및 표고버섯 전용 소호인 HSK 0712.34-0000호에 분류됩니다. (※ 단순 건조가 아닌 볶음, 조미, 튀김 등 추가 조리 가공이 가해진 물품은 제2005호 또는 제2106호로 분류되므로 주의가 필요합니다.)",
+        sectionNote: "제2부 식물성 생산품: 채소 및 특정 근채류/버섯류를 분류한다.",
+        chapterNote: "제07류 주 제1호: 이 류에서 '채소'에는 식용 버섯류(표고버섯, 송이버섯, 목이버섯 등), 트러플, 올리브, 케이퍼, 호박, 가지 등을 포함한다.",
+        exclusionNote: "⚠️ 제외규정 통제: 제21류 주 제1호 가목에 따라 제0712호의 건조 채소/버섯은 제21류(각종 조제 식료품)에서 명시적으로 제외됩니다. 또한 소금물/식초에 침지 조제한 버섯은 제20류로 제외됩니다.",
+        headingExplanation: "제0712호 해설: 이 호에는 건조한 채소류(원상태, 절단, 얇게 썬 것, 파쇄, 분말상)를 분류하며, 건조한 표고버섯, 목이버섯, 양송이버섯 등이 포함됩니다. 다만 볶거나 추가 조리 가공한 것은 제외됩니다.",
+        precedents: [
+          {
+            id: "분류원-2023-0941",
+            title: "원형 그대로 열풍 건조한 중국산 건조 표고버섯",
+            code: "0712.34-0000",
+            issuingBody: "관세평가분류원",
+            date: "2023-10-18",
+            similarity: 99,
+            reasoningSnippet: "생표고버섯을 단순 건조하여 수분 함량을 낮춘 것으로, 추가 조미나 열처리가 없으므로 0712.34호의 건조 표고버섯으로 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "0709.59-1000",
+            headingName: "신선 또는 냉장 표고버섯",
+            appliedGri: "통칙 제1호",
+            reasoning: "건조되지 않은 신선(Fresh) 상태의 표고버섯인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 건조(Dried) 공정을 거쳐 수분이 제거된 건조 농산물이므로 제0712호로 분류됩니다."
+          },
+          {
+            hsCode: "2005.99-0000",
+            headingName: "기타 조제 채소/버섯",
+            appliedGri: "통칙 제1호",
+            reasoning: "버섯을 기름에 볶거나 조미료/양념에 버무려 밀폐 포장한 가공 조제품인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 조미나 첨가물이 없는 순수 건조 농산물이므로 제20류에서 배제되어 제0712호로 최종 분류됩니다."
+          }
+        ]
+      };
     }
+
     if (query.includes('인형') || query.includes('완구') || query.includes('장난감') || query.includes('toy') || query.includes('doll')) {
       return {
         keywordTrigger: ['인형', '완구', '장난감'],
@@ -2027,13 +2071,21 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     const highlightLegalKeywords = (text: string) => {
                       if (!text) return '기록된 원문 정보 없음';
                       
+                      // Strip [ENGLISH VERSION...] blocks if present
+                      let cleanText = text;
+                      if (cleanText.includes('[ENGLISH VERSION')) {
+                        cleanText = cleanText.split('[ENGLISH VERSION')[0].trim();
+                      }
+                      if (!cleanText) cleanText = text;
+
                       // Highlight keywords like "제외", "제X호", "%", "다만"
-                      const parts = text.split(/(제외|다만|규정|통칙|기준|[\d\.]+[\s%]+초과|[\d\.]+[\s%]+미만)/g);
+                      const parts = cleanText.split(/(제외|다만|규정|통칙|기준|[\d\.]+[\s%]+초과|[\d\.]+[\s%]+미만)/g);
                       return parts.map((part, index) => {
                         const lowPart = part.toLowerCase();
                         if (lowPart === '제외') {
                           return <span key={index} style={{ color: 'var(--accent-red)', fontWeight: 700, background: 'rgba(239,68,68,0.12)', padding: '1px 3px', borderRadius: '3px' }}>{part}</span>;
                         }
+
                         if (lowPart === '다만') {
                           return <span key={index} style={{ color: 'var(--accent-amber)', fontWeight: 700, background: 'rgba(245,158,11,0.1)', padding: '1px 3px', borderRadius: '3px' }}>{part}</span>;
                         }

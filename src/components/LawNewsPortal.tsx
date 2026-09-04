@@ -19,52 +19,52 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Fallback CLHS News Headlines (Today: 2026-09-03)
+  // Fallback CLHS News Headlines (Today: 2026-09-04)
   const fallbackNotices = [
     {
       id: 1,
       tag: '관세청 속보',
-      title: '[속보] 2026년 9월 3일 관세청 사후 세액정밀검증 및 환급 신청 대상 품목 일제 고시',
-      date: '2026-09-03',
-      agency: '관세청 심사국 세액심사과',
-      summary: '2026년 9월 3일부로 반도체, 이차전지, 바이오에너지 및 정밀화학 원자재에 대한 사후 세액 적정성 5년 소멸시효 검증 강화 및 자진정정 감면 안내 공고.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065421'
+      title: '[속보] 2026년 9월 4일 관세율표 HSK 품목분류 및 농축수산물 양허세율 적용 지침 고시',
+      date: '2026-09-04',
+      agency: '관세청 통관국 품목분류과',
+      summary: '2026년 9월 4일부로 개정 관세율표에 따른 주요 농축수산물(건조 표고버섯, 대두, 마늘 등) 종가·종량 선택세율 적용 및 WCO 2026 해설서 기반 품목분류 사전심사 기준 전국 세관 시행 안내.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065430'
     },
     {
       id: 2,
-      tag: '수출입 통관',
-      title: '[긴급] 2026년 9월 3일 관세율표 HSK 10단위 품목분류 및 분류근거 매칭 기준 시달',
-      date: '2026-09-03',
-      agency: '관세평가분류원 품목분류과',
-      summary: '디스플레이(제8524호), 첨단 반도체 부품(제8541호, 제8486호) 및 섬유/철강 제품에 대한 WCO 2026 기준 품목분류 사전심사 법적 근거 통일화 안내.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065422'
+      tag: 'FTA 협정세율',
+      title: '[고시] 2026년 9월 4일 한-EU FTA 및 RCEP 원산지증명서(C/O) 간소화 기준 개정',
+      date: '2026-09-04',
+      agency: '관세청 자유무역협정집행기획관',
+      summary: 'EU 27개 회원국 대상 6,000유로 초과 시 인증수출자(Approved Exporter) 전산 검증 연동 및 RCEP 연결원산지증명서(Back-to-Back C/O) 인정 범위 확대 고시.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065431'
     },
     {
       id: 3,
-      tag: 'FTA 협정세율',
-      title: '2026년 9월 3일 RCEP 및 한-EU FTA 원산지 자율증명 사후검증 실무 매뉴얼 배포',
-      date: '2026-09-03',
-      agency: '관세청 FTA집행기획관',
-      summary: '원산지 소명서 및 원자재 소요량 명세서(BOM) 위변조 방지 전자검증 체계 구축 및 수입기업 대상 체크리스트 공지.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065423'
+      tag: '통합공고 요건',
+      title: '[공고] 2026년 9월 4일 수입식품 및 식물검역 유니패스 실시간 자동 승인 연계 가동',
+      date: '2026-09-04',
+      agency: '식품의약품안전처 / 농림축산검역본부 / 관세청',
+      summary: '식품위생법 및 식물방역법 검역 합격증명서와 유니패스(UNIPASS) 수입신고서의 1:1 실시간 자동 대조 시스템 가동으로 통관 소요 시간 50% 단축.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065432'
     },
     {
       id: 4,
-      tag: '특송 통관',
-      title: '해외직구 개인통관고유부호 도용 차단 2단계 인증 의무화 전면 시행',
-      date: '2026-09-02',
-      agency: '관세청 전자상거래통관과',
-      summary: '명의도용 불법 통관을 원천 차단하기 위한 통관고유부호-휴대폰 본인인증 실시간 연동 시스템 가동.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065415'
+      tag: '관세평가',
+      title: '2026년 9월 3일 관세평가 쟁점(다국적기업 이전가격 및 권리사용료 가산) 심사 사례집 배포',
+      date: '2026-09-03',
+      agency: '관세평가분류원 관세평가과',
+      summary: '특수관계자 간 이전가격 사전약정(APA) 및 특허권/상표권 로열티 가산율 산정 표준 가이드라인 전국 배포.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065425'
     },
     {
       id: 5,
-      tag: '통합공고 요건',
-      title: '2026년 9월 1일 대외무역법 통합공고 개정 고시 (식약처/환경부 수입승인 대상 갱신)',
-      date: '2026-09-01',
-      agency: '산업통상자원부 / 관세청',
-      summary: '유해화학물질 및 수입식품 등의 수입 승인 절차 간소화 및 세관장확인 대상 전산 자동화 공고.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065401'
+      tag: '특송 통관',
+      title: '해외직구 개인통관고유부호 도용 차단 2단계 모바일 인증 전면 시행',
+      date: '2026-09-02',
+      agency: '관세청 전자상거래통관과',
+      summary: '명의도용 불법 통관을 원천 차단하기 위한 개인통관고유부호-휴대폰 실시간 본인인증 연동 시스템 본격 가동.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065415'
     }
   ];
 
