@@ -679,21 +679,25 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
           {/* Privacy & Legal Security Shield Banner */}
           <div style={{
-            background: 'rgba(16, 185, 129, 0.06)',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            borderRadius: '10px',
-            padding: '14px',
-            fontSize: '0.78rem',
-            color: '#a7f3d0',
+            background: '#064e3b',
+            border: '2px solid #10b981',
+            borderRadius: '12px',
+            padding: '16px 18px',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'flex-start',
-            gap: '10px',
-            lineHeight: 1.5
+            gap: '12px',
+            lineHeight: 1.6,
+            boxShadow: '0 4px 15px rgba(6, 78, 59, 0.3)'
           }}>
-            <ShieldCheck size={20} style={{ color: '#34d399', flexShrink: 0, marginTop: '2px' }} />
-            <div>
-              <strong style={{ color: '#fff' }}>🔒 CUSWAY 비식별화(개인정보 마스킹) 안심 보증:</strong><br />
-              업로드된 결정서는 AI RAG 색인 전 수입자명, 상호, 계좌번호 등 영업 비밀 정보를 시스템 차원에서 자동 마스킹(블라인드 처리)하여 안전하게 보호됩니다.
+            <ShieldCheck size={24} style={{ color: '#34d399', flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ color: '#34d399', fontWeight: 800, fontSize: '0.92rem', marginBottom: '4px' }}>
+                🔒 CUSWAY 비식별화(개인정보 마스킹) 안심 보증
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#ecfdf5', fontWeight: 500, lineHeight: 1.6 }}>
+                업로드된 결정서는 AI RAG 색인 전 <strong>수입자 상호, 대표자명, 사업자번호, 계좌정보 등 모든 영업비밀을 시스템 차원에서 자동 마스킹(블라인드 처리)</strong>하여 외부에 절대 노출되지 않도록 철저히 보호됩니다.
+              </p>
             </div>
           </div>
         </div>
@@ -796,16 +800,20 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
           {/* Value Mechanism Footer Box */}
           <div style={{
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px dashed rgba(255,255,255,0.15)',
-            borderRadius: '10px',
-            padding: '14px',
-            fontSize: '0.78rem',
-            color: 'var(--text-muted)',
-            lineHeight: 1.5
+            background: 'rgba(15, 23, 42, 0.75)',
+            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '12px',
+            padding: '16px',
+            fontSize: '0.82rem',
+            color: '#f8fafc',
+            lineHeight: 1.6
           }}>
-            💡 <strong>비공개 자료 가치 책정 기준:</strong><br />
-            CUSWAY AI는 관세청 공개 포털(CLIP)에 등재되지 않은 미공개 결정문 및 승소(처분 취소) 판결을 최상위 가치로 감정합니다. 적립된 포인트는 차월 솔루션 청구 시 자동 차감됩니다.
+            <div style={{ color: 'var(--accent-amber)', fontWeight: 800, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              💡 비공개 자료 가치 책정 기준 안내
+            </div>
+            <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.8rem', lineHeight: 1.5 }}>
+              CUSWAY AI는 관세청 공개 포털(CLIP)에 등재되지 않은 <strong>미공개 희귀 결정문 및 승소(처분 취소) 판결을 최상위 가치</strong>로 감정합니다. 적립된 캐시백 포인트는 차월 솔루션 이용료 결제 시 <strong>100% 전액 자동 차감</strong>됩니다.
+            </p>
           </div>
         </div>
 
