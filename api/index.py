@@ -738,6 +738,11 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         trq_in_rate = 40.0
         trq_out_rate = "630% 또는 6,660원/kg (선택세)"
         expert_insight = "본 품목(참깨)은 TRQ 추천 내 40%, 추천 외 수입 시 630% 또는 6,660원/kg의 고액 양허세율이 적용됩니다."
+    elif clean.startswith("0701"): # 감자
+        trq_in_rate = 30.0
+        trq_out_rate = "304.0%"
+        trq_agency = "한국농수산식품유통공사(aT)"
+        expert_insight = "본 품목(감자, 0701.90)은 농림축산물 시장접근물량(TRQ) 양허 품목입니다. aT(한국농수산식품유통공사)의 수입추천서를 구비하면 추천물량 내 30.0%의 저율이 적용되며, 추천서 미구비 시 304.0%의 고율 양허관세가 부과됩니다. (한-EU/한-미 FTA 등 대부분의 협정에서 양허제외되므로 aT 추천서 구비가 관세 절감의 핵심입니다.)"
     elif clean.startswith("1207.99") or clean.startswith("120799"): # 들깨
         trq_in_rate = 40.0
         trq_out_rate = "40% 또는 369원/kg (선택세)"
