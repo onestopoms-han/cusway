@@ -22,7 +22,7 @@ if %errorlevel% neq 0 (
 )
 
 echo [3/5] Staging changes...
-git add backend/*.py backend/rag/*.py backend/utils/* src/* tests/* requirements.txt package.json vercel.json .gitignore cusway.db
+git add api/* backend/*.py backend/rag/*.py backend/utils/* src/* public/* index.html tests/* requirements.txt package.json vercel.json .gitignore cusway.db
 
 echo [4/5] Committing changes...
 if "%1"=="" (

@@ -994,7 +994,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     : material;
                   
                   const subject = `[CUSWAY] 수입물품 HS Code 분류 및 소명 리포트 통지`;
-                  const body = `품목명: ${activeProdName}\n재질성분: ${activeMaterial || '미기재'}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n\n■ 법적 소명 근거:\n${matchedRule ? matchedRule.legalReasoning : ''}\n\n상세 정보 및 관세율표 해설서 원문은 사이트에서 확인해 주세요: https://www.cusway.kr`;
+                  const body = `품목명: ${activeProdName}\n재질성분: ${activeMaterial || '미기재'}\n추천 HS Code: ${matchedRule ? matchedRule.recommendedHsCode : '분류요망'}\n\n■ 법적 소명 근거:\n${matchedRule ? matchedRule.legalReasoning : ''}\n\n상세 정보 및 관세율표 해설서 원문은 사이트에서 확인해 주세요: https://cusway.kr`;
                   
                   window.location.href = `mailto:${emailAddr}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                 }}

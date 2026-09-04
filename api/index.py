@@ -161,7 +161,7 @@ def social_login_google(req: SocialCallbackRequest):
             data_dict = {
                 "code": code,
                 "client_id": client_id,
-                "redirect_uri": req.redirect_uri or "https://www.cusway.kr/",
+                "redirect_uri": req.redirect_uri or "https://cusway.kr/",
                 "grant_type": "authorization_code"
             }
             if client_secret and client_secret.strip() and client_secret != "demo_google_secret":
@@ -714,19 +714,16 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             duty_type = row[4]
             duty_formula = row[5]
 
-    notice_prefix = ""
-    if duty_type == "ALTERNATIVE" and duty_formula:
-        notice_prefix = f"[⚠️ 선택세율 대상] {duty_formula} | "
-    elif duty_type == "SPECIFIC" and duty_formula:
-        notice_prefix = f"[종량세율 대상] {duty_formula} | "
-
-    if fta_rate is not None and recommended_rate == fta_rate:
-        notice = f"{notice_prefix}최적 특혜 적용에 따라 {fta_name} 세율 {fta_rate}% 적용을 추천합니다. [{origin_upper}] 통관 시 원산지증명서(C/O) 구비가 필수입니다."
-    elif wto_rate is not None and recommended_rate == wto_rate:
-        notice = f"{notice_prefix}WTO 협정(양허)세율 {wto_rate}%가 기본세율({base_rate}%)보다 유리하여 WTO 양허관세 적용을 추천합니다."
-    elif fta_info and fta_rate is None:
-        notice = f"{notice_prefix}[{fta_info[0]}] 해당 품목은 FTA 양허제외/미양허 품목이므로 기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin_upper})"
+    # 최적 통관 요약 Notice 문구 생성
+    if duty_formula:
+        notice = f"[⚠️ 선택세율 대상] {duty_formula} | 최저 특혜세율 {recommended_rate}%가 적용됩니다. (원산지: {origin_upper})"
+    elif fta_rate is not None and recommended_rate == fta_rate:
+        notice = f"[⭐ 최적 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
+    elif is_trq_item:
+        notice = f"[🌾 TRQ 수입추천 품목] 수입추천서 구비 시 {recommended_rate}% 적용 / 미구비 시 일반 기본세율({base_rate}%) 또는 고액 선택세가 적용됩니다."
     else:
+        notice = f"기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin_upper})"
+
     # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
     is_trq_item = any(clean.startswith(pref) for pref in ["1201", "1207", "0703", "0712", "0904", "0701", "1006", "0813", "0402"])
     trq_in_rate = None
@@ -774,6 +771,8 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         country_fta_tip = "🇻🇳 [한-베트남 / 한-아세안 실무] 한-베트남 FTA(Form KV) 또는 한-아세안 FTA(Form AK) 중 더 유리한 협정세율을 선택하여 적용할 수 있습니다."
     elif origin_upper == "CL":
         country_fta_tip = "🇨🇱 [한-칠레 FTA 실무] 칠레산 농산물/공산품 협정세율 적용 시 칠레 공인기관 발급 C/O가 필요합니다."
+    elif origin_upper == "AU":
+        country_fta_tip = "🇦🇺 [한-호주 FTA 실무] 호주 상공회의소 등 발급기관 증명서 또는 지정 서식의 원산지증명서가 필요합니다."
 
     return {
         "hs_code": hs_code,
