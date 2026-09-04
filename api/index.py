@@ -636,15 +636,21 @@ def get_representative_countries(origin: str) -> List[str]:
     if origin_upper in EU_COUNTRIES:
         targets.extend(["EU", "IT", "DE", "FR", "ES", "NL"])
     if origin_upper in ASEAN_COUNTRIES:
-        targets.extend(["ASEAN"])
+        targets.extend(["ASEAN", "VN"])
     if origin_upper in RCEP_COUNTRIES:
         targets.extend(["RCEP"])
-    if origin_upper in {"CH", "NO", "IS", "LI"}:
-        targets.extend(["EFTA"])
+    if origin_upper in {"CH", "NO", "IS", "LI", "EFTA"}:
+        targets.extend(["EFTA", "IT", "EU"])
     if origin_upper in {"GB", "UK"}:
         targets.extend(["GB", "UK"])
     if origin_upper == "CL":
         targets.extend(["CL", "CHILE"])
+    if origin_upper == "PE":
+        targets.extend(["PE", "PERU"])
+    if origin_upper in {"CO", "PA", "CR", "HN", "SV", "NI"}:
+        targets.extend(["PE", "CL"])
+    if origin_upper in {"TR", "IL"}:
+        targets.extend(["IT", "EU"])
         
     return list(set(targets))
 
@@ -689,7 +695,8 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         # FTA 협정세율 조회 (대표국가 포함) - 양허제외 대상 제외
         if not is_all_excluded and not is_china_rcep_excluded:
             placeholders = ', '.join(['?'] * len(target_countries))
-            cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (hs_code = ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL ORDER BY fta_rate ASC LIMIT 1", [clean, f"{clean[:6]}%"] + target_countries)
+            fmt_prefix = f"{clean[:4]}.{clean[4:6]}%" if len(clean) >= 6 else f"{clean}%"
+            cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (replace(replace(hs_code, '.', ''), '-', '') = ? OR hs_code LIKE ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL ORDER BY fta_rate ASC LIMIT 1", [clean, f"{clean[:6]}%", fmt_prefix] + target_countries)
             best_fta = cur.fetchone()
             if best_fta:
                 fta_rate = float(best_fta[0])

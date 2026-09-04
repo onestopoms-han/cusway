@@ -1426,15 +1426,21 @@ def get_representative_countries(origin: str) -> List[str]:
     if origin_upper in EU_COUNTRIES:
         targets.extend(["EU", "IT", "DE", "FR", "ES", "NL"])
     if origin_upper in ASEAN_COUNTRIES:
-        targets.extend(["ASEAN"])
+        targets.extend(["ASEAN", "VN"])
     if origin_upper in RCEP_COUNTRIES:
         targets.extend(["RCEP"])
-    if origin_upper in {"CH", "NO", "IS", "LI"}:
-        targets.extend(["EFTA"])
+    if origin_upper in {"CH", "NO", "IS", "LI", "EFTA"}:
+        targets.extend(["EFTA", "IT", "EU"])
     if origin_upper in {"GB", "UK"}:
         targets.extend(["GB", "UK"])
     if origin_upper == "CL":
         targets.extend(["CL", "CHILE"])
+    if origin_upper == "PE":
+        targets.extend(["PE", "PERU"])
+    if origin_upper in {"CO", "PA", "CR", "HN", "SV", "NI"}:
+        targets.extend(["PE", "CL"])
+    if origin_upper in {"TR", "IL"}:
+        targets.extend(["IT", "EU"])
         
     return list(set(targets))
 
@@ -1448,6 +1454,7 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     formatted_codes = [
         hs_code,
         f"{clean_code[:4]}.{clean_code[4:6]}-{clean_code[6:]}" if len(clean_code) == 10 else hs_code,
+        f"{clean_code[:4]}.{clean_code[4:6]}" if len(clean_code) >= 6 else hs_code,
         clean_code
     ]
     
@@ -1478,7 +1485,7 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     applicable_records = []
     if not is_all_excluded and not is_china_rcep_excluded:
         records = db.query(HSRateMaster).filter(
-            HSRateMaster.hs_code.in_(formatted_codes) & 
+            (HSRateMaster.hs_code.in_(formatted_codes) | HSRateMaster.hs_code.like(f"{clean_code[:6]}%")) & 
             HSRateMaster.country_code.in_(target_countries)
         ).all()
         for r in records:
