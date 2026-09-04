@@ -10,7 +10,7 @@ def _send_email_task(user_email: str, company_name: str, user_type: str, years: 
     smtp_port = int(os.environ.get("SMTP_PORT", 465))
     smtp_user = os.environ.get("SMTP_USER", "")
     smtp_password = os.environ.get("SMTP_PASSWORD", "")
-    admin_recipient = os.environ.get("ADMIN_NOTIFICATION_EMAIL", smtp_user or "pjh@onestopcustoms.com")
+    admin_recipient = os.environ.get("ADMIN_NOTIFICATION_EMAIL", smtp_user or "admin@cusway.kr")
 
     user_type_ko = {
         "broker": "관세사 / 전문가",
@@ -46,7 +46,7 @@ def _send_email_task(user_email: str, company_name: str, user_type: str, years: 
       <div class="container">
         <div class="header">
           <h2>🔔 CUSWAY 신규 회원 가입 알림</h2>
-          <p style="margin: 4px 0 0 0; font-size: 13px; color: #94a3b8;">원스탑 관세사 AI 플랫폼에 새로운 회원이 등록되었습니다.</p>
+          <p style="margin: 4px 0 0 0; font-size: 13px; color: #94a3b8;">CUSWAY AI 관세 통합 플랫폼에 새로운 회원이 등록되었습니다.</p>
         </div>
         <div class="content">
           <p style="font-size: 15px; font-weight: 600; color: #0f172a;">새로운 회원의 상세 정보는 다음과 같습니다:</p>

@@ -279,9 +279,9 @@ def get_all_customers():
             credibility_weight=2.3
         ),
         UserResponse(
-            email="pjh@onestopcustoms.com",
-            company_name="원스탑관세사무소 (대표)",
-            plan="Business",
+            email="admin@cusway.kr",
+            company_name="CUSWAY 관세평가자문단 (마스터)",
+            plan="Enterprise",
             status="Active",
             accrued_points=50000,
             join_date="2026-08-01",

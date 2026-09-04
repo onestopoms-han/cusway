@@ -101,10 +101,10 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
             <span style={{ fontSize: '1.6rem' }}>💬</span>
             <div>
               <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, letterSpacing: '-0.02em' }}>
-                카카오톡 & 전문 관세사 1:1 실시간 상담
+                CUSWAY 1:1 실시간 관세 & 시스템 전문 지원
               </h3>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.85 }}>
-                원스탑 관세법인 공인 관세사 직통 배정
+                관세사 및 수출입 실무자를 위한 CUSWAY 전담 헬프데스크
               </span>
             </div>
           </div>
@@ -142,14 +142,14 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FEE500' }}>
-                ⚡ 카카오톡 앱에서 실시간 1:1 채팅
+                ⚡ CUSWAY 카카오톡 1:1 실시간 채팅 채널
               </span>
               <span style={{ fontSize: '0.7rem', background: '#FEE500', color: '#000', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
-                가장 빠른 답변
+                실시간 빠른 응답
               </span>
             </div>
             <p style={{ margin: 0, fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-              카카오톡 채널로 연결되어 전문 관세사와 실시간으로 1:1 비밀 대화를 나누실 수 있습니다.
+              CUSWAY 공식 카카오톡 채널로 연결되어 시스템 기능, 품목분류·평가 데이터 연동, 비공개 결정례 제휴를 1:1로 신속하게 문의하실 수 있습니다.
             </p>
             <button
               type="button"
@@ -172,13 +172,13 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
               }}
             >
               <MessageCircle size={18} />
-              카카오톡 1:1 채팅 상담 시작하기
+              CUSWAY 카카오톡 1:1 상담 시작하기
             </button>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>또는 빠른 상담 예약 남기기</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>또는 CUSWAY 전문 지원팀에 상담 예약 남기기</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
           </div>
 
@@ -197,10 +197,10 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
             }}>
               <CheckCircle2 size={36} color="#34d399" />
               <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#ffffff', fontWeight: 800 }}>
-                관세사 1:1 상담 접수가 완료되었습니다!
+                CUSWAY 1:1 전문 문의 접수가 완료되었습니다!
               </h4>
               <p style={{ margin: 0, fontSize: '0.82rem', color: '#a7f3d0', lineHeight: 1.5 }}>
-                담당 공인 관세사가 남겨주신 연락처(<strong>{phone}</strong>)로 빠른 시간 내에 직접 연락드리겠습니다.
+                CUSWAY 전문 지원팀에서 남겨주신 연락처(<strong>{phone}</strong>)로 확인 후 신속하게 연락드리겠습니다.
               </p>
             </div>
           ) : (
@@ -208,12 +208,12 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '4px', fontWeight: 700 }}>
-                    성함 / 담당자명 *
+                    성함 / 담당자(관세사)명 *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="홍길동"
+                    placeholder="홍길동 관세사 / 담당자"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     style={{
@@ -253,7 +253,28 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '4px', fontWeight: 700 }}>
-                  상담 쟁점 분야
+                  소속 법인 / 사무소 / 기업명
+                </label>
+                <input
+                  type="text"
+                  placeholder="예: 대한관세법인, 한국통상 (선택)"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: '6px',
+                    color: '#fff',
+                    fontSize: '0.84rem'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '4px', fontWeight: 700 }}>
+                  상담 및 지원 분야
                 </label>
                 <select
                   value={inquiryType}
@@ -268,22 +289,22 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
                     fontSize: '0.84rem'
                   }}
                 >
-                  <option value="품목분류 (HS Code 사전심사)">📦 품목분류 (HS Code 결정 및 세관 소명)</option>
-                  <option value="관세평가 (특수관계/이전가격/로열티)">⚖️ 관세평가 (특수관계 이전가격 / 로열티 가산 소명)</option>
-                  <option value="수입요건 및 통관 검역 (식약처/전안법)">📑 수입통관 요건확인 & 검역 면제</option>
-                  <option value="FTA 협정세율 및 원산지 검증">🌍 FTA 협정세율 적용 및 사후 검증 대응</option>
-                  <option value="관세 환급 및 과세처분 경정청구">💰 관세 경정청구 및 과오납 세액 환급</option>
+                  <option value="관세사 실무 협력 & AI HS 분류 엔진 질의">📦 관세사 실무 협력 & AI HS 품목분류 엔진 질의</option>
+                  <option value="비공개 결정례 AI 감정 & 캐시백 정산 문의">💰 비공개 결정례 AI 실시간 가치 감정 & 캐시백 파트너십</option>
+                  <option value="관세평가(특수관계/로열티) 소명 데이터 연동">⚖️ 관세평가(특수관계 이전가격/로열티) 판례 데이터 연동</option>
+                  <option value="수입요건 및 통관 파이프라인 API 연계">📑 수입통관 4대 요건확인 & 통합 파이프라인 연계</option>
+                  <option value="CUSWAY 관세법인/기업 맞춤형 도입 및 제휴">🏢 CUSWAY 관세법인·기업 엔터프라이즈 도입 및 계정 제휴</option>
                 </select>
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '4px', fontWeight: 700 }}>
-                  상담 문의 내용 *
+                  문의 및 요청 내용 *
                 </label>
                 <textarea
                   required
                   rows={3}
-                  placeholder="예: 수입하려는 원자재의 85류 세번 판정이 애매하여 관세청 사전심사 대행 및 소명 의견서 작성을 의뢰하고 싶습니다."
+                  placeholder="예: 관세법인 실무에서 복잡한 전자부품/화학 품목분류 시 AI 사전심사 소명 근거 산출 기능 및 결정례 데이터 연계 방안을 상담받고 싶습니다."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   style={{
@@ -321,7 +342,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
                 }}
               >
                 <Send size={16} />
-                {isSubmitting ? '상담 접수 중...' : '관세사 1:1 상담 예약 신청하기'}
+                {isSubmitting ? '문의 접수 중...' : 'CUSWAY 전문 지원팀에 문의 신청하기'}
               </button>
             </form>
           )}
@@ -340,7 +361,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Phone size={14} color="var(--accent-cyan)" />
-              <span>직통 상담: <strong style={{ color: '#fff' }}>02-540-0000</strong></span>
+              <span>CUSWAY 고객지원센터: <strong style={{ color: '#fff' }}>02-540-0000</strong></span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Clock size={14} color="#f59e0b" />
