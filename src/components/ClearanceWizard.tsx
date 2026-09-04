@@ -175,15 +175,19 @@ export default function ClearanceWizard({
       };
       const resolvedFtaName = ftaNameMap[originCountry] || '미체결국';
 
+      const ftaCountries = ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US', 'CL', 'VN', 'CN', 'AU', 'NZ', 'GB', 'CA', 'SG', 'IN', 'CH', 'NO', 'PE', 'CO', 'TR', 'TH', 'ID', 'MY', 'PH'];
+      const hasFta = ftaCountries.includes(originCountry);
+      const isFtaExempt = ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US', 'CL', 'AU', 'CA', 'GB', 'NZ', 'SG'].includes(originCountry);
+
       setRatesData({
         hs_code: hsCode,
         origin: originCountry,
         rates: {
           base_rate: hsCode.startsWith('1201') ? 3.0 : 8.0,
           wto_rate: hsCode.startsWith('1201') ? 487.0 : 8.0,
-          fta_rate: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US'].includes(originCountry) ? 0.0 : null,
+          fta_rate: hasFta ? (isFtaExempt ? 0.0 : (originCountry === 'CN' ? 4.0 : 2.0)) : null,
           fta_name: resolvedFtaName,
-          recommended_rate: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'US'].includes(originCountry) ? 0.0 : (hsCode.startsWith('1201') ? 3.0 : 8.0),
+          recommended_rate: hasFta ? (isFtaExempt ? 0.0 : (originCountry === 'CN' ? 4.0 : 2.0)) : (hsCode.startsWith('1201') ? 3.0 : 8.0),
           specific_rate: hsCode.startsWith('1201') ? 956.0 : null,
           specific_unit: hsCode.startsWith('1201') ? 'kg' : null,
           duty_type: hsCode.startsWith('1201') ? 'ALTERNATIVE' : 'AD_VALOREM',

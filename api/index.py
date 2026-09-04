@@ -714,16 +714,6 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             duty_type = row[4]
             duty_formula = row[5]
 
-    # 최적 통관 요약 Notice 문구 생성
-    if duty_formula:
-        notice = f"[⚠️ 선택세율 대상] {duty_formula} | 최저 특혜세율 {recommended_rate}%가 적용됩니다. (원산지: {origin_upper})"
-    elif fta_rate is not None and recommended_rate == fta_rate:
-        notice = f"[⭐ 최적 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
-    elif is_trq_item:
-        notice = f"[🌾 TRQ 수입추천 품목] 수입추천서 구비 시 {recommended_rate}% 적용 / 미구비 시 일반 기본세율({base_rate}%) 또는 고액 선택세가 적용됩니다."
-    else:
-        notice = f"기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin_upper})"
-
     # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
     is_trq_item = any(clean.startswith(pref) for pref in ["1201", "1207", "0703", "0712", "0904", "0701", "1006", "0813", "0402"])
     trq_in_rate = None
@@ -770,9 +760,25 @@ def get_rates_api(hs_code: str, origin: str = "US"):
     elif origin_upper == "VN":
         country_fta_tip = "🇻🇳 [한-베트남 / 한-아세안 실무] 한-베트남 FTA(Form KV) 또는 한-아세안 FTA(Form AK) 중 더 유리한 협정세율을 선택하여 적용할 수 있습니다."
     elif origin_upper == "CL":
-        country_fta_tip = "🇨🇱 [한-칠레 FTA 실무] 칠레산 농산물/공산품 협정세율 적용 시 칠레 공인기관 발급 C/O가 필요합니다."
+        country_fta_tip = "🇨🇱 [한-칠레 FTA 실무] 칠레산 농산물/와인/공산품 협정세율 적용 시 칠레 공인기관(DIRECON/수출진흥국) 발급 C/O 또는 서식이 필요합니다."
     elif origin_upper == "AU":
         country_fta_tip = "🇦🇺 [한-호주 FTA 실무] 호주 상공회의소 등 발급기관 증명서 또는 지정 서식의 원산지증명서가 필요합니다."
+    elif origin_upper in {"GB", "UK"}:
+        country_fta_tip = "🇬🇧 [한-영 FTA 실무] 영국산 물품은 한-영 FTA 협정에 따라 특혜 적용되며, 인증수출자 또는 자율 원산지신고서가 적용됩니다."
+    elif origin_upper == "CA":
+        country_fta_tip = "🇨🇦 [한-캐나다 FTA 실무] 한-캐나다 FTA 원산지증명서 서식으로 무관세 특혜 신고가 가능합니다."
+    elif origin_upper in {"CH", "NO", "IS", "LI", "EFTA"}:
+        country_fta_tip = "🇨🇭 [한-EFTA FTA 실무] 스위스/노르웨이/아이슬란드 등 EFTA 협정에 따른 원산지신고서 문안을 확인하십시오."
+
+    # 최적 통관 요약 Notice 문구 생성
+    if duty_formula:
+        notice = f"[⚠️ 선택세율 대상] {duty_formula} | 최저 특혜세율 {recommended_rate}%가 적용됩니다. (원산지: {origin_upper})"
+    elif fta_rate is not None and recommended_rate == fta_rate:
+        notice = f"[⭐ 최적 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
+    elif is_trq_item:
+        notice = f"[🌾 TRQ 수입추천 품목] 수입추천서 구비 시 {recommended_rate}% 적용 / 미구비 시 일반 기본세율({base_rate}%) 또는 고액 선택세가 적용됩니다."
+    else:
+        notice = f"기본세율(A) {base_rate}%가 적용됩니다. (원산지: {origin_upper})"
 
     return {
         "hs_code": hs_code,
