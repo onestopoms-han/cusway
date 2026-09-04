@@ -12,9 +12,12 @@ import {
   Calendar,
   Layers,
   ArrowRight,
-  Share2
+  Share2,
+  Settings
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
+import CustomsReportModal from './CustomsReportModal';
+import OfficeBrandingModal from './OfficeBrandingModal';
 
 import { VALUATION_PRECEDENT_DB, ValuationPrecedent } from '../data/rules/valuation_precedents';
 
@@ -44,6 +47,8 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [aiGeneratedDraft, setAiGeneratedDraft] = useState('');
   const [isAiMatching, setIsAiMatching] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -1061,12 +1066,12 @@ ${fallback.implicationKo}
                     <BookOpen size={14} /> 전체 내용 확인
                   </button>
                   <button
-                    onClick={() => downloadCaseAsPdf(selectedCase)}
+                    onClick={() => setShowReportModal(true)}
                     style={{
-                      background: '#f0fdf4',
-                      border: '1px solid #86efac',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',
+                      border: 'none',
                       borderRadius: '6px',
-                      color: '#15803d',
+                      color: '#fff',
                       padding: '7px 14px',
                       fontSize: '0.78rem',
                       fontWeight: 700,
@@ -1076,10 +1081,33 @@ ${fallback.implicationKo}
                       gap: '5px',
                       whiteSpace: 'nowrap',
                       marginLeft: '4px',
-                      marginTop: '4px'
+                      marginTop: '4px',
+                      boxShadow: '0 2px 8px rgba(6, 182, 212, 0.25)'
                     }}
                   >
-                    <FileText size={14} /> PDF 다운로드
+                    <FileText size={14} /> 📄 관세사 직인 의견서 (PDF)
+                  </button>
+                  <button
+                    onClick={() => setShowOfficeBrandingModal(true)}
+                    style={{
+                      background: 'rgba(6, 182, 212, 0.08)',
+                      border: '1px solid rgba(6, 182, 212, 0.4)',
+                      borderRadius: '6px',
+                      color: 'var(--accent-cyan)',
+                      padding: '7px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap',
+                      marginLeft: '4px',
+                      marginTop: '4px'
+                    }}
+                    title="사무소 상호 및 직인 날인 설정"
+                  >
+                    <Settings size={14} /> 직인 설정
                   </button>
                 </div>
               </div>
@@ -1199,6 +1227,37 @@ ${fallback.implicationKo}
       ) : null}
 
       </div>
+
+      {/* Customs Official Report Modal */}
+      {showReportModal && selectedCase && (
+        <CustomsReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          docType="valuation-brief"
+          productName={selectedCase.title || '관세평가 쟁점 물품'}
+          hsCode={selectedCase.categoryKo || '관세평가 쟁점'}
+          koreanDescription={selectedCase.keyIssue || '과세가격 가산/비과세 쟁점 소명'}
+          analysisData={{
+            caseNumber: selectedCase.caseNumber,
+            authority: selectedCase.authority,
+            keyIssue: selectedCase.keyIssue,
+            holding: renderHoldingKo(selectedCase),
+            customsArgument: selectedCase.customsArgument,
+            importerArgument: selectedCase.importerArgument,
+            reasoning: selectedCase.reasoningSnippet,
+            guideline: selectedCase.implicationKo
+          }}
+          onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
+        />
+      )}
+
+      {/* Office Branding Modal */}
+      {showOfficeBrandingModal && (
+        <OfficeBrandingModal
+          isOpen={showOfficeBrandingModal}
+          onClose={() => setShowOfficeBrandingModal(false)}
+        />
+      )}
 
       {/* Full Precedent Text Modal */}
       {showFullTextModal && selectedCase && (

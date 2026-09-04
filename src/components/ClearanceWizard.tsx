@@ -15,9 +15,12 @@ import {
   FileDown,
   RefreshCw,
   ExternalLink,
-  Share2
+  Share2,
+  Settings
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
+import CustomsReportModal from './CustomsReportModal';
+import OfficeBrandingModal from './OfficeBrandingModal';
 
 interface ClearanceWizardProps {
   currentUser?: any;
@@ -41,6 +44,8 @@ export default function ClearanceWizard({
   );
   const [showPrintGuideModal, setShowPrintGuideModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
   const [printGuideType, setPrintGuideType] = useState<'inapp' | 'mobile' | null>(null);
 
   const handlePdfPrint = () => {
@@ -1329,6 +1334,48 @@ export default function ClearanceWizard({
               </div>
             </div>
           </div>
+        )}
+
+        {/* Customs Official Report Modal */}
+        {showReportModal && (
+          <CustomsReportModal
+            isOpen={showReportModal}
+            onClose={() => setShowReportModal(false)}
+            docType="clearance-pipeline"
+            productName={keyword || initialKeyword || '수입 대상 품목'}
+            hsCode={confirmedData?.confirmed_code || hsCode}
+            koreanDescription={confirmedData?.master_info?.korean_name || confirmedData?.korean_name || '수입 물품'}
+            analysisData={{
+              originCountry: originCountry,
+              baseRate: ratesData?.rates?.base_rate !== undefined ? `${ratesData.rates.base_rate}%` : '8.0%',
+              appliedRate: ratesData?.rates?.recommended_rate !== undefined ? `${ratesData.rates.recommended_rate}% (${ratesData.rates.fta_name || '추천특혜'})` : '0.0% (FTA)',
+              originCriteria: ratesData?.rates?.origin_criteria || '완제품 세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)',
+              requirementsList: guideData?.requirements?.map((req: any) => ({
+                law: req.law_name || req.law || '관세법 제226조 세관장확인고시',
+                agency: req.agency_name || req.agency || '관할 주무관청',
+                process: req.description || req.procedure || req.condition || '수입신고 전 요건승인/확인필'
+              })) || [
+                { law: '수입식품안전관리 특별법', agency: '식품의약품안전처', process: '수입식품등의 수입신고확인증 구비' }
+              ],
+              requiredDocs: guideData?.requirements?.flatMap((r: any) => r.guide?.documents || [])?.length > 0
+                ? Array.from(new Set(guideData.requirements.flatMap((r: any) => r.guide?.documents || [])))
+                : [
+                  'Commercial Invoice (상업송장) & Packing List (포장명세서)',
+                  'B/L (선하증권) 또는 AWB (항공화물운송장)',
+                  '원산지증명서 (C/O) - 협정관세 특혜세율 적용 신청용',
+                  '세관장확인 대상 수입요건 구비 확인서 및 검사합격증명서'
+                ]
+            }}
+            onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
+          />
+        )}
+
+        {/* Office Letterhead & Stamp Branding Settings Modal */}
+        {showOfficeBrandingModal && (
+          <OfficeBrandingModal
+            isOpen={showOfficeBrandingModal}
+            onClose={() => setShowOfficeBrandingModal(false)}
+          />
         )}
 
       </div>

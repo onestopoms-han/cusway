@@ -9,9 +9,12 @@ import {
   FileCheck,
   AlertTriangle,
   HelpCircle,
-  Share2
+  Share2,
+  Printer
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
+import CustomsReportModal, { ReportData } from './CustomsReportModal';
+import OfficeBrandingModal from './OfficeBrandingModal';
 
 export interface Precedent {
   id: string;
@@ -93,6 +96,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   // RAG 매칭 결과 상태
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
   const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
@@ -973,22 +978,23 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               </button>
 
               <button 
-                onClick={() => window.print()}
+                onClick={() => setShowReportModal(true)}
                 style={{
-                  background: 'rgba(15, 23, 42, 0.05)',
-                  border: '1px solid var(--border-color)',
+                  background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
+                  border: '1px solid rgba(6, 182, 212, 0.35)',
                   padding: '6px 12px',
                   borderRadius: '6px',
                   color: 'var(--text-main)',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '6px',
+                  boxShadow: '0 2px 8px rgba(6, 182, 212, 0.15)'
                 }}
               >
-                <FileCheck size={14} /> 리포트 인쇄 / PDF
+                <FileCheck size={14} color="var(--accent-cyan)" /> 📄 공식 검토서 PDF / 인쇄
               </button>
             </div>
           </div>
@@ -2037,6 +2043,44 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           )}
         </div>
       </div>
+
+      {/* Customs Official White-Label & Co-Branded Report Modal */}
+      {showReportModal && (
+        <CustomsReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          currentUser={currentUser}
+          onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
+          reportData={{
+            type: 'hs-opinion',
+            title: `[품목분류 사전심사 소명의견서] ${productName || '수입신고 대상 물품'}`,
+            targetItem: {
+              productName: productName || '수입신고 대상 물품',
+              hsCode: matchedRule?.recommendedHsCode || '8517.62-6090',
+              material: material || '제품 사양서 및 원료 배합비 기준',
+              functionUse: functionUse || '산업 및 상업용 전용',
+              originCountry: '이탈리아 (IT)'
+            },
+            legalBasis: {
+              generalRule: (matchedRule?.appliedGris || ['통칙 제1호', '통칙 제6호']).join(', '),
+              rationaleSummary: matchedRule?.legalReasoning || '관세율표 제16부 주 규정 및 해당 세번의 호의 용어에 따라 분류가 명백함',
+              wcoNoteSnippet: matchedRule?.headingExplanation || matchedRule?.chapterNote || '해당 호에는 이와 같은 성상과 용도를 지닌 물품 및 전용 부분품을 명시적으로 포함함'
+            },
+            precedents: (matchedRule?.precedents || []).slice(0, 3).map((p: any) => ({
+              caseNumber: p.id || p.caseNumber || '사전심사-2026',
+              title: p.title || '유사 품목분류 사전회시',
+              keyPoint: p.reasoningSnippet || '물품 성상 및 주기능 일치 판정'
+            }))
+          }}
+        />
+      )}
+
+      {/* Customs Office Branding Settings Modal */}
+      <OfficeBrandingModal
+        isOpen={showOfficeBrandingModal}
+        onClose={() => setShowOfficeBrandingModal(false)}
+        currentUser={currentUser}
+      />
     </div>
   );
 }

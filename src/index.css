@@ -152,8 +152,10 @@ body {
   body {
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 12pt !important;
-    line-height: 1.5 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   aside,
@@ -161,8 +163,19 @@ body {
   .glow-effect,
   input,
   textarea,
-  .no-print {
+  .no-print,
+  .app-sidebar-nav,
+  header {
     display: none !important;
+  }
+
+  .customs-official-paper {
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    border: none !important;
   }
 
   main {
@@ -173,7 +186,7 @@ body {
 
   .glass-panel {
     background: #ffffff !important;
-    border: 1px solid #111111 !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
     color: #000000 !important;
     padding: 15px !important;
@@ -186,11 +199,9 @@ body {
     font-weight: bold !important;
   }
 
-  /* 기존 레이아웃 붕괴를 방지하기 위해 div 강제 덮어쓰기 규칙 제거 */
-  /* 페이지 여백 최적화 */
   @page {
-    size: A4;
-    margin: 20mm;
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
   }
 }
 

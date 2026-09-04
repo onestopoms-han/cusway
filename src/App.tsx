@@ -8,6 +8,7 @@ import BillingPortal from './components/BillingPortal'
 import ClearanceWizard from './components/ClearanceWizard'
 import LawNewsPortal from './components/LawNewsPortal'
 import KakaoConsultModal from './components/KakaoConsultModal'
+import OfficeBrandingModal from './components/OfficeBrandingModal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -68,6 +69,9 @@ export default function App() {
 
   // Kakao 1:1 Live Consultation Modal State
   const [showKakaoModal, setShowKakaoModal] = useState(false);
+
+  // Customs Office White-Label Branding Modal State
+  const [showBrandingModal, setShowBrandingModal] = useState(false);
 
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
@@ -1408,7 +1412,28 @@ export default function App() {
               <span>카카오톡 1:1 관세 상담</span>
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', gap: '4px', color: 'var(--text-muted)' }}>
+              <button
+                onClick={() => setShowBrandingModal(true)}
+                title="화주 리포트용 관세사무소 로고/직인 설정"
+                style={{
+                  background: 'rgba(6, 182, 212, 0.1)',
+                  border: '1px solid rgba(6, 182, 212, 0.3)',
+                  borderRadius: '6px',
+                  padding: '6px 8px',
+                  color: '#38bdf8',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>🏛️</span>
+                <span>사무소 직인</span>
+              </button>
+
               <button
                 onClick={() => {
                   setSettingsCompanyName(currentUser?.company_name || '');
@@ -1420,16 +1445,16 @@ export default function App() {
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px',
-                  padding: '6px 10px',
+                  padding: '6px 8px',
                   color: 'var(--text-secondary)',
-                  fontSize: '0.75rem',
+                  fontSize: '0.72rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '4px',
                   cursor: 'pointer'
                 }}
               >
-                <Settings size={14} />
+                <Settings size={13} />
                 <span>계정설정</span>
               </button>
 
@@ -1823,6 +1848,13 @@ export default function App() {
         isOpen={showKakaoModal} 
         onClose={() => setShowKakaoModal(false)} 
         currentUser={currentUser} 
+      />
+
+      {/* Customs Office White-Label Letterhead & Seal Branding Modal */}
+      <OfficeBrandingModal
+        isOpen={showBrandingModal}
+        onClose={() => setShowBrandingModal(false)}
+        currentUser={currentUser}
       />
     </div>
   )
