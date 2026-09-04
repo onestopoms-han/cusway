@@ -9,7 +9,6 @@ import {
   FileCheck,
   AlertTriangle,
   HelpCircle,
-  Search,
   Share2
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
@@ -94,8 +93,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   // RAG 매칭 결과 상태
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [showAlert, setShowAlert] = useState(false);
   const [attachedFile, setAttachedFile] = useState<{ name: string; size: string; type: string } | null>(null);
   const [attachedPreview, setAttachedPreview] = useState<string | null>(null);
 
@@ -776,7 +773,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     setAnalyzing(true);
     setApprovedStatus(null);
     setMatchedRule(null);
-    setShowAlert(false);
     setIsBackendOffline(false);
 
     // Save key locally
@@ -807,47 +803,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       setMatchedRule(fallbackResult);
     } finally {
       setAnalyzing(false);
-    }
-  };
-
-  const handleManualSearch = async () => {
-    if (!searchKeyword.trim()) return;
-    setMatchedRule(null); // Clear previous results to avoid stale data display
-    setShowAlert(false);
-    const query = searchKeyword.toLowerCase();
-    
-    // 1. Attempt backend DB search API first
-    try {
-      const response = await fetch(`/api/hs/search?keyword=${encodeURIComponent(searchKeyword)}&email=${encodeURIComponent(currentUser?.email || '')}`);
-      if (response.ok) {
-        const data = await response.json();
-        setMatchedRule(data);
-        setShowAlert(false);
-        return;
-      }
-    } catch (err) {
-      console.warn("Backend manual search offline, falling back to local routing.", err);
-    }
-
-    // 2. Attempt standard local rules match
-    const found = KOREAN_HS_RULES.find(rule => 
-      rule.keywordTrigger.some(k => k.toLowerCase().includes(query)) ||
-      rule.recommendedHsCode.replace(/[\.\-]/g, '').includes(query) ||
-      rule.headingName.includes(query)
-    );
-
-    if (found) {
-      setMatchedRule(found);
-      setShowAlert(false);
-    } else {
-      // Dynamic local search fallback
-      const dynamicResult = runLocalHeuristicClassifier(searchKeyword, '수동 검색 대상', '수동 검색 분류');
-      if (dynamicResult.recommendedHsCode !== "0000.00-0000") {
-        setMatchedRule(dynamicResult);
-        setShowAlert(false);
-      } else {
-        setShowAlert(true);
-      }
     }
   };
 
@@ -1039,56 +994,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           </div>
         </div>
       </div>
-
-      {/* Quick Search Tool */}
-      <div className="glass-panel" style={{ 
-        padding: '16px', 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column' : 'row', 
-        alignItems: isMobile ? 'stretch' : 'center', 
-        gap: '12px' 
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)' }}>
-          <Search size={18} />
-          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>해설서 DB 수동 검색:</span>
-        </div>
-        <input 
-          type="text" 
-          placeholder="예: 파스타, 활석, 붕산염, 형석, 운모, 1902..." 
-          value={searchKeyword}
-          onChange={(e) => setSearchKeyword(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
-          style={{
-            flex: 1,
-            padding: '8px 12px',
-            background: 'rgba(15, 23, 42, 0.05)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '6px',
-            color: 'var(--text-main)',
-            fontSize: '0.85rem'
-          }}
-        />
-        <button className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem', width: isMobile ? '100%' : 'auto' }} onClick={handleManualSearch}>
-          검색 및 매칭
-        </button>
-      </div>
-
-      {showAlert && (
-        <div style={{ 
-          padding: '12px 16px', 
-          background: 'rgba(220, 38, 38, 0.05)', 
-          border: '1px solid rgba(220, 38, 38, 0.15)', 
-          borderRadius: '8px', 
-          color: 'var(--accent-red)', 
-          fontSize: '0.85rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <AlertTriangle size={16} />
-          입력하신 키워드에 상응하는 해설서 챕터의 세부 분류 규칙을 데이터베이스에서 찾을 수 없습니다. 다시 시도해 주세요.
-        </div>
-      )}
 
       {/* Main Grid Section */}
       <div className="hs-grid-layout">
@@ -1406,7 +1311,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                         onClick={() => {
                           setApprovedStatus(true);
                           if (onNavigateToWizard) {
-                            onNavigateToWizard(matchedRule.recommendedHsCode, searchKeyword || productName, material, functionUse);
+                            onNavigateToWizard(matchedRule.recommendedHsCode, productName, material, functionUse);
                           }
                         }}
                         style={{
@@ -1436,10 +1341,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 <ResultShareModal 
                   isOpen={showShareModal}
                   onClose={() => setShowShareModal(false)}
-                  title={`[AI HS 분류] ${searchKeyword || productName || '품목분류 분석'}`}
+                  title={`[AI HS 분류] ${productName || '품목분류 분석'}`}
                   category="hs-classification"
                   data={{
-                    productName: searchKeyword || productName || '대상 물품',
+                    productName: productName || '대상 물품',
                     hsCode: matchedRule.recommendedHsCode,
                     dutyRate: '2026 관세율표 연동',
                     legalReasoning: matchedRule.legalReasoning,
