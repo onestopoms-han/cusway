@@ -1003,6 +1003,66 @@ def appeal_cashback_request(req_id: int, req: CashbackAppealRequest, db: Session
     db.commit()
     return {"message": "재심사 청구가 성공적으로 접수되었습니다. 관리자팀에서 24시간 내 수동 재검증을 진행합니다."}
 
+class AppraisalRequest(BaseModel):
+    doc_type: str  # 'hs' or 'valuation'
+    item_name: str
+    identifier: str  # hs_code or issue
+    is_confidential: bool = True
+    decision_type: Optional[str] = "overturned"  # overturned (인용/승소), approved (적격), rejected (기각)
+
+@app.post("/api/cashback/appraise")
+def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get_db)):
+    # Check matching count in SQLite
+    match_count = 0
+    term = f"%{req.identifier.strip()}%"
+    try:
+        if req.doc_type == 'hs':
+            match_count = db.query(CustomsPrecedent).filter(
+                (CustomsPrecedent.hs_code.like(term)) | (CustomsPrecedent.product_name.like(term))
+            ).count()
+        else:
+            match_count = db.query(Precedent).filter(
+                (Precedent.key_issue.like(term)) | (Precedent.title.like(term)) | (Precedent.category.like(term))
+            ).count()
+    except Exception as e:
+        match_count = 2
+
+    base_points = 10000
+    confidential_bonus = 20000 if req.is_confidential else 5000
+    decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
+    
+    if match_count == 0:
+        scarcity_rate = 98.5
+        scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
+        scarcity_bonus = 10000
+    elif match_count <= 3:
+        scarcity_rate = 91.5
+        scarcity_grade = "우수 (고난이도 희귀 쟁점)"
+        scarcity_bonus = 5000
+    else:
+        scarcity_rate = 78.0
+        scarcity_grade = "양호 (실무 검증 가치 높음)"
+        scarcity_bonus = 0
+
+    total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+    
+    doc_type_ko = "품목분류 사전심사회시서" if req.doc_type == 'hs' else "조세심판원 심판결정문"
+    conf_txt = "비공개(미공개) " if req.is_confidential else "공식 "
+    
+    snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
+
+    return {
+        "appraised_points": total_points,
+        "scarcity_grade": scarcity_grade,
+        "scarcity_rate": scarcity_rate,
+        "matched_public_count": match_count,
+        "base_points": base_points,
+        "confidential_bonus": confidential_bonus,
+        "decision_bonus": decision_bonus,
+        "scarcity_bonus": scarcity_bonus,
+        "appraisal_snippet": snippet
+    }
+
 @app.get("/api/customers", response_model=List[UserResponse])
 def get_customers(db: Session = Depends(get_db)):
     return db.query(User).all()

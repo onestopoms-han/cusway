@@ -1273,7 +1273,7 @@ export default function App() {
               onClick={() => setCurrentView('cashback')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'cashback' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                background: currentView === 'cashback' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
                 color: currentView === 'cashback' ? 'var(--text-primary)' : 'var(--text-secondary)',
                 fontWeight: currentView === 'cashback' ? 600 : 400,
                 cursor: 'pointer',
@@ -1281,8 +1281,8 @@ export default function App() {
               }}
             >
               <Coins size={14} color={currentView === 'cashback' ? 'var(--accent-amber)' : 'gray'} />
-              <span style={{ color: currentView === 'cashback' ? 'var(--accent-amber)' : 'inherit' }}>
-                결정례 캐시백
+              <span style={{ color: currentView === 'cashback' ? 'var(--accent-amber)' : 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                비공개 결정례 캐시백
               </span>
             </button>
 

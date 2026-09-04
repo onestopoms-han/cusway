@@ -1363,6 +1363,147 @@ def get_precedents_count():
             "total_precedents_count": 9450
         }
 
+# --- AI Non-Public Ruling Appraisal & Cashback Exchange API ---
+class AppraisalApiRequest(BaseModel):
+    doc_type: str  # 'hs' or 'valuation'
+    item_name: str
+    identifier: str  # hs_code or issue
+    is_confidential: bool = True
+    decision_type: Optional[str] = "overturned"  # overturned (인용/승소), approved (적격), rejected (기각)
+
+@app.post("/api/cashback/appraise")
+def appraise_precedent_api(req: AppraisalApiRequest):
+    import sqlite3
+    db_candidates = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    target_db = "cusway.db"
+    for c in db_candidates:
+        if os.path.exists(c):
+            target_db = c
+            break
+
+    match_count = 0
+    term = f"%{req.identifier.strip()}%"
+    try:
+        conn = sqlite3.connect(target_db)
+        cur = conn.cursor()
+        if req.doc_type == 'hs':
+            cur.execute("SELECT count(*) FROM customs_precedents WHERE hs_code LIKE ? OR product_name LIKE ?", (term, term))
+            match_count = cur.fetchone()[0]
+        else:
+            cur.execute("SELECT count(*) FROM precedents WHERE key_issue LIKE ? OR title LIKE ? OR category LIKE ?", (term, term, term))
+            match_count = cur.fetchone()[0]
+        conn.close()
+    except Exception as e:
+        match_count = 2
+
+    base_points = 10000
+    confidential_bonus = 20000 if req.is_confidential else 5000
+    decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
+    
+    if match_count == 0:
+        scarcity_rate = 98.5
+        scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
+        scarcity_bonus = 10000
+    elif match_count <= 3:
+        scarcity_rate = 91.5
+        scarcity_grade = "우수 (고난이도 희귀 쟁점)"
+        scarcity_bonus = 5000
+    else:
+        scarcity_rate = 78.0
+        scarcity_grade = "양호 (실무 검증 가치 높음)"
+        scarcity_bonus = 0
+
+    total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+    
+    doc_type_ko = "품목분류 사전심사회시서" if req.doc_type == 'hs' else "조세심판원 심판결정문"
+    conf_txt = "비공개(미공개) " if req.is_confidential else "공식 "
+    
+    snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
+
+    return {
+        "appraised_points": total_points,
+        "scarcity_grade": scarcity_grade,
+        "scarcity_rate": scarcity_rate,
+        "matched_public_count": match_count,
+        "base_points": base_points,
+        "confidential_bonus": confidential_bonus,
+        "decision_bonus": decision_bonus,
+        "scarcity_bonus": scarcity_bonus,
+        "appraisal_snippet": snippet
+    }
+
+class CashbackCreateRequest(BaseModel):
+    email: str
+    type: str
+    type_ko: str
+    hs_code_or_issue: str
+    item_name: str
+    file_name: str
+    points: int = 10000
+
+@app.post("/api/cashback/upload")
+def upload_cashback_request(req: CashbackCreateRequest):
+    import sqlite3
+    db_candidates = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    target_db = "cusway.db"
+    for c in db_candidates:
+        if os.path.exists(c):
+            target_db = c
+            break
+
+    try:
+        conn = sqlite3.connect(target_db)
+        cur = conn.cursor()
+        today = datetime.now().strftime("%Y-%m-%d")
+        cur.execute(
+            "INSERT INTO cashback_requests (email, type, type_ko, hs_code_or_issue, item_name, file_name, points, status, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (req.email, req.type, req.type_ko, req.hs_code_or_issue, req.item_name, req.file_name, req.points, "승인 완료", today)
+        )
+        conn.commit()
+        # Also update user accrued points
+        cur.execute("UPDATE users SET accrued_points = accrued_points + ? WHERE email = ?", (req.points, req.email))
+        conn.commit()
+        conn.close()
+        return {"status": "success", "message": "캐시백이 승인되어 마일리지가 즉시 적립되었습니다.", "points": req.points}
+    except Exception as e:
+        return {"status": "success", "message": f"캐시백이 가상 접수되었습니다: {e}", "points": req.points}
+
+@app.get("/api/cashback/requests")
+def get_cashback_requests():
+    import sqlite3
+    db_candidates = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    target_db = "cusway.db"
+    for c in db_candidates:
+        if os.path.exists(c):
+            target_db = c
+            break
+
+    try:
+        conn = sqlite3.connect(target_db)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM cashback_requests ORDER BY id DESC")
+        rows = [dict(r) for r in cur.fetchall()]
+        conn.close()
+        return rows
+    except Exception as e:
+        return []
+
 # Try importing and mounting full backend routes if available
 try:
     from backend.main import app as backend_app
