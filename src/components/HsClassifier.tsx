@@ -183,6 +183,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           }
         ]
       };
+    }
+
     // 0-0c. 건조표고버섯 / 표고버섯 로컬 우회 예외 처리
     if (query.includes('표고버섯') || query.includes('건조표고') || query.includes('shiitake') || (query.includes('버섯') && query.includes('건조'))) {
       return {
