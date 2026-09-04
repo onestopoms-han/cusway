@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, CreditCard, Sparkles, RefreshCw, BookOpen } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
+import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
 import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
@@ -41,7 +42,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'admin' | 'billing' | 'law-news'>('law-news');
+  const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('law-news');
   
   // Signup states
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -1268,6 +1269,23 @@ export default function App() {
               </span>
             </button>
 
+            <button 
+              onClick={() => setCurrentView('cashback')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'cashback' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                color: currentView === 'cashback' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontWeight: currentView === 'cashback' ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'var(--transition-smooth)'
+              }}
+            >
+              <Coins size={14} color={currentView === 'cashback' ? 'var(--accent-amber)' : 'gray'} />
+              <span style={{ color: currentView === 'cashback' ? 'var(--accent-amber)' : 'inherit' }}>
+                결정례 캐시백
+              </span>
+            </button>
+
             {/* 요금 구독 메뉴는 오픈 베타 기간 동안 가려둠 */}
             {false && (
               <button 
@@ -1465,6 +1483,9 @@ export default function App() {
 
         {currentView === 'valuation' && (
           <ValuationPrecedents currentUser={currentUser} />
+        )}
+        {currentView === 'cashback' && (
+          <CashBackManager currentUser={currentUser} />
         )}
         {currentView === 'admin' && currentUser?.email === 'admin@cusway.kr' && (
           <AdminPortal currentUser={currentUser} />
