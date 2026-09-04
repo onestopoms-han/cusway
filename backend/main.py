@@ -1393,15 +1393,30 @@ EU_COUNTRIES = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR"
 ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "ASEAN"}
 RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR", "RCEP"}
 
+# 모든 FTA 협정 공통 양허제외 초민감 품목 (쌀 등)
+ALL_FTA_EXCLUDED_PREFIXES = [
+    "100610", "1006.10", "100620", "1006.20", "100630", "1006.30", "100640", "1006.40", # 쌀(벼, 현미, 백미, 쇄미)
+    "110230", "1102.30", # 쌀가루
+    "11081910", "1108.19.10", # 쌀전분
+]
+
 # 중국 및 RCEP 협정 대상 양허제외 초민감 농축산물
 CHINA_RCEP_EXCLUDED_PREFIXES = [
-    "120740", "1207.40", # 참깨 (한-중 FTA 및 RCEP 양허제외)
+    "120740", "1207.40", # 참깨
+    "120799", "1207.99", # 들깨
     "070320", "0703.20", # 마늘
     "070310", "0703.10", # 양파
-    "090420", "0904.20", # 고추
-    "100610", "1006.10", "100620", "1006.20", "100630", "1006.30", "100640", "1006.40", # 쌀
+    "070390", "0703.90", # 파/리크
+    "090420", "0904.20", "090421", "0904.21", "090422", "0904.22", # 고추/고춧가루
+    "070960", "0709.60", "071080", "0710.80", # 신선/냉동 고추
     "080810", "0808.10", "080830", "0808.30", # 사과/배
     "081340", "0813.40", # 곶감/대추
+    "121120", "1211.20", # 인삼(수삼, 홍삼, 백삼)
+    "071234", "0712.34", "071239", "0712.39", # 표고버섯/건조버섯
+    "071331", "0713.31", "071332", "0713.32", "071333", "0713.33", "071339", "0713.39", # 두류(팥, 녹두)
+    "080241", "0802.41", "080242", "0802.42", "080290", "0802.90", # 밤/잣
+    "091011", "0910.11", "091012", "0910.12", # 생강
+    "120241", "1202.41", "120242", "1202.42", # 땅콩
 ]
 
 def get_representative_countries(origin: str) -> List[str]:
@@ -1453,14 +1468,15 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else (3.0 if clean_code.startswith("1201") else (40.0 if clean_code.startswith("120740") or clean_code.startswith("120799") else (50.0 if clean_code.startswith("0703") or clean_code.startswith("0904") else (30.0 if clean_code.startswith("0701") or clean_code.startswith("0712") else 8.0))))
     actual_wto_rate = base_record.wto_rate if base_record else None
     
-    # 중국/RCEP 양허제외 여부 판단 (미국 등 개별 체결국은 협정 양허표 정상 적용)
+    # 전 FTA 양허제외 및 중국/RCEP 양허제외 판단
+    is_all_excluded = any(clean_code.startswith(p.replace(".", "")) for p in ALL_FTA_EXCLUDED_PREFIXES)
     is_china_rcep_excluded = (origin_upper in ["CN", "JP", "RCEP"]) and any(clean_code.startswith(p.replace(".", "")) for p in CHINA_RCEP_EXCLUDED_PREFIXES)
     
     # 2. 원산지 국가 코드에 따른 FTA 협정 조회
     target_countries = get_representative_countries(origin_upper)
     
     applicable_records = []
-    if not is_china_rcep_excluded:
+    if not is_all_excluded and not is_china_rcep_excluded:
         records = db.query(HSRateMaster).filter(
             HSRateMaster.hs_code.in_(formatted_codes) & 
             HSRateMaster.country_code.in_(target_countries)
