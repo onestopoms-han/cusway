@@ -120,7 +120,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
             </p>
           </div>
           <div style={{ background: 'rgba(0,0,0,0.3)', padding: '12px 20px', borderRadius: '10px', border: '1px solid var(--border-color)' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>나의 차감 대기 캐시백 포인트</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>나의 보유 회원 포인트</span>
             <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-amber)', display: 'block' }}>
               ₩{userAccruedPoints.toLocaleString()} P
             </span>
@@ -252,7 +252,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Coins size={18} color="var(--accent-amber)" />
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>보유 중인 캐시백 포인트 즉시 적용</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>보유 중인 회원 포인트 즉시 적용</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '0.78rem', color: usePoints ? 'var(--accent-amber)' : 'var(--text-muted)' }}>
