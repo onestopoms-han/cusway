@@ -44,6 +44,8 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
   const [aiGeneratedDraft, setAiGeneratedDraft] = useState('');
   const [isAiMatching, setIsAiMatching] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const handleResize = () => {
@@ -104,13 +106,37 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
     };
     fetchPrecedents();
   }, []);
+
   // 검색어 및 카테고리가 변경될 때마다 실시간으로 리스트를 필터링하는 반응형 효과 추가
   useEffect(() => {
     const query = searchQuery.trim().toLowerCase();
     const filtered = allPrecedents.filter(item => {
-      const matchesCategory = selectedCategory === 'all' || 
-        item.category === selectedCategory ||
-        (selectedCategory === 'transfer-pricing-tp' && item.category === 'transfer-pricing');
+      let matchesCategory = selectedCategory === 'all';
+      if (selectedCategory === 'tribunal') {
+        matchesCategory = (item.authority || '').includes('심판') || 
+          (item.caseNumber || '').includes('조심') || 
+          (item.caseNumber || '').includes('국심') || 
+          (item.title || '').includes('심판') ||
+          (item.categoryKo || '').includes('심판');
+      } else if (selectedCategory === 'valuation') {
+        matchesCategory = item.category === 'valuation' || (item.categoryKo || '').includes('과세가격');
+      } else if (selectedCategory === 'royalty') {
+        matchesCategory = item.category === 'royalty' || (item.categoryKo || '').includes('로열티') || (item.categoryKo || '').includes('권리사용료');
+      } else if (selectedCategory === 'transfer-pricing' || selectedCategory === 'transfer-pricing-tp') {
+        matchesCategory = item.category === 'transfer-pricing' || item.category === 'transfer_price' || (item.categoryKo || '').includes('특수관계') || (item.categoryKo || '').includes('이전가격');
+      } else if (selectedCategory === 'assists') {
+        matchesCategory = item.category === 'assists' || (item.categoryKo || '').includes('생산지원');
+      } else if (selectedCategory === 'additions' || selectedCategory === 'freight' || selectedCategory === 'indirect-payment') {
+        matchesCategory = item.category === 'additions' || (item.category || '').includes('freight') || (item.category || '').includes('indirect') || (item.categoryKo || '').includes('가산') || (item.categoryKo || '').includes('운임');
+      } else if (selectedCategory === 'classification') {
+        matchesCategory = item.category === 'classification' || (item.categoryKo || '').includes('품목분류');
+      } else if (selectedCategory === 'exemption') {
+        matchesCategory = item.category === 'exemption' || (item.categoryKo || '').includes('감면') || (item.categoryKo || '').includes('환급');
+      } else if (selectedCategory === 'valuation-other') {
+        matchesCategory = item.category === 'valuation-other' || (item.categoryKo || '').includes('기타');
+      } else if (selectedCategory !== 'all') {
+        matchesCategory = item.category === selectedCategory;
+      }
       
       // 기타 관세평가 쟁점(valuation-other)일 때 2차 서브 필터링 적용
       let matchesSubCategory = true;
@@ -140,6 +166,7 @@ export default function ValuationPrecedents({ currentUser }: ValuationPrecedents
       return matchesCategory && matchesSubCategory && matchesText;
     });
     setMatchedCases(filtered);
+    setCurrentPage(1); // 필터 변경 시 첫 페이지로 리셋
     if (filtered.length > 0) {
       setSelectedCase(filtered[0]);
     } else {
@@ -767,27 +794,30 @@ ${fallback.implicationKo}
             {/* Category filter pills */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {[
-                { value: 'all', label: '전체 쟁점' },
-                { value: 'royalty', label: '로열티' },
-                { value: 'transfer-pricing', label: '특수관계' },
+                { value: 'all', label: `전체 판례 (${allPrecedents.length.toLocaleString()}건)` },
+                { value: 'tribunal', label: '🏛️ 조세심판원(심판청구)' },
+                { value: 'valuation', label: '과세가격 결정' },
+                { value: 'royalty', label: '로열티·권리사용료' },
+                { value: 'transfer-pricing', label: '특수관계·이전가격' },
                 { value: 'assists', label: '생산지원비' },
-                { value: 'transfer-pricing-tp', label: '이전가격' },
-                { value: 'indirect-payment', label: '간접지급액' },
-                { value: 'freight', label: '운임 및 관련비용' },
-                { value: 'valuation-other', label: '기타 관세평가 쟁점' }
+                { value: 'additions', label: '가산요소·운임' },
+                { value: 'classification', label: '품목분류 심판' },
+                { value: 'exemption', label: '감면·환급' },
+                { value: 'valuation-other', label: '기타 관세평가' }
               ].map(cat => (
                 <button
                   key={`${cat.value}-${cat.label}`}
                   onClick={() => handleCategoryChange(cat.value)}
                   style={{
-                    padding: '4px 10px',
+                    padding: '5px 12px',
                     borderRadius: '12px',
                     border: 'none',
-                    fontSize: '0.75rem',
-                    background: selectedCategory === cat.value ? 'rgba(6, 182, 212, 0.2)' : 'rgba(255,255,255,0.03)',
+                    fontSize: '0.76rem',
+                    background: selectedCategory === cat.value ? 'rgba(6, 182, 212, 0.25)' : 'rgba(255,255,255,0.04)',
                     color: selectedCategory === cat.value ? 'var(--accent-cyan)' : 'var(--text-muted)',
                     cursor: 'pointer',
-                    fontWeight: 600
+                    fontWeight: selectedCategory === cat.value ? 700 : 500,
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   {cat.label}
@@ -844,7 +874,14 @@ ${fallback.implicationKo}
 
           {/* Matched Case List Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            <span>검색 결과: 총 <b style={{ color: 'var(--accent-cyan)' }}>{matchedCases.length}</b>건</span>
+            <span>
+              검색 결과: 총 <b style={{ color: 'var(--accent-cyan)' }}>{matchedCases.length.toLocaleString()}</b>건
+              {matchedCases.length > itemsPerPage && (
+                <span style={{ fontSize: '0.75rem', marginLeft: '6px', color: '#94a3b8' }}>
+                  (페이지 {currentPage} / {Math.ceil(matchedCases.length / itemsPerPage)})
+                </span>
+              )}
+            </span>
             {(searchQuery || selectedCategory !== 'all') && (
               <button 
                 onClick={() => {
@@ -859,13 +896,13 @@ ${fallback.implicationKo}
           </div>
 
           {/* Matched Case List */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '450px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '550px' }}>
             {matchedCases.length === 0 ? (
               <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
                 검색 조건과 일치하는 관세평가 판례가 없습니다.
               </div>
             ) : (
-              matchedCases.slice(0, 50).map(item => (
+              matchedCases.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map(item => (
                 <div 
                   key={item.id} 
                   onClick={() => {
@@ -910,17 +947,51 @@ ${fallback.implicationKo}
               ))
             )}
             
-            {/* 검색 결과가 50개를 초과할 때 초과 안내 메시지 노출 (DOM 부하 방지 및 UX 제공) */}
-            {matchedCases.length > 50 && (
+            {/* Pagination Controls */}
+            {matchedCases.length > itemsPerPage && (
               <div style={{
-                padding: '12px',
-                textAlign: 'center',
-                color: 'var(--text-muted)',
-                fontSize: '0.78rem',
-                borderTop: '1px dashed rgba(255, 255, 255, 0.08)',
-                marginTop: '8px'
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 6px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                marginTop: '6px'
               }}>
-                검색 결과가 많아 상위 50개만 표시됩니다.<br/>더 상세한 검색어를 입력해 주세요.
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: currentPage === 1 ? 'rgba(255,255,255,0.02)' : 'rgba(6, 182, 212, 0.15)',
+                    color: currentPage === 1 ? '#64748b' : 'var(--accent-cyan)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  ◀ 이전
+                </button>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  {currentPage} / {Math.ceil(matchedCases.length / itemsPerPage)} 페이지
+                </span>
+                <button
+                  disabled={currentPage >= Math.ceil(matchedCases.length / itemsPerPage)}
+                  onClick={() => setCurrentPage(p => Math.min(Math.ceil(matchedCases.length / itemsPerPage), p + 1))}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    background: currentPage >= Math.ceil(matchedCases.length / itemsPerPage) ? 'rgba(255,255,255,0.02)' : 'rgba(6, 182, 212, 0.15)',
+                    color: currentPage >= Math.ceil(matchedCases.length / itemsPerPage) ? '#64748b' : 'var(--accent-cyan)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    cursor: currentPage >= Math.ceil(matchedCases.length / itemsPerPage) ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  다음 ▶
+                </button>
               </div>
             )}
           </div>
