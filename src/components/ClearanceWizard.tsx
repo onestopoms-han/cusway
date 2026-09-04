@@ -624,37 +624,38 @@ export default function ClearanceWizard({
                 
                 {/* Rates comparison cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '14px', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>기본 관세율 (A)</span>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px' }}>{ratesData.rates.base_rate}%</h4>
+                  <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                    <span style={{ fontSize: '0.88rem', color: '#475569', fontWeight: 700 }}>기본 관세율 (A)</span>
+                    <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>{ratesData.rates.base_rate}%</h4>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '14px', borderRadius: '6px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>WTO 협정세율 (C)</span>
+                  <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.88rem', color: '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
                       {ratesData.rates.is_trq_item && (
-                        <span style={{ fontSize: '0.62rem', padding: '1px 5px', background: 'rgba(245,158,11,0.2)', color: '#f59e0b', borderRadius: '3px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.72rem', padding: '2px 6px', background: 'rgba(245,158,11,0.15)', color: '#b45309', borderRadius: '4px', fontWeight: 800 }}>
                           TRQ
                         </span>
                       )}
                     </div>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px' }}>
+                    <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>
                       {ratesData.rates.wto_rate}%
                     </h4>
                   </div>
                   <div style={{ 
-                    background: ratesData.rates.fta_rate !== null ? 'rgba(16, 185, 129, 0.05)' : 'rgba(255,255,255,0.02)', 
-                    border: ratesData.rates.fta_rate !== null ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid var(--border-color)', 
-                    padding: '14px', 
-                    borderRadius: '6px', 
-                    textAlign: 'center' 
+                    background: ratesData.rates.fta_rate !== null ? '#f0fdf4' : '#ffffff', 
+                    border: ratesData.rates.fta_rate !== null ? '1.5px solid #10b981' : '1.5px solid var(--border-color)', 
+                    padding: '16px', 
+                    borderRadius: '8px', 
+                    textAlign: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
                   }}>
-                    <span style={{ fontSize: '0.75rem', color: ratesData.rates.fta_rate !== null ? '#10b981' : 'var(--text-muted)', fontWeight: ratesData.rates.fta_rate !== null ? 700 : 500 }}>
+                    <span style={{ fontSize: '0.88rem', color: ratesData.rates.fta_rate !== null ? '#047857' : '#475569', fontWeight: 800 }}>
                       FTA 특혜세율 (F)
                     </span>
-                    <h4 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '4px', color: ratesData.rates.fta_rate !== null ? '#10b981' : 'var(--text-main)' }}>
+                    <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: ratesData.rates.fta_rate !== null ? '#059669' : '#0f172a' }}>
                       {ratesData.rates.fta_rate !== null ? `${ratesData.rates.fta_rate}%` : 'N/A'}
                     </h4>
-                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#0f172a', fontWeight: 600, display: 'block', marginTop: '4px' }}>
                       ({ratesData.rates.fta_name})
                     </span>
                   </div>
@@ -663,47 +664,48 @@ export default function ClearanceWizard({
                 {/* TRQ (시장접근물량) In-Quota vs Out-of-Quota 비교 분석 카드 */}
                 {ratesData.rates.is_trq_item && (
                   <div style={{ 
-                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%)', 
-                    border: '1px solid rgba(245, 158, 11, 0.35)', 
-                    padding: '16px', 
-                    borderRadius: '8px',
+                    background: '#fffbeb', 
+                    border: '1.5px solid #f59e0b', 
+                    padding: '18px 20px', 
+                    borderRadius: '10px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '12px'
+                    gap: '14px',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.08)'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.2)', paddingBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(245,158,11,0.25)', paddingBottom: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1rem' }}>🌾</span>
-                        <span style={{ fontSize: '0.88rem', color: '#b45309', fontWeight: 800 }}>
+                        <span style={{ fontSize: '1.1rem' }}>🌾</span>
+                        <span style={{ fontSize: '0.98rem', color: '#92400e', fontWeight: 800 }}>
                           시장접근물량(TRQ) 양허세율 비교 & 추천서 절감 분석
                         </span>
                       </div>
-                      <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(245,158,11,0.15)', color: '#92400e', borderRadius: '4px', fontWeight: 800 }}>
+                      <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(245,158,11,0.2)', color: '#92400e', borderRadius: '4px', fontWeight: 800 }}>
                         {ratesData.rates.trq_agency || 'aT 한국농수산식품유통공사'} 추천 품목
                       </span>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '10px 12px', borderRadius: '6px' }}>
-                        <span style={{ fontSize: '0.72rem', color: '#065f46', fontWeight: 700, display: 'block' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <div style={{ background: '#ffffff', border: '1.5px solid #10b981', padding: '14px', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '0.82rem', color: '#065f46', fontWeight: 800, display: 'block' }}>
                           ✅ 추천물량 내(In-Quota) 파격 저율
                         </span>
-                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', marginTop: '4px' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#059669', marginTop: '6px' }}>
                           {ratesData.rates.trq_in_rate || '3.0%'}
                         </div>
-                        <span style={{ fontSize: '0.68rem', color: '#475569', display: 'block', marginTop: '2px' }}>
+                        <span style={{ fontSize: '0.78rem', color: '#334155', fontWeight: 600, display: 'block', marginTop: '4px' }}>
                           * 수입추천서 제출 시 적용 (세액 대폭 절감)
                         </span>
                       </div>
 
-                      <div style={{ background: 'rgba(239, 68, 68, 0.06)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '10px 12px', borderRadius: '6px' }}>
-                        <span style={{ fontSize: '0.72rem', color: '#991b1b', fontWeight: 700, display: 'block' }}>
+                      <div style={{ background: '#ffffff', border: '1.5px solid #ef4444', padding: '14px', borderRadius: '8px' }}>
+                        <span style={{ fontSize: '0.82rem', color: '#991b1b', fontWeight: 800, display: 'block' }}>
                           ⚠️ 추천물량 외(Out-of-Quota) 고율 과세
                         </span>
-                        <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#dc2626', marginTop: '4px' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#dc2626', marginTop: '6px' }}>
                           {ratesData.rates.trq_out_rate || '487.0%'}
                         </div>
-                        <span style={{ fontSize: '0.68rem', color: '#475569', display: 'block', marginTop: '2px' }}>
+                        <span style={{ fontSize: '0.78rem', color: '#334155', fontWeight: 600, display: 'block', marginTop: '4px' }}>
                           * 추천서 미제출 시 고액 종가/종량 선택세 적용
                         </span>
                       </div>
@@ -714,25 +716,26 @@ export default function ClearanceWizard({
                 {/* Professional Customs Clearance Strategy Insight Card */}
                 {ratesData.rates.expert_insight && (
                   <div style={{ 
-                    background: 'rgba(99, 102, 241, 0.06)', 
-                    border: '1px solid rgba(99, 102, 241, 0.25)', 
-                    padding: '16px', 
-                    borderRadius: '8px',
+                    background: '#f5f7ff', 
+                    border: '1.5px solid #6366f1', 
+                    padding: '18px 20px', 
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: '12px'
+                    gap: '14px',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.08)'
                   }}>
-                    <Sparkles size={20} style={{ color: '#4f46e5', marginTop: '2px', flexShrink: 0 }} />
+                    <Sparkles size={24} style={{ color: '#4f46e5', marginTop: '2px', flexShrink: 0 }} />
                     <div style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '0.88rem', color: '#3730a3', fontWeight: 800 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '1rem', color: '#312e81', fontWeight: 900 }}>
                           💡 관세사 세액 절감 & 통관 핵심 전략 리포트
                         </span>
-                        <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(99,102,241,0.12)', color: '#4338ca', borderRadius: '4px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(99,102,241,0.15)', color: '#3730a3', borderRadius: '4px', fontWeight: 800 }}>
                           실무 소명 가이드
                         </span>
                       </div>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.6, whiteSpace: 'pre-line', fontWeight: 500 }}>
+                      <p style={{ fontSize: '0.98rem', color: '#0f172a', lineHeight: 1.7, whiteSpace: 'pre-line', fontWeight: 600 }}>
                         {ratesData.rates.expert_insight}
                       </p>
                     </div>
@@ -742,25 +745,26 @@ export default function ClearanceWizard({
                 {/* Country-Specific FTA C/O Checkpoint Card */}
                 {ratesData.rates.country_fta_tip && (
                   <div style={{ 
-                    background: 'rgba(16, 185, 129, 0.06)', 
-                    border: '1px solid rgba(16, 185, 129, 0.25)', 
-                    padding: '14px 16px', 
-                    borderRadius: '8px',
+                    background: '#f0fdf4', 
+                    border: '1.5px solid #10b981', 
+                    padding: '18px 20px', 
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: '12px'
+                    gap: '14px',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.08)'
                   }}>
-                    <Globe size={18} style={{ color: '#059669', marginTop: '2px', flexShrink: 0 }} />
+                    <Globe size={22} style={{ color: '#059669', marginTop: '2px', flexShrink: 0 }} />
                     <div style={{ width: '100%' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '0.85rem', color: '#065f46', fontWeight: 800 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span style={{ fontSize: '1rem', color: '#064e3b', fontWeight: 900 }}>
                           🌍 원산지 국가({originCountry}) 맞춤형 FTA 특혜 실무 체크포인트
                         </span>
-                        <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: 'rgba(16,185,129,0.12)', color: '#065f46', borderRadius: '4px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(16,185,129,0.15)', color: '#065f46', borderRadius: '4px', fontWeight: 800 }}>
                           {ratesData.rates.fta_name}
                         </span>
                       </div>
-                      <p style={{ fontSize: '0.83rem', color: 'var(--text-main)', lineHeight: 1.6, fontWeight: 500 }}>
+                      <p style={{ fontSize: '0.96rem', color: '#0f172a', lineHeight: 1.7, fontWeight: 600 }}>
                         {ratesData.rates.country_fta_tip}
                       </p>
                     </div>
@@ -770,28 +774,29 @@ export default function ClearanceWizard({
                 {/* Alternative Duty / Specific Duty Highlight Box */}
                 {ratesData.rates.duty_formula && (
                   <div style={{ 
-                    background: 'rgba(239, 68, 68, 0.06)', 
-                    border: '1px solid rgba(239, 68, 68, 0.25)', 
-                    padding: '14px 16px', 
-                    borderRadius: '8px',
+                    background: '#fef2f2', 
+                    border: '1.5px solid #ef4444', 
+                    padding: '18px 20px', 
+                    borderRadius: '10px',
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: '12px'
+                    gap: '14px',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.08)'
                   }}>
-                    <Scale size={20} style={{ color: '#dc2626', marginTop: '2px', flexShrink: 0 }} />
+                    <Scale size={24} style={{ color: '#dc2626', marginTop: '2px', flexShrink: 0 }} />
                     <div style={{ width: '100%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: '0.85rem', color: '#991b1b', fontWeight: 800 }}>
+                        <span style={{ fontSize: '0.98rem', color: '#991b1b', fontWeight: 900 }}>
                           ⚠️ 종가·종량 선택세(Alternative Duty) 적용 품목
                         </span>
-                        <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: 'rgba(239,68,68,0.12)', color: '#991b1b', borderRadius: '4px', fontWeight: 800 }}>
+                        <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(239,68,68,0.15)', color: '#991b1b', borderRadius: '4px', fontWeight: 800 }}>
                           종가 vs 종량 중 고액 과세
                         </span>
                       </div>
-                      <p style={{ fontSize: '0.88rem', color: '#b91c1c', fontWeight: 800, marginTop: '4px', letterSpacing: '-0.2px' }}>
+                      <p style={{ fontSize: '1rem', color: '#b91c1c', fontWeight: 900, marginTop: '6px', letterSpacing: '-0.2px' }}>
                         과세 산식: {ratesData.rates.duty_formula}
                       </p>
-                      <p style={{ fontSize: '0.78rem', color: '#475569', marginTop: '4px', lineHeight: 1.5 }}>
+                      <p style={{ fontSize: '0.85rem', color: '#334155', marginTop: '6px', lineHeight: 1.6, fontWeight: 500 }}>
                         * 종가세액(과세가격 × 세율)과 종량세액(수입중량 × 단위세액) 중 더 큰 금액이 최종 관세로 확정됩니다. (농축산물 저가 수입 방지 규정)
                       </p>
                     </div>
@@ -800,21 +805,22 @@ export default function ClearanceWizard({
 
                 {/* Recommended rate banner */}
                 <div style={{ 
-                  background: 'rgba(6, 182, 212, 0.08)', 
-                  border: '1px solid rgba(6, 182, 212, 0.25)', 
-                  padding: '16px', 
-                  borderRadius: '8px',
+                  background: '#f0f9ff', 
+                  border: '1.5px solid #0284c7', 
+                  padding: '18px 20px', 
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'flex-start',
-                  gap: '12px'
+                  gap: '14px',
+                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.08)'
                 }}>
-                  <TrendingDown size={20} style={{ color: '#0284c7', marginTop: '2px', flexShrink: 0 }} />
+                  <TrendingDown size={24} style={{ color: '#0284c7', marginTop: '2px', flexShrink: 0 }} />
                   <div>
-                    <span style={{ fontSize: '0.8rem', color: '#0369a1', fontWeight: 700 }}>추천 최저 특혜세율</span>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '2px', color: 'var(--text-main)' }}>
+                    <span style={{ fontSize: '0.88rem', color: '#0369a1', fontWeight: 800 }}>추천 최저 특혜세율</span>
+                    <h3 style={{ fontSize: '1.8rem', fontWeight: 900, marginTop: '4px', color: '#0f172a' }}>
                       {ratesData.rates.recommended_rate}%
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', marginTop: '6px', lineHeight: 1.5, fontWeight: 600 }}>
+                    <p style={{ fontSize: '0.98rem', color: '#0f172a', marginTop: '8px', lineHeight: 1.6, fontWeight: 700 }}>
                       {ratesData.rates.notice}
                     </p>
                   </div>
@@ -993,34 +999,34 @@ export default function ClearanceWizard({
 
                       {/* Step-by-Step administrative procedures */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 800, display: 'block' }}>
                           📌 단계별 행정 승인 절차 (Timeline)
                         </span>
                         {req.guide.steps.map((step: string, sIdx: number) => (
-                          <div key={sIdx} style={{ fontSize: '0.8rem', padding: '8px 12px', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', borderLeft: '2px solid rgba(255,255,255,0.1)' }}>
+                          <div key={sIdx} style={{ fontSize: '0.92rem', padding: '10px 14px', background: 'rgba(15, 23, 42, 0.04)', borderRadius: '6px', borderLeft: '3px solid var(--accent-primary)', color: '#0f172a', fontWeight: 600, lineHeight: 1.5 }}>
                             {step}
                           </div>
                         ))}
                       </div>
 
                       {/* Required documents & duration info */}
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '0.78rem' }}>
-                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '6px' }}>
-                          <span style={{ fontWeight: 700, color: 'var(--accent-cyan)', display: 'block', marginBottom: '6px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '0.85rem' }}>
+                        <div style={{ background: '#ffffff', border: '1px solid var(--border-color)', padding: '14px', borderRadius: '8px' }}>
+                          <span style={{ fontWeight: 800, color: 'var(--accent-cyan)', display: 'block', marginBottom: '8px', fontSize: '0.88rem' }}>
                             📄 관세사/화주 구비 제출 서류
                           </span>
-                          <ul style={{ paddingLeft: '12px', margin: 0, listStyleType: 'disc', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                          <ul style={{ paddingLeft: '16px', margin: 0, listStyleType: 'disc', color: '#0f172a', lineHeight: 1.6, fontWeight: 500 }}>
                             {req.guide.documents.map((doc: string, dIdx: number) => (
                               <li key={dIdx}>{doc}</li>
                             ))}
                           </ul>
                         </div>
-                        <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', padding: '12px', borderRadius: '6px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div style={{ background: '#ffffff', border: '1px solid var(--border-color)', padding: '14px', borderRadius: '8px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                           <div>
-                            <span style={{ fontWeight: 700, color: 'var(--accent-amber)', display: 'block', marginBottom: '4px' }}>
+                            <span style={{ fontWeight: 800, color: '#b45309', display: 'block', marginBottom: '6px', fontSize: '0.88rem' }}>
                               ⏱️ 평균 소요 기간
                             </span>
-                            <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{req.guide.duration}</span>
+                            <span style={{ color: '#0f172a', fontWeight: 700, fontSize: '0.95rem' }}>{req.guide.duration}</span>
                           </div>
                           {req.guide.agency_url && (
                             <a 
