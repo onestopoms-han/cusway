@@ -218,9 +218,8 @@ export default function App() {
   const handleKakaoRedirect = () => {
     const clientId = socialConfig?.kakao_client_id || 'f3be8f44c4bfeb5e6e640c79e9851da3';
     const redirectUri = window.location.origin + "/";
-    const scope = 'account_email,phone_number,profile_nickname';
     const channelParam = socialConfig?.kakao_channel_id ? `&channel_public_ids=${encodeURIComponent(socialConfig.kakao_channel_id)}` : '';
-    const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}${channelParam}&state=kakao`;
+    const authUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code${channelParam}&state=kakao`;
     window.location.href = authUrl;
   };
 
