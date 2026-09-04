@@ -1,0 +1,44 @@
+name: Daily Customs Intelligence Crawler (2x Daily)
+
+on:
+  schedule:
+    # 00:00 UTC = 09:00 AM KST (한국 시각 오전 9시)
+    - cron: '0 0 * * *'
+    # 09:00 UTC = 18:00 PM KST (한국 시각 오후 6시)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # 수동 즉시 실행 트리거 지원
+
+jobs:
+  crawl_and_sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install beautifulsoup4 lxml requests sqlalchemy pydantic
+
+      - name: Run Unified Customs Intelligence Crawler
+        run: |
+          python tools/crawl_customs_news.py
+
+      - name: Commit and Push Updated Data
+        run: |
+          git config --global user.name "CUSWAY Automated Intelligence Bot"
+          git config --global user.email "bot@cusway.kr"
+          git add cusway.db || true
+          if git status --porcelain | grep -q 'cusway.db'; then
+            git commit -m "chore(crawler): automated daily 2x customs statutory data sync [skip ci]"
+            git push origin main
+          else
+            echo "No new updates to commit."
+          fi

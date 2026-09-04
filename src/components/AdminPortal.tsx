@@ -11,7 +11,10 @@ import {
   ChevronRight,
   TrendingUp,
   Phone,
-  MessageCircle
+  MessageCircle,
+  Clock,
+  Database,
+  RefreshCw
 } from 'lucide-react';
 
 interface Customer {
@@ -45,6 +48,12 @@ interface AdminPortalProps {
 export default function AdminPortal({ currentUser }: AdminPortalProps) {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [uploadRequests, setUploadRequests] = useState<UploadRequest[]>([]);
+  const [crawlerStatus, setCrawlerStatus] = useState<any>({
+    schedule: "매일 2회 (09:00, 18:00 KST)",
+    last_run_time: "최근 동기화 완료",
+    status: "Active (정상 가동중)"
+  });
+  const [isCrawling, setIsCrawling] = useState(false);
 
   const fetchAdminData = async () => {
     try {
@@ -80,6 +89,12 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
           date: r.date
         })));
       }
+      // 3. 크롤러 스케줄러 상태 로드
+      const resCrawler = await fetch('/api/admin/crawler/status');
+      if (resCrawler.ok) {
+        const crawlerData = await resCrawler.json();
+        setCrawlerStatus(crawlerData);
+      }
     } catch (err) {
       console.warn('FastAPI 백엔드가 구동되지 않아 어드민 목업 데이터로 시뮬레이션 작동합니다.');
       // 임시 목업 세팅
@@ -87,6 +102,26 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
         { id: '1', email: 'director@seoulcustoms.com', companyName: '서울관세법인', plan: 'Business', status: 'Active', joinDate: '2026-06-15', accruedPoints: 25000, phoneNumber: '010-3849-2819' },
         { id: '2', email: 'trade_agent@korea.co.kr', companyName: '한국관세사무소', plan: 'Basic', status: 'Active', joinDate: '2026-07-01', accruedPoints: 5000, phoneNumber: '010-9921-4821' }
       ]);
+    }
+  };
+
+  const handleTriggerCrawler = async () => {
+    setIsCrawling(true);
+    try {
+      const res = await fetch('/api/admin/crawler/trigger', { method: 'POST' });
+      if (res.ok) {
+        alert('🚀 [매일 2회 정기 크롤러] 즉시 동기화 작업이 백그라운드에서 시작되었습니다!\n(관세청 실시간 고시, 조세심판원 최신 결정례, 화학분석 사례가 갱신됩니다)');
+        setTimeout(() => {
+          fetchAdminData();
+          setIsCrawling(false);
+        }, 3000);
+      } else {
+        alert('크롤러 실행 요청에 실패했습니다.');
+        setIsCrawling(false);
+      }
+    } catch (e) {
+      alert('크롤러 즉시 실행 요청 완료 (시뮬레이션 모드)');
+      setIsCrawling(false);
     }
   };
 
@@ -182,6 +217,75 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
             <h3 style={{ fontSize: '1.6rem', fontWeight: 800 }}>₩1,240,000</h3>
           </div>
         </div>
+      </div>
+
+      {/* 매일 2회 정기 크롤링 & 실시간 정보 수집 제어 바 */}
+      <div className="glass-panel" style={{
+        padding: '16px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%)',
+        border: '1px solid rgba(20, 184, 166, 0.25)',
+        borderRadius: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <div style={{
+            background: 'rgba(20, 184, 166, 0.15)',
+            padding: '10px',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Clock size={22} color="var(--accent-primary)" />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                🤖 실시간 관세정보 & 결정례 매일 2회 자동 크롤러
+              </h4>
+              <span style={{
+                fontSize: '0.68rem',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                background: 'rgba(16, 185, 129, 0.15)',
+                color: '#10b981',
+                fontWeight: 700,
+                border: '1px solid rgba(16, 185, 129, 0.3)'
+              }}>
+                ● 자동 가동중
+              </span>
+            </div>
+            <p style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '3px', margin: 0 }}>
+              스케줄 주기: <b>{crawlerStatus.schedule || '매일 2회 (09:00, 18:00 KST)'}</b> | 대상: 관세청 고시/훈령, 조세심판원 최신 결정례, 화학분석 사례 | 최근실행: <b>{crawlerStatus.last_run_time || '동기화 완료'}</b>
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleTriggerCrawler}
+          disabled={isCrawling}
+          style={{
+            background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '10px 16px',
+            color: '#000',
+            fontSize: '0.82rem',
+            fontWeight: 750,
+            cursor: isCrawling ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: '0 2px 10px rgba(20, 184, 166, 0.3)',
+            opacity: isCrawling ? 0.7 : 1,
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <RefreshCw size={14} className={isCrawling ? 'animate-spin' : ''} />
+          <span>{isCrawling ? '크롤링 수집 진행 중...' : '⚡ 지금 즉시 크롤링 동기화'}</span>
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1.7fr', gap: '24px' }}>

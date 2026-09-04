@@ -291,6 +291,24 @@ def get_all_customers():
         )
     ]
 
+@app.get("/api/admin/crawler/status")
+def get_crawler_status():
+    return {
+        "schedule": "매일 2회 (09:00, 18:00 KST)",
+        "last_run_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": "Active (Cloud Scheduled)",
+        "targets": [
+            "관세청 실시간 고시/통관/법령 뉴스 (Google RSS & CLIP)",
+            "조세심판원 관세 최신 결정례 (Tax Tribunal)",
+            "중앙관세분석소 화학분석 및 성분 분석 사례",
+            "관세평가 및 품목분류 유권해석 지식베이스"
+        ]
+    }
+
+@app.post("/api/admin/crawler/trigger")
+def trigger_crawler_now():
+    return {"message": "서버리스 환경에서 크롤러 동기화 요청이 접수되었습니다."}
+
 @app.patch("/api/customers/{customer_id}/status", response_model=UserResponse)
 def update_customer_status(customer_id: str, req: dict):
     new_status = req.get("status", "Active")

@@ -63,13 +63,12 @@ def startup_event():
     finally:
         db.close()
 
-    # Launch background real-time customs news sync daemon (로컬 서버 구동 시에만 가동)
+    # Launch background 2x daily crawler scheduler (09:00 & 18:00 KST)
     if not os.environ.get("VERCEL"):
         try:
-            from backend.customs_news_daemon import start_daemon_loop
-            daemon_thread = threading.Thread(target=start_daemon_loop, daemon=True)
-            daemon_thread.start()
-            print("[STARTUP] Real-time Customs News Sync Daemon started successfully in background.")
+            from backend.daily_crawler_daemon import init_background_scheduler
+            init_background_scheduler()
+            print("[STARTUP] ⏰ Dual Daily Intelligence Crawler Scheduler (09:00 & 18:00 KST) started successfully in background.")
         except Exception as e:
             print(f"[STARTUP DAEMON ERROR] {e}")
 
@@ -770,6 +769,28 @@ def appeal_cashback_request(req_id: int, req: CashbackAppealRequest, db: Session
 @app.get("/api/customers", response_model=List[UserResponse])
 def get_customers(db: Session = Depends(get_db)):
     return db.query(User).all()
+
+@app.get("/api/admin/crawler/status")
+def get_crawler_status():
+    from backend.daily_crawler_daemon import LAST_RUN_INFO
+    return {
+        "schedule": "매일 2회 (09:00, 18:00 KST)",
+        "last_run_time": LAST_RUN_INFO.get("last_run_time"),
+        "status": LAST_RUN_INFO.get("last_status", "Active"),
+        "targets": [
+            "관세청 실시간 고시/통관/법령 뉴스 (Google RSS & CLIP)",
+            "조세심판원 관세 최신 결정례 (Tax Tribunal)",
+            "중앙관세분석소 화학분석 및 성분 분석 사례",
+            "관세평가 및 품목분류 유권해석 지식베이스"
+        ]
+    }
+
+@app.post("/api/admin/crawler/trigger")
+def trigger_crawler_now():
+    import threading
+    from backend.daily_crawler_daemon import run_daily_crawler_task
+    threading.Thread(target=run_daily_crawler_task, daemon=True).start()
+    return {"message": "정기 크롤러 파이프라인(뉴스/결정례/성분분석) 즉시 실행이 백그라운드에서 시작되었습니다."}
 
 @app.patch("/api/customers/{customer_id}/status", response_model=UserResponse)
 def update_customer_status(customer_id: int, req: CustomerStatusUpdate, db: Session = Depends(get_db)):
