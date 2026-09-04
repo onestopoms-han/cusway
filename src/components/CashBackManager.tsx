@@ -716,59 +716,71 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '520px' }}>
             {history.length === 0 ? (
-              <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                <Coins size={36} style={{ color: 'rgba(255,255,255,0.1)', marginBottom: '10px' }} />
-                <p style={{ fontSize: '0.85rem' }}>아직 등록된 비공개 결정례가 없습니다.</p>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              <div style={{ padding: '60px 20px', textAlign: 'center', color: '#94a3b8' }}>
+                <Coins size={36} style={{ color: 'rgba(255,255,255,0.2)', marginBottom: '10px' }} />
+                <p style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 700 }}>아직 등록된 비공개 결정례가 없습니다.</p>
+                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
                   서랍 속 비공개 결정서를 등록하고 최대 50,000P 캐시백을 받아보세요!
                 </span>
               </div>
             ) : (
               history.map((item) => (
                 <div key={item.id} style={{
-                  background: 'rgba(15, 23, 42, 0.45)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '10px',
-                  padding: '16px',
+                  background: '#1e293b',
+                  border: '1.5px solid #334155',
+                  borderRadius: '12px',
+                  padding: '16px 18px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  gap: '12px'
+                  gap: '14px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)'
                 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: 0 }}>
+                    {/* Top Row: Category Badge & HS Code / Issue */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <span style={{ 
-                        fontSize: '0.65rem', 
-                        padding: '2px 8px', 
-                        borderRadius: '4px', 
-                        background: item.type === 'hs' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(245, 158, 11, 0.15)', 
-                        color: item.type === 'hs' ? 'var(--accent-cyan)' : 'var(--accent-amber)', 
-                        fontWeight: 800 
+                        fontSize: '0.74rem', 
+                        padding: '3px 8px', 
+                        borderRadius: '6px', 
+                        background: item.type === 'hs' ? '#0891b2' : '#b45309', 
+                        color: '#ffffff', 
+                        fontWeight: 800,
+                        letterSpacing: '0.02em'
                       }}>
                         {item.typeKo}
                       </span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                      <span style={{ fontSize: '0.95rem', fontWeight: 900, color: item.type === 'hs' ? '#38bdf8' : '#fbbf24' }}>
                         {item.hsCodeOrIssue}
                       </span>
                     </div>
-                    <div style={{ fontSize: '0.82rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+
+                    {/* Middle: Product Name / Case Title */}
+                    <div style={{ fontSize: '0.95rem', color: '#ffffff', fontWeight: 700, lineHeight: 1.4, wordBreak: 'break-word' }}>
                       {item.itemName}
                     </div>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-                      문서: {item.fileName} | 접수일: {item.date}
-                    </span>
+
+                    {/* Bottom: File Name and Date with High Contrast */}
+                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span>📄 <strong>문서:</strong> {item.fileName}</span>
+                      <span style={{ color: '#64748b' }}>•</span>
+                      <span>📅 <strong>접수일:</strong> {item.date}</span>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                  {/* Right Column: Status & Points */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
                     <span style={{
-                      fontSize: '0.72rem',
-                      padding: '3px 10px',
-                      borderRadius: '12px',
+                      fontSize: '0.76rem',
+                      padding: '4px 12px',
+                      borderRadius: '16px',
                       fontWeight: 800,
-                      background: item.status === '승인 완료' ? 'rgba(16, 185, 129, 0.15)' : 
-                                  item.status === '재확인 요청중' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                      background: item.status === '승인 완료' ? '#065f46' : 
+                                  item.status === '재확인 요청중' ? '#1e3a8a' : '#78350f',
                       color: item.status === '승인 완료' ? '#34d399' : 
-                             item.status === '재확인 요청중' ? 'var(--accent-cyan)' : '#f59e0b'
+                             item.status === '재확인 요청중' ? '#93c5fd' : '#fcd34d',
+                      border: item.status === '승인 완료' ? '1px solid #10b981' : 
+                              item.status === '재확인 요청중' ? '1px solid #3b82f6' : '1px solid #f59e0b'
                     }}>
                       {item.status}
                     </span>
@@ -776,20 +788,20 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                       <button 
                         onClick={() => handleAppeal(item.id)}
                         style={{
-                          fontSize: '0.68rem',
-                          padding: '3px 8px',
-                          background: 'rgba(239, 68, 68, 0.2)',
-                          border: '1px solid rgba(239, 68, 68, 0.4)',
+                          fontSize: '0.72rem',
+                          padding: '4px 8px',
+                          background: '#7f1d1d',
+                          border: '1px solid #ef4444',
                           borderRadius: '6px',
-                          color: '#fca5a5',
+                          color: '#fecaca',
                           cursor: 'pointer',
-                          fontWeight: 700
+                          fontWeight: 800
                         }}
                       >
                         소명/재심사 요청
                       </button>
                     )}
-                    <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
+                    <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '-0.02em' }}>
                       +{item.points.toLocaleString()} P
                     </span>
                   </div>
