@@ -9,7 +9,9 @@ import {
   ShieldAlert, 
   ExternalLink,
   ChevronRight,
-  TrendingUp
+  TrendingUp,
+  Phone,
+  MessageCircle
 } from 'lucide-react';
 
 interface Customer {
@@ -20,6 +22,7 @@ interface Customer {
   status: 'Active' | 'Suspended' | 'Pending';
   joinDate: string;
   accruedPoints: number;
+  phoneNumber?: string;
 }
 
 interface UploadRequest {
@@ -50,13 +53,14 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
       if (resCust.ok) {
         const data = await resCust.json();
         setCustomers(data.map((c: any) => ({
-          id: String(c.id),
+          id: String(c.id || c.email),
           email: c.email,
           companyName: c.company_name,
-          plan: c.plan,
-          status: c.status,
-          joinDate: c.join_date,
-          accruedPoints: c.accrued_points
+          plan: c.plan || 'Basic',
+          status: c.status || 'Active',
+          joinDate: c.join_date || '2026-09-02',
+          accruedPoints: c.accrued_points || 0,
+          phoneNumber: c.phone_number || c.phoneNumber || ''
         })));
       }
 
@@ -80,8 +84,8 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
       console.warn('FastAPI 백엔드가 구동되지 않아 어드민 목업 데이터로 시뮬레이션 작동합니다.');
       // 임시 목업 세팅
       setCustomers([
-        { id: '1', email: 'director@seoulcustoms.com', companyName: '서울관세법인', plan: 'Business', status: 'Active', joinDate: '2026-06-15', accruedPoints: 25000 },
-        { id: '2', email: 'trade_agent@korea.co.kr', companyName: '한국관세사무소', plan: 'Basic', status: 'Active', joinDate: '2026-07-01', accruedPoints: 5000 }
+        { id: '1', email: 'director@seoulcustoms.com', companyName: '서울관세법인', plan: 'Business', status: 'Active', joinDate: '2026-06-15', accruedPoints: 25000, phoneNumber: '010-3849-2819' },
+        { id: '2', email: 'trade_agent@korea.co.kr', companyName: '한국관세사무소', plan: 'Basic', status: 'Active', joinDate: '2026-07-01', accruedPoints: 5000, phoneNumber: '010-9921-4821' }
       ]);
     }
   };
@@ -292,9 +296,25 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
                   <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                     계정: {c.email} | 가입일: {c.joinDate}
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--accent-cyan)' }}>
-                    보유 적립 포인트: <b>₩{c.accruedPoints.toLocaleString()} P</b>
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.72rem' }}>
+                    <span style={{ color: 'var(--accent-cyan)' }}>
+                      보유 적립 포인트: <b>₩{c.accruedPoints.toLocaleString()} P</b>
+                    </span>
+                    {c.phoneNumber && (
+                      <span style={{ 
+                        color: 'var(--accent-primary)', 
+                        background: 'rgba(20, 184, 166, 0.1)', 
+                        padding: '1px 6px', 
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontWeight: 600
+                      }}>
+                        <Phone size={11} /> {c.phoneNumber}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
@@ -309,21 +329,45 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
                     {c.status === 'Active' ? '이용 활성' : '이용 정지'}
                   </span>
                   
-                  <button
-                    onClick={() => toggleCustomerStatus(c.id, c.status, c.companyName, c.email)}
-                    style={{
-                      background: c.status === 'Active' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                      border: c.status === 'Active' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
-                      borderRadius: '6px',
-                      color: c.status === 'Active' ? 'var(--accent-red)' : 'var(--accent-primary)',
-                      padding: '4px 8px',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {c.status === 'Active' ? 'Suspended' : 'Activate'}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button
+                      onClick={() => {
+                        window.open('https://pf.kakao.com/_onestopcustoms/chat', '_blank');
+                      }}
+                      style={{
+                        background: '#FEE500',
+                        border: 'none',
+                        borderRadius: '6px',
+                        color: '#111827',
+                        padding: '4px 8px',
+                        fontSize: '0.7rem',
+                        fontWeight: 750,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.2)'
+                      }}
+                    >
+                      <MessageCircle size={11} /> 카톡 1:1 상담
+                    </button>
+
+                    <button
+                      onClick={() => toggleCustomerStatus(c.id, c.status, c.companyName, c.email)}
+                      style={{
+                        background: c.status === 'Active' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                        border: c.status === 'Active' ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                        borderRadius: '6px',
+                        color: c.status === 'Active' ? 'var(--accent-red)' : 'var(--accent-primary)',
+                        padding: '4px 8px',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {c.status === 'Active' ? 'Suspended' : 'Activate'}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

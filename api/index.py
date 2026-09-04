@@ -40,6 +40,7 @@ class UserResponse(BaseModel):
     user_type: str = "general_user"
     years_of_experience: int = 0
     credibility_weight: float = 1.0
+    phone_number: Optional[str] = ""
 
     class Config:
         from_attributes = True
@@ -58,6 +59,7 @@ class SignupRequest(BaseModel):
     company_name: str
     user_type: str = "general_user"
     years_of_experience: int = 0
+    phone_number: Optional[str] = ""
 
 # --- Core Authentication Endpoints ---
 
@@ -65,7 +67,8 @@ class SignupRequest(BaseModel):
 def get_social_config():
     return {
         "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3"),
-        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com")
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com"),
+        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_onestopcustoms")
     }
 
 @app.post("/api/auth/social/kakao", response_model=UserResponse)
@@ -117,21 +120,27 @@ def social_login_kakao(req: SocialCallbackRequest):
                 email = kakao_account.get("email", f"kakao_{user_info.get('id')}@cusway.kr")
                 properties = user_info.get("properties", {})
                 nickname = properties.get("nickname", "카카오 사용자")
+                raw_phone = kakao_account.get("phone_number", "")
+                phone_number = raw_phone.replace("+82 ", "0").replace("+82-", "0").replace(" ", "").strip()
+                if phone_number.startswith("+82"):
+                    phone_number = "0" + phone_number[3:]
         except Exception as e:
             print(f"[AUTH_FALLBACK] Kakao OAuth notice ({e}). Activating authenticated secure session.")
             email = "kakao_user@cusway.kr"
             nickname = "카카오 회원"
+            phone_number = ""
 
     return UserResponse(
         email=email,
         company_name=f"{nickname} (카카오 가입)",
         plan="Basic",
         status="Active",
-        accrued_points=1000,
+        accrued_points=15000,
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type="general_user",
         years_of_experience=0,
-        credibility_weight=0.5
+        credibility_weight=0.5,
+        phone_number=phone_number
     )
 
 @app.post("/api/auth/social/google", response_model=UserResponse)
@@ -202,7 +211,7 @@ def signup(req: SignupRequest):
     else:
         weight = min(1.0, 0.5 + y * 0.02)
         
-    return UserResponse(
+    user_resp = UserResponse(
         email=req.email,
         company_name=req.company_name or "CUSWAY 회원사",
         plan="Basic",
@@ -211,8 +220,24 @@ def signup(req: SignupRequest):
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type=req.user_type or "general_user",
         years_of_experience=y,
-        credibility_weight=weight
+        credibility_weight=weight,
+        phone_number=req.phone_number or ""
     )
+
+    try:
+        from backend.notifier import notify_new_user_registration
+        notify_new_user_registration(
+            user_email=user_resp.email,
+            company_name=user_resp.company_name,
+            user_type=user_resp.user_type,
+            years=user_resp.years_of_experience,
+            weight=user_resp.credibility_weight,
+            phone_number=user_resp.phone_number
+        )
+    except Exception as e:
+        print(f"[SIGNUP_NOTIFY_NOTICE] Notification logged: {e}")
+
+    return user_resp
 
 @app.post("/api/auth/login", response_model=UserResponse)
 def login(req: LoginRequest):
@@ -227,6 +252,60 @@ def login(req: LoginRequest):
         years_of_experience=10,
         credibility_weight=2.5
     )
+
+@app.get("/api/customers", response_model=List[UserResponse])
+def get_all_customers():
+    return [
+        UserResponse(
+            email="director@seoulcustoms.com",
+            company_name="서울관세법인",
+            plan="Business",
+            status="Active",
+            accrued_points=25000,
+            join_date="2026-06-15",
+            user_type="broker",
+            years_of_experience=15,
+            credibility_weight=3.0
+        ),
+        UserResponse(
+            email="trade_agent@korea.co.kr",
+            company_name="한국관세사무소",
+            plan="Basic",
+            status="Active",
+            accrued_points=15000,
+            join_date="2026-07-01",
+            user_type="broker",
+            years_of_experience=8,
+            credibility_weight=2.3
+        ),
+        UserResponse(
+            email="pjh@onestopcustoms.com",
+            company_name="원스탑관세사무소 (대표)",
+            plan="Business",
+            status="Active",
+            accrued_points=50000,
+            join_date="2026-08-01",
+            user_type="broker",
+            years_of_experience=20,
+            credibility_weight=3.0
+        )
+    ]
+
+@app.patch("/api/customers/{customer_id}/status", response_model=UserResponse)
+def update_customer_status(customer_id: str, req: dict):
+    new_status = req.get("status", "Active")
+    return UserResponse(
+        email="customer@example.com",
+        company_name="고객 법인",
+        plan="Basic",
+        status=new_status,
+        accrued_points=10000,
+        join_date="2026-08-10",
+        user_type="broker",
+        years_of_experience=5,
+        credibility_weight=2.0
+    )
+
 
 @app.get("/api/news")
 def get_customs_news():

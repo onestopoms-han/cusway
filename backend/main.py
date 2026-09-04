@@ -93,6 +93,7 @@ class SignupRequest(BaseModel):
     company_name: str
     user_type: str = "general_user" # "broker" | "practitioner" | "general_user"
     years_of_experience: int = 0
+    phone_number: Optional[str] = ""
 
 class UpgradeWeightRequest(BaseModel):
     email: str
@@ -109,6 +110,7 @@ class UserResponse(BaseModel):
     user_type: str = "general_user"
     years_of_experience: int = 0
     credibility_weight: float = 1.0
+    phone_number: Optional[str] = ""
 
     class Config:
         from_attributes = True
@@ -176,7 +178,8 @@ class BillingRequest(BaseModel):
 def get_social_config():
     return {
         "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3"),
-        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com")
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com"),
+        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_onestopcustoms")
     }
 
 @app.post("/api/auth/social/kakao", response_model=UserResponse)
@@ -232,6 +235,10 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
                 email = kakao_account.get("email", f"kakao_{user_info.get('id')}@cusway.kr")
                 properties = user_info.get("properties", {})
                 nickname = properties.get("nickname", "카카오 사용자")
+                raw_phone = kakao_account.get("phone_number", "")
+                phone_number = raw_phone.replace("+82 ", "0").replace("+82-", "0").replace(" ", "").strip()
+                if phone_number.startswith("+82"):
+                    phone_number = "0" + phone_number[3:]
         except Exception as e:
             import urllib.error
             error_detail = str(e)
@@ -244,6 +251,7 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             # 외부 키 또는 인가코드 만료 시에도 서비스가 멈추지 않도록 안전 데모 계정으로 자동 전환
             email = "kakao_user@cusway.kr"
             nickname = "카카오 회원 (안심 모드)"
+            phone_number = ""
             
     # Check if user exists
     user = None
@@ -262,16 +270,31 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             company_name=f"{nickname} (카카오 가입)",
             plan="Basic",
             status="Active",
-            accrued_points=1000,
+            accrued_points=15000,
             join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
-            credibility_weight=0.5
+            credibility_weight=0.5,
+            phone_number=phone_number
         )
         try:
             db.add(user)
             db.commit()
             db.refresh(user)
+            
+            # 신규 소셜 가입 관리자 이메일 알림
+            try:
+                from backend.notifier import notify_new_user_registration
+                notify_new_user_registration(
+                    user_email=user.email,
+                    company_name=user.company_name,
+                    user_type=user.user_type,
+                    years=user.years_of_experience,
+                    weight=user.credibility_weight,
+                    phone_number=user.phone_number
+                )
+            except Exception as n_err:
+                print(f"[SOCIAL_NOTIFY_WARN] {n_err}")
         except Exception as e:
             db.rollback()
             print(f"[AUTH] DB write skipped (read-only environment): {e}")
@@ -412,15 +435,31 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
         company_name=req.company_name,
         plan="Basic",
         status="Active",
-        accrued_points=1000, # 가입 축하 포인트
+        accrued_points=15000, # 가입 축하 포인트
         user_type=req.user_type,
         years_of_experience=y,
-        credibility_weight=weight
+        credibility_weight=weight,
+        phone_number=req.phone_number or ""
     )
     db.add(db_user)
     try:
         db.commit()
         db.refresh(db_user)
+        
+        # 관리자 자동 이메일 알림 발송 (비동기)
+        try:
+            from backend.notifier import notify_new_user_registration
+            notify_new_user_registration(
+                user_email=db_user.email,
+                company_name=db_user.company_name,
+                user_type=db_user.user_type,
+                years=db_user.years_of_experience,
+                weight=db_user.credibility_weight,
+                phone_number=db_user.phone_number
+            )
+        except Exception as notify_err:
+            print(f"[SIGNUP_NOTIFY_WARN] Failed to trigger notification: {notify_err}")
+
         return db_user
     except Exception as e:
         db.rollback()

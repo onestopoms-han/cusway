@@ -19,6 +19,7 @@ class User(Base):
     user_type = Column(String, default="general_user")  # 'broker', 'practitioner', 'general_user'
     years_of_experience = Column(Integer, default=0)
     credibility_weight = Column(Float, default=1.0)
+    phone_number = Column(String, default="")
 
 class Precedent(Base):
     __tablename__ = "precedents"
