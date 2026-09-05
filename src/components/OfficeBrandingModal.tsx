@@ -63,6 +63,8 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const isEnterprise = currentUser?.plan?.toLowerCase() === 'business' || currentUser?.plan?.toLowerCase() === 'enterprise';
+
   const handleLogoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUploadError(null);
     const file = e.target.files?.[0];
@@ -613,9 +615,15 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
 
               {/* Branding Mode Toggle */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '6px', fontWeight: 700 }}>
-                  출력 리포트 브랜딩 모드
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '0.78rem', color: '#cbd5e1', fontWeight: 700 }}>
+                    출력 리포트 브랜딩 모드
+                  </label>
+                  <span style={{ fontSize: '0.7rem', color: isEnterprise ? '#10b981' : '#94a3b8' }}>
+                    {isEnterprise ? '👑 Enterprise 법인 라이선스 적용' : '🔒 화이트라벨은 Enterprise 플랜 전용'}
+                  </span>
+                </div>
+                
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <div
                     onClick={() => setBranding(prev => ({ ...prev, brandingMode: 'co-branding' }))}
@@ -639,23 +647,40 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
                   </div>
 
                   <div
-                    onClick={() => setBranding(prev => ({ ...prev, brandingMode: 'white-label' }))}
+                    onClick={() => {
+                      if (!isEnterprise) {
+                        alert('🏢 [단독 화이트라벨 모드 안내]\n\n단독 화이트라벨은 Enterprise(법인형) 플랜 전용 기능입니다.\n\n• Basic / Pro 플랜: 공인 코-브랜딩 모드 (CUSWAY AI 검증 마크 탑재)\n• Enterprise 플랜: CUSWAY 브랜드 표기 100% 제거 및 단독 명의 발행 지원\n\n요금제 관리 탭에서 Enterprise 플랜으로 업그레이드하실 수 있습니다.');
+                        return;
+                      }
+                      setBranding(prev => ({ ...prev, brandingMode: 'white-label' }));
+                    }}
                     style={{
                       padding: '10px 12px',
-                      background: branding.brandingMode === 'white-label' ? 'rgba(59, 130, 246, 0.15)' : '#1e293b',
-                      border: branding.brandingMode === 'white-label' ? '1.5px solid #3b82f6' : '1px solid #334155',
+                      background: branding.brandingMode === 'white-label' 
+                        ? 'rgba(59, 130, 246, 0.15)' 
+                        : isEnterprise ? '#1e293b' : 'rgba(15, 23, 42, 0.6)',
+                      border: branding.brandingMode === 'white-label' 
+                        ? '1.5px solid #3b82f6' 
+                        : isEnterprise ? '1px solid #334155' : '1px dashed #475569',
                       borderRadius: '8px',
-                      cursor: 'pointer'
+                      cursor: isEnterprise ? 'pointer' : 'not-allowed',
+                      opacity: isEnterprise ? 1 : 0.8
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: branding.brandingMode === 'white-label' ? '#60a5fa' : '#fff' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: branding.brandingMode === 'white-label' ? '#60a5fa' : isEnterprise ? '#fff' : '#94a3b8' }}>
                         🏢 단독 화이트라벨 모드
                       </span>
-                      {branding.brandingMode === 'white-label' && <CheckCircle size={14} color="#60a5fa" />}
+                      {branding.brandingMode === 'white-label' ? (
+                        <CheckCircle size={14} color="#60a5fa" />
+                      ) : !isEnterprise ? (
+                        <span style={{ fontSize: '0.62rem', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', padding: '1px 5px', borderRadius: '4px', fontWeight: 800 }}>
+                          🔒 Enterprise 전용
+                        </span>
+                      ) : null}
                     </div>
                     <p style={{ margin: 0, fontSize: '0.72rem', color: '#94a3b8', lineHeight: 1.4 }}>
-                      CUSWAY 브랜드 표기를 최소화하고 100% 귀 관세법인 단독 명의로만 리포트 발행
+                      CUSWAY 브랜드 표기를 제거하고 100% 귀 관세법인 단독 명의로만 리포트 발행 (Enterprise 전용)
                     </p>
                   </div>
                 </div>
@@ -797,8 +822,8 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
                   </div>
                 </div>
 
-                {/* Co-Branding Verification Badge (Bottom) */}
-                {branding.brandingMode === 'co-branding' && (
+                {/* Verification Footer (Preview) */}
+                {branding.brandingMode === 'co-branding' ? (
                   <div style={{
                     marginTop: '12px',
                     padding: '6px 10px',
@@ -816,6 +841,20 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
                       <span><strong>AI 검증 엔진:</strong> CUSWAY Customs AI Master (9,450건 DB)</span>
                     </div>
                     <span style={{ fontWeight: 700, color: '#047857' }}>[진위확인 QR 완료]</span>
+                  </div>
+                ) : (
+                  <div style={{
+                    marginTop: '12px',
+                    paddingTop: '6px',
+                    borderTop: '1px dotted #cbd5e1',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    fontSize: '0.58rem',
+                    color: '#94a3b8'
+                  }}>
+                    <span>※ System & AI Verification: CUSWAY Customs AI Engine</span>
+                    <span>문서진위확인: cusway.kr/verify</span>
                   </div>
                 )}
               </div>

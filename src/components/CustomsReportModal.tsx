@@ -655,8 +655,22 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Co-Branding Verification Bar & QR Code (Bottom) */}
-              {branding.brandingMode === 'co-branding' && (
+              {/* Verification Footer (Co-Branding or Subtle White-Label System Note) */}
+              {branding.brandingMode === 'white-label' ? (
+                <div style={{
+                  marginTop: '14px',
+                  paddingTop: '8px',
+                  borderTop: '1px dotted #cbd5e1',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: '0.62rem',
+                  color: '#94a3b8'
+                }}>
+                  <span>※ System & AI Verification: CUSWAY Customs AI Platform (HS & Precedents Engine)</span>
+                  <span>문서 진위 확인: cusway.kr/verify</span>
+                </div>
+              ) : (
                 <div style={{
                   marginTop: '16px',
                   padding: '8px 14px',
@@ -670,13 +684,13 @@ export default function CustomsReportModal({
                   color: '#475569'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <ShieldCheck size={16} color="#0284c7" />
+                    <ShieldCheck size={16} color="#0d9488" />
                     <span>
                       <strong>AI Customs Intelligence Engine:</strong> Powered & Verified by CUSWAY AI Platform (관세청/WCO 해설서 & 9,450건 판례 마스터 기반)
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 800 }}>
-                    <QrCode size={14} color="#0284c7" />
+                    <QrCode size={14} color="#0d9488" />
                     <span>[공식 의견서 진위확인 QR]</span>
                   </div>
                 </div>

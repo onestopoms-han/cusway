@@ -168,6 +168,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <li><b>매월 50건</b> HSK 실시간 조회 한도</li>
                 <li>1인 계정 전용 (동시접속 1대 제한)</li>
                 <li>세율 / 수입 요건 기본 통합 매핑</li>
+                <li>CUSWAY 기본 템플릿 리포트 발급</li>
               </ul>
             </div>
 
@@ -204,7 +205,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <li><b>무제한</b> 4단계 수입 통관 시뮬레이션</li>
                 <li><b>5인 계정 기본 포함</b> (초과 시 1인당 5.5천원)</li>
                 <li>AI RAG 해설서 근거 자동 추천</li>
-                <li>화주용 검토서 무제한 PDF 출력</li>
+                <li><b>💎 인텔리전트 코-브랜딩</b> (사무소 로고·직인 + AI 인증 마크)</li>
               </ul>
             </div>
 
@@ -238,7 +239,8 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 월</span>
               </div>
               <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>인원 및 동시접속 무제한 지원</b></li>
+                <li><b>🏢 100% 단독 화이트라벨 모드</b> (CUSWAY 브랜드 완전 제거)</li>
+                <li><b>인원 및 동시접속 무제한 지원</b> (전사 본·지사)</li>
                 <li>법인 내부 ERP 및 통관용 API 연동</li>
                 <li>전사 본지사 사전 심사 이력 클라우드 동기화</li>
                 <li>대량 신고서 초안 업로드 오류 자동 감지</li>
