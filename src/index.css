@@ -147,38 +147,74 @@ body {
   background: rgba(71, 85, 105, 0.4);
 }
 
-/* Print Styles */
+/* ===================================================
+   Official Customs Document Print Styles
+   =================================================== */
 @media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 11pt !important;
-    line-height: 1.4 !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
   }
 
-  aside,
-  button,
-  .glow-effect,
-  input,
-  textarea,
-  .no-print,
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-size: 9.5pt !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Completely hide all interactive and background app elements */
   .app-sidebar,
   .app-sidebar-nav,
-  header {
+  .app-sidebar-logo-container,
+  .no-print,
+  button,
+  input,
+  textarea,
+  select,
+  .glow-effect,
+  header,
+  nav,
+  aside,
+  footer,
+  .hs-grid-layout,
+  .valuation-grid-layout,
+  .login-input {
     display: none !important;
   }
 
-  .customs-report-modal-overlay {
-    position: static !important;
-    top: auto !important;
-    left: auto !important;
+  /* Reset app container and main so they do NOT create background blocks or margins */
+  .app-container,
+  .app-main,
+  #root,
+  main {
+    display: block !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
     width: 100% !important;
     height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Modal overlay reset to print full A4 */
+  .customs-report-modal-overlay {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
     backdrop-filter: none !important;
-    padding: 0 !important;
     display: block !important;
     overflow: visible !important;
   }
@@ -188,55 +224,44 @@ body {
     width: 100% !important;
     max-width: 100% !important;
     max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: #ffffff !important;
     border: none !important;
     box-shadow: none !important;
     overflow: visible !important;
+    border-radius: 0 !important;
   }
 
   .customs-report-modal-scroll {
-    overflow: visible !important;
+    display: block !important;
+    margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
-    display: block !important;
+    overflow: visible !important;
   }
 
   .customs-official-paper {
-    box-shadow: none !important;
-    padding: 0 !important;
+    display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     min-height: auto !important;
-    border: none !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-  }
-
-  main, .app-main {
-    padding: 0 !important;
     margin: 0 !important;
-    width: 100% !important;
-    display: block !important;
-  }
-
-  .glass-panel {
+    padding: 0 !important;
     background: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+    border: none !important;
     box-shadow: none !important;
-    color: #000000 !important;
-    padding: 15px !important;
-    border-radius: 4px !important;
   }
 
-  .text-gradient {
-    -webkit-text-fill-color: initial !important;
-    color: #000000 !important;
-    font-weight: bold !important;
+  .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  @page {
-    size: A4 portrait;
-    margin: 12mm 15mm 12mm 15mm;
+  .print-page-break {
+    page-break-before: always !important;
+    break-before: page !important;
   }
 }
 

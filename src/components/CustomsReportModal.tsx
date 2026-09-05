@@ -270,50 +270,51 @@ export default function CustomsReportModal({
         {/* Printable Document Paper Area */}
         <div className="customs-report-modal-scroll" style={{
           overflowY: 'auto',
-          padding: '24px',
+          padding: '28px',
           background: '#0b1120',
           display: 'flex',
           justifyContent: 'center'
         }}>
           
-          <div className="customs-official-paper" style={{
+          <div className="customs-official-paper print-avoid-break" style={{
             background: '#ffffff',
             color: '#0f172a',
             width: '100%',
-            maxWidth: '780px',
-            minHeight: '1000px',
-            padding: '44px 48px',
-            boxShadow: '0 10px 35px rgba(0,0,0,0.35)',
-            fontFamily: "'Noto Sans KR', 'Malgun Gothic', sans-serif",
+            maxWidth: '820px',
+            minHeight: '1080px',
+            padding: '48px 52px',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
+            fontFamily: "'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif",
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            position: 'relative'
+            position: 'relative',
+            fontSize: '13px',
+            lineHeight: 1.6
           }}>
 
-            {/* Document Content Top */}
+            {/* Document Content */}
             <div>
               
-              {/* Official Letterhead Header */}
+              {/* Official Letterhead Top Header */}
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                borderBottom: '3px solid #0f172a',
+                alignItems: 'center',
+                borderBottom: '2.5px solid #0f172a',
                 paddingBottom: '16px',
-                marginBottom: '20px'
+                marginBottom: '22px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   {branding.customLogoUrl ? (
                     <div style={{
                       background: '#ffffff',
                       padding: '4px 8px',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                      justifyContent: 'center'
                     }}>
                       <img 
                         src={branding.customLogoUrl} 
@@ -327,236 +328,245 @@ export default function CustomsReportModal({
                     </div>
                   ) : (
                     <div style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '8px',
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '6px',
                       background: '#0f172a',
                       color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '1.4rem'
+                      fontSize: '1.3rem'
                     }}>
                       {branding.logoIcon === 'scales' ? '⚖️' : branding.logoIcon === 'building' ? '🏛️' : branding.logoIcon === 'globe' ? '🌐' : '🛡️'}
                     </div>
                   )}
                   <div>
-                    <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
                       {branding.firmName || '대한관세법인'}
                     </h2>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#475569', letterSpacing: '0.04em' }}>
-                      {branding.firmNameEn || 'CUSTOMS LAW FIRM'}
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+                      {branding.firmNameEn || 'CUSTOMS LAW FIRM & VALUATION ADVISORY'}
                     </span>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#475569' }}>
-                  <div style={{ fontWeight: 800, color: '#0284c7', fontSize: '0.84rem', marginBottom: '2px' }}>
+                <div style={{ textAlign: 'right', fontSize: '0.78rem', color: '#475569' }}>
+                  <div style={{ fontWeight: 800, color: '#0369a1', fontSize: '0.86rem', marginBottom: '2px' }}>
                     {activeReport.type === 'hs-opinion' ? '공식 품목분류 소명의견서' : activeReport.type === 'clearance-pipeline' ? '수입통관 심사 파이프라인 검토서' : '과세가격 결정 자문/소명의견서'}
                   </div>
-                  <div>문서번호: <strong>{docNum}</strong></div>
-                  <div>발행일자: <strong>{issueDate}</strong></div>
+                  <div>문서번호: <strong style={{ color: '#0f172a' }}>{docNum}</strong></div>
+                  <div>발행일자: <strong style={{ color: '#0f172a' }}>{issueDate}</strong></div>
                 </div>
               </div>
 
-              {/* Recipient & Document Title Banner */}
+              {/* Document Meta Address Grid (To, From, Date, Subject) */}
               <div style={{
-                background: '#f8fafc',
-                border: '1.5px solid #e2e8f0',
-                borderRadius: '8px',
+                border: '1.5px solid #334155',
+                borderRadius: '4px',
                 padding: '16px 20px',
-                marginBottom: '24px'
+                marginBottom: '26px',
+                background: '#f8fafc'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
-                    수신: <span style={{ textDecoration: 'underline' }}>{clientInput}</span>
-                  </span>
-                  <span style={{ fontSize: '0.72rem', background: '#0284c7', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                    {activeReport.type === 'hs-opinion' ? '품목분류 사전소명' : activeReport.type === 'clearance-pipeline' ? '통관 심사 파이프라인' : '관세평가 쟁점소명'}
-                  </span>
-                </div>
-                <h1 style={{
-                  margin: 0,
-                  fontSize: '1.25rem',
-                  fontWeight: 900,
-                  color: '#0f172a',
-                  lineHeight: 1.4,
-                  letterSpacing: '-0.02em'
-                }}>
-                  {activeReport.title || `[품목분류 검토의견서] ${activeReport.targetItem.productName}`}
-                </h1>
-              </div>
-
-              {/* Section 1: Item Specification Table */}
-              <div style={{ marginBottom: '22px' }}>
-                <h3 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  color: '#0f172a',
-                  borderLeft: '4px solid #0284c7',
-                  paddingLeft: '8px',
-                  margin: '0 0 10px 0'
-                }}>
-                  1. 검토 대상 물품 정보 (Item Specifications)
-                </h3>
-                
-                <table style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  fontSize: '0.82rem',
-                  border: '1px solid #cbd5e1'
-                }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.84rem' }}>
                   <tbody>
-                    <tr style={{ background: '#f8fafc' }}>
-                      <th style={{ width: '22%', padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569' }}>품명 (Item/Invoice Name)</th>
-                      <td style={{ width: '28%', padding: '8px 12px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#0f172a' }}>
-                        {activeReport.targetItem.productName}
-                      </td>
-                      <th style={{ width: '22%', padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569' }}>원산지 (Country of Origin)</th>
-                      <td style={{ width: '28%', padding: '8px 12px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#0f172a' }}>
-                        {activeReport.targetItem.originCountry || '이탈리아 (IT)'}
-                      </td>
+                    <tr>
+                      <td style={{ width: '15%', padding: '4px 0', color: '#475569', fontWeight: 700 }}>수 &nbsp; 신 :</td>
+                      <td style={{ width: '45%', padding: '4px 0', fontWeight: 800, color: '#0f172a' }}>{clientInput}</td>
+                      <td style={{ width: '15%', padding: '4px 0', color: '#475569', fontWeight: 700 }}>발 &nbsp; 행 :</td>
+                      <td style={{ width: '25%', padding: '4px 0', fontWeight: 800, color: '#0f172a' }}>{branding.firmName}</td>
                     </tr>
                     <tr>
-                      <th style={{ padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc' }}>재질 및 성분 구성</th>
-                      <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>
-                        {activeReport.targetItem.material || '제품 사양서 기준 복합 원료'}
-                      </td>
-                      <th style={{ padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc' }}>주요 기능 및 용도</th>
-                      <td style={{ padding: '8px 12px', border: '1px solid #cbd5e1' }}>
-                        {activeReport.targetItem.functionUse || '산업 및 상업용 제조/소비'}
-                      </td>
+                      <td style={{ padding: '4px 0', color: '#475569', fontWeight: 700 }}>참 &nbsp; 조 :</td>
+                      <td style={{ padding: '4px 0', color: '#334155' }}>통관·무역·수출입 총괄 담당자 귀하</td>
+                      <td style={{ padding: '4px 0', color: '#475569', fontWeight: 700 }}>담당자 :</td>
+                      <td style={{ padding: '4px 0', color: '#334155' }}>{branding.brokerName || '공인관세사'}</td>
                     </tr>
-                    <tr style={{ background: 'rgba(2, 132, 199, 0.05)' }}>
-                      <th style={{ padding: '8px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#0369a1', fontWeight: 800 }}>
-                        {activeReport.type === 'valuation-brief' ? '평가 쟁점 코드' : '확정 HSK 세번'}
-                      </th>
-                      <td colSpan={3} style={{ padding: '8px 12px', border: '1px solid #cbd5e1', fontSize: '1rem', fontWeight: 900, color: '#0284c7' }}>
-                        {cleanHs}
-                        {activeReport.rates?.recommendedRate !== undefined && (
-                          <span style={{ fontSize: '0.78rem', color: '#059669', marginLeft: '12px', fontWeight: 700 }}>
-                            [기본세율 {activeReport.rates.baseRate}% → {activeReport.rates.ftaName || 'FTA 협정세율'} {activeReport.rates.recommendedRate}% 적용]
-                          </span>
-                        )}
+                    <tr style={{ borderTop: '1px dashed #cbd5e1' }}>
+                      <td style={{ padding: '8px 0 2px 0', color: '#0369a1', fontWeight: 800 }}>제 &nbsp; 목 :</td>
+                      <td colSpan={3} style={{ padding: '8px 0 2px 0', fontSize: '0.98rem', fontWeight: 900, color: '#0f172a' }}>
+                        {activeReport.title || `[수입신고 사전검토] ${activeReport.targetItem.productName} HSK 품목분류 및 세액 검토 의견서`}
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* Section 2: Legal Reasoning & WCO Explanatory Notes */}
-              <div style={{ marginBottom: '22px' }}>
-                <h3 style={{
-                  fontSize: '0.95rem',
-                  fontWeight: 800,
-                  color: '#0f172a',
-                  borderLeft: '4px solid #0284c7',
-                  paddingLeft: '8px',
-                  margin: '0 0 10px 0'
+              {/* Section 1: Target Item Specifications */}
+              <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                    1. 검토 대상 물품 정보 (Item Specifications)
+                  </h3>
+                </div>
+                
+                <table style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                  fontSize: '0.82rem',
+                  border: '1.5px solid #64748b'
                 }}>
-                  {activeReport.type === 'valuation-brief' ? '2. 관세법 제30조 및 관세평가 법리 소명 근거' : '2. 관세율표 해석 통칙 및 WCO 해설서 기반 법리적 분류 근거'}
-                </h3>
+                  <tbody>
+                    <tr style={{ background: '#f1f5f9' }}>
+                      <th style={{ width: '22%', padding: '9px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                        품명 (Invoice Name)
+                      </th>
+                      <td style={{ width: '28%', padding: '9px 12px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                        {activeReport.targetItem.productName}
+                      </td>
+                      <th style={{ width: '22%', padding: '9px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                        원산지 (Origin)
+                      </th>
+                      <td style={{ width: '28%', padding: '9px 12px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                        {activeReport.targetItem.originCountry || '중국 (CN)'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={{ padding: '9px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
+                        성상 및 성분 구성
+                      </th>
+                      <td style={{ padding: '9px 12px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
+                        {activeReport.targetItem.material || '제품 사양서 및 원료 배합비 기준'}
+                      </td>
+                      <th style={{ padding: '9px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
+                        주요 기능 및 용도
+                      </th>
+                      <td style={{ padding: '9px 12px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
+                        {activeReport.targetItem.functionUse || '식용 및 조미/제조 가공용'}
+                      </td>
+                    </tr>
+                    <tr style={{ background: 'rgba(2, 132, 199, 0.04)' }}>
+                      <th style={{ padding: '10px 12px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#0369a1', fontWeight: 900 }}>
+                        {activeReport.type === 'valuation-brief' ? '평가 쟁점 코드' : '확정 HSK 세번'}
+                      </th>
+                      <td colSpan={3} style={{ padding: '10px 12px', border: '1px solid #cbd5e1' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                          <span style={{ fontSize: '1.08rem', fontWeight: 900, color: '#0284c7', letterSpacing: '0.02em' }}>
+                            {cleanHs}
+                          </span>
+                          {activeReport.rates?.recommendedRate !== undefined && (
+                            <span style={{ fontSize: '0.78rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                              기본세율 {activeReport.rates.baseRate}% ➡️ {activeReport.rates.ftaName || 'FTA 특혜'} {activeReport.rates.recommendedRate}% 적용
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Section 2: Legal Basis & WCO Explanatory Notes */}
+              <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                    {activeReport.type === 'valuation-brief' ? '2. 관세법 제30조 및 관세평가 법리 소명 근거' : '2. 관세율표 해석 통칙 및 WCO 해설서 기반 법리적 분류 근거'}
+                  </h3>
+                </div>
                 
                 <div style={{
-                  background: '#f8fafc',
                   border: '1px solid #cbd5e1',
-                  borderRadius: '6px',
-                  padding: '14px',
-                  fontSize: '0.82rem',
+                  borderRadius: '4px',
+                  padding: '16px',
+                  fontSize: '0.83rem',
                   color: '#1e293b',
-                  lineHeight: 1.6
+                  lineHeight: 1.65,
+                  background: '#ffffff'
                 }}>
-                  <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ background: '#0f172a', color: '#fff', fontSize: '0.68rem', padding: '1px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                      법조문 및 통칙
+                  <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ border: '1px solid #0f172a', color: '#0f172a', fontSize: '0.72rem', padding: '2px 6px', borderRadius: '3px', fontWeight: 800 }}>
+                      적용 통칙
                     </span>
-                    <strong style={{ color: '#0f172a' }}>
-                      {activeReport.legalBasis?.generalRule || '관세율표 해석에 관한 통칙 제1호 및 제6호'}
+                    <strong style={{ color: '#0f172a', fontSize: '0.88rem' }}>
+                      {activeReport.legalBasis?.generalRule || '관세율표 해석에 관한 일반통칙 제1호 및 제6호'}
                     </strong>
                   </div>
 
-                  <p style={{ margin: '0 0 8px 0' }}>
-                    {activeReport.legalBasis?.rationaleSummary || `본 물품은 관세율표의 품목분류 원칙에 따라, 제${cleanHs.slice(0, 4)}호의 호의 용어 및 관련 부·류의 주(Note) 규정을 검토한 결과 명백히 해당 세번에 전용되는 물품으로서 법리적 분류가 타당합니다.`}
-                  </p>
+                  <div style={{ marginBottom: '12px', color: '#334155' }}>
+                    <strong style={{ color: '#0f172a' }}>[분류 논리]</strong> {activeReport.legalBasis?.rationaleSummary || `본 물품은 관세율표의 품목분류 원칙에 따라, 제${cleanHs.slice(0, 4)}호의 호의 용어 및 관련 부·류의 주(Note) 규정을 검토한 결과 명백히 해당 세번에 전용되는 물품으로서 법리적 분류가 타당합니다.`}
+                  </div>
 
                   <div style={{
-                    background: '#ffffff',
-                    borderLeft: '3px solid #0284c7',
-                    padding: '8px 12px',
-                    fontSize: '0.78rem',
+                    background: '#f8fafc',
+                    borderLeft: '3.5px solid #0284c7',
+                    borderTop: '1px solid #e2e8f0',
+                    borderRight: '1px solid #e2e8f0',
+                    borderBottom: '1px solid #e2e8f0',
+                    padding: '10px 14px',
+                    fontSize: '0.8rem',
                     color: '#475569',
-                    fontStyle: 'italic',
-                    marginTop: '8px'
+                    borderRadius: '0 4px 4px 0'
                   }}>
-                    📖 공식 법령/해설서 본문 발췌:<br />
-                    "{activeReport.legalBasis?.wcoNoteSnippet || `제${cleanHs.slice(0, 4)}호에는 이와 같은 성상과 용도를 지닌 물품 및 전용 부분품을 명시적으로 포함하며, 타 호로의 분류를 엄격히 제한하고 있습니다.`}"
+                    <strong style={{ color: '#0369a1' }}>📖 공식 WCO 관세율표 해설서 및 주규정 발췌:</strong><br />
+                    "{activeReport.legalBasis?.wcoNoteSnippet || `제${cleanHs.slice(0, 4)}호에는 이와 같은 성상과 용도를 지닌 물품 및 조제품을 명시적으로 포함하며, 타 호로의 분류를 엄격히 제한하고 있습니다.`}"
                   </div>
                 </div>
               </div>
 
               {/* Section 3: Precedents / Tax Tribunal Ruling Evidence */}
               {activeReport.precedents && activeReport.precedents.length > 0 && (
-                <div style={{ marginBottom: '22px' }}>
-                  <h3 style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 800,
-                    color: '#0f172a',
-                    borderLeft: '4px solid #0284c7',
-                    paddingLeft: '8px',
-                    margin: '0 0 10px 0'
-                  }}>
-                    3. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례
-                  </h3>
+                <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                      3. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례
+                    </h3>
+                  </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {activeReport.precedents.map((prec, idx) => (
                       <div key={idx} style={{
-                        padding: '10px 12px',
+                        padding: '11px 14px',
                         background: '#ffffff',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '6px',
-                        fontSize: '0.78rem',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
+                        border: '1px solid #cbd5e1',
+                        borderRadius: '4px',
+                        fontSize: '0.8rem'
                       }}>
-                        <div>
-                          <span style={{ color: '#0284c7', fontWeight: 800, marginRight: '8px' }}>
-                            [{prec.caseNumber}]
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <div>
+                            <span style={{ color: '#0284c7', fontWeight: 900, marginRight: '8px' }}>
+                              [{prec.caseNumber}]
+                            </span>
+                            <strong style={{ color: '#0f172a' }}>{prec.title}</strong>
+                          </div>
+                          <span style={{ fontSize: '0.72rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
+                            {prec.authority || '관세평가분류원'} 공식 회시
                           </span>
-                          <strong style={{ color: '#0f172a' }}>{prec.title}</strong>
-                          {prec.keyPoint && (
-                            <p style={{ margin: '3px 0 0 0', color: '#64748b', fontSize: '0.72rem' }}>
-                              쟁점 요지: {prec.keyPoint}
-                            </p>
-                          )}
                         </div>
-                        <span style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                          일치 판례
-                        </span>
+                        {prec.keyPoint && (
+                          <div style={{ color: '#475569', fontSize: '0.76rem', lineHeight: 1.45, marginTop: '4px' }}>
+                            <strong>쟁점 요지:</strong> {prec.keyPoint}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {/* Section 4: Clearance Requirements (If pipeline mode) */}
+              {/* Section 4: Clearance Requirements (If present) */}
               {activeReport.requirements && activeReport.requirements.length > 0 && (
-                <div style={{ marginBottom: '22px' }}>
-                  <h3 style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 800,
-                    color: '#0f172a',
-                    borderLeft: '4px solid #0284c7',
-                    paddingLeft: '8px',
-                    margin: '0 0 10px 0'
+                <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                      4. 수입통관 4대 법령 세관장확인 요건 및 구비서류 체크리스트
+                    </h3>
+                  </div>
+                  <div style={{
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    padding: '12px 16px',
+                    background: '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
                   }}>
-                    4. 수입통관 4대 법령 세관장확인 요건 및 구비서류 체크리스트
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {activeReport.requirements.map((req, i) => (
-                      <div key={i} style={{ fontSize: '0.78rem', color: '#334155', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <CheckCircle2 size={13} color="#059669" />
+                      <div key={i} style={{ fontSize: '0.8rem', color: '#334155', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <CheckCircle2 size={14} color="#059669" style={{ marginTop: '3px', flexShrink: 0 }} />
                         <span>{req}</span>
                       </div>
                     ))}
@@ -564,28 +574,24 @@ export default function CustomsReportModal({
                 </div>
               )}
 
-              {/* Section 5: Custom Memo / Case Breakdown */}
+              {/* Section 5: Custom Memo / Conclusion */}
               {activeReport.customMemo && (
-                <div style={{ marginBottom: '22px' }}>
-                  <h3 style={{
-                    fontSize: '0.95rem',
-                    fontWeight: 800,
-                    color: '#0f172a',
-                    borderLeft: '4px solid #0284c7',
-                    paddingLeft: '8px',
-                    margin: '0 0 10px 0'
-                  }}>
-                    5. 실무 검토 의견 및 세관 조사 대비 대응 방안
-                  </h3>
+                <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                      5. 종합 검토 의견 및 세무 리스크 사전 대응 방안
+                    </h3>
+                  </div>
                   <div style={{
                     background: '#f8fafc',
                     border: '1px solid #cbd5e1',
-                    borderRadius: '6px',
-                    padding: '12px',
-                    fontSize: '0.8rem',
+                    borderRadius: '4px',
+                    padding: '14px',
+                    fontSize: '0.82rem',
                     color: '#1e293b',
                     whiteSpace: 'pre-line',
-                    lineHeight: 1.5
+                    lineHeight: 1.6
                   }}>
                     {activeReport.customMemo}
                   </div>
@@ -595,38 +601,38 @@ export default function CustomsReportModal({
             </div>
 
             {/* Official Sign-off Footer Box (Bottom of the page) */}
-            <div style={{ marginTop: '30px' }}>
+            <div className="print-avoid-break" style={{ marginTop: '32px' }}>
               
               <div style={{
                 borderTop: '2px solid #0f172a',
-                paddingTop: '16px',
+                paddingTop: '18px',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'flex-end'
+                alignItems: 'center'
               }}>
-                <div>
-                  <p style={{ margin: '0 0 8px 0', fontSize: '0.76rem', color: '#475569', lineHeight: 1.5 }}>
-                    {branding.customDisclaimer || '위 검토 사항은 대한민국 관세법 및 WCO 국제 기준에 의거하여 당 관세법인에서 정밀 검토하여 확정한 공식 의견서입니다.'}
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: '0 0 10px 0', fontSize: '0.78rem', color: '#475569', lineHeight: 1.5 }}>
+                    {branding.customDisclaimer || '위 검토 사항은 대한민국 관세법 및 WCO 국제 품목분류 기준에 의거하여 당 관세법인에서 정밀 검토하여 확정한 공식 의견서입니다.'}
                   </p>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                    작성일자: {issueDate}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+                  
+                  <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#0f172a' }}>
                     {branding.firmName} 대표 / 담당 관세사
                   </div>
-                  <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0f172a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  
+                  <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span>{branding.brokerName || '홍길동 공인관세사'}</span>
-                    <span style={{ fontSize: '0.75rem', color: '#0284c7', fontWeight: 700 }}>({branding.licenseNo})</span>
+                    <span style={{ fontSize: '0.78rem', color: '#0284c7', fontWeight: 700 }}>({branding.licenseNo})</span>
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '6px' }}>
-                    📍 {branding.address} | 📞 {branding.phone} | ✉️ {branding.email}
+                  
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '6px' }}>
+                    📍 {branding.address} &nbsp;|&nbsp; 📞 {branding.phone} &nbsp;|&nbsp; ✉️ {branding.email}
                   </div>
                 </div>
 
                 {/* Red Circular Seal Stamp Graphic */}
                 <div style={{
-                  width: '82px',
-                  height: '82px',
+                  width: '84px',
+                  height: '84px',
                   borderRadius: '50%',
                   border: '3.5px solid #dc2626',
                   display: 'flex',
@@ -634,14 +640,16 @@ export default function CustomsReportModal({
                   justifyContent: 'center',
                   color: '#dc2626',
                   fontWeight: 900,
-                  fontSize: '0.85rem',
+                  fontSize: '0.86rem',
                   textAlign: 'center',
-                  lineHeight: 1.15,
+                  lineHeight: 1.2,
                   padding: '4px',
-                  boxShadow: '0 0 0 1px rgba(220,38,38,0.25)',
+                  boxShadow: '0 0 0 1px rgba(220,38,38,0.2)',
                   transform: 'rotate(-4deg)',
                   userSelect: 'none',
-                  background: 'rgba(254, 242, 242, 0.45)'
+                  background: 'rgba(254, 242, 242, 0.4)',
+                  marginLeft: '20px',
+                  flexShrink: 0
                 }}>
                   {branding.sealText || `${branding.firmName}인`}
                 </div>
@@ -654,11 +662,11 @@ export default function CustomsReportModal({
                   padding: '8px 14px',
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
-                  borderRadius: '6px',
+                  borderRadius: '4px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  fontSize: '0.68rem',
+                  fontSize: '0.7rem',
                   color: '#475569'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -669,7 +677,7 @@ export default function CustomsReportModal({
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 800 }}>
                     <QrCode size={14} color="#0284c7" />
-                    <span>[공식 검토서 진위확인 QR]</span>
+                    <span>[공식 의견서 진위확인 QR]</span>
                   </div>
                 </div>
               )}
