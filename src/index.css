@@ -207,7 +207,8 @@ body {
   }
 
   /* Modal overlay reset to print full A4 */
-  .customs-report-modal-overlay {
+  .customs-report-modal-overlay,
+  .brochure-modal-overlay {
     position: static !important;
     width: 100% !important;
     height: auto !important;
@@ -219,7 +220,8 @@ body {
     overflow: visible !important;
   }
 
-  .customs-report-modal-wrapper {
+  .customs-report-modal-wrapper,
+  .brochure-modal-wrapper {
     position: static !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -233,7 +235,8 @@ body {
     border-radius: 0 !important;
   }
 
-  .customs-report-modal-scroll {
+  .customs-report-modal-scroll,
+  .brochure-modal-scroll {
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -241,7 +244,8 @@ body {
     overflow: visible !important;
   }
 
-  .customs-official-paper {
+  .customs-official-paper,
+  .brochure-printable-paper {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
