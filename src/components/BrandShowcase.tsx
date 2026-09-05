@@ -92,31 +92,31 @@ export default function BrandShowcase({
   const roiMultiplier = Number((totalValuePerMonth / cuswayMonthlyCost).toFixed(1));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', paddingBottom: '60px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingBottom: '60px' }}>
       
       {/* 1. Hero Section: Powerful Value Proposition */}
       <section style={{
         position: 'relative',
-        borderRadius: '24px',
-        padding: '56px 40px',
-        background: 'radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.18) 0%, rgba(15, 23, 42, 0.95) 60%), linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 1) 100%)',
-        border: '1.5px solid rgba(6, 182, 212, 0.3)',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        borderRadius: '20px',
+        padding: '48px 36px',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f0fdfa 50%, #f8fafc 100%)',
+        border: '1px solid rgba(13, 148, 136, 0.25)',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.05)',
         overflow: 'hidden'
       }}>
         {/* Ambient glow decoration */}
         <div style={{
           position: 'absolute',
-          top: '-100px',
-          right: '-50px',
-          width: '350px',
-          height: '350px',
-          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)',
-          filter: 'blur(50px)',
+          top: '-80px',
+          right: '-40px',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(13, 148, 136, 0.12) 0%, transparent 70%)',
+          filter: 'blur(40px)',
           pointerEvents: 'none'
         }} />
 
-        <div style={{ maxWidth: '820px', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <div style={{ maxWidth: '820px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Badge */}
           <div style={{
@@ -125,28 +125,28 @@ export default function BrandShowcase({
             gap: '8px',
             padding: '6px 14px',
             borderRadius: '999px',
-            background: 'rgba(6, 182, 212, 0.12)',
-            border: '1px solid rgba(6, 182, 212, 0.35)',
+            background: 'rgba(13, 148, 136, 0.1)',
+            border: '1px solid rgba(13, 148, 136, 0.25)',
             width: 'fit-content'
           }}>
-            <Sparkles size={16} color="var(--accent-cyan)" />
-            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)', letterSpacing: '0.02em' }}>
+            <Sparkles size={15} color="var(--accent-primary)" />
+            <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-primary)', letterSpacing: '0.02em' }}>
               대한민국 1위 관세 AI 코파일럿 | WCO 해설서 & 9,450건 판례 마스터 기반
             </span>
           </div>
 
           {/* Headline */}
           <h1 style={{
-            fontSize: '2.6rem',
+            fontSize: '2.4rem',
             fontWeight: 900,
-            lineHeight: 1.25,
+            lineHeight: 1.3,
             letterSpacing: '-0.03em',
-            color: '#ffffff',
+            color: 'var(--text-main)',
             margin: 0
           }}>
             해설서 검색에 쓰던 <span style={{ color: '#94a3b8', textDecoration: 'line-through' }}>하루 3시간</span>,<br />
             <span style={{ 
-              background: 'linear-gradient(90deg, #38bdf8 0%, #818cf8 50%, #f59e0b 100%)',
+              background: 'linear-gradient(90deg, #0d9488 0%, #0891b2 50%, #b45309 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>
@@ -156,48 +156,23 @@ export default function BrandShowcase({
 
           {/* Subtitle */}
           <p style={{
-            fontSize: '1.05rem',
-            color: '#cbd5e1',
-            lineHeight: 1.6,
+            fontSize: '1rem',
+            color: 'var(--text-muted)',
+            lineHeight: 1.65,
             margin: 0
           }}>
             CUSWAY는 단순한 키워드 검색기가 아닙니다. 물품 규격 3줄 입력으로 <strong>통칙 1~6 적용 논리, WCO 해설서 본문, 관세청 결정례를 매핑한 법적 소명서(PDF)</strong>를 관세사무소 명의로 자동 발급합니다.
           </p>
 
           {/* CTA Buttons */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '8px' }}>
             <button
               onClick={() => onNavigate('hs-classifier')}
               style={{
-                padding: '16px 28px',
-                background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                padding: '14px 26px',
+                background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                 border: 'none',
-                borderRadius: '12px',
-                color: '#000',
-                fontSize: '1rem',
-                fontWeight: 900,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                boxShadow: '0 8px 24px rgba(6, 182, 212, 0.4)',
-                transition: 'transform 0.15s ease'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-            >
-              <Zap size={18} fill="#000" />
-              <span>3초 만에 내 품목 소명 리포트 뽑아보기 (무료)</span>
-              <ArrowRight size={18} />
-            </button>
-
-            <button
-              onClick={onOpenBranding}
-              style={{
-                padding: '16px 24px',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1.5px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: '#ffffff',
                 fontSize: '0.95rem',
                 fontWeight: 800,
@@ -205,43 +180,67 @@ export default function BrandShowcase({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                backdropFilter: 'blur(8px)',
+                boxShadow: '0 4px 16px rgba(13, 148, 136, 0.3)',
+                transition: 'transform 0.15s ease'
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+            >
+              <Zap size={17} fill="#ffffff" />
+              <span>3초 만에 내 품목 소명 리포트 뽑아보기 (무료)</span>
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              onClick={onOpenBranding}
+              style={{
+                padding: '14px 22px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '10px',
+                color: 'var(--text-main)',
+                fontSize: '0.92rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
                 transition: 'all 0.15s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                e.currentTarget.style.borderColor = 'var(--accent-cyan)';
+                e.currentTarget.style.borderColor = 'var(--accent-primary)';
+                e.currentTarget.style.color = 'var(--accent-primary)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.color = 'var(--text-main)';
               }}
             >
-              <Building2 size={18} color="var(--accent-cyan)" />
+              <Building2 size={17} color="var(--accent-primary)" />
               <span>관세사무소 맞춤 로고/직인 설정</span>
             </button>
 
             <button
               onClick={() => setShowBrochureModal(true)}
               style={{
-                padding: '16px 22px',
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 70, 239, 0.15) 100%)',
-                border: '1.5px solid rgba(245, 158, 11, 0.45)',
-                borderRadius: '12px',
+                padding: '14px 20px',
+                background: 'rgba(245, 158, 11, 0.08)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                borderRadius: '10px',
                 color: 'var(--accent-amber)',
-                fontSize: '0.95rem',
-                fontWeight: 800,
+                fontSize: '0.92rem',
+                fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                backdropFilter: 'blur(8px)',
                 transition: 'all 0.15s ease'
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
-              <FileText size={18} color="var(--accent-amber)" />
+              <FileText size={17} color="var(--accent-amber)" />
               <span>📄 공식 브로슈어 인쇄/PDF</span>
             </button>
           </div>
@@ -251,25 +250,25 @@ export default function BrandShowcase({
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: '16px',
-            marginTop: '20px',
-            paddingTop: '24px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.12)'
+            marginTop: '16px',
+            paddingTop: '20px',
+            borderTop: '1px solid #e2e8f0'
           }}>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>9,450+ 건</div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>관세청·WCO 판례 마스터 DB</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-primary)' }}>9,450+ 건</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>관세청·WCO 판례 마스터 DB</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-amber)' }}>90% 절감</div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>건당 소명서 작성 시간 (30분➔3초)</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-amber)' }}>90% 절감</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>건당 소명서 작성 시간 (30분➔3초)</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#34d399' }}>무제한 동시접속</div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>선착순 튕김 없는 팀 협업 환경</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#059669' }}>무제한 동시접속</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>선착순 튕김 없는 팀 협업 환경</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#e879f9' }}>최대 50,000P</div>
-              <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>비공개 판례 캐시백 (구독료 0원화)</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>최대 50,000P</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>비공개 판례 캐시백 (구독료 0원화)</div>
             </div>
           </div>
 
@@ -277,16 +276,16 @@ export default function BrandShowcase({
       </section>
 
       {/* 2. Interactive 4 Killer Feature Templates Showcase */}
-      <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
         <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             CORE VALUE PROPOSITION
           </span>
-          <h2 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#fff', margin: '8px 0 10px 0' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', margin: '6px 0 8px 0' }}>
             관세사와 기업을 압도하는 CUSWAY 4대 무기
           </h2>
-          <p style={{ fontSize: '0.92rem', color: '#94a3b8', margin: 0 }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
             탭을 클릭하여 CUSWAY가 실무 현장에서 어떻게 업무 속도를 10배 높이고 브랜딩을 강화하는지 확인하세요.
           </p>
         </div>
@@ -308,17 +307,18 @@ export default function BrandShowcase({
               key={t.id}
               onClick={() => setActiveTab(t.id as any)}
               style={{
-                padding: '12px 20px',
-                borderRadius: '12px',
-                background: activeTab === t.id ? 'rgba(6, 182, 212, 0.15)' : 'rgba(30, 41, 59, 0.6)',
-                border: activeTab === t.id ? '1.5px solid var(--accent-cyan)' : '1px solid rgba(255, 255, 255, 0.08)',
-                color: activeTab === t.id ? '#ffffff' : '#94a3b8',
+                padding: '10px 18px',
+                borderRadius: '10px',
+                background: activeTab === t.id ? 'rgba(13, 148, 136, 0.1)' : '#ffffff',
+                border: activeTab === t.id ? '1.5px solid var(--accent-primary)' : '1px solid #e2e8f0',
+                color: activeTab === t.id ? 'var(--accent-primary)' : 'var(--text-muted)',
                 fontWeight: activeTab === t.id ? 800 : 600,
-                fontSize: '0.88rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                boxShadow: activeTab === t.id ? '0 2px 8px rgba(13, 148, 136, 0.15)' : 'none',
                 transition: 'all 0.15s ease'
               }}
             >
@@ -327,8 +327,8 @@ export default function BrandShowcase({
                 fontSize: '0.68rem',
                 padding: '2px 6px',
                 borderRadius: '6px',
-                background: activeTab === t.id ? 'var(--accent-cyan)' : 'rgba(255, 255, 255, 0.1)',
-                color: activeTab === t.id ? '#000' : '#cbd5e1',
+                background: activeTab === t.id ? 'var(--accent-primary)' : '#f1f5f9',
+                color: activeTab === t.id ? '#ffffff' : '#64748b',
                 fontWeight: 800
               }}>
                 {t.badge}
@@ -339,42 +339,42 @@ export default function BrandShowcase({
 
         {/* Tab Content Display Cards */}
         <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          border: '1.5px solid #334155',
-          borderRadius: '20px',
+          background: '#ffffff',
+          border: '1px solid #e2e8f0',
+          borderRadius: '16px',
           padding: '32px',
-          boxShadow: '0 12px 40px rgba(0,0,0,0.4)'
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)'
         }}>
 
           {/* TAB 1: Co-Branding A4 Official Report Preview */}
           {activeTab === 'branding' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Award size={20} color="var(--accent-cyan)" />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                  <Award size={18} color="var(--accent-primary)" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
                     WHITE-LABEL & CO-BRANDING ENGINE
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
                   화주에게 전송되는 의견서에<br />
-                  <span style={{ color: 'var(--accent-cyan)' }}>자신들만의 관세사 상호와 직인</span>이 찍힙니다.
+                  <span style={{ color: 'var(--accent-primary)' }}>자신들만의 관세사 상호와 직인</span>이 찍힙니다.
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   CUSWAY 설정에서 관세사무소 로고와 공인직인을 한 번만 등록해 두면, 모든 AI 품목분류·통관 사전심사 결과가 <strong>완벽한 A4 공문서 규격 PDF</strong>로 즉시 출력됩니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
-                    <CheckCircle2 size={16} color="#34d399" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
                     <span><strong>100% 관세사무소 명의:</strong> 상호명, 라이선스 번호, 붉은색 원형 직인 도장 적용</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
-                    <CheckCircle2 size={16} color="#34d399" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
                     <span><strong>공인 검증 마크:</strong> 최하단 `Powered by CUSWAY & 진위확인 QR`로 공신력 배가</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
-                    <CheckCircle2 size={16} color="#34d399" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
                     <span><strong>화주 역유입 바이럴:</strong> 의견서를 본 화주 기업 무역팀의 CUSWAY 신규 유입 창출</span>
                   </div>
                 </div>
@@ -384,16 +384,17 @@ export default function BrandShowcase({
                     onClick={onOpenBranding}
                     style={{
                       padding: '12px 20px',
-                      background: 'var(--accent-cyan)',
+                      background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                       border: 'none',
                       borderRadius: '8px',
-                      color: '#000',
+                      color: '#ffffff',
                       fontWeight: 800,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(13, 148, 136, 0.25)'
                     }}
                   >
                     <Settings size={15} /> 사무소 브랜딩 설정 열기
@@ -402,11 +403,11 @@ export default function BrandShowcase({
                     onClick={() => setShowSampleReportModal(true)}
                     style={{
                       padding: '12px 18px',
-                      background: 'rgba(56, 189, 248, 0.12)',
-                      border: '1px solid #0284c7',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
                       borderRadius: '8px',
-                      color: '#38bdf8',
-                      fontWeight: 800,
+                      color: 'var(--text-main)',
+                      fontWeight: 700,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
@@ -414,7 +415,7 @@ export default function BrandShowcase({
                       gap: '6px'
                     }}
                   >
-                    <Printer size={15} /> 실제 의견서 인쇄/발급 미리보기
+                    <Printer size={15} color="var(--accent-primary)" /> 실제 의견서 인쇄/발급 미리보기
                   </button>
                 </div>
               </div>
@@ -425,7 +426,7 @@ export default function BrandShowcase({
                 color: '#0f172a',
                 padding: '24px 28px',
                 borderRadius: '12px',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
                 border: '1px solid #cbd5e1',
                 fontSize: '0.72rem',
                 display: 'flex',
@@ -469,7 +470,7 @@ export default function BrandShowcase({
                 </div>
 
                 {/* Recipient */}
-                <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: '4px', border: '1px solid #e2e8f0', fontWeight: 700 }}>
+                <div style={{ background: '#f8fafc', padding: '6px 10px', borderRadius: '4px', border: '1px solid #e2e8f0', fontWeight: 700, color: '#0f172a' }}>
                   수신처: (주)한국통상 무역부 귀하 | 건명: 전기차 구동모터 코일 품목분류 사전심사 건
                 </div>
 
@@ -488,7 +489,7 @@ export default function BrandShowcase({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1.5px solid #0f172a', paddingTop: '8px' }}>
                   <div>
                     <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{branding.firmName} 대표/담당 관세사</div>
-                    <div style={{ fontWeight: 900, fontSize: '0.8rem' }}>{branding.brokerName || '홍길동 공인관세사'} ({branding.licenseNo})</div>
+                    <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#0f172a' }}>{branding.brokerName || '홍길동 공인관세사'} ({branding.licenseNo})</div>
                   </div>
                   {/* Red Stamp */}
                   <div style={{
@@ -503,7 +504,7 @@ export default function BrandShowcase({
                     alignItems: 'center',
                     justifyContent: 'center',
                     transform: 'rotate(-4deg)',
-                    background: 'rgba(254, 242, 242, 0.5)'
+                    background: 'rgba(254, 242, 242, 0.6)'
                   }}>
                     {branding.sealText || `${branding.firmName}인`}
                   </div>
@@ -530,31 +531,31 @@ export default function BrandShowcase({
           {/* TAB 2: Confidential Cashback Appraisal Engine */}
           {activeTab === 'cashback' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Coins size={20} color="var(--accent-amber)" />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
+                  <Coins size={18} color="var(--accent-amber)" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
                     CONFIDENTIAL PRECEDENT CASHBACK EXCHANGE
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
                   서랍 속 비공개 결정서 1건으로<br />
                   <span style={{ color: 'var(--accent-amber)' }}>Pro 구독료(월 4.4만)를 100% 무료화</span>하세요.
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   CUSWAY AI 가치 감정 엔진은 관세청 공개 포털(CLIP)에 없는 미공개 희귀 결정서와 승소 판결문을 최상위 가치로 감정하여 <strong>건당 최대 ₩50,000P</strong>를 즉시 캐시백해 드립니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-amber)" />
                     <span><strong>투명한 4단계 감정:</strong> 기본 지식금 + 미공개 프리미엄 + 승소 가산금 실시간 산출</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-amber)" />
                     <span><strong>완벽한 비식별 보안:</strong> 화주명, 사업자번호 등 민감정보 100% 마스킹 처리</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-amber)" />
                     <span><strong>구독료 자동 차감:</strong> 적립된 마일리지는 차월 결제 시 100% 현금 자동 차감</span>
                   </div>
@@ -565,16 +566,17 @@ export default function BrandShowcase({
                     onClick={() => onNavigate('cashback')}
                     style={{
                       padding: '12px 20px',
-                      background: 'linear-gradient(135deg, var(--accent-amber) 0%, #d946ef 100%)',
+                      background: 'linear-gradient(135deg, var(--accent-amber) 0%, #d97706 100%)',
                       border: 'none',
                       borderRadius: '8px',
-                      color: '#000',
-                      fontWeight: 900,
+                      color: '#ffffff',
+                      fontWeight: 800,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(180, 83, 9, 0.25)'
                     }}
                   >
                     <Coins size={15} /> 비공개 결정서 감정 신청하기
@@ -584,24 +586,25 @@ export default function BrandShowcase({
 
               {/* Interactive Cashback Calculator Widget */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(15, 23, 42, 0.9) 100%)',
-                border: '1.5px solid rgba(245, 158, 11, 0.4)',
-                borderRadius: '16px',
-                padding: '24px',
+                background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.3) 0%, #ffffff 100%)',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                borderRadius: '14px',
+                padding: '22px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '16px'
+                gap: '14px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff' }}>⚡ 실시간 캐시백 모의 감정기</span>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--accent-amber)', background: 'rgba(245, 158, 11, 0.2)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>⚡ 실시간 캐시백 모의 감정기</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--accent-amber)', background: 'rgba(245, 158, 11, 0.12)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>
                     실시간 산정
                   </span>
                 </div>
 
                 {/* Option 1: Confidentiality */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
                     문서 공개 여부 (유니패스 미등재 희귀 문서)
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -610,9 +613,9 @@ export default function BrandShowcase({
                       style={{
                         padding: '8px',
                         borderRadius: '6px',
-                        background: simDocType === 'confidential' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(0,0,0,0.3)',
-                        border: simDocType === 'confidential' ? '1.5px solid var(--accent-amber)' : '1px solid #334155',
-                        color: simDocType === 'confidential' ? 'var(--accent-amber)' : '#94a3b8',
+                        background: simDocType === 'confidential' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                        border: simDocType === 'confidential' ? '1.5px solid var(--accent-amber)' : '1px solid #cbd5e1',
+                        color: simDocType === 'confidential' ? 'var(--accent-amber)' : 'var(--text-muted)',
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         cursor: 'pointer'
@@ -625,9 +628,9 @@ export default function BrandShowcase({
                       style={{
                         padding: '8px',
                         borderRadius: '6px',
-                        background: simDocType === 'public' ? 'rgba(245, 158, 11, 0.25)' : 'rgba(0,0,0,0.3)',
-                        border: simDocType === 'public' ? '1.5px solid var(--accent-amber)' : '1px solid #334155',
-                        color: simDocType === 'public' ? 'var(--accent-amber)' : '#94a3b8',
+                        background: simDocType === 'public' ? 'rgba(245, 158, 11, 0.15)' : '#ffffff',
+                        border: simDocType === 'public' ? '1.5px solid var(--accent-amber)' : '1px solid #cbd5e1',
+                        color: simDocType === 'public' ? 'var(--accent-amber)' : 'var(--text-muted)',
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         cursor: 'pointer'
@@ -640,7 +643,7 @@ export default function BrandShowcase({
 
                 {/* Option 2: Decision Outcome */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
                     처분 결과 (세관 처분 취소/승소 파급력)
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -649,9 +652,9 @@ export default function BrandShowcase({
                       style={{
                         padding: '8px',
                         borderRadius: '6px',
-                        background: simDecision === 'overturned' ? 'rgba(52, 211, 153, 0.25)' : 'rgba(0,0,0,0.3)',
-                        border: simDecision === 'overturned' ? '1.5px solid #34d399' : '1px solid #334155',
-                        color: simDecision === 'overturned' ? '#34d399' : '#94a3b8',
+                        background: simDecision === 'overturned' ? 'rgba(5, 150, 105, 0.12)' : '#ffffff',
+                        border: simDecision === 'overturned' ? '1.5px solid #059669' : '1px solid #cbd5e1',
+                        color: simDecision === 'overturned' ? '#059669' : 'var(--text-muted)',
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         cursor: 'pointer'
@@ -664,9 +667,9 @@ export default function BrandShowcase({
                       style={{
                         padding: '8px',
                         borderRadius: '6px',
-                        background: simDecision === 'upheld' ? 'rgba(52, 211, 153, 0.25)' : 'rgba(0,0,0,0.3)',
-                        border: simDecision === 'upheld' ? '1.5px solid #34d399' : '1px solid #334155',
-                        color: simDecision === 'upheld' ? '#34d399' : '#94a3b8',
+                        background: simDecision === 'upheld' ? 'rgba(5, 150, 105, 0.12)' : '#ffffff',
+                        border: simDecision === 'upheld' ? '1.5px solid #059669' : '1px solid #cbd5e1',
+                        color: simDecision === 'upheld' ? '#059669' : 'var(--text-muted)',
                         fontWeight: 700,
                         fontSize: '0.75rem',
                         cursor: 'pointer'
@@ -678,18 +681,18 @@ export default function BrandShowcase({
                 </div>
 
                 {/* Calculated Output Result */}
-                <div style={{ background: 'rgba(0,0,0,0.5)', padding: '14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#94a3b8', marginBottom: '4px' }}>
+                <div style={{ background: '#ffffff', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
                     <span>CUSWAY 9,450건 DB 대조 독창성</span>
-                    <strong style={{ color: 'var(--accent-cyan)' }}>{simDocType === 'confidential' ? '98.5% (최상급 독점)' : '82.0% (우수)'}</strong>
+                    <strong style={{ color: 'var(--accent-primary)' }}>{simDocType === 'confidential' ? '98.5% (최상급 독점)' : '82.0% (우수)'}</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', marginTop: '6px' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>예상 캐시백 적립금</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: '8px', marginTop: '6px' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>예상 캐시백 적립금</span>
                     <span style={{ fontSize: '1.3rem', fontWeight: 900, color: 'var(--accent-amber)' }}>
                       ₩{totalCashback.toLocaleString()} P
                     </span>
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#34d399', marginTop: '6px', fontWeight: 700, textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#059669', marginTop: '6px', fontWeight: 700, textAlign: 'right' }}>
                     * Pro 플랜(월 4.4만 원) 100% 무료 이용 가능 수준
                   </div>
                 </div>
@@ -700,18 +703,18 @@ export default function BrandShowcase({
           {/* TAB 3: 4-Step Clearance Pipeline */}
           {activeTab === 'pipeline' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Zap size={20} color="var(--accent-cyan)" />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                  <Zap size={18} color="var(--accent-primary)" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
                     4-STEP ONE-STOP CLEARANCE PIPELINE
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
                   HS Code 확정부터 수입 요건, FTA까지<br />
-                  <span style={{ color: 'var(--accent-cyan)' }}>하나의 파이프라인으로 일괄 통제</span>합니다.
+                  <span style={{ color: 'var(--accent-primary)' }}>하나의 파이프라인으로 일괄 통제</span>합니다.
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   분류 따로, 요건 따로, 협정세율 따로 조회하던 파편화된 업무를 끝냅니다. 입력 즉시 4단계를 관통하여 통관 보류 및 관세 추징 리스크를 원천 봉쇄합니다.
                 </p>
 
@@ -723,12 +726,12 @@ export default function BrandShowcase({
                     { step: '4단계', title: '통관 행정서류 체크리스트', desc: '수입신고 전 필수 구비서류 자동 생성' }
                   ].map((s, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                      <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(6, 182, 212, 0.2)', color: 'var(--accent-cyan)', fontWeight: 800, fontSize: '0.75rem' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: '4px', background: 'rgba(13, 148, 136, 0.1)', color: 'var(--accent-primary)', fontWeight: 800, fontSize: '0.75rem' }}>
                         {s.step}
                       </span>
                       <div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>{s.title}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{s.desc}</div>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>{s.title}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{s.desc}</div>
                       </div>
                     </div>
                   ))}
@@ -739,16 +742,17 @@ export default function BrandShowcase({
                     onClick={() => onNavigate('clearance-wizard')}
                     style={{
                       padding: '12px 20px',
-                      background: 'var(--accent-cyan)',
+                      background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                       border: 'none',
                       borderRadius: '8px',
-                      color: '#000',
+                      color: '#ffffff',
                       fontWeight: 800,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(13, 148, 136, 0.25)'
                     }}
                   >
                     <Zap size={15} /> 4단계 통관 심사 실행하기
@@ -758,36 +762,37 @@ export default function BrandShowcase({
 
               {/* Visual Pipeline Flow Mockup */}
               <div style={{
-                background: 'rgba(15, 23, 42, 0.95)',
-                border: '1.5px solid #334155',
-                borderRadius: '16px',
-                padding: '24px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '14px',
+                padding: '22px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '14px'
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
               }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff', borderBottom: '1px solid #334155', paddingBottom: '8px' }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
                   📊 실시간 수입통관 4단계 종합 판정표 예시
                 </div>
 
-                <div style={{ background: 'rgba(6, 182, 212, 0.08)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-cyan)' }}>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--accent-cyan)', fontWeight: 700 }}>1단계: 품목분류 확정</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>HSK 2009.89-1090 (배 주스 농축액)</div>
+                <div style={{ background: 'rgba(13, 148, 136, 0.06)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-primary)' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--accent-primary)', fontWeight: 700 }}>1단계: 품목분류 확정</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>HSK 2009.89-1090 (배 주스 농축액)</div>
                 </div>
 
-                <div style={{ background: 'rgba(245, 158, 11, 0.08)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-amber)' }}>
+                <div style={{ background: 'rgba(245, 158, 11, 0.06)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-amber)' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--accent-amber)', fontWeight: 700 }}>2단계: 세관장확인 수입요건</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>[필수] 수입식품안전관리 특별법 검사확인증 필요</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>[필수] 수입식품안전관리 특별법 검사확인증 필요</div>
                 </div>
 
-                <div style={{ background: 'rgba(52, 211, 153, 0.08)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid #34d399' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 700 }}>3단계: 협정세율 실익 비교</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>기본 50.0% ➔ 한-아세안 FTA 0.0% (세액 ₩12,500,000 절감)</div>
+                <div style={{ background: 'rgba(5, 150, 105, 0.06)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid #059669' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>3단계: 협정세율 실익 비교</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>기본 50.0% ➔ 한-아세안 FTA 0.0% (세액 ₩12,500,000 절감)</div>
                 </div>
 
-                <div style={{ background: 'rgba(147, 51, 234, 0.08)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid #c084fc' }}>
-                  <div style={{ fontSize: '0.72rem', color: '#c084fc', fontWeight: 700 }}>4단계: 구비 서류 가이드</div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#fff' }}>식품검역증명서, Form AK 원산지증명서, 제조공정도</div>
+                <div style={{ background: 'rgba(147, 51, 234, 0.06)', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid #9333ea' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#9333ea', fontWeight: 700 }}>4단계: 구비 서류 가이드</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>식품검역증명서, Form AK 원산지증명서, 제조공정도</div>
                 </div>
               </div>
             </div>
@@ -796,28 +801,28 @@ export default function BrandShowcase({
           {/* TAB 4: AI Valuation Precedents */}
           {activeTab === 'valuation' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Scale size={20} color="#e879f9" />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#e879f9' }}>
+                  <Scale size={18} color="var(--accent-cyan)" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
                     CUSTOMS VALUATION & TAX TRIBUNAL PRECEDENTS
                   </span>
                 </div>
-                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
                   특수관계 이전가격, 로열티 가산 처분도<br />
-                  <span style={{ color: '#e879f9' }}>조세심판원 승소 판례로 방어</span>합니다.
+                  <span style={{ color: 'var(--accent-cyan)' }}>조세심판원 승소 판례로 방어</span>합니다.
                 </h3>
-                <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
                   관세평가 쟁점(제1방법 배제, 권리사용료 가산, 생산지원비)에 대해 조세심판원과 대법원의 최신 인용(승소) 판결 논리를 즉시 소명서에 인용할 수 있습니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#f8fafc' }}>
-                    <CheckCircle2 size={16} color="#e879f9" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
                     <span><strong>심판원/대법원 전수 DB:</strong> 과세가격 평가 쟁점별 법적 판단 요지 매칭</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: '#e879f9' }}>
-                    <CheckCircle2 size={16} color="#e879f9" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--accent-cyan)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
                     <span><strong>관세청 처분 취소 방어 논리:</strong> 세관 심사 시 즉시 제출 가능한 법리 제공</span>
                   </div>
                 </div>
@@ -827,16 +832,17 @@ export default function BrandShowcase({
                     onClick={() => onNavigate('valuation')}
                     style={{
                       padding: '12px 20px',
-                      background: 'linear-gradient(135deg, #e879f9 0%, #3b82f6 100%)',
+                      background: 'linear-gradient(135deg, var(--accent-cyan) 0%, #0284c7 100%)',
                       border: 'none',
                       borderRadius: '8px',
-                      color: '#fff',
+                      color: '#ffffff',
                       fontWeight: 800,
                       fontSize: '0.85rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(8, 145, 178, 0.25)'
                     }}
                   >
                     <Scale size={15} /> 관세평가 판례 검색하기
@@ -846,26 +852,27 @@ export default function BrandShowcase({
 
               {/* Valuation Precedent Card Mockup */}
               <div style={{
-                background: 'rgba(15, 23, 42, 0.95)',
-                border: '1.5px solid rgba(232, 121, 249, 0.3)',
-                borderRadius: '16px',
-                padding: '24px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: '14px',
+                padding: '22px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.72rem', background: 'rgba(232, 121, 249, 0.2)', color: '#e879f9', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
+                  <span style={{ fontSize: '0.72rem', background: 'rgba(147, 51, 234, 0.1)', color: '#9333ea', padding: '2px 8px', borderRadius: '6px', fontWeight: 800 }}>
                     조세심판원 조심2024관0042 (인용/승소)
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 700 }}>처분 취소 결정</span>
+                  <span style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>처분 취소 결정</span>
                 </div>
 
-                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff' }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: 800, color: 'var(--text-main)' }}>
                   다국적 소프트웨어 사용권 대가의 권리사용료 가산 처분 취소 청구
                 </div>
 
-                <div style={{ fontSize: '0.78rem', color: '#cbd5e1', background: 'rgba(0,0,0,0.3)', padding: '10px', borderRadius: '8px', lineHeight: 1.5 }}>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px', borderRadius: '8px', lineHeight: 1.5 }}>
                   <strong>핵심 판결 요지:</strong> 수입물품과 직접 관련된 권리사용료라 하더라도, 국내에서 수행되는 후속 가공 및 복제권 행사에 대한 대가는 관세법 시행령 제19조 제2항에 따라 비과세 처리함이 타당함.
                 </div>
               </div>
@@ -877,16 +884,17 @@ export default function BrandShowcase({
 
       {/* 3. Before vs After Shocking Comparison Matrix */}
       <section style={{
-        background: 'linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.8) 100%)',
-        border: '1px solid #334155',
-        borderRadius: '20px',
-        padding: '36px 32px'
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '16px',
+        padding: '32px',
+        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.04)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-amber)', textTransform: 'uppercase' }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-amber)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             WHY CUSWAY IS INCOMPARABLE
           </span>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', margin: '6px 0 0 0' }}>
+          <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: 'var(--text-main)', margin: '6px 0 0 0' }}>
             기존 방식 vs CUSWAY AI 코파일럿
           </h2>
         </div>
@@ -895,33 +903,33 @@ export default function BrandShowcase({
           
           {/* Traditional Bad Way */}
           <div style={{
-            background: 'rgba(239, 68, 68, 0.05)',
-            border: '1.5px solid rgba(239, 68, 68, 0.25)',
-            borderRadius: '14px',
-            padding: '24px',
+            background: 'rgba(239, 68, 68, 0.04)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            borderRadius: '12px',
+            padding: '22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '14px'
+            gap: '12px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#ef4444', fontWeight: 800, fontSize: '1rem', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', paddingBottom: '10px' }}>
-              <XCircle size={20} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#dc2626', fontWeight: 800, fontSize: '0.95rem', borderBottom: '1px solid rgba(239, 68, 68, 0.15)', paddingBottom: '8px' }}>
+              <XCircle size={18} />
               <span>기존 방식 (유니패스 / 씨엘HS / 포털)</span>
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#cbd5e1' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: '#ef4444' }}>✕</span>
+                <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
                 <span>수십 장의 해설서와 통칙을 관세사가 일일이 수작업으로 찾아서 짜깁기 (건당 30분~1시간)</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: '#ef4444' }}>✕</span>
+                <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
                 <span>선착순 1인 1계정 제약으로 다른 직원이 접속하면 로그인 튕김 발생</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: '#ef4444' }}>✕</span>
+                <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
                 <span>화주 제출용 소명서를 워드나 한글 파일로 매번 처음부터 다시 작성</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: '#ef4444' }}>✕</span>
+                <span style={{ color: '#dc2626', fontWeight: 700 }}>✕</span>
                 <span>품목분류 오류 시 수억 원대 추징금 및 화주 신뢰도 실추 리스크</span>
               </li>
             </ul>
@@ -929,34 +937,34 @@ export default function BrandShowcase({
 
           {/* CUSWAY Superior Way */}
           <div style={{
-            background: 'rgba(6, 182, 212, 0.08)',
-            border: '1.5px solid rgba(6, 182, 212, 0.4)',
-            borderRadius: '14px',
-            padding: '24px',
+            background: 'rgba(13, 148, 136, 0.04)',
+            border: '1.5px solid rgba(13, 148, 136, 0.3)',
+            borderRadius: '12px',
+            padding: '22px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '14px',
-            boxShadow: '0 8px 30px rgba(6, 182, 212, 0.15)'
+            gap: '12px',
+            boxShadow: '0 4px 14px rgba(13, 148, 136, 0.08)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-cyan)', fontWeight: 900, fontSize: '1rem', borderBottom: '1px solid rgba(6, 182, 212, 0.3)', paddingBottom: '10px' }}>
-              <CheckCircle2 size={20} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: 900, fontSize: '0.95rem', borderBottom: '1px solid rgba(13, 148, 136, 0.2)', paddingBottom: '8px' }}>
+              <CheckCircle2 size={18} />
               <span>CUSWAY AI 코파일럿 솔루션</span>
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#ffffff' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.82rem', color: 'var(--text-main)' }}>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: 'var(--accent-cyan)', fontWeight: 900 }}>✓</span>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>3초 만에 완성:</strong> 통칙 1~6, 부·류 주규정, 관세청 결정례 매핑 소명서 자동 작성</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: 'var(--accent-cyan)', fontWeight: 900 }}>✓</span>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>무제한 동시접속:</strong> 모바일/PC 제약 없이 팀 전원이 동시에 사용</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: 'var(--accent-cyan)', fontWeight: 900 }}>✓</span>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>관세사 맞춤 Co-Branding:</strong> 자체 로고/직인이 찍힌 A4 PDF 원클릭 출력</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                <span style={{ color: 'var(--accent-cyan)', fontWeight: 900 }}>✓</span>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>비공개 판례 캐시백:</strong> 서랍 속 결정서 1건 공유로 Pro 구독료 100% 무료화</span>
               </li>
             </ul>
@@ -967,36 +975,37 @@ export default function BrandShowcase({
 
       {/* 4. Interactive ROI Calculator by Office Size */}
       <section style={{
-        background: 'radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.95) 70%)',
-        border: '1.5px solid rgba(245, 158, 11, 0.35)',
-        borderRadius: '20px',
-        padding: '36px 32px'
+        background: 'linear-gradient(135deg, rgba(254, 243, 199, 0.3) 0%, #ffffff 100%)',
+        border: '1px solid rgba(245, 158, 11, 0.3)',
+        borderRadius: '16px',
+        padding: '32px',
+        boxShadow: '0 8px 24px rgba(15, 23, 42, 0.04)'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '22px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
             padding: '4px 12px',
             borderRadius: '999px',
-            background: 'rgba(245, 158, 11, 0.15)',
-            border: '1px solid rgba(245, 158, 11, 0.35)',
-            marginBottom: '8px'
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            marginBottom: '6px'
           }}>
             <Calculator size={14} color="var(--accent-amber)" />
             <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-amber)', letterSpacing: '0.04em' }}>
               RETURN ON INVESTMENT | 실무 벤치마크 기반
             </span>
           </div>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', margin: '4px 0 0 0' }}>
+          <h2 style={{ fontSize: '1.7rem', fontWeight: 900, color: 'var(--text-main)', margin: '4px 0 0 0' }}>
             우리 사무소의 CUSWAY 도입 ROI 계산기
           </h2>
-          <p style={{ fontSize: '0.88rem', color: '#94a3b8', margin: '6px 0 0 0' }}>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
             과장 없는 관세사무소 실무 데이터(월 리서치 공수 및 표준 시급)를 기준으로 산출된 현실적인 회수율입니다.
           </p>
         </div>
 
-        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Preset Buttons */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
             {[
@@ -1016,9 +1025,9 @@ export default function BrandShowcase({
                   fontSize: '0.78rem',
                   fontWeight: 700,
                   cursor: 'pointer',
-                  border: teamSize === preset.size ? '1.5px solid var(--accent-amber)' : '1px solid rgba(255,255,255,0.12)',
-                  background: teamSize === preset.size ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255,255,255,0.04)',
-                  color: teamSize === preset.size ? 'var(--accent-amber)' : '#94a3b8',
+                  border: teamSize === preset.size ? '1.5px solid var(--accent-amber)' : '1px solid #cbd5e1',
+                  background: teamSize === preset.size ? 'rgba(245, 158, 11, 0.12)' : '#ffffff',
+                  color: teamSize === preset.size ? 'var(--accent-amber)' : 'var(--text-muted)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -1029,14 +1038,14 @@ export default function BrandShowcase({
 
           {/* Slider */}
           <div style={{
-            background: 'rgba(0,0,0,0.3)',
+            background: '#ffffff',
             padding: '16px 20px',
             borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.08)'
+            border: '1px solid #e2e8f0'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Users size={16} color="var(--accent-cyan)" /> 관세사 및 통관 실무 직원 수:
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Users size={16} color="var(--accent-primary)" /> 관세사 및 통관 실무 직원 수:
               </span>
               <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-amber)' }}>{teamSize} 명</span>
             </div>
@@ -1065,34 +1074,34 @@ export default function BrandShowcase({
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
-            background: 'rgba(0,0,0,0.5)',
-            padding: '22px 18px',
+            background: '#ffffff',
+            padding: '20px 16px',
             borderRadius: '14px',
-            border: '1px solid rgba(245, 158, 11, 0.25)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
+            border: '1px solid rgba(245, 158, 11, 0.3)',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.04)'
           }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                <Clock size={13} color="var(--accent-cyan)" /> 월간 절감 시간
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <Clock size={13} color="var(--accent-primary)" /> 월간 절감 시간
               </div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: '4px' }}>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-primary)', marginTop: '4px' }}>
                 {savedHoursPerMonth} 시간
               </div>
               <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>1인당 월 8시간 (일 24분 단축)</div>
             </div>
 
-            <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                <Coins size={13} color="#34d399" /> 월간 순수 창출 가치
+            <div style={{ textAlign: 'center', borderLeft: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <Coins size={13} color="#059669" /> 월간 순수 창출 가치
               </div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#059669', marginTop: '4px' }}>
                 ₩{(totalValuePerMonth / 10000).toLocaleString()} 만원
               </div>
               <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>인건비 {(savedLaborCostPerMonth / 10000).toLocaleString()}만 + 자문 {(consultingValuePerMonth / 10000).toLocaleString()}만</div>
             </div>
 
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                 <TrendingUp size={13} color="var(--accent-amber)" /> 실질 투자 회수율 (ROI)
               </div>
               <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-amber)', marginTop: '4px' }}>
@@ -1104,8 +1113,8 @@ export default function BrandShowcase({
 
           {/* Transparent Calculation Grounds Card */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.8)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
             borderRadius: '12px',
             overflow: 'hidden'
           }}>
@@ -1115,61 +1124,61 @@ export default function BrandShowcase({
               style={{
                 width: '100%',
                 padding: '12px 18px',
-                background: 'rgba(255,255,255,0.03)',
+                background: '#f8fafc',
                 border: 'none',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 cursor: 'pointer',
-                color: '#cbd5e1',
+                color: 'var(--text-main)',
                 fontSize: '0.82rem',
                 fontWeight: 700
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Info size={15} color="var(--accent-cyan)" />
+                <Info size={15} color="var(--accent-primary)" />
                 <span>📊 현실적인 ROI 산출 기준 및 데이터 근거</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontSize: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
                 <span>{showBasisDetail ? '간략히 접기' : '근거 펼쳐보기'}</span>
                 {showBasisDetail ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </div>
             </button>
 
             {showBasisDetail && (
-              <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.78rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-cyan)' }}>
-                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+              <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.78rem', borderTop: '1px solid #e2e8f0' }}>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-primary)' }}>
+                  <div style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>
                     1. 리서치 공수 절감 (1인당 월 8시간)
                   </div>
-                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                  <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
                     심층 품목분류·WCO 해설서 주규정·결정례 검색(월평균 10~15건)을 기존 수기 검색(건당 40분)에서 CUSWAY AI 코파일럿(건당 10분)으로 단축 (영업일 기준 일 24분 절감).
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #34d399' }}>
-                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #059669' }}>
+                  <div style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>
                     2. 표준 시급 환산액 (시간당 30,000원)
                   </div>
-                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                  <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
                     관세사 및 통관 전문 실무인력 평균 급여(연봉 4,500만~6,500만 원, 주 40시간) 기준 시간당 표준 임금 환산액을 적용하여 객관적인 인건비 절감액을 산출했습니다.
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-amber)' }}>
-                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-amber)' }}>
+                  <div style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>
                     3. A4 소명 리포트 & 자문 가치 창출
                   </div>
-                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                  <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
                     사무소 직인/로고가 포함된 표준 검토의견서를 즉시 발급하여 화주 소명 납기를 단축하고 유료 자문 수수료 기회 및 거래처 신뢰도를 증대합니다 (월 6만~80만원 상당).
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
-                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #9333ea' }}>
+                  <div style={{ fontWeight: 800, color: 'var(--text-main)', marginBottom: '4px' }}>
                     4. 합리적인 CUSWAY 요금제 기준
                   </div>
-                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                  <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
                     1~5인 실무팀 Pro 플랜(월 44,000원), 6~15인 지사 플랜(월 180,000원), 16인 이상 법인 플랜(월 290,000원)을 기준으로 실질 회수 배수를 도출했습니다.
                   </div>
                 </div>
@@ -1183,17 +1192,17 @@ export default function BrandShowcase({
               onClick={() => onNavigate('billing')}
               style={{
                 padding: '14px 28px',
-                background: 'linear-gradient(135deg, var(--accent-amber) 0%, #f97316 100%)',
+                background: 'linear-gradient(135deg, var(--accent-amber) 0%, #d97706 100%)',
                 border: 'none',
                 borderRadius: '10px',
-                color: '#000',
+                color: '#ffffff',
                 fontWeight: 900,
                 fontSize: '0.92rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 6px 20px rgba(245, 158, 11, 0.3)'
+                boxShadow: '0 4px 14px rgba(180, 83, 9, 0.25)'
               }}
             >
               <Award size={18} />
@@ -1224,61 +1233,61 @@ export default function BrandShowcase({
       {/* 5. Final Bottom Call to Action */}
       <section style={{
         textAlign: 'center',
-        padding: '40px 24px',
-        background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)',
-        border: '1px solid rgba(6, 182, 212, 0.3)',
-        borderRadius: '20px',
+        padding: '36px 24px',
+        background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(8, 145, 178, 0.08) 100%)',
+        border: '1px solid rgba(13, 148, 136, 0.25)',
+        borderRadius: '16px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '16px'
+        gap: '14px'
       }}>
-        <h2 style={{ fontSize: '1.9rem', fontWeight: 900, color: '#fff', margin: 0 }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
           지금 바로 관세사의 진짜 무기를 장착하십시오.
         </h2>
-        <p style={{ fontSize: '0.95rem', color: '#cbd5e1', maxWidth: '600px', margin: 0 }}>
+        <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', maxWidth: '600px', margin: 0 }}>
           회원가입 즉시 50회 무료 RAG 소명 분석과 관세사무소 맞춤 A4 리포트 발급 권한이 제공됩니다.
         </p>
-        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={() => onNavigate('hs-classifier')}
             style={{
-              padding: '16px 36px',
-              background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+              padding: '14px 32px',
+              background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
               border: 'none',
-              borderRadius: '12px',
-              color: '#000',
-              fontSize: '1.05rem',
+              borderRadius: '10px',
+              color: '#ffffff',
+              fontSize: '1rem',
               fontWeight: 900,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
-              boxShadow: '0 8px 30px rgba(6, 182, 212, 0.4)'
+              gap: '8px',
+              boxShadow: '0 4px 16px rgba(13, 148, 136, 0.3)'
             }}
           >
-            <Sparkles size={20} fill="#000" />
+            <Sparkles size={18} fill="#ffffff" />
             <span>무료로 CUSWAY 시작하기</span>
-            <ArrowRight size={20} />
+            <ArrowRight size={18} />
           </button>
 
           <button
             onClick={() => setShowBrochureModal(true)}
             style={{
-              padding: '16px 26px',
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1.5px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: '12px',
-              color: '#ffffff',
-              fontSize: '1rem',
-              fontWeight: 800,
+              padding: '14px 24px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              color: 'var(--text-main)',
+              fontSize: '0.95rem',
+              fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
             }}
           >
-            <FileText size={18} color="var(--accent-cyan)" />
+            <FileText size={17} color="var(--accent-primary)" />
             <span>공식 홍보 브로슈어 인쇄/저장</span>
           </button>
         </div>
