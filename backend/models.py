@@ -123,6 +123,8 @@ class HSRateMaster(Base):
     specific_unit = Column(String, nullable=True)                   # 종량세 단위 (예: 원/kg, 원/m, 원/개)
     duty_type = Column(String, default="AD_VALOREM")                # 'AD_VALOREM'(종가세), 'ALTERNATIVE'(선택세), 'SPECIFIC'(종량세)
     duty_formula = Column(String, nullable=True)                    # 과세 산식 요약 (예: 90% 또는 1,625원/kg 중 고액)
+    has_seasonal_rate = Column(Boolean, default=False)              # 계절/시기별 차등세율 적용 여부
+    seasonal_schedule = Column(Text, nullable=True)                 # 시기별 스케줄 JSON (상/하반기 or 월별 세율)
 
 
 class HSRequirement(Base):

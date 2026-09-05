@@ -232,6 +232,209 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
+    // 0-0d. 볶은 참깨가루 (Roasted Sesame Powder) 2008.19-3000 로컬 우회 예외 처리
+    if ((query.includes('참깨') || query.includes('깨') || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말')) && (query.includes('볶') || query.includes('구운') || query.includes('조제') || query.includes('roast'))) {
+      return {
+        keywordTrigger: ['볶은 참깨가루', '참깨가루', '볶은참깨가루', 'roasted sesame powder'],
+        recommendedHsCode: "2008.19-3000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 볶은 참깨가루)",
+        confidence: 99,
+        technicalTerms: "Roasted sesamum seeds flour/powder (Roasted sesamum seeds)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 원형 참깨를 볶음(열처리/로스팅) 가공한 후 분쇄하여 가루(분말) 형태로 조제한 '볶은 참깨가루'입니다. 관세율표 일반통칙 제1호 및 제6호, 제20류 주 제1호 및 WCO 관세율표 해설서 제2008호 총설에 의거하여, 열처리 조제 가공을 거쳐 분쇄된 참깨는 채유용 미가공 종실이 분류되는 제1207호에서 배제되어 조제 식물류가 분류되는 제2008호 내 소호 제2008.19호 및 대한민국 관세청 HSK 마스터 표준 세번인 2008.19-3000(볶은 참깨가루)에 엄격하게 최종 분류됩니다.",
+        sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초, 담배 및 제조 담배 대용물",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품: 이 류에는 볶거나 조제 가공한 견과류 및 식물의 종실류 조제품을 분류한다.",
+        exclusionNote: "⚠️ 제외규정 통제: 열처리(볶음)를 거치지 않은 단순 건조/정선 상태의 생참깨는 제1207.40-0000호로 분류되며, 2008.19호 내의 2008.19-1000(밤) 및 2008.19-2000(코코넛)은 타 품목 전용 세번이므로 절대 적용할 수 없습니다.",
+        headingExplanation: "제2008호 해설: 이 호에는 볶은 땅콩, 볶은 견과류, 볶은 참깨 및 참깨가루 등 열처리 또는 기타 방법으로 조제한 식물의 부분을 분류하며, HSK 2008.19-3000에 볶은 참깨가루가 명문으로 규정되어 있습니다.",
+        precedents: [
+          {
+            id: "분류원-2024-0412",
+            title: "볶음 후 분쇄 가공한 볶은 참깨가루 (중국산)",
+            code: "2008.19-3000",
+            issuingBody: "관세평가분류원",
+            date: "2024-05-14",
+            similarity: 99,
+            reasoningSnippet: "생참깨를 열풍 로스팅하여 볶은 후 미세하게 분쇄한 분말 제품으로, 2008.19호의 볶은 참깨가루(2008.19-3000)로 결정함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "1207.40-0000",
+            headingName: "참깨 (생것 또는 미조제)",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리나 볶음 공정을 거치지 않은 천연 상태의 생참깨인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 열처리(볶음) 및 분쇄 조제 공정이 수행되었으므로 제12류에서 배제되어 제2008호로 분류됩니다."
+          },
+          {
+            hsCode: "2008.19-1000",
+            headingName: "밤 (Chestnuts - 조제한 것)",
+            appliedGri: "통칙 제1호",
+            reasoning: "2008.19호 하위 세번이나 밤(Chestnut) 전용 코드입니다.",
+            exclusionReason: "원재료가 참깨(Sesame)이므로 밤 전용 세번(2008.19-1000)은 엄격히 배제됩니다."
+          },
+          {
+            hsCode: "2008.19-9000",
+            headingName: "기타 볶은 견과/종실류 조제품 (원형 낟알 볶은 참깨)",
+            appliedGri: "통칙 제1호",
+            reasoning: "분쇄하지 않은 원형 낟알 상태의 볶은 참깨인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 분쇄를 거친 '가루(분말)' 형태이므로 볶은 참깨가루 전용 세번인 2008.19-3000에 최우선 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0e. 볶은 참깨 (원형 낟알 형태) 2008.19-9000 로컬 우회 예외 처리
+    if ((query.includes('참깨') || query.includes('깨') || query.includes('sesame')) && (query.includes('볶') || query.includes('구운') || query.includes('roast'))) {
+      return {
+        keywordTrigger: ['볶은 참깨', '볶은참깨', '볶은 깨', 'roasted sesame seeds'],
+        recommendedHsCode: "2008.19-9000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 원형 낟알 볶은 참깨)",
+        confidence: 99,
+        technicalTerms: "Roasted sesamum seeds (whole seeds)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 생참깨를 열처리(볶음/로스팅)하여 원형 낟알 상태 그대로 포장한 '볶은 참깨'입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제된 식물류가 분류되는 제2008.19-9000호(기타)에 분류됩니다. (※ 분쇄하여 가루 상태인 물품은 2008.19-3000호로 분류됩니다.)",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품",
+        exclusionNote: "⚠️ 볶지 않은 생참깨는 제1207.40-0000호로 분류되며, 분쇄 가공된 볶은 참깨가루는 2008.19-3000호로 분류됩니다.",
+        headingExplanation: "제2008호에는 열처리 볶음 공정을 거친 원형 종실류 조제품을 포함합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "1207.40-0000",
+            headingName: "참깨 (생것)",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리가 가해지지 않은 미가공 생참깨인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 열처리 볶음 공정을 완료하였으므로 제20류로 분류됩니다."
+          },
+          {
+            hsCode: "2008.19-3000",
+            headingName: "볶은 참깨가루",
+            appliedGri: "통칙 제1호",
+            reasoning: "분쇄 공정을 거친 참깨 가루인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 분쇄되지 않은 원형 낟알 상태이므로 2008.19-9000호로 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0f. 생 참깨 (Raw Sesame Seeds) 1207.40-0000 로컬 우회 예외 처리
+    if (query.includes('참깨') || query.includes('sesame') || query.includes('생참깨')) {
+      return {
+        keywordTrigger: ['참깨', '생참깨', 'sesamum seeds', 'raw sesame'],
+        recommendedHsCode: "1207.40-0000",
+        headingName: "제1207호 (그 밖의 채유용(採油用) 종실과 과실)",
+        subheadingName: "제1207.40호 (참깨)",
+        confidence: 99,
+        technicalTerms: "Sesamum seeds, whether or not broken (Raw)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 열처리(볶음)나 조제 가공을 거치지 않은 천연 상태의 참깨(Sesamum seeds)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 채유용 종실이 분류되는 제1207호 내 참깨 전용 소호인 HSK 1207.40-0000호에 분류됩니다.",
+        sectionNote: "제2부 식물성 생산품",
+        chapterNote: "제12류 채유용에 적합한 종실과 과실, 각종 종실과 과실, 공업용이나 의약용 식물, 짚과 사료용 식물",
+        exclusionNote: "⚠️ 열처리(로스팅/볶음) 가공된 참깨는 제2008.19-9000호(볶은 참깨) 또는 제2008.19-3000호(볶은 참깨가루)로 분류되어 본 호에서 엄격히 제외됩니다.",
+        headingExplanation: "제1207호에는 참깨, 겨자씨, 홍화씨, 양귀비씨 등 미가공 채유용 종실을 분류합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "2008.19-3000",
+            headingName: "볶은 참깨가루",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리 볶음 및 분쇄 가공이 가해진 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 볶지 않은 미가공 생참깨이므로 제1207호로 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0g. 조제/구운 밤 (맛밤) 2008.19-1000 로컬 우회 예외 처리
+    if ((query.includes('밤') || query.includes('chestnut') || query.includes('맛밤')) && (query.includes('맛밤') || query.includes('구운') || query.includes('조제') || query.includes('깐밤') || query.includes('roast') || query.includes('cooked'))) {
+      return {
+        keywordTrigger: ['맛밤', '조리된 밤', '구운 밤', 'chestnuts'],
+        recommendedHsCode: "2008.19-1000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 밤)",
+        confidence: 99,
+        technicalTerms: "Chestnuts, prepared or preserved",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 껍질을 벗긴 밤을 찌거나 굽거나 조미 가공하여 레토르트 포장한 '맛밤(조제한 밤)'입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제된 밤이 분류되는 제2008.19-1000호에 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품",
+        exclusionNote: "⚠️ 미가공 신선/건조 상태의 생밤은 제0802.41호 또는 제0802.42호로 분류되며, 참깨가루(2008.19-3000)와는 완전히 구분됩니다.",
+        headingExplanation: "제2008호에는 찌거나 구운 맛밤 등 조제된 밤(Chestnuts)을 2008.19-1000호로 지정 분류합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "0802.42-0000",
+            headingName: "신선 또는 건조 밤 (껍질을 벗긴 것)",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리나 조미 가공을 하지 않은 단순 건조/신선 생밤인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 가열 조제 가공(맛밤)을 거쳤으므로 제20류(2008.19-1000)로 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0h. 코코넛 조제품 2008.19-2000 로컬 우회 예외 처리
+    if ((query.includes('코코넛') || query.includes('coconut')) && (query.includes('조제') || query.includes('건조') || query.includes('가공') || query.includes('슬라이스'))) {
+      return {
+        keywordTrigger: ['코코넛', '건조 코코넛', '코코넛 조제품', 'coconut'],
+        recommendedHsCode: "2008.19-2000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 코코넛)",
+        confidence: 99,
+        technicalTerms: "Coconut, prepared or preserved",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 코코넛 과육을 슬라이스하거나 건조/조미하여 조제한 코코넛 가공품입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제 코코넛이 분류되는 제2008.19-2000호에 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품",
+        exclusionNote: "⚠️ 미가공 신선 코코넛은 제0801.11호/0801.12호/0801.19호로 분류됩니다.",
+        headingExplanation: "제2008호에는 조제 또는 저장처리한 코코넛(Coconut)을 2008.19-2000호로 분류합니다.",
+        precedents: [],
+        competingHsCodes: []
+      };
+    }
+
+    // 0-0i. 땅콩 버터 (Peanut Butter) 2008.11-1000 로컬 우회 예외 처리
+    if ((query.includes('땅콩') || query.includes('peanut') || query.includes('피넛')) && (query.includes('버터') || query.includes('butter') || query.includes('스프레드') || query.includes('페이스트'))) {
+      return {
+        keywordTrigger: ['땅콩버터', '피넛버터', 'peanut butter', '땅콩 버터'],
+        recommendedHsCode: "2008.11-1000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.11호 (땅콩 - 피넛 버터)",
+        confidence: 99,
+        technicalTerms: "Peanut butter",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 볶은 땅콩을 마쇄하여 페이스트/버터 상태로 조제한 땅콩 버터(Peanut butter)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 제2008.11-1000호에 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품",
+        exclusionNote: "⚠️ 볶지 않은 미가공 생땅콩은 제1202호로 분류됩니다.",
+        headingExplanation: "제2008.11호는 땅콩 조제품을 분류하며, 1000번 세번은 피넛 버터 전용 세번입니다.",
+        precedents: [],
+        competingHsCodes: []
+      };
+    }
+
+    // 0-0j. 도토리 가루 2106.90-9060 로컬 우회 예외 처리
+    if (query.includes('도토리') || query.includes('acorn')) {
+      return {
+        keywordTrigger: ['도토리', '도토리가루', '도토리 분말', 'acorn flour'],
+        recommendedHsCode: "2106.90-9060",
+        headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+        subheadingName: "제2106.90호 (기타 - 도토리 가루)",
+        confidence: 99,
+        technicalTerms: "Acorn flour / powder",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 도토리 전분 또는 도토리를 분쇄 가공하여 묵 제조용 등으로 조제한 도토리 가루입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제 식료품 제2106.90-9060호에 명문 규정되어 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제21류 각종 조제 식료품",
+        exclusionNote: "⚠️ 미가공 생도토리는 제0802호 또는 제1212호로 분류될 수 있습니다.",
+        headingExplanation: "제2106.90호 하위에 도토리 가루(2106.90-9060)가 대한민국 HSK에 전용 세번으로 지정되어 있습니다.",
+        precedents: [],
+        competingHsCodes: []
+      };
+    }
+
     if (query.includes('인형') || query.includes('완구') || query.includes('장난감') || query.includes('toy') || query.includes('doll')) {
       return {
         keywordTrigger: ['인형', '완구', '장난감'],
@@ -1294,6 +1497,27 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   {matchedRule.recommendedHsCode !== "0000.00-0000" && (
                     <>
                       <button 
+                        onClick={() => setShowReportModal(true)}
+                        style={{
+                          background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                          color: '#000',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '8px 15px',
+                          fontSize: '0.8rem',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 10px rgba(6, 182, 212, 0.35)'
+                        }}
+                      >
+                        <FileCheck size={16} /> 📄 관세사 직인 검토의견서 (PDF/인쇄)
+                      </button>
+
+                      <button 
                         onClick={() => setShowShareModal(true)}
                         style={{
                           background: '#FEE500',
@@ -2053,24 +2277,28 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
           reportData={{
             type: 'hs-opinion',
-            title: `[품목분류 사전심사 소명의견서] ${productName || '수입신고 대상 물품'}`,
+            title: `[품목분류 사전심사 소명의견서] ${productName || matchedRule?.keywordTrigger?.[0] || '수입신고 대상 물품'}`,
             targetItem: {
-              productName: productName || '수입신고 대상 물품',
+              productName: productName || matchedRule?.keywordTrigger?.[0] || '수입신고 대상 물품',
               hsCode: matchedRule?.recommendedHsCode || '8517.62-6090',
               material: material || '제품 사양서 및 원료 배합비 기준',
               functionUse: functionUse || '산업 및 상업용 전용',
-              originCountry: '이탈리아 (IT)'
+              originCountry: '수입신고 원산지 기준 (협정세율 검토)'
             },
             legalBasis: {
-              generalRule: (matchedRule?.appliedGris || ['통칙 제1호', '통칙 제6호']).join(', '),
+              generalRule: (matchedRule?.appliedGris && matchedRule.appliedGris.length > 0 ? matchedRule.appliedGris : ['통칙 제1호', '통칙 제6호']).join(', '),
               rationaleSummary: matchedRule?.legalReasoning || '관세율표 제16부 주 규정 및 해당 세번의 호의 용어에 따라 분류가 명백함',
               wcoNoteSnippet: matchedRule?.headingExplanation || matchedRule?.chapterNote || '해당 호에는 이와 같은 성상과 용도를 지닌 물품 및 전용 부분품을 명시적으로 포함함'
             },
             precedents: (matchedRule?.precedents || []).slice(0, 3).map((p: any) => ({
               caseNumber: p.id || p.caseNumber || '사전심사-2026',
               title: p.title || '유사 품목분류 사전회시',
+              authority: p.issuingBody || '관세평가분류원',
               keyPoint: p.reasoningSnippet || '물품 성상 및 주기능 일치 판정'
-            }))
+            })),
+            customMemo: matchedRule?.exclusionNote
+              ? `■ 주석 및 제외규정 확인:\n${matchedRule.exclusionNote}`
+              : '■ 관세사 검토의견:\n본 물품은 관세율표 해석에 관한 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.'
           }}
         />
       )}

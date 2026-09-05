@@ -44,6 +44,36 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
+def init_db_migrations():
+    import sqlite3
+    db_file = "./cusway.db"
+    if os.path.exists(db_file):
+        try:
+            conn = sqlite3.connect(db_file)
+            cursor = conn.cursor()
+            # Check existing columns in hs_rate_master
+            cursor.execute("PRAGMA table_info(hs_rate_master)")
+            existing_cols = {row[1] for row in cursor.fetchall()}
+            if existing_cols:
+                cols_to_add = [
+                    ("has_seasonal_rate", "INTEGER DEFAULT 0"),
+                    ("seasonal_schedule", "TEXT"),
+                    ("specific_rate", "REAL"),
+                    ("specific_unit", "TEXT"),
+                    ("duty_type", "TEXT DEFAULT 'AD_VALOREM'"),
+                    ("duty_formula", "TEXT")
+                ]
+                for col_name, col_type in cols_to_add:
+                    if col_name not in existing_cols:
+                        cursor.execute(f"ALTER TABLE hs_rate_master ADD COLUMN {col_name} {col_type}")
+                        print(f"[MIGRATION] Added column {col_name} to hs_rate_master")
+                conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"[MIGRATION_WARN] {e}")
+
+init_db_migrations()
+
 def get_db():
     db = SessionLocal()
     try:

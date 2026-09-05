@@ -9,6 +9,7 @@ import ClearanceWizard from './components/ClearanceWizard'
 import LawNewsPortal from './components/LawNewsPortal'
 import KakaoConsultModal from './components/KakaoConsultModal'
 import OfficeBrandingModal from './components/OfficeBrandingModal'
+import BrandShowcase from './components/BrandShowcase'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -44,7 +45,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [currentView, setCurrentView] = useState<'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('law-news');
+  const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
   
   // Signup states
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -1177,7 +1178,11 @@ export default function App() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0px', width: '100%' }}>
           {/* Logo & User profile row (condensed on mobile) */}
           <div className="app-sidebar-logo-container">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div 
+              onClick={() => setCurrentView('showcase')}
+              title="솔루션 쇼케이스 메인으로 이동"
+              style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+            >
               <div style={{
                 background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                 width: '32px',
@@ -1213,6 +1218,25 @@ export default function App() {
 
           {/* Navigation Menu (Horizontal scrollable on mobile) */}
           <nav className="app-sidebar-nav">
+            <button 
+              onClick={() => setCurrentView('showcase')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'showcase' ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(59, 130, 246, 0.18) 100%)' : 'transparent',
+                color: currentView === 'showcase' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                fontWeight: currentView === 'showcase' ? 700 : 400,
+                cursor: 'pointer',
+                border: currentView === 'showcase' ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
+                borderRadius: '8px',
+                transition: 'var(--transition-smooth)'
+              }}
+            >
+              <Sparkles size={14} color={currentView === 'showcase' ? 'var(--accent-cyan)' : 'gray'} />
+              <span style={{ color: currentView === 'showcase' ? 'var(--accent-cyan)' : 'inherit', fontWeight: currentView === 'showcase' ? 800 : 400 }}>
+                솔루션 쇼케이스
+              </span>
+            </button>
+
             <button 
               onClick={() => setCurrentView('hs-classifier')}
               className="app-sidebar-nav-btn"
@@ -1484,6 +1508,14 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="app-main">
+        {currentView === 'showcase' && (
+          <BrandShowcase 
+            currentUser={currentUser}
+            onNavigate={(view) => setCurrentView(view)}
+            onOpenBranding={() => setShowBrandingModal(true)}
+            onOpenKakaoConsult={handleOpenKakaoChat}
+          />
+        )}
         {currentView === 'hs-classifier' && (
           <HsClassifier 
             currentUser={currentUser} 

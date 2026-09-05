@@ -164,9 +164,41 @@ body {
   input,
   textarea,
   .no-print,
+  .app-sidebar,
   .app-sidebar-nav,
   header {
     display: none !important;
+  }
+
+  .customs-report-modal-overlay {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .customs-report-modal-wrapper {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    background: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .customs-report-modal-scroll {
+    overflow: visible !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    display: block !important;
   }
 
   .customs-official-paper {
@@ -176,12 +208,15 @@ body {
     max-width: 100% !important;
     min-height: auto !important;
     border: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
   }
 
-  main {
+  main, .app-main {
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    display: block !important;
   }
 
   .glass-panel {
@@ -201,7 +236,7 @@ body {
 
   @page {
     size: A4 portrait;
-    margin: 15mm 15mm 15mm 15mm;
+    margin: 12mm 15mm 12mm 15mm;
   }
 }
 

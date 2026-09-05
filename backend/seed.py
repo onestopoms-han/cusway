@@ -256,59 +256,667 @@ def seed_data():
     from .models import HSRateMaster, HSRequirement, RequirementProcedure
     import json
 
-    # 6-1. 세율 마스터 시딩
+    # 6-1. 세율 마스터 시딩 (2026년 공식 관세율표, 복합세/선택세, 계절관세 및 TRQ 완벽 반영)
     rates_data = [
-        # 배주스 (2009.89-1090)
-        {"hs_code": "2009.89-1090", "country_code": "US", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 4.5, "fta_name": "한-미 FTA", "recommended_rate": 4.5},
-        {"hs_code": "2009.89-1090", "country_code": "CN", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 45.0, "fta_name": "한-중 FTA", "recommended_rate": 45.0},
-        {"hs_code": "2009.89-1090", "country_code": "IT", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
-        
-        # 달걀이 포함된 건조 스파게티 면 (1902.11-1000)
-        {"hs_code": "1902.11-1000", "country_code": "IT", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
-        {"hs_code": "1902.11-1000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 6.4, "fta_name": "한-중 FTA", "recommended_rate": 6.4},
-        {"hs_code": "1902.11-1000", "country_code": "VN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-ASEAN FTA", "recommended_rate": 0.0},
+        # 1. 참깨 (1207.40-0000)
+        {
+            "hs_code": "1207.40-0000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 40.0,
+            "specific_rate": 6660.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "630% 또는 6,660원/kg 양자 중 고액 (일반 WTO TRQ W1 추천: 40%, 한-중 FTA FCN6 추천: 0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1207.40-0000", "country_code": "IT", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": 99.4, "fta_name": "한-EU FTA (FEU1)", "recommended_rate": 99.4,
+            "specific_rate": 1051.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "99.4% 또는 1,051원/kg 양자 중 고액 (상반기: 132.6% 또는 1,402원/kg)",
+            "has_seasonal_rate": True,
+            "seasonal_schedule": json.dumps({
+                "first_half": {"fta_rate": 132.6, "specific_rate": 1402.0, "unit": "원/kg", "formula": "132.6% 또는 1,402원/kg 양자 중 고액", "name": "상반기(1~6월)"},
+                "second_half": {"fta_rate": 99.4, "specific_rate": 1051.0, "unit": "원/kg", "formula": "99.4% 또는 1,051원/kg 양자 중 고액", "name": "하반기(7~12월)"}
+            })
+        },
+        {
+            "hs_code": "1207.40-0000", "country_code": "GB", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": 99.4, "fta_name": "한-영국 FTA (FGB1)", "recommended_rate": 99.4,
+            "specific_rate": 1051.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "99.4% 또는 1,051원/kg 양자 중 고액 (상반기: 132.6% 또는 1,402원/kg)",
+            "has_seasonal_rate": True,
+            "seasonal_schedule": json.dumps({
+                "first_half": {"fta_rate": 132.6, "specific_rate": 1402.0, "unit": "원/kg", "formula": "132.6% 또는 1,402원/kg 양자 중 고액", "name": "상반기(1~6월)"},
+                "second_half": {"fta_rate": 99.4, "specific_rate": 1051.0, "unit": "원/kg", "formula": "99.4% 또는 1,051원/kg 양자 중 고액", "name": "하반기(7~12월)"}
+            })
+        },
+        {
+            "hs_code": "1207.40-0000", "country_code": "US", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA 원산지증명서 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1207.40-0000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": 0.0, "fta_name": "한-중 FTA (FCN6)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% (FCN6: aT 한-중 TRQ추천 시) / 630% 또는 6,660원/kg (FCN1: 미추천 선택세)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 갈비살 (0201.30-0000)
-        {"hs_code": "0201.30-0000", "country_code": "US", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 10.6, "fta_name": "한-미 FTA", "recommended_rate": 10.6},
-        {"hs_code": "0201.30-0000", "country_code": "AU", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 13.3, "fta_name": "한-호주 FTA", "recommended_rate": 13.3},
+        # 2. 들깨 (1207.99-0000)
+        {
+            "hs_code": "1207.99-0000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 40.0,
+            "specific_rate": 369.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "40% 또는 369원/kg 양자 중 고액 (aT 추천서 구비 시 40%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1207.99-0000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 40.0,
+            "specific_rate": 369.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "40% 또는 369원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 냉동 조기 (0303.89-9000)
-        {"hs_code": "0303.89-9000", "country_code": "CN", "base_rate": 20.0, "wto_rate": 20.0, "fta_rate": 16.0, "fta_name": "한-중 FTA", "recommended_rate": 16.0},
+        # 3. 건조 표고버섯 (0712.39-1010)
+        {
+            "hs_code": "0712.39-1010", "country_code": "KR", 
+            "base_rate": 30.0, "wto_rate": 514.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": 1625.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "514% 또는 1,625원/kg 양자 중 고액 (산림조합 추천서 구비 시 30%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0712391010", "country_code": "BASE", 
+            "base_rate": 30.0, "wto_rate": 514.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": 1625.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "514% 또는 1,625원/kg 양자 중 고액 (산림조합 추천서 구비 시 30%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0712.39-1010", "country_code": "CN", 
+            "base_rate": 30.0, "wto_rate": 514.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 30.0,
+            "specific_rate": 1625.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "514% 또는 1,625원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0712391010", "country_code": "CN", 
+            "base_rate": 30.0, "wto_rate": 514.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 30.0,
+            "specific_rate": 1625.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "514% 또는 1,625원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 신선 사과 (0808.10-0000)
-        {"hs_code": "0808.10-0000", "country_code": "US", "base_rate": 45.0, "wto_rate": 45.0, "fta_rate": 45.0, "fta_name": "한-미 FTA (혜택외)", "recommended_rate": 45.0},
+        # 4. 신선/냉장 마늘 (0703.20-1000)
+        {
+            "hs_code": "0703.20-1000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 360.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 1800.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "360% 또는 1,800원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0703.20-1000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 360.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 1800.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "360% 또는 1,800원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 커피믹스 (2101.12-1000)
-        {"hs_code": "2101.12-1000", "country_code": "IT", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
+        # 5. 신선/냉장 양파 (0703.10-1000)
+        {
+            "hs_code": "0703.10-1000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 135.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 206.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "135% 또는 206원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0703.10-1000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 135.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 206.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "135% 또는 206원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 포도주 (2204.21-1000)
-        {"hs_code": "2204.21-1000", "country_code": "FR", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0},
-        {"hs_code": "2204.21-1000", "country_code": "CL", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-칠레 FTA", "recommended_rate": 0.0},
+        # 6. 건고추 및 고춧가루 (0904.21-0000 / 0904.22-0000 / 0904.20-1000)
+        {
+            "hs_code": "0904.21-0000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0904.21-0000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0904.22-0000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0904.22-0000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0904.20-1000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0904.20-1000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 270.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 6210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "270% 또는 6,210원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 인체 세정용 물티슈 (3307.90-9000)
-        {"hs_code": "3307.90-9000", "country_code": "CN", "base_rate": 6.5, "wto_rate": 6.5, "fta_rate": 5.2, "fta_name": "한-중 FTA", "recommended_rate": 5.2},
+        # 건조 마늘 (0712.90-2090)
+        {
+            "hs_code": "0712.90-2090", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 360.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 1800.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "360% 또는 1,800원/kg 양자 중 고액 (aT 추천서 구비 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0712.90-2090", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 360.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 1800.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "360% 또는 1,800원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 면제 티셔츠 (6109.10-1000)
-        {"hs_code": "6109.10-1000", "country_code": "VN", "base_rate": 13.0, "wto_rate": 13.0, "fta_rate": 0.0, "fta_name": "한-ASEAN FTA", "recommended_rate": 0.0},
+        # 건조 생강 (0910.12-0000)
+        {
+            "hs_code": "0910.12-0000", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 377.3, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": 1910.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "377.3% 또는 1,910원/kg 양자 중 고액 (일반 WTO W1: 20%, 한-중 FTA FCN6: 0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0910.12-0000", "country_code": "CN", 
+            "base_rate": 20.0, "wto_rate": 377.3, "fta_rate": 0.0, "fta_name": "한-중 FTA (FCN6)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% (FCN6: aT 한-중 TRQ추천 시) / 377.3% 또는 1,910원/kg (FCN1: 미추천 선택세)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 리튬이온 배터리 충전기 (8504.40-1560)
-        {"hs_code": "8504.40-1560", "country_code": "CN", "base_rate": 8.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
+        # 신선/냉장 감자 (0701.90-0000)
+        {
+            "hs_code": "0701.90-0000", "country_code": "KR", 
+            "base_rate": 30.0, "wto_rate": 304.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "304.0% (aT 추천 시 30.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0701.90-0000", "country_code": "US", 
+            "base_rate": 30.0, "wto_rate": 304.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0701.90-0000", "country_code": "AU", 
+            "base_rate": 30.0, "wto_rate": 304.0, "fta_rate": 0.0, "fta_name": "한-호주 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-호주 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 전기자전거 (8711.60-0000)
-        {"hs_code": "8711.60-0000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 4.0, "fta_name": "한-중 FTA", "recommended_rate": 4.0},
+        # 참기름 (1515.50-0000)
+        {
+            "hs_code": "1515.50-0000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 40.0,
+            "specific_rate": 6660.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "630% 또는 6,660원/kg 양자 중 고액 (전 FTA 양허제외)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1515.50-0000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 630.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 40.0,
+            "specific_rate": 6660.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "630% 또는 6,660원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 지그소 완구 퍼즐 (9503.00-3300)
-        {"hs_code": "9503.00-3300", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
+        # 들기름 (1515.90-1000)
+        {
+            "hs_code": "1515.90-1000", "country_code": "KR", 
+            "base_rate": 36.0, "wto_rate": 36.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 36.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "36.0% (기본관세, 전 FTA 양허제외)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1515.90-1000", "country_code": "CN", 
+            "base_rate": 36.0, "wto_rate": 36.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 36.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "36.0% (전 FTA 양허제외)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
 
-        # 스마트폰 (8517.13-0000)
-        {"hs_code": "8517.13-0000", "country_code": "US", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0},
-        {"hs_code": "8517.13-0000", "country_code": "CN", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-중 FTA", "recommended_rate": 0.0},
-        {"hs_code": "8517.13-0000", "country_code": "IT", "base_rate": 0.0, "wto_rate": 0.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0}
+        # 대두유 (1507.10-0000 조유 / 1507.90-0000 정제유)
+        {
+            "hs_code": "1507.10-0000", "country_code": "KR", 
+            "base_rate": 5.0, "wto_rate": 5.4, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 5.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "5.0% (기본관세) / 5.4% (WTO)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1507.10-0000", "country_code": "US", 
+            "base_rate": 5.0, "wto_rate": 5.4, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1507.90-0000", "country_code": "KR", 
+            "base_rate": 5.0, "wto_rate": 27.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 5.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "5.0% (기본관세) / 27.0% (WTO)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1507.90-0000", "country_code": "US", 
+            "base_rate": 5.0, "wto_rate": 27.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 7. 대두 (1201.90-0000)
+        {
+            "hs_code": "1201.90-0000", "country_code": "KR", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "487% 또는 956원/kg 양자 중 고액 (aT 추천서 구비 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-0000", "country_code": "US", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-0000", "country_code": "IT", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-EU FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 8. 신선 오렌지 (0805.10-0000) - 계절관세 품목
+        {
+            "hs_code": "0805.10-0000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": None, "fta_name": "기본/계절관세", "recommended_rate": 30.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "30% (계절관세 3.1~8.31) / 50% (기본관세 9.1~2.28)",
+            "has_seasonal_rate": True,
+            "seasonal_schedule": json.dumps({
+                "in_season": {"months": [3, 4, 5, 6, 7, 8], "rate": 30.0, "formula": "30.0% (계절관세 기간 3.1~8.31)", "name": "계절관세(3~8월)"},
+                "out_season": {"months": [9, 10, 11, 12, 1, 2], "rate": 50.0, "formula": "50.0% (기본관세 기간 9.1~2.28)", "name": "기본관세(9~2월)"}
+            })
+        },
+        {
+            "hs_code": "0805.10-0000", "country_code": "US", 
+            "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 9. 신선 포도 (0806.10-0000) - 계절관세 품목
+        {
+            "hs_code": "0806.10-0000", "country_code": "KR", 
+            "base_rate": 45.0, "wto_rate": 45.0, "fta_rate": None, "fta_name": "기본/계절관세", "recommended_rate": 24.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "45% (국내 수확기 5.1~10.15) / 24% (비수확기 10.16~4.30)",
+            "has_seasonal_rate": True,
+            "seasonal_schedule": json.dumps({
+                "in_season": {"months": [5, 6, 7, 8, 9, 10], "rate": 45.0, "formula": "45.0% (국내 수확기 보호 5.1~10.15)", "name": "수확기(5~10월)"},
+                "out_season": {"months": [11, 12, 1, 2, 3, 4], "rate": 24.0, "formula": "24.0% (비수확기 10.16~4.30)", "name": "비수확기(11~4월)"}
+            })
+        },
+        {
+            "hs_code": "0806.10-0000", "country_code": "CL", 
+            "base_rate": 45.0, "wto_rate": 45.0, "fta_rate": 0.0, "fta_name": "한-칠레 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-칠레 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 10. 팥 (0713.32-0000) - 초민감 농산물
+        {
+            "hs_code": "0713.32-0000", "country_code": "KR", 
+            "base_rate": 30.0, "wto_rate": 420.8, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": 4210.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "420.8% 또는 4,210원/kg 양자 중 고액 (일반 WTO W1: 30%, 한-중 FTA FCN6: 0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0713.32-0000", "country_code": "CN", 
+            "base_rate": 30.0, "wto_rate": 420.8, "fta_rate": 0.0, "fta_name": "한-중 FTA (FCN6)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% (FCN6: aT 한-중 TRQ추천 시) / 420.8% 또는 4,210원/kg (FCN1: 미추천 선택세)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 11. 녹두 (0713.31-0000) - 초민감 농산물
+        {
+            "hs_code": "0713.31-0000", "country_code": "KR", 
+            "base_rate": 30.0, "wto_rate": 607.5, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": 4950.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "607.5% 또는 4,950원/kg 양자 중 고액 (일반 WTO W1: 30%, 한-중 FTA FCN6: 0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0713.31-0000", "country_code": "CN", 
+            "base_rate": 30.0, "wto_rate": 607.5, "fta_rate": 0.0, "fta_name": "한-중 FTA (FCN6)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% (FCN6: aT 한-중 TRQ추천 시) / 607.5% 또는 4,950원/kg (FCN1: 미추천 선택세)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 12. 생강 (0910.11-0000)
+        {
+            "hs_code": "0910.11-0000", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 377.3, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": 1910.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "377.3% 또는 1,910원/kg 양자 중 고액 (일반 WTO W1: 20%, 한-중 FTA FCN6: 0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0910.11-0000", "country_code": "CN", 
+            "base_rate": 20.0, "wto_rate": 377.3, "fta_rate": 0.0, "fta_name": "한-중 FTA (FCN6)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% (FCN6: aT 한-중 TRQ추천 시) / 377.3% 또는 1,910원/kg (FCN1: 미추천 선택세)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 13. 맥아 (1107.10-0000) - 맥주 원료 TRQ
+        {
+            "hs_code": "1107.10-0000", "country_code": "KR", 
+            "base_rate": 30.0, "wto_rate": 269.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 30.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "269.0% (aT 일반 WTO W1 추천 시 30%, FTA TRQ 추천 시 0.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1107.10-0000", "country_code": "AU", 
+            "base_rate": 30.0, "wto_rate": 269.0, "fta_rate": 0.0, "fta_name": "한-호주 FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (aT FTA TRQ 수입추천 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1107.10-0000", "country_code": "CA", 
+            "base_rate": 30.0, "wto_rate": 269.0, "fta_rate": 0.0, "fta_name": "한-캐나다 FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (aT FTA TRQ 수입추천 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1107.10-0000", "country_code": "IT", 
+            "base_rate": 30.0, "wto_rate": 269.0, "fta_rate": 0.0, "fta_name": "한-EU FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (aT FTA TRQ 수입추천 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 14. 탈지/전지분유 (0402.10-0000)
+        {
+            "hs_code": "0402.10-0000", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 176.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": 1186.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "176% 또는 1,186원/kg 양자 중 고액 (유가공협회 추천 시 20%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0402.10-0000", "country_code": "US", 
+            "base_rate": 20.0, "wto_rate": 176.0, "fta_rate": 0.0, "fta_name": "한-미 FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA 할당관세 추천 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0402.10-0000", "country_code": "IT", 
+            "base_rate": 20.0, "wto_rate": 176.0, "fta_rate": 0.0, "fta_name": "한-EU FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-EU FTA 할당관세 추천 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 15. 땅콩 탈각 (1202.42-0000)
+        {
+            "hs_code": "1202.42-0000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 230.5, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 24.0,
+            "specific_rate": 1930.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "230.5% 또는 1,930원/kg 양자 중 고액 (aT 추천 시 24%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1202.42-0000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 230.5, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 40.0,
+            "specific_rate": 1930.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "230.5% 또는 1,930원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 16. 천연 꿀 (0409.00-0000)
+        {
+            "hs_code": "0409.00-0000", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 243.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": 1864.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "243% 또는 1,864원/kg 양자 중 고액 (aT 추천 시 20%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0409.00-0000", "country_code": "CN", 
+            "base_rate": 20.0, "wto_rate": 243.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 20.0,
+            "specific_rate": 1864.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "243% 또는 1,864원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 17. 밤 (0802.41-0000 / 0802.42-0000)
+        {
+            "hs_code": "0802.41-0000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 211.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 40.0,
+            "specific_rate": 838.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "211% 또는 838원/kg 양자 중 고액 (산림조합 추천 시 40%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0802.41-0000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 211.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 40.0,
+            "specific_rate": 838.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "211% 또는 838원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 18. 잣 (0802.90-1000)
+        {
+            "hs_code": "0802.90-1000", "country_code": "KR", 
+            "base_rate": 40.0, "wto_rate": 510.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 40.0,
+            "specific_rate": 4110.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "510% 또는 4,110원/kg 양자 중 고액 (산림조합 추천 시 40%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0802.90-1000", "country_code": "CN", 
+            "base_rate": 40.0, "wto_rate": 510.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 40.0,
+            "specific_rate": 4110.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "510% 또는 4,110원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 19. 대추 (0813.40-1000)
+        {
+            "hs_code": "0813.40-1000", "country_code": "KR", 
+            "base_rate": 50.0, "wto_rate": 611.5, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 50.0,
+            "specific_rate": 5496.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "611.5% 또는 5,496원/kg 양자 중 고액 (산림조합 추천 시 50%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "0813.40-1000", "country_code": "CN", 
+            "base_rate": 50.0, "wto_rate": 611.5, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 50.0,
+            "specific_rate": 5496.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "611.5% 또는 5,496원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 20. 쌀 (1006.30-0000) - 전 FTA 양허제외
+        {
+            "hs_code": "1006.30-0000", "country_code": "KR", 
+            "base_rate": 5.0, "wto_rate": 513.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 5.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "513.0% (aT 국영무역 TRQ 추천 시 5.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1006.30-0000", "country_code": "CN", 
+            "base_rate": 5.0, "wto_rate": 513.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 5.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "513.0% (전 FTA 양허제외)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 21. 감자전분 (1108.13-0000)
+        {
+            "hs_code": "1108.13-0000", "country_code": "KR", 
+            "base_rate": 8.0, "wto_rate": 455.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 8.0,
+            "specific_rate": 344.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "455% 또는 344원/kg 양자 중 고액 (aT 추천 시 8.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1108.13-0000", "country_code": "CN", 
+            "base_rate": 8.0, "wto_rate": 455.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 8.0,
+            "specific_rate": 344.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "455% 또는 344원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 22. 고구마전분 (1108.14-0000)
+        {
+            "hs_code": "1108.14-0000", "country_code": "KR", 
+            "base_rate": 8.0, "wto_rate": 241.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 8.0,
+            "specific_rate": 239.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "241% 또는 239원/kg 양자 중 고액 (aT 추천 시 8.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1108.14-0000", "country_code": "CN", 
+            "base_rate": 8.0, "wto_rate": 241.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 8.0,
+            "specific_rate": 239.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "241% 또는 239원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 23. 옥수수 (1005.90-1000 사료용 / 1005.90-9000 가공용)
+        {
+            "hs_code": "1005.90-0000", "country_code": "KR", 
+            "base_rate": 3.0, "wto_rate": 328.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "328.0% (aT/사료협회 TRQ 추천 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1005.90-0000", "country_code": "US", 
+            "base_rate": 3.0, "wto_rate": 328.0, "fta_rate": 0.0, "fta_name": "한-미 FTA (TRQ)", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 24. 인삼 / 홍삼 (1211.20-1010) - 국내 최고세율 품목
+        {
+            "hs_code": "1211.20-1010", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 754.3, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": 28218.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "754.3% 또는 28,218원/kg 양자 중 고액 (인삼농협 추천 시 20%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1211.20-1010", "country_code": "CN", 
+            "base_rate": 20.0, "wto_rate": 754.3, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 20.0,
+            "specific_rate": 28218.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "754.3% 또는 28,218원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 25. 홍삼 농축액 / 엑기스 (2106.90-3010)
+        {
+            "hs_code": "2106.90-3010", "country_code": "KR", 
+            "base_rate": 8.0, "wto_rate": 754.3, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 8.0,
+            "specific_rate": 28218.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "754.3% 또는 28,218원/kg 양자 중 고액 (인삼농협 추천 시 8.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "2106.90-3010", "country_code": "CN", 
+            "base_rate": 8.0, "wto_rate": 754.3, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 8.0,
+            "specific_rate": 28218.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "754.3% 또는 28,218원/kg 양자 중 고액",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 26. 조제마늘 / 초절임마늘 (2005.99-1000)
+        {
+            "hs_code": "2005.99-1000", "country_code": "KR", 
+            "base_rate": 20.0, "wto_rate": 54.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 20.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "54.0% (기본관세 20%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "2005.99-1000", "country_code": "CN", 
+            "base_rate": 20.0, "wto_rate": 54.0, "fta_rate": 8.0, "fta_name": "한-중 FTA", "recommended_rate": 8.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "8.0% (한-중 FTA 연차감축 협정세율)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+
+        # 기타 기존 품목 (배주스, 건조 스파게티, 갈비살, 와인)
+        {"hs_code": "2009.89-1090", "country_code": "US", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 4.5, "fta_name": "한-미 FTA", "recommended_rate": 4.5, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "4.5% (한-미 FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "2009.89-1090", "country_code": "CN", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 45.0, "fta_name": "한-중 FTA", "recommended_rate": 45.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "45.0% (한-중 FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "2009.89-1090", "country_code": "IT", "base_rate": 50.0, "wto_rate": 50.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "0.0% 무관세 (한-EU FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "1902.11-1000", "country_code": "IT", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "0.0% 무관세", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "1902.11-1000", "country_code": "CN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 6.4, "fta_name": "한-중 FTA", "recommended_rate": 6.4, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "6.4% (한-중 FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "1902.11-1000", "country_code": "VN", "base_rate": 8.0, "wto_rate": 8.0, "fta_rate": 0.0, "fta_name": "한-ASEAN FTA", "recommended_rate": 0.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "0.0% 무관세", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "0201.30-0000", "country_code": "US", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 10.6, "fta_name": "한-미 FTA", "recommended_rate": 10.6, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "10.6% (한-미 FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "0201.30-0000", "country_code": "AU", "base_rate": 40.0, "wto_rate": 40.0, "fta_rate": 13.3, "fta_name": "한-호주 FTA", "recommended_rate": 13.3, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "13.3% (한-호주 FTA)", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "2204.21-1000", "country_code": "FR", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "0.0% 무관세", "has_seasonal_rate": False, "seasonal_schedule": None},
+        {"hs_code": "2204.21-1000", "country_code": "CL", "base_rate": 15.0, "wto_rate": 15.0, "fta_rate": 0.0, "fta_name": "한-칠레 FTA", "recommended_rate": 0.0, "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM", "duty_formula": "0.0% 무관세", "has_seasonal_rate": False, "seasonal_schedule": None}
     ]
 
     for r in rates_data:
-        exists = db.query(HSRateMaster).filter(HSRateMaster.hs_code == r["hs_code"], HSRateMaster.country_code == r["country_code"]).first()
-        if not exists:
+        clean_hs = r["hs_code"].replace(".", "").replace("-", "")
+        formatted_codes = list(set([r["hs_code"], clean_hs, f"{clean_hs[:4]}.{clean_hs[4:6]}-{clean_hs[6:]}" if len(clean_hs) == 10 else r["hs_code"]]))
+        
+        matches = db.query(HSRateMaster).filter(HSRateMaster.hs_code.in_(formatted_codes), HSRateMaster.country_code == r["country_code"]).all()
+        if not matches:
             db_r = HSRateMaster(
                 hs_code=r["hs_code"],
                 country_code=r["country_code"],
@@ -316,9 +924,30 @@ def seed_data():
                 wto_rate=r["wto_rate"],
                 fta_rate=r["fta_rate"],
                 fta_name=r["fta_name"],
-                recommended_rate=r["recommended_rate"]
+                recommended_rate=r["recommended_rate"],
+                specific_rate=r.get("specific_rate"),
+                specific_unit=r.get("specific_unit"),
+                duty_type=r.get("duty_type", "AD_VALOREM"),
+                duty_formula=r.get("duty_formula"),
+                has_seasonal_rate=r.get("has_seasonal_rate", False),
+                seasonal_schedule=r.get("seasonal_schedule")
             )
             db.add(db_r)
+        else:
+            for exists in matches:
+                exists.base_rate = r["base_rate"]
+                exists.wto_rate = r["wto_rate"]
+                exists.fta_rate = r["fta_rate"]
+                exists.fta_name = r["fta_name"]
+                exists.recommended_rate = r["recommended_rate"]
+                exists.specific_rate = r.get("specific_rate")
+                exists.specific_unit = r.get("specific_unit")
+                exists.duty_type = r.get("duty_type", "AD_VALOREM")
+                exists.duty_formula = r.get("duty_formula")
+                exists.has_seasonal_rate = r.get("has_seasonal_rate", False)
+                exists.seasonal_schedule = r.get("seasonal_schedule")
+                db.add(exists)
+    db.commit()
 
     # 6-2. 수입 요건 통합공고 / 세관장확인 시딩
     requirements_data = [

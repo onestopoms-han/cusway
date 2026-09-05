@@ -7,6 +7,8 @@ from sqlalchemy import text
 from typing import List, Optional
 import os
 import re
+import json
+from datetime import datetime
 
 def load_env():
     # Load .env file from project root if exists
@@ -117,6 +119,15 @@ class UserResponse(BaseModel):
 class SocialCallbackRequest(BaseModel):
     code: str
     redirect_uri: Optional[str] = None
+
+class CalculateDutyRequest(BaseModel):
+    hs_code: str
+    origin: str = "US"
+    cif_price_krw: float
+    weight_kg: float = 0.0
+    declaration_date: Optional[str] = None
+    has_co: bool = True               # 원산지증명서 구비 여부
+    has_trq_recommendation: bool = False # TRQ 추천서 구비 여부
 
 class PrecedentResponse(BaseModel):
     id: str
@@ -1660,7 +1671,7 @@ def get_representative_countries(origin: str) -> List[str]:
     return list(set(targets))
 
 @app.get("/api/hs/rates")
-def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get_db)):
+def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optional[str] = None, db: Session = Depends(get_db)):
     # HSK 포맷 클렌징
     clean_code = hs_code.replace(".", "").replace("-", "").strip()
     origin_upper = origin.upper().strip()
@@ -1673,16 +1684,28 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
         clean_code
     ]
     
+    # 신고 일자 기반 계절/시기 판정 (기본값: 오늘 날짜)
+    dec_date_str = declaration_date.strip() if (declaration_date and declaration_date.strip()) else datetime.now().strftime("%Y-%m-%d")
+    try:
+        dec_month = int(dec_date_str.split("-")[1])
+        dec_year = int(dec_date_str.split("-")[0])
+    except Exception:
+        dec_month = datetime.now().month
+        dec_year = datetime.now().year
+    
+    is_first_half = (1 <= dec_month <= 6)
+    current_season_badge = f"{dec_year}년 상반기(1~6월)" if is_first_half else f"{dec_year}년 하반기(7~12월)"
+    
     # 1. 해당 품목의 공식 기본세율(A) 및 WTO 협정세율(C) 마스터 조회 (국가별 FTA 레코드 배제)
     base_record = db.query(HSRateMaster).filter(
         HSRateMaster.hs_code.in_(formatted_codes) & 
-        ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO"))
+        ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO") | (HSRateMaster.country_code == "BASE"))
     ).first()
     if not base_record and len(clean_code) >= 4:
         prefix = clean_code[:6] if len(clean_code) >= 6 else clean_code[:4]
         base_record = db.query(HSRateMaster).filter(
             HSRateMaster.hs_code.like(f"{prefix}%") &
-            ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO"))
+            ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO") | (HSRateMaster.country_code == "BASE"))
         ).first()
     if not base_record:
         base_record = db.query(HSRateMaster).filter(HSRateMaster.hs_code.in_(formatted_codes)).first()
@@ -1698,20 +1721,31 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     target_countries = get_representative_countries(origin_upper)
     
     applicable_records = []
-    if not is_all_excluded and not is_china_rcep_excluded:
+    if not is_all_excluded:
+        # 1차: 정확한 10단위 / 입력 코드 우선 조회
         records = db.query(HSRateMaster).filter(
-            (HSRateMaster.hs_code.in_(formatted_codes) | HSRateMaster.hs_code.like(f"{clean_code[:6]}%")) & 
+            HSRateMaster.hs_code.in_(formatted_codes) & 
             HSRateMaster.country_code.in_(target_countries)
         ).all()
+        # 2차: 1차 일치 레코드가 없을 때만 6단위 prefix로 fallback
+        if not records and len(clean_code) >= 6:
+            records = db.query(HSRateMaster).filter(
+                HSRateMaster.hs_code.like(f"{clean_code[:6]}%") & 
+                HSRateMaster.country_code.in_(target_countries)
+            ).all()
         for r in records:
             rec_country = (r.country_code or "").upper().strip()
             fta_name = r.fta_name or ""
             
-            # 1) 정확한 국가 코드 매칭
+            # 1) 정확한 국가 코드 매칭 (FCN6 등 명시적 국별 TRQ/협정세율 우선 반영)
             if rec_country == origin_upper and r.fta_rate is not None:
                 applicable_records.append(r)
                 continue
                 
+            # 중국/RCEP 일반 양허제외 가드 (국별 명시적 레코드가 없는 경우)
+            if is_china_rcep_excluded and rec_country in ["CN", "JP", "RCEP"]:
+                continue
+
             # 2) EU 27개 가입국 전체 호환 매칭
             if origin_upper in EU_COUNTRIES and (rec_country in EU_COUNTRIES or "EU" in fta_name or "유럽" in fta_name):
                 if r.fta_rate is not None:
@@ -1735,11 +1769,32 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     default_fta_name = fta_info[0] if fta_info else "미체결국"
     
     best_fta = None
+    has_seasonal_rate = False
+    seasonal_schedule_parsed = None
+    active_seasonal_desc = ""
+
     if applicable_records:
         applicable_records.sort(key=lambda x: x.fta_rate if x.fta_rate is not None else 999)
         best_fta = applicable_records[0]
         fta_rate = best_fta.fta_rate
         fta_name = default_fta_name if (origin_upper in EU_COUNTRIES or origin_upper in RCEP_COUNTRIES) else (best_fta.fta_name or default_fta_name)
+        
+        # 계절관세 / 상·하반기 스케줄 동적 판정
+        if getattr(best_fta, "has_seasonal_rate", False) and getattr(best_fta, "seasonal_schedule", None):
+            has_seasonal_rate = True
+            try:
+                seasonal_schedule_parsed = json.loads(best_fta.seasonal_schedule)
+                if "first_half" in seasonal_schedule_parsed and "second_half" in seasonal_schedule_parsed:
+                    active_info = seasonal_schedule_parsed["first_half"] if is_first_half else seasonal_schedule_parsed["second_half"]
+                    fta_rate = active_info.get("fta_rate", fta_rate)
+                    active_seasonal_desc = f"{active_info.get('name', current_season_badge)} 적용: {active_info.get('formula')}"
+                elif "in_season" in seasonal_schedule_parsed and "out_season" in seasonal_schedule_parsed:
+                    in_months = seasonal_schedule_parsed["in_season"].get("months", [])
+                    active_info = seasonal_schedule_parsed["in_season"] if (dec_month in in_months) else seasonal_schedule_parsed["out_season"]
+                    fta_rate = active_info.get("rate", fta_rate)
+                    active_seasonal_desc = f"{active_info.get('name', '')} 적용: {active_info.get('formula')}"
+            except Exception as e:
+                print(f"[SEASONAL_PARSE_WARN] {e}")
     else:
         if fta_info:
             fta_name = f"{fta_info[0]} (양허제외/기본세율 적용)"
@@ -1748,43 +1803,64 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
             fta_name = "미체결국"
             fta_rate = None
 
+    # 기본세율 자체 계절관세 체크 (예: 오렌지, 포도 등)
+    if base_record and getattr(base_record, "has_seasonal_rate", False) and getattr(base_record, "seasonal_schedule", None):
+        has_seasonal_rate = True
+        try:
+            seasonal_schedule_parsed = json.loads(base_record.seasonal_schedule)
+            if "in_season" in seasonal_schedule_parsed and "out_season" in seasonal_schedule_parsed:
+                in_months = seasonal_schedule_parsed["in_season"].get("months", [])
+                active_info = seasonal_schedule_parsed["in_season"] if (dec_month in in_months) else seasonal_schedule_parsed["out_season"]
+                actual_base_rate = active_info.get("rate", actual_base_rate)
+                actual_wto_rate = actual_base_rate
+                active_seasonal_desc = f"{active_info.get('name', '')} 적용: {active_info.get('formula')}"
+        except Exception as e:
+            print(f"[BASE_SEASONAL_PARSE_WARN] {e}")
+
     # 추천 세율 결정
-    candidate_rates = [actual_base_rate]
-    if actual_wto_rate is not None:
-        candidate_rates.append(actual_wto_rate)
-    if fta_rate is not None:
-        candidate_rates.append(fta_rate)
-        
-    recommended_rate = min(candidate_rates)
-    
-    # 4. 과세 산식(duty_formula)을 추천세율 적용 주체와 엄격히 일치화 (호주 등 타국가 산식 오염 방지)
+    # FTA 협정이 유효하게 존재하는 경우 원산지증명서(C/O) 구비 특혜세율을 우선 적용
     specific_rate = None
     specific_unit = None
     duty_type = "AD_VALOREM"
     duty_formula = None
 
-    if fta_rate is not None and recommended_rate == fta_rate and best_fta:
-        if best_fta.specific_rate:
-            specific_rate = best_fta.specific_rate
-            specific_unit = best_fta.specific_unit
-            duty_type = best_fta.duty_type or "ALTERNATIVE"
-            duty_formula = best_fta.duty_formula
-    elif actual_wto_rate is not None and recommended_rate == actual_wto_rate:
-        if base_record and base_record.duty_type in ["ALTERNATIVE", "SPECIFIC"]:
-            specific_rate = base_record.specific_rate
-            specific_unit = base_record.specific_unit
-            duty_type = base_record.duty_type
-            duty_formula = base_record.duty_formula
-    elif recommended_rate == actual_base_rate:
-        # 기본세율 자체에 선택세가 지정된 경우만 (예: 표고버섯, 깐마늘 등)
-        if base_record and base_record.duty_type in ["ALTERNATIVE", "SPECIFIC"] and (not base_record.country_code or base_record.country_code in ["KR", "WTO", ""]):
+    if best_fta and fta_rate is not None:
+        recommended_rate = fta_rate
+        duty_type = getattr(best_fta, "duty_type", "AD_VALOREM") or "AD_VALOREM"
+        specific_unit = getattr(best_fta, "specific_unit", None)
+        
+        # 계절관세가 있는 경우 해당 시기 종량세액 적용
+        if has_seasonal_rate and seasonal_schedule_parsed:
+            if "first_half" in seasonal_schedule_parsed and "second_half" in seasonal_schedule_parsed:
+                active_info = seasonal_schedule_parsed["first_half"] if is_first_half else seasonal_schedule_parsed["second_half"]
+                specific_rate = active_info.get("specific_rate", best_fta.specific_rate)
+                specific_unit = active_info.get("unit", best_fta.specific_unit)
+                duty_formula = active_info.get("formula", best_fta.duty_formula)
+                duty_type = "ALTERNATIVE" if specific_rate else duty_type
+            else:
+                specific_rate = getattr(best_fta, "specific_rate", None)
+                duty_formula = getattr(best_fta, "duty_formula", None)
+        else:
+            specific_rate = getattr(best_fta, "specific_rate", None)
+            duty_formula = getattr(best_fta, "duty_formula", None)
+    else:
+        # 미협정국 또는 양허제외: 기본세율 vs WTO양허세율 비교
+        candidate_rates = [actual_base_rate]
+        if actual_wto_rate is not None and not (base_record and getattr(base_record, "duty_type", "AD_VALOREM") == "ALTERNATIVE" and actual_wto_rate > actual_base_rate):
+            candidate_rates.append(actual_wto_rate)
+        recommended_rate = min(candidate_rates)
+        
+        if base_record and getattr(base_record, "duty_type", "AD_VALOREM") in ["ALTERNATIVE", "SPECIFIC"]:
             specific_rate = base_record.specific_rate
             specific_unit = base_record.specific_unit
             duty_type = base_record.duty_type
             duty_formula = base_record.duty_formula
 
     # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
-    is_trq_item = any(clean_code.startswith(pref.replace(".", "")) for pref in ["1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", "1006", "0813", "0402", "0713", "0910"])
+    is_trq_item = any(clean_code.startswith(pref.replace(".", "")) for pref in [
+        "1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", 
+        "1006", "0813", "0402", "0713", "0910", "1211", "2106", "1107", "1108", "1202", "0409", "0802", "1005", "1515", "1507"
+    ])
     trq_in_rate = None
     trq_out_rate = None
     trq_agency = "한국농수산식품유통공사(aT)"
@@ -1814,11 +1890,58 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
         trq_in_rate = 50.0
         trq_out_rate = "270% 또는 6,210원/kg (선택세)"
         expert_insight = "본 품목(고추, 0904.20)은 초민감 품목으로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 270% 또는 6,210원/kg 중 고액 과세됩니다."
+    elif clean_code.startswith("0713.32") or clean_code.startswith("071332"): # 팥
+        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
+        trq_out_rate = "420.8% 또는 4,210원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 팥 TRQ] 팥(0713.32)은 aT(한국농수산식품유통공사)의 한-중 FTA 시장접근물량(FCN6) 추천서 구비 시 0.0% 무관세가 적용됩니다. 미추천 일반 수입 시에는 420.8% 또는 4,210원/kg의 초고율 선택세가 과세됩니다."
+        else:
+            expert_insight = "본 품목(팥, 0713.32)은 aT TRQ 수입추천서(W1) 구비 시 30.0%가 적용되며, 미구비 시 420.8% 또는 4,210원/kg 중 고액 과세됩니다."
+    elif clean_code.startswith("0713.31") or clean_code.startswith("071331"): # 녹두
+        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
+        trq_out_rate = "607.5% 또는 4,950원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 녹두 TRQ] 녹두(0713.31)는 aT 한-중 FTA 추천서(FCN6) 구비 시 0.0% 무관세가 적용되며, 미추천 시 607.5% 또는 4,950원/kg의 초고율 선택세가 부과됩니다."
+        else:
+            expert_insight = "본 품목(녹두, 0713.31)은 aT TRQ 수입추천서(W1) 구비 시 30.0%, 미구비 시 607.5% 또는 4,950원/kg 중 고액 과세됩니다."
+    elif clean_code.startswith("0910.11") or clean_code.startswith("091011") or clean_code.startswith("0910.12") or clean_code.startswith("091012"): # 생강
+        trq_in_rate = 0.0 if origin_upper == "CN" else 20.0
+        trq_out_rate = "377.3% 또는 1,910원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 생강 TRQ] 생강(0910.11)은 aT 한-중 FTA 수입추천(FCN6) 시 0.0% 무관세 혜택을 받으며, 미추천 일반 수입 시 377.3% 또는 1,910원/kg 중 고액 과세됩니다."
+        else:
+            expert_insight = "본 품목(생강)은 aT TRQ 수입추천서 구비 시 20.0% 양허세율, 미구비 시 377.3% 또는 1,910원/kg의 선택세가 적용됩니다."
+    elif clean_code.startswith("1107"): # 맥아
+        trq_in_rate = 0.0 if (origin_upper in ["AU", "CA", "US", "GB"] or origin_upper in EU_COUNTRIES) else 30.0
+        trq_out_rate = "269.0%"
+        expert_insight = f"⭐ [{fta_name} 맥아 TRQ 실무] 맥아(1107.10)는 aT의 FTA TRQ 추천서 구비 시 0.0% 무관세가 적용되며, 일반 WTO TRQ 추천 시 30.0%, 추천 외 수입 시 269.0%의 고율 양허관세가 부과됩니다."
+    elif clean_code.startswith("0402"): # 분유
+        trq_in_rate = 0.0 if (origin_upper in ["US", "AU", "NZ"] or origin_upper in EU_COUNTRIES) else 20.0
+        trq_out_rate = "176% 또는 1,186원/kg (선택세)"
+        trq_agency = "한국유가공협회"
+        expert_insight = f"🥛 [{fta_name} 분유 TRQ] 탈지/전지분유(0402호)는 FTA TRQ 할당물량 추천 시 0.0% 무관세가 적용되며, 일반 수입추천 시 20.0%, 미추천 시 176% 또는 1,186원/kg의 선택세가 적용됩니다."
+    elif clean_code.startswith("1202"): # 땅콩
+        trq_in_rate = 24.0
+        trq_out_rate = "230.5% 또는 1,930원/kg (선택세)"
+        expert_insight = "본 품목(땅콩, 1202호)은 aT 수입추천서 구비 시 24.0%(탈각)가 적용되며, 미추천 수입 시 230.5% 또는 1,930원/kg의 초고율 선택세가 과세됩니다. (대부분의 FTA에서 양허제외)"
+    elif clean_code.startswith("0409"): # 천연꿀
+        trq_in_rate = 20.0
+        trq_out_rate = "243% 또는 1,864원/kg (선택세)"
+        expert_insight = "본 품목(천연 꿀, 0409.00)은 국내 양봉농가 보호를 위해 모든 FTA에서 양허제외된 초민감 품목입니다. aT 추천서 구비 시 20.0%, 미구비 시 243% 또는 1,864원/kg 중 고액 과세됩니다."
+    elif clean_code.startswith("1211.20") or clean_code.startswith("121120"): # 인삼/홍삼
+        trq_in_rate = 20.0
+        trq_out_rate = "754.3% 또는 28,218원/kg (선택세)"
+        trq_agency = "농협중앙회 / 인삼농협"
+        expert_insight = "본 품목(인삼/홍삼)은 국내 최고율 관세 품목(754.3% 또는 28,218원/kg)으로 전 FTA 양허제외 대상입니다. 수입 전 반드시 추천 요건을 확인하십시오."
     elif clean_code.startswith("1207.40") or clean_code.startswith("120740"): # 참깨
-        trq_in_rate = 40.0
+        trq_in_rate = 0.0 if origin_upper == "CN" else 40.0
         trq_out_rate = "630% 또는 6,660원/kg (선택세)"
         if origin_upper == "US" or fta_rate == 0.0:
             expert_insight = "🇺🇸 [한-미 FTA 0.0% 무관세 특혜] 미국산 참깨(1207.40)는 한-미 FTA 원산지증명서(C/O) 구비 시 0.0% 무관세 특혜 통관이 적용됩니다. (중국 등 양허제외 국가와 달리 한-미 FTA 협정세율 혜택을 온전히 누릴 수 있어 원산지증명서 구비가 관세 절감의 핵심입니다. C/O 미구비 일반 수입 시에는 기본세율 40% 또는 aT 추천세율 40%가 적용됩니다.)"
+        elif origin_upper in EU_COUNTRIES or origin_upper in ["GB", "UK"]:
+            expert_insight = f"🇪🇺 [{fta_name} 복합세율 적용] 해당 원산지({origin_upper})산 참깨는 {current_season_badge} 기준 [{duty_formula}]이 적용됩니다. C/O 구비 시 종가세와 종량세 중 고액으로 세액이 산출되며, 일반 수입추천서 구비 시 40.0%의 저율이 적용될 수 있습니다."
+        elif origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 실무: FCN1 vs FCN6 차이]\n• [FCN1 (일반 협정)]: 630% 또는 6,660원/kg (양자 중 고액) - 한-중 FTA 양허제외로 추천서 미구비 시 초고율 과세\n• [FCN6 (한-중 TRQ)]: 0.0% 무관세 - 한국농수산식품유통공사(aT)의 한-중 FTA 시장접근물량 수입추천서 구비 시 0.0% 파격 특혜 (국내 일반 TRQ 40.0%보다 40%p 추가 절감)"
         else:
             expert_insight = f"{origin_upper}산 참깨(1207.40)는 한-중 FTA 및 RCEP 협정 등에서 '양허제외(FTA 특혜 배제)' 품목으로 FTA 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사)의 TRQ 수입추천서를 발급받아야 40.0%의 양허세율이 적용되며, 추천서 미구비 시 630% 또는 6,660원/kg의 초고율 선택세가 과세됩니다."
     elif clean_code.startswith("0701"): # 감자
@@ -1863,7 +1986,7 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
 
     # 최적 통관 요약 Notice 문구 생성
     if duty_formula:
-        notice = f"[⚠️ 선택세율 대상] {duty_formula} | 최저 특혜세율 {recommended_rate}%가 적용됩니다. (원산지: {origin_upper})"
+        notice = f"[⚠️ 선택세율 대상] {duty_formula} | {active_seasonal_desc or f'최저 특혜세율 {recommended_rate}%'}가 적용됩니다. (원산지: {origin_upper})"
     elif fta_rate is not None and recommended_rate == fta_rate:
         notice = f"[⭐ 최적 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
     elif is_trq_item:
@@ -1874,6 +1997,10 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
     return {
         "hs_code": hs_code,
         "origin": origin_upper,
+        "declaration_date": dec_date_str,
+        "active_season_badge": current_season_badge,
+        "has_seasonal_rate": has_seasonal_rate,
+        "seasonal_schedule": seasonal_schedule_parsed,
         "rates": {
             "base_rate": actual_base_rate,
             "wto_rate": actual_wto_rate if actual_wto_rate is not None else actual_base_rate,
@@ -1881,9 +2008,11 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
             "fta_name": fta_name,
             "recommended_rate": recommended_rate,
             "specific_rate": specific_rate,
-            "specific_unit": specific_unit,
+            "specific_unit": specific_unit or "kg",
             "duty_type": duty_type,
             "duty_formula": duty_formula,
+            "has_seasonal_rate": has_seasonal_rate,
+            "active_seasonal_desc": active_seasonal_desc,
             "is_trq_item": is_trq_item,
             "trq_in_rate": trq_in_rate,
             "trq_out_rate": trq_out_rate,
@@ -1893,6 +2022,102 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", db: Session = Depends(get
             "notice": notice
         }
     }
+
+@app.post("/api/hs/calculate-duty")
+@app.get("/api/hs/calculate-duty")
+def calculate_duty_api(
+    hs_code: str,
+    cif_price_krw: float,
+    weight_kg: float = 0.0,
+    origin: str = "US",
+    declaration_date: Optional[str] = None,
+    has_co: bool = True,
+    has_trq_recommendation: bool = False,
+    db: Session = Depends(get_db)
+):
+    # 1. 최신 세율 마스터 정보 조회
+    rate_resp = get_hs_rates_api(hs_code=hs_code, origin=origin, declaration_date=declaration_date, db=db)
+    rates_info = rate_resp["rates"]
+    
+    # 2. 적용 관세율 및 과세 방식 결정
+    applied_ad_valorem = rates_info["base_rate"]
+    applied_specific_rate = rates_info.get("specific_rate")
+    applied_unit = rates_info.get("specific_unit") or "kg"
+    applied_duty_type = rates_info.get("duty_type") or "AD_VALOREM"
+    applied_basis_name = "기본세율 (A)"
+    
+    if has_co and rates_info.get("fta_rate") is not None:
+        applied_ad_valorem = rates_info["fta_rate"]
+        applied_basis_name = f"{rates_info.get('fta_name')} 특혜세율"
+    elif has_trq_recommendation and rates_info.get("trq_in_rate") is not None:
+        applied_ad_valorem = rates_info["trq_in_rate"]
+        applied_specific_rate = None
+        applied_duty_type = "AD_VALOREM"
+        applied_basis_name = f"TRQ 수입추천 양허세율 ({rates_info.get('trq_agency', 'aT')})"
+    else:
+        if rates_info.get("wto_rate") is not None and rates_info.get("wto_rate") > rates_info["base_rate"]:
+            applied_ad_valorem = rates_info["wto_rate"]
+            applied_duty_type = rates_info.get("duty_type") or "ALTERNATIVE"
+            applied_basis_name = "WTO 시장접근초과 양허세율(고율)"
+        else:
+            applied_ad_valorem = rates_info["base_rate"]
+            applied_basis_name = "기본세율 (A)"
+
+    # 3. 종가세액 및 종량세액 계산
+    ad_valorem_duty = int(round(cif_price_krw * (applied_ad_valorem / 100.0)))
+    specific_duty = int(round(weight_kg * applied_specific_rate)) if (applied_specific_rate is not None and weight_kg > 0) else 0
+    
+    # 4. 최종 세액 판정
+    if applied_duty_type == "ALTERNATIVE" and applied_specific_rate is not None:
+        if specific_duty >= ad_valorem_duty:
+            final_duty = specific_duty
+            chosen_method = "종량세 (중량 기준)"
+            comparison_reason = f"종량세액({specific_duty:,}원)이 종가세액({ad_valorem_duty:,}원)보다 크거나 같으므로 종량세가 적용됩니다. (양자 중 고액 과세)"
+        else:
+            final_duty = ad_valorem_duty
+            chosen_method = "종가세 (가격 기준)"
+            comparison_reason = f"종가세액({ad_valorem_duty:,}원)이 종량세액({specific_duty:,}원)보다 크므로 종가세가 적용됩니다. (양자 중 고액 과세)"
+    elif applied_duty_type == "SPECIFIC" and applied_specific_rate is not None:
+        final_duty = specific_duty
+        chosen_method = "종량세 단독"
+        comparison_reason = f"수입 중량 {weight_kg:,.1f}{applied_unit}에 대해 단위당 {applied_specific_rate:,.0f}원이 부과되었습니다."
+    else:
+        final_duty = ad_valorem_duty
+        chosen_method = "종가세 단독"
+        comparison_reason = f"수입 과세가격 {cif_price_krw:,.0f}원에 대해 {applied_ad_valorem}%가 부과되었습니다."
+
+    # 부가세(VAT) 추산: (과세가격 + 관세) × 10%
+    vat_estimated = int(round((cif_price_krw + final_duty) * 0.1))
+    total_tax_estimated = final_duty + vat_estimated
+
+    return {
+        "hs_code": hs_code,
+        "origin": origin.upper(),
+        "declaration_date": rate_resp["declaration_date"],
+        "active_season_badge": rate_resp["active_season_badge"],
+        "input_summary": {
+            "cif_price_krw": cif_price_krw,
+            "weight_kg": weight_kg,
+            "has_co": has_co,
+            "has_trq_recommendation": has_trq_recommendation
+        },
+        "applied_rate_basis": applied_basis_name,
+        "applied_duty_type": applied_duty_type,
+        "applied_formula": rates_info.get("duty_formula"),
+        "calculation_breakdown": {
+            "ad_valorem_rate": applied_ad_valorem,
+            "ad_valorem_duty": ad_valorem_duty,
+            "specific_rate": applied_specific_rate,
+            "specific_unit": applied_unit,
+            "specific_duty": specific_duty,
+            "chosen_method": chosen_method,
+            "comparison_reason": comparison_reason
+        },
+        "final_duty": final_duty,
+        "vat_estimated": vat_estimated,
+        "total_tax_estimated": total_tax_estimated
+    }
+
 
 @app.get("/api/hs/clearance-guide")
 def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):

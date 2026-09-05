@@ -15,8 +15,8 @@ cur.execute("SELECT id, hs_code, country_code, fta_name, base_rate, wto_rate, ft
 for r in cur.fetchall():
     print(r)
 
-print("\n=== 1201.90 (Soybean) ===")
-cur.execute("SELECT id, hs_code, country_code, fta_name, base_rate, wto_rate, fta_rate, specific_rate, specific_unit, duty_type, duty_formula FROM hs_rate_master WHERE hs_code LIKE '120190%'")
+print("\n=== 0712.39 (Shiitake) ===")
+cur.execute("SELECT id, hs_code, country_code, fta_name, base_rate, wto_rate, fta_rate, specific_rate, specific_unit, duty_type, duty_formula FROM hs_rate_master WHERE hs_code LIKE '%071239%' OR hs_code LIKE '%0712.39%'")
 for r in cur.fetchall():
     print(r)
 

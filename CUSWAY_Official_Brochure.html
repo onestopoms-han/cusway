@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CUSWAY - 공식 B2B 솔루션 소개 브로슈어</title>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0b1120;
+      color: #0f172a;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+      min-height: 100vh;
+    }
+
+    .brochure-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 840px;
+      padding: 56px 48px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      position: relative;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3.5px solid #0284c7;
+      padding-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #0284c7;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    .title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #0f172a;
+      margin-top: 6px;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 0.95rem;
+      color: #475569;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .hero-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1.5px solid #bae6fd;
+      border-radius: 12px;
+      padding: 24px 28px;
+    }
+
+    .hero-box h2 {
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #0369a1;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .hero-box p {
+      font-size: 0.88rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: #0f172a;
+      border-left: 4px solid #0284c7;
+      padding-left: 10px;
+      margin-bottom: 16px;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      background: #fafafa;
+    }
+
+    .card h4 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card p {
+      font-size: 0.78rem;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 800;
+      color: #334155;
+      border-bottom: 2px solid #cbd5e1;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .tier-card {
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+
+    .tier-card.featured {
+      border: 2px solid #0284c7;
+      background: #f0f9ff;
+    }
+
+    .tier-name {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #0f172a;
+    }
+
+    .tier-price {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #0284c7;
+      margin: 6px 0;
+    }
+
+    .tier-features {
+      font-size: 0.74rem;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .footer-bar {
+      border-top: 2px solid #0f172a;
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: #475569;
+    }
+
+    .print-btn-float {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #fff;
+      font-weight: 900;
+      border: none;
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(2, 132, 199, 0.5);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      z-index: 100;
+      transition: transform 0.15s ease;
+    }
+
+    .print-btn-float:hover {
+      transform: scale(1.05);
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+      .brochure-container {
+        box-shadow: none;
+        padding: 24px;
+        max-width: 100%;
+      }
+      .print-btn-float {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn-float" onclick="window.print()">
+    🖨️ 브로슈어 인쇄 / PDF 다운로드
+  </button>
+
+  <div class="brochure-container">
+    
+    <!-- Header -->
+    <div class="header-bar">
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge">대한민국 1위 관세 AI 코파일럿</span>
+          <span style="font-size: 0.76rem; color: #64748b; font-weight: 700;">WCO 해설서 & 9,450건 마스터 DB 기반</span>
+        </div>
+        <div class="title">CUSWAY <span style="color: #0284c7;">Customs Copilot</span></div>
+        <div class="subtitle">관세사의 업무 속도와 소명 정확도를 10배 높이는 전용 AI 어시스턴트</div>
+      </div>
+      <div style="text-align: right;">
+        <div style="background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 8px; padding: 6px 12px; color: #0369a1; font-weight: 800; font-size: 0.8rem;">
+          🛡️ 공식 제품 소개서
+        </div>
+        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 4px;">발행번호: CUSWAY-GTM-2026</div>
+      </div>
+    </div>
+
+    <!-- Hero Value Proposition -->
+    <div class="hero-box">
+      <h2>"해설서 검색에 쓰던 하루 3시간, 3초 만에 끝내고<br>진짜 고부가가치 관세 컨설팅에 집중하십시오."</h2>
+      <p>
+        CUSWAY는 단순한 키워드 검색기가 아닙니다. 물품 규격 3줄 입력으로 <strong>통칙 1~6 적용 논리, WCO 해설서 본문, 관세청 결정례를 매핑한 법적 소명서(PDF)</strong>를 관세사무소 명의로 자동 발급합니다.
+      </p>
+    </div>
+
+    <!-- 4 Core Capabilities -->
+    <div>
+      <div class="section-title">CUSWAY 4대 핵심 차별화 무기 (Core Strengths)</div>
+      <div class="grid-2x2">
+        <div class="card">
+          <h4>🖨️ 1. 관세사 맞춤 Co-Branding A4 출력</h4>
+          <p>
+            • 관세사무소 로고, 상호, 공인직인 도장이 찍힌 정식 A4 PDF 즉시 인쇄<br>
+            • 최하단 CUSWAY 공인 인증 바 & QR코드로 화주 신뢰도 200% 배가
+          </p>
+        </div>
+        <div class="card">
+          <h4>💰 2. 비공개 판례 5만P 캐시백 거래소</h4>
+          <p>
+            • 서랍 속 미공개 결정서 1건 공유 시 최대 ₩50,000P 실시간 감정 지급<br>
+            • 적립 포인트로 Pro 플랜(월 4.4만 원) 100% 무료 전액 차감 이용
+          </p>
+        </div>
+        <div class="card">
+          <h4>⚡ 3. 4단계 원스톱 수입통관 파이프라인</h4>
+          <p>
+            • [HS 품목분류 ➔ 세관장 확인 요건 ➔ FTA 실익 ➔ 행정서류] 일괄 완성<br>
+            • 통관 보류 및 사후 추징금 위험을 원천 차단하는 완벽한 안전장치
+          </p>
+        </div>
+        <div class="card">
+          <h4>⚖️ 4. AI 관세평가 & 조세심판원 판례 허브</h4>
+          <p>
+            • 특수관계 이전가격, 로열티 가산 처분, 생산지원비 실시간 법리 매칭<br>
+            • 조세심판원/대법원 승소(처분 취소) 판결문을 근거로 완벽 소명
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Matrix -->
+    <div>
+      <div class="section-title">기존 업무 방식 vs CUSWAY 도입 후 비교</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 22%;">구분</th>
+            <th style="width: 39%; color: #dc2626;">기존 방식 (유니패스/씨엘HS)</th>
+            <th style="width: 39%; color: #0284c7;">CUSWAY AI 코파일럿</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight: 700; background: #fafafa;">소명서 작성 시간</td>
+            <td style="color: #64748b;">건당 30분 ~ 1시간 수작업</td>
+            <td style="font-weight: 800; color: #0284c7;">단 3초 만에 자동 완성 (90% 절감)</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; background: #fafafa;">팀 동시접속 환경</td>
+            <td style="color: #64748b;">1인 1계정 선착순 튕김 발생</td>
+            <td style="font-weight: 800; color: #0284c7;">모바일/PC 무제한 동시 팀 협업</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; background: #fafafa;">화주 제출용 보고서</td>
+            <td style="color: #64748b;">워드/한글로 매번 처음부터 작성</td>
+            <td style="font-weight: 800; color: #0284c7;">관세사 직인 A4 PDF 원클릭 발급</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 700; background: #fafafa;">지식 자산화 (캐시백)</td>
+            <td style="color: #64748b;">서랍 속 방치 (0원의 가치)</td>
+            <td style="font-weight: 800; color: #0284c7;">건당 최대 5만P 캐시백 ➔ 구독료 0원</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pricing Tiers -->
+    <div>
+      <div class="section-title">관세사무소 규모별 구독 요금제</div>
+      <div class="tier-grid">
+        <div class="tier-card">
+          <div class="tier-name">Basic (개인형)</div>
+          <div class="tier-price">₩0 원 (무료)</div>
+          <div class="tier-features">
+            • 1인 전용 (월 50회 무료 RAG)<br>
+            • 기본 HSK 코드 및 관세율 조회<br>
+            • 모바일/PC 자유로운 교차 접속
+          </div>
+        </div>
+        <div class="tier-card featured">
+          <div style="color: #0284c7; font-size: 0.65rem; font-weight: 900; margin-bottom: 2px;">★ 실무팀 추천</div>
+          <div class="tier-name" style="color: #0369a1;">Pro (실무팀형)</div>
+          <div class="tier-price">월 44,000 원</div>
+          <div class="tier-features">
+            • <strong>최대 5인 기본 포함</strong> (지사 전용)<br>
+            • <strong>무제한</strong> 4단계 원스톱 통관 심사<br>
+            • 관세사 맞춤 A4 공식 의견서 PDF<br>
+            • 비공개 결정례 캐시백 전액 차감
+          </div>
+        </div>
+        <div class="tier-card">
+          <div class="tier-name">Enterprise (법인형)</div>
+          <div class="tier-price" style="color: #0f172a;">월 290,000 원</div>
+          <div class="tier-features">
+            • <strong>50인 이상 본·지사 완전 무제한</strong><br>
+            • 관세법인 <strong>내부 ERP 시스템 API 연동</strong><br>
+            • 본사-지사 이력 클라우드 동기화<br>
+            • 대량 신고서 오류 자동 검증 엔진
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-bar">
+      <div>
+        <div style="font-weight: 900; font-size: 0.95rem; color: #0f172a; margin-bottom: 3px;">
+          CUSWAY 고객 성공 본부 & B2B 도입 센터
+        </div>
+        <div>📞 도입 문의: 02-540-1234 | ✉️ 파트너십: contact@cusway.kr</div>
+        <div>🌐 웹사이트: https://cusway.kr | 💬 카카오톡 채널: @CUSWAY_AI</div>
+      </div>
+      <div style="text-align: center; background: #f8fafc; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <div style="font-size: 1.5rem;">📱</div>
+        <div style="font-size: 0.65rem; font-weight: 800; color: #0f172a;">[무료 체험 바로가기]</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

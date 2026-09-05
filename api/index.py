@@ -692,15 +692,27 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             if row[0] is not None: base_rate = float(row[0])
             if row[1] is not None: wto_rate = float(row[1])
             
-        # FTA 협정세율 조회 (대표국가 포함) - 양허제외 대상 제외
-        if not is_all_excluded and not is_china_rcep_excluded:
+        # FTA 협정세율 조회 (대표국가 포함) - 1차 정확한 10단위 일치 우선, 2차 6단위 prefix fallback
+        if not is_all_excluded:
             placeholders = ', '.join(['?'] * len(target_countries))
-            fmt_prefix = f"{clean[:4]}.{clean[4:6]}%" if len(clean) >= 6 else f"{clean}%"
-            cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (replace(replace(hs_code, '.', ''), '-', '') = ? OR hs_code LIKE ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL ORDER BY fta_rate ASC LIMIT 1", [clean, f"{clean[:6]}%", fmt_prefix] + target_countries)
+            # 1차: 정확한 10단위/입력 코드
+            cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (replace(replace(hs_code, '.', ''), '-', '') = ? OR hs_code = ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL ORDER BY fta_rate ASC LIMIT 1", [clean, hs_code] + target_countries)
             best_fta = cur.fetchone()
+            
+            # 2차: 1차 일치가 없고 6단위 이상일 때 fallback
+            if not best_fta and len(clean) >= 6:
+                fmt_prefix = f"{clean[:4]}.{clean[4:6]}%"
+                cur.execute(f"SELECT fta_rate, fta_name, specific_rate, specific_unit, duty_type, duty_formula, country_code FROM hs_rate_master WHERE (hs_code LIKE ? OR hs_code LIKE ?) AND country_code IN ({placeholders}) AND fta_rate IS NOT NULL ORDER BY fta_rate ASC LIMIT 1", [f"{clean[:6]}%", fmt_prefix] + target_countries)
+                best_fta = cur.fetchone()
+                
             if best_fta:
-                fta_rate = float(best_fta[0])
-                fta_name = best_fta[1] or "FTA 협정"
+                # 중국/RCEP 일반 양허제외 가드 (국별 명시적 레코드가 아니고 일반 제외 접두어인 경우)
+                matched_cntry = (best_fta[6] or "").upper().strip()
+                if is_china_rcep_excluded and matched_cntry in ["CN", "JP", "RCEP"] and matched_cntry != origin_upper:
+                    best_fta = None
+                else:
+                    fta_rate = float(best_fta[0])
+                    fta_name = best_fta[1] or "FTA 협정"
             
         conn.close()
     except Exception as e:
@@ -751,7 +763,10 @@ def get_rates_api(hs_code: str, origin: str = "US"):
             duty_formula = row[5]
 
     # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
-    is_trq_item = any(clean.startswith(pref.replace(".", "")) for pref in ["1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", "1006", "0813", "0402", "0713", "0910"])
+    is_trq_item = any(clean.startswith(pref.replace(".", "")) for pref in [
+        "1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", 
+        "1006", "0813", "0402", "0713", "0910", "1211", "2106", "1107", "1108", "1202", "0409", "0802", "1005"
+    ])
     trq_in_rate = None
     trq_out_rate = None
     trq_agency = "한국농수산식품유통공사(aT)"
@@ -781,11 +796,58 @@ def get_rates_api(hs_code: str, origin: str = "US"):
         trq_in_rate = 50.0
         trq_out_rate = "270% 또는 6,210원/kg (선택세)"
         expert_insight = "본 품목(고추, 0904.20)은 초민감 품목으로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 270% 또는 6,210원/kg 중 고액 과세됩니다."
+    elif clean.startswith("0713.32") or clean.startswith("071332"): # 팥
+        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
+        trq_out_rate = "420.8% 또는 4,210원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 팥 TRQ] 팥(0713.32)은 aT(한국농수산식품유통공사)의 한-중 FTA 시장접근물량(FCN6) 추천서 구비 시 0.0% 무관세가 적용됩니다. 미추천 일반 수입 시에는 420.8% 또는 4,210원/kg의 초고율 선택세가 과세됩니다."
+        else:
+            expert_insight = "본 품목(팥, 0713.32)은 aT TRQ 수입추천서(W1) 구비 시 30.0%가 적용되며, 미구비 시 420.8% 또는 4,210원/kg 중 고액 과세됩니다."
+    elif clean.startswith("0713.31") or clean.startswith("071331"): # 녹두
+        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
+        trq_out_rate = "607.5% 또는 4,950원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 녹두 TRQ] 녹두(0713.31)는 aT 한-중 FTA 추천서(FCN6) 구비 시 0.0% 무관세가 적용되며, 미추천 시 607.5% 또는 4,950원/kg의 초고율 선택세가 부과됩니다."
+        else:
+            expert_insight = "본 품목(녹두, 0713.31)은 aT TRQ 수입추천서(W1) 구비 시 30.0%, 미구비 시 607.5% 또는 4,950원/kg 중 고액 과세됩니다."
+    elif clean.startswith("0910.11") or clean.startswith("091011") or clean.startswith("0910.12") or clean.startswith("091012"): # 생강
+        trq_in_rate = 0.0 if origin_upper == "CN" else 20.0
+        trq_out_rate = "377.3% 또는 1,910원/kg (선택세)"
+        if origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 생강 TRQ] 생강(0910.11)은 aT 한-중 FTA 수입추천(FCN6) 시 0.0% 무관세 혜택을 받으며, 미추천 일반 수입 시 377.3% 또는 1,910원/kg 중 고액 과세됩니다."
+        else:
+            expert_insight = "본 품목(생강)은 aT TRQ 수입추천서 구비 시 20.0% 양허세율, 미구비 시 377.3% 또는 1,910원/kg의 선택세가 적용됩니다."
+    elif clean.startswith("1107"): # 맥아
+        trq_in_rate = 0.0 if (origin_upper in ["AU", "CA", "US", "GB"] or origin_upper in EU_COUNTRIES) else 30.0
+        trq_out_rate = "269.0%"
+        expert_insight = f"⭐ [{fta_name} 맥아 TRQ 실무] 맥아(1107.10)는 aT의 FTA TRQ 추천서 구비 시 0.0% 무관세가 적용되며, 일반 WTO TRQ 추천 시 30.0%, 추천 외 수입 시 269.0%의 고율 양허관세가 부과됩니다."
+    elif clean.startswith("0402"): # 분유
+        trq_in_rate = 0.0 if (origin_upper in ["US", "AU", "NZ"] or origin_upper in EU_COUNTRIES) else 20.0
+        trq_out_rate = "176% 또는 1,186원/kg (선택세)"
+        trq_agency = "한국유가공협회"
+        expert_insight = f"🥛 [{fta_name} 분유 TRQ] 탈지/전지분유(0402호)는 FTA TRQ 할당물량 추천 시 0.0% 무관세가 적용되며, 일반 수입추천 시 20.0%, 미추천 시 176% 또는 1,186원/kg의 선택세가 적용됩니다."
+    elif clean.startswith("1202"): # 땅콩
+        trq_in_rate = 24.0
+        trq_out_rate = "230.5% 또는 1,930원/kg (선택세)"
+        expert_insight = "본 품목(땅콩, 1202호)은 aT 수입추천서 구비 시 24.0%(탈각)가 적용되며, 미추천 수입 시 230.5% 또는 1,930원/kg의 초고율 선택세가 과세됩니다. (대부분의 FTA에서 양허제외)"
+    elif clean.startswith("0409"): # 천연꿀
+        trq_in_rate = 20.0
+        trq_out_rate = "243% 또는 1,864원/kg (선택세)"
+        expert_insight = "본 품목(천연 꿀, 0409.00)은 국내 양봉농가 보호를 위해 모든 FTA에서 양허제외된 초민감 품목입니다. aT 추천서 구비 시 20.0%, 미구비 시 243% 또는 1,864원/kg 중 고액 과세됩니다."
+    elif clean.startswith("1211.20") or clean.startswith("121120"): # 인삼/홍삼
+        trq_in_rate = 20.0
+        trq_out_rate = "754.3% 또는 28,218원/kg (선택세)"
+        trq_agency = "농협중앙회 / 인삼농협"
+        expert_insight = "본 품목(인삼/홍삼)은 국내 최고율 관세 품목(754.3% 또는 28,218원/kg)으로 전 FTA 양허제외 대상입니다. 수입 전 반드시 추천 요건을 확인하십시오."
     elif clean.startswith("1207.40") or clean.startswith("120740"): # 참깨
-        trq_in_rate = 40.0
+        trq_in_rate = 0.0 if origin_upper == "CN" else 40.0
         trq_out_rate = "630% 또는 6,660원/kg (선택세)"
         if origin_upper == "US" or fta_rate == 0.0:
             expert_insight = "🇺🇸 [한-미 FTA 0.0% 무관세 특혜] 미국산 참깨(1207.40)는 한-미 FTA 원산지증명서(C/O) 구비 시 0.0% 무관세 특혜 통관이 적용됩니다. (중국 등 양허제외 국가와 달리 한-미 FTA 협정세율 혜택을 온전히 누릴 수 있어 원산지증명서 구비가 관세 절감의 핵심입니다. C/O 미구비 일반 수입 시에는 기본세율 40% 또는 aT 추천세율 40%가 적용됩니다.)"
+        elif origin_upper in EU_COUNTRIES or origin_upper in ["GB", "UK"]:
+            expert_insight = f"🇪🇺 [{fta_name} 복합세율 적용] 해당 원산지({origin_upper})산 참깨는 현재 기준 [{duty_formula or '99.4% 또는 1,051원/kg'}]이 적용됩니다. C/O 구비 시 종가세와 종량세 중 고액으로 세액이 산출되며, 일반 수입추천서 구비 시 40.0%의 저율이 적용될 수 있습니다."
+        elif origin_upper == "CN":
+            expert_insight = "🇨🇳 [한-중 FTA 실무: FCN1 vs FCN6 차이]\n• [FCN1 (일반 협정)]: 630% 또는 6,660원/kg (양자 중 고액) - 한-중 FTA 양허제외로 추천서 미구비 시 초고율 과세\n• [FCN6 (한-중 TRQ)]: 0.0% 무관세 - 한국농수산식품유통공사(aT)의 한-중 FTA 시장접근물량 수입추천서 구비 시 0.0% 파격 특혜 (국내 일반 TRQ 40.0%보다 40%p 추가 절감)"
         else:
             expert_insight = f"{origin_upper}산 참깨(1207.40)는 한-중 FTA 및 RCEP 협정 등에서 '양허제외(FTA 특혜 배제)' 품목으로 FTA 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사)의 TRQ 수입추천서를 발급받아야 40.0%의 양허세율이 적용되며, 추천서 미구비 시 630% 또는 6,660원/kg의 초고율 선택세가 과세됩니다."
     elif clean.startswith("0701"): # 감자

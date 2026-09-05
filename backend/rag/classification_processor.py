@@ -96,6 +96,26 @@ class AICustomsClassificationProcessor:
                 feedback_prompt=feedback_msg
             )
         
+        # ----------------------------------------------------
+        # Phase 3.5: Deterministic 10-Digit HSK Master Resolution
+        # ----------------------------------------------------
+        raw_hs = result_dict.get("recommendedHsCode", "")
+        if raw_hs and raw_hs != "0000.00-0000":
+            resolved_hs, resolved_name, structures = cls.resolve_deterministic_hsk10(
+                raw_hs=raw_hs,
+                product_name=product_name,
+                material=material,
+                function_use=function_use,
+                db=db
+            )
+            if resolved_hs and resolved_hs != raw_hs:
+                print(f"[PROCESSOR] Deterministic 10-digit resolution adjusted '{raw_hs}' -> '{resolved_hs}' ({resolved_name})")
+                result_dict["recommendedHsCode"] = resolved_hs
+                if resolved_name:
+                    result_dict["subheadingName"] = f"제{resolved_hs}호 ({resolved_name})"
+            if structures:
+                result_dict["hsk_structures"] = structures
+
         result_dict["consistency_score"] = validation_results["consistency_score"]
         result_dict["consistency_status"] = validation_results["status"]
         result_dict["consistency_warnings"] = validation_results["warnings"]
@@ -173,7 +193,6 @@ class AICustomsClassificationProcessor:
         # ----------------------------------------------------
         raw_hs = result_dict.get("recommendedHsCode", "")
         clean_hs = ""
-        hs_prefix = ""
         if raw_hs and raw_hs != "0000.00-0000":
             from backend.models import HSCodeMaster, CustomsPrecedent
             
@@ -199,7 +218,7 @@ class AICustomsClassificationProcessor:
                     (HSCodeMaster.hs_code == hs_6) | (HSCodeMaster.hs_code == hs_6_dot)
                 ).first()
 
-            # 10단위 세번 레코드 쿼리 (백업용)
+            # 10단위 세번 레코드 쿼리
             master_rec = db.query(HSCodeMaster).filter(
                 (HSCodeMaster.hs_code == raw_hs) | (HSCodeMaster.hs_code == clean_hs)
             ).first()
@@ -229,7 +248,6 @@ class AICustomsClassificationProcessor:
             # ----------------------------------------------------
             precedent_cases = []
             if clean_hs:
-                # Format to standard HSK 10-digit format (e.g. 8507.60-3000) for strict matching
                 formatted_hsk = f"{clean_hs[:4]}.{clean_hs[4:6]}-{clean_hs[6:]}" if len(clean_hs) == 10 else clean_hs
                 db_cases = db.query(CustomsPrecedent).filter(
                     ((CustomsPrecedent.hs_code == clean_hs) | 
@@ -249,7 +267,6 @@ class AICustomsClassificationProcessor:
             result_dict["precedent_cases"] = precedent_cases
             
             # Filter precedents list in the result to ensure they match the recommendedHsCode exactly (10-digit)
-            # and do not contain corrupted parser error messages
             if "precedents" in result_dict and isinstance(result_dict["precedents"], list):
                 recommended_hs = result_dict.get("recommendedHsCode", "")
                 rec_clean = re.sub(r'[^\d]', '', recommended_hs)
@@ -271,7 +288,154 @@ class AICustomsClassificationProcessor:
                             print(f"[PROCESSOR] Filtering out mismatched precedent {p.get('id')} with code {p_code} (exact HS code mismatch with recommended {recommended_hs})")
                     result_dict["precedents"] = filtered_precedents
 
-        # Do not cache simulated AI results to avoid contaminating official Customs Service data.
-
         print(f"[PROCESSOR] Pipeline execution completed successfully. HS Code matched: {result_dict.get('recommendedHsCode')}")
         return result_dict
+
+    @classmethod
+    def resolve_deterministic_hsk10(cls, raw_hs: str, product_name: str, material: str = "", function_use: str = "", db: Session = None):
+        """
+        Deterministically resolves and validates a 10-digit HSK code against official DB siblings.
+        Calculates token and semantic overlap between the query text and sibling HSK candidate names.
+        Returns: (resolved_hs_code, resolved_name_ko, candidate_structures)
+        """
+        if not raw_hs or raw_hs == "0000.00-0000":
+            return raw_hs, "", []
+            
+        clean_digits = re.sub(r'[^\d]', '', raw_hs)
+        if len(clean_digits) < 4:
+            return raw_hs, "", []
+
+        prefix_6 = clean_digits[:6]
+        prefix_4 = clean_digits[:4]
+        
+        from backend.models import HSCodeMaster
+        
+        # 1. Query all 10-digit candidates under 6-digit prefix
+        candidates = db.query(HSCodeMaster).filter(
+            ((HSCodeMaster.hs_code.like(f"{prefix_6}%")) | 
+             (HSCodeMaster.hs_code.like(f"{prefix_4}.{prefix_6[4:6]}%"))) &
+            (HSCodeMaster.hscode_length == 10)
+        ).order_by(HSCodeMaster.hs_code).all()
+        
+        # If no 10-digit candidates under 6-digit, try 4-digit prefix
+        if not candidates:
+            candidates = db.query(HSCodeMaster).filter(
+                ((HSCodeMaster.hs_code.like(f"{prefix_4}%")) | 
+                 (HSCodeMaster.hs_code.like(f"{prefix_4[:2]}.{prefix_4[2:]}%"))) &
+                (HSCodeMaster.hscode_length == 10)
+            ).order_by(HSCodeMaster.hs_code).all()
+
+        if not candidates:
+            return raw_hs, "", []
+
+        # Stopwords for candidate and query matching
+        generic_stopwords = {
+            "제조용", "조제품", "함량", "중량", "초과", "이하", "한정한다", "제외하며", 
+            "물질", "기본", "재료", "것으로서", "내용물", "무게가", "킬로그램", "직접", 
+            "접하여", "포장된", "것으로", "그", "밖의", "포함한다", "전", "용량"
+        }
+
+        # Prepare query tokens and text
+        full_text = f"{product_name} {material} {function_use}".lower()
+        text_words = [w for w in re.findall(r'[\w가-힣]+', full_text) if w not in generic_stopwords]
+        
+        # Extract key morphemes / subwords for Korean (e.g., 참깨가루 -> 참깨, 가루)
+        expanded_words = set(text_words)
+        for w in list(text_words):
+            if len(w) >= 3:
+                for sub_len in range(2, len(w)):
+                    for i in range(len(w) - sub_len + 1):
+                        sub_w = w[i:i+sub_len]
+                        if sub_w not in generic_stopwords:
+                            expanded_words.add(sub_w)
+                        
+        scored_candidates = []
+        seen_clean_codes = set()
+        
+        for cand in candidates:
+            cand_code = cand.hs_code
+            clean_cand = re.sub(r'[^\d]', '', cand_code)
+            if clean_cand in seen_clean_codes:
+                continue
+            seen_clean_codes.add(clean_cand)
+
+            formatted_code = f"{clean_cand[:4]}.{clean_cand[4:6]}-{clean_cand[6:]}" if len(clean_cand) == 10 else cand_code
+                
+            cand_name_ko = cand.name_ko or ""
+            cand_name_en = cand.name_en or ""
+            cand_lower = f"{cand_name_ko} {cand_name_en}".lower()
+            
+            score = 0.0
+            match_reasons = []
+            
+            # Exact clean match baseline
+            if clean_cand == clean_digits:
+                score += 5.0
+                match_reasons.append("기존 제안 세번 기본점수")
+                
+            # 1. Exact phrase / word match (excluding generic stopwords)
+            for w in set(text_words):
+                if len(w) >= 2 and w in cand_lower:
+                    score += 80.0 * len(w)
+                    match_reasons.append(f"핵심어 일치: '{w}'")
+                    
+            # 2. Sub-token matching from expanded morphemes
+            for sw in expanded_words:
+                if len(sw) >= 2 and sw in cand_lower:
+                    score += 30.0 * len(sw)
+                    
+            # 3. High-weight domain keywords matching
+            keyword_boosts = [
+                ("가루", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
+                ("분말", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
+                ("참깨", ["참깨", "깨", "sesamum", "sesame"]),
+                ("볶은", ["볶은", "구운", "roasted"]),
+                ("밤", ["밤", "chestnut"]),
+                ("코코넛", ["코코넛", "coconut"]),
+                ("땅콩", ["땅콩", "피넛", "peanut", "ground-nut"]),
+                ("버터", ["버터", "butter", "paste"]),
+                ("도토리", ["도토리", "acorn"]),
+                ("인삼", ["인삼", "ginseng"]),
+                ("홍삼", ["홍삼", "red ginseng"]),
+                ("커피", ["커피", "coffee"]),
+                ("크림", ["크리머", "크림", "creamer"]),
+                ("녹차", ["녹차", "green tea"]),
+                ("홍차", ["홍차", "black tea"]),
+                ("콜라", ["콜라", "cola"]),
+                ("알로에", ["알로에", "aloe"]),
+                ("효모", ["효모", "yeast"]),
+                ("벌꿀", ["벌꿀", "꿀", "honey"]),
+                ("로열젤리", ["로열젤리", "royal jelly"]),
+            ]
+            
+            for input_kw, target_terms in keyword_boosts:
+                input_has_kw = input_kw in full_text
+                cand_has_kw = any(t in cand_lower for t in target_terms)
+                
+                if input_has_kw and cand_has_kw:
+                    score += 300.0
+                    match_reasons.append(f"특화 품목 키워드 적합: '{input_kw}'")
+                elif not input_has_kw and cand_has_kw:
+                    # Penalty if candidate is specific to another item not mentioned in input
+                    if input_kw in ["밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
+                        score -= 300.0
+                        match_reasons.append(f"타 품목 전용 세번 감점: '{input_kw}' 미포함")
+
+            # 4. Fallback "기타 (Other)" base score
+            if "기타" in cand_name_ko or "other" in cand_lower:
+                score += 1.0
+                
+            scored_candidates.append({
+                "code": formatted_code,
+                "name_ko": cand_name_ko,
+                "name_en": cand_name_en,
+                "score": score,
+                "reasons": match_reasons
+            })
+            
+        # Sort candidates by score descending
+        scored_candidates.sort(key=lambda x: x["score"], reverse=True)
+        best = scored_candidates[0]
+        
+        return best["code"], best["name_ko"], scored_candidates
+

@@ -1233,21 +1233,31 @@ ${fallback.implicationKo}
         <CustomsReportModal
           isOpen={showReportModal}
           onClose={() => setShowReportModal(false)}
-          docType="valuation-brief"
-          productName={selectedCase.title || '관세평가 쟁점 물품'}
-          hsCode={selectedCase.categoryKo || '관세평가 쟁점'}
-          koreanDescription={selectedCase.keyIssue || '과세가격 가산/비과세 쟁점 소명'}
-          analysisData={{
-            caseNumber: selectedCase.caseNumber,
-            authority: selectedCase.authority,
-            keyIssue: selectedCase.keyIssue,
-            holding: renderHoldingKo(selectedCase),
-            customsArgument: selectedCase.customsArgument,
-            importerArgument: selectedCase.importerArgument,
-            reasoning: selectedCase.reasoningSnippet,
-            guideline: selectedCase.implicationKo
-          }}
+          currentUser={currentUser}
           onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
+          reportData={{
+            type: 'valuation-brief',
+            title: `[관세평가 쟁점소명 및 과세가격 검토서] ${selectedCase.title || '관세평가 쟁점 물품'}`,
+            targetItem: {
+              productName: selectedCase.title || '관세평가 쟁점 물품',
+              hsCode: selectedCase.caseNumber || '과세가격 쟁점',
+              material: selectedCase.keyIssue || '과세가격 가산/공제 요소 쟁점',
+              functionUse: '수입물품 과세가격 결정(제1방법~제6방법)',
+              originCountry: '수입 거래 체약국'
+            },
+            legalBasis: {
+              generalRule: '관세법 제30조(과세가격 결정의 원칙) 및 WTO 관세평가협정',
+              rationaleSummary: `[쟁점요지] ${selectedCase.keyIssue}\n\n[처분청 주장] ${selectedCase.customsArgument || '과세가격 가산요소 해당 주장'}\n\n[청구인 소명] ${selectedCase.importerArgument || '실제 지급금액 외 가산요건 불비 주장'}\n\n[판결 요지] ${renderHoldingKo(selectedCase)}`,
+              wcoNoteSnippet: selectedCase.implicationKo || selectedCase.reasoningSnippet || '관세평가 분류 기준에 따른 권리사용료/사후귀속이익/운임가산 법리 검토'
+            },
+            precedents: [{
+              caseNumber: selectedCase.caseNumber,
+              title: selectedCase.title,
+              authority: selectedCase.authority || '조세심판원',
+              keyPoint: renderHoldingKo(selectedCase)
+            }],
+            customMemo: `■ 관세사 실무 대응 지침:\n${selectedCase.implicationKo || '관세조사 및 세액심사 시 관련 계약서, 송금영수증 및 계산내역서를 사전에 구비하여 소명할 것.'}`
+          }}
         />
       )}
 
@@ -1256,6 +1266,7 @@ ${fallback.implicationKo}
         <OfficeBrandingModal
           isOpen={showOfficeBrandingModal}
           onClose={() => setShowOfficeBrandingModal(false)}
+          currentUser={currentUser}
         />
       )}
 
