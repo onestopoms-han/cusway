@@ -605,7 +605,7 @@ export default function BrandShowcase({
                 {/* Option 1: Confidentiality */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
-                    문서 공개 여부 (유니패스 미등재 희귀 문서)
+                    문서 공개 여부 (포털 미등재 비공개 문서)
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     <button
@@ -913,7 +913,7 @@ export default function BrandShowcase({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#dc2626', fontWeight: 800, fontSize: '0.95rem', borderBottom: '1px solid rgba(239, 68, 68, 0.15)', paddingBottom: '8px' }}>
               <XCircle size={18} />
-              <span>기존 방식 (유니패스 / 씨엘HS / 포털)</span>
+              <span>기존 업무 방식</span>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>

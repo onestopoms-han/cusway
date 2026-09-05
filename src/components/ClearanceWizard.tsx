@@ -1208,7 +1208,7 @@ export default function ClearanceWizard({
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', lineHeight: 1.4 }}>
                         {guideData.is_restricted 
                           ? `해당 HSK 번호는 수입 통관 시 관세법 및 타법령에 의거하여 총 ${guideData.requirements.length}건의 의무 사전 행정절차 승인이 요구됩니다.`
-                          : '일반 자유 수입 물품입니다. 별도의 유니패스 세관장 확인 및 사전 협회 승인 절차 없이 즉시 통관이 가능합니다.'
+                          : '일반 자유 수입 물품입니다. 별도의 세관장 확인 및 사전 협회 승인 절차 없이 즉시 통관이 가능합니다.'
                         }
                       </p>
                     </div>

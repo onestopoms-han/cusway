@@ -317,7 +317,7 @@ export default function MarketingBrochureModal({
                 <thead>
                   <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
                     <th style={{ padding: '9px 12px', textAlign: 'left', width: '22%', color: '#334155', fontWeight: 800 }}>구분</th>
-                    <th style={{ padding: '9px 12px', textAlign: 'left', color: '#e11d48', width: '39%', fontWeight: 800 }}>기존 방식 (유니패스/씨엘HS)</th>
+                    <th style={{ padding: '9px 12px', textAlign: 'left', color: '#e11d48', width: '39%', fontWeight: 800 }}>기존 업무 방식</th>
                     <th style={{ padding: '9px 12px', textAlign: 'left', color: '#0d9488', width: '39%', fontWeight: 800 }}>CUSWAY AI 코파일럿</th>
                   </tr>
                 </thead>
