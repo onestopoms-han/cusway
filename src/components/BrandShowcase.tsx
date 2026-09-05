@@ -21,7 +21,12 @@ import {
   Settings,
   Flame,
   Check,
-  XCircle
+  XCircle,
+  Calculator,
+  Clock,
+  Info,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
 import MarketingBrochureModal from './MarketingBrochureModal';
@@ -63,6 +68,7 @@ export default function BrandShowcase({
   
   // Interactive ROI Calculator State
   const [teamSize, setTeamSize] = useState<number>(5);
+  const [showBasisDetail, setShowBasisDetail] = useState<boolean>(true);
 
   // Calculate cashback simulation
   const calcBase = 10000;
@@ -71,11 +77,19 @@ export default function BrandShowcase({
   const calcScarcity = simDocType === 'confidential' ? 5000 : 0;
   const totalCashback = Math.min(50000, calcBase + calcConf + calcDec + calcScarcity);
 
-  // Calculate ROI
-  const savedHoursPerMonth = teamSize * 38; // 38 hours saved per person/month
-  const savedCostPerMonth = teamSize * 1140000; // 1.14M KRW saved in labor cost per person
-  const cuswayMonthlyCost = teamSize <= 1 ? 0 : teamSize <= 5 ? 44000 : teamSize <= 10 ? 71500 : 290000;
-  const roiMultiplier = Math.round(savedCostPerMonth / (cuswayMonthlyCost || 1));
+  // Realistic Customs Office ROI Calculation Model (대한민국 관세 실무 벤치마크)
+  // 1. 1인당 월간 리서치 절감 시간: 8시간 (영업일 기준 일 24분 단축, 주 2시간)
+  const savedHoursPerMonth = teamSize * 8;
+  // 2. 관세 실무 인력 표준 시급: 30,000원 (연봉 4,500만~6,500만원 기준)
+  const savedLaborCostPerMonth = savedHoursPerMonth * 30000;
+  // 3. 신속 A4 소명 리포트/의견서 발급에 따른 자문 수익 기회 창출
+  const consultingValuePerMonth = teamSize === 1 ? 60000 : teamSize <= 5 ? 200000 : teamSize <= 15 ? 400000 : 800000;
+  // 4. 월간 총 창출 가치
+  const totalValuePerMonth = savedLaborCostPerMonth + consultingValuePerMonth;
+  // 5. CUSWAY 월 구독료 (1~5인 실무팀 Pro 44,000원, 6~15인 지사 180,000원, 16인 이상 대형법인 290,000원)
+  const cuswayMonthlyCost = teamSize <= 5 ? 44000 : teamSize <= 15 ? 180000 : 290000;
+  // 6. 투자 대비 실질 회수율 (ROI 배수)
+  const roiMultiplier = Number((totalValuePerMonth / cuswayMonthlyCost).toFixed(1));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', paddingBottom: '60px' }}>
@@ -953,29 +967,78 @@ export default function BrandShowcase({
 
       {/* 4. Interactive ROI Calculator by Office Size */}
       <section style={{
-        background: 'radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.9) 70%)',
+        background: 'radial-gradient(circle at 80% 50%, rgba(245, 158, 11, 0.12) 0%, rgba(15, 23, 42, 0.95) 70%)',
         border: '1.5px solid rgba(245, 158, 11, 0.35)',
         borderRadius: '20px',
         padding: '36px 32px'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-amber)', textTransform: 'uppercase' }}>
-            RETURN ON INVESTMENT
-          </span>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', margin: '6px 0 0 0' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 12px',
+            borderRadius: '999px',
+            background: 'rgba(245, 158, 11, 0.15)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            marginBottom: '8px'
+          }}>
+            <Calculator size={14} color="var(--accent-amber)" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--accent-amber)', letterSpacing: '0.04em' }}>
+              RETURN ON INVESTMENT | 실무 벤치마크 기반
+            </span>
+          </div>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', margin: '4px 0 0 0' }}>
             우리 사무소의 CUSWAY 도입 ROI 계산기
           </h2>
-          <p style={{ fontSize: '0.88rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
-            직원 수에 따른 업무 시간 절감과 인건비 회수율을 실시간으로 확인하세요.
+          <p style={{ fontSize: '0.88rem', color: '#94a3b8', margin: '6px 0 0 0' }}>
+            과장 없는 관세사무소 실무 데이터(월 리서치 공수 및 표준 시급)를 기준으로 산출된 현실적인 회수율입니다.
           </p>
         </div>
 
-        <div style={{ maxWidth: '680px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ maxWidth: '720px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {/* Preset Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {[
+              { label: '1인 단독 사무소', size: 1 },
+              { label: '3인 실무팀', size: 3 },
+              { label: '5인 전문팀 (추천)', size: 5 },
+              { label: '10인 지사', size: 10 },
+              { label: '30인 대형 법인', size: 30 }
+            ].map(preset => (
+              <button
+                key={preset.size}
+                type="button"
+                onClick={() => setTeamSize(preset.size)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '20px',
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  border: teamSize === preset.size ? '1.5px solid var(--accent-amber)' : '1px solid rgba(255,255,255,0.12)',
+                  background: teamSize === preset.size ? 'rgba(245, 158, 11, 0.2)' : 'rgba(255,255,255,0.04)',
+                  color: teamSize === preset.size ? 'var(--accent-amber)' : '#94a3b8',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+
           {/* Slider */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700 }}>관세사 및 실무 직원 수:</span>
-              <span style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--accent-amber)' }}>{teamSize} 명</span>
+          <div style={{
+            background: 'rgba(0,0,0,0.3)',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            border: '1px solid rgba(255,255,255,0.08)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Users size={16} color="var(--accent-cyan)" /> 관세사 및 통관 실무 직원 수:
+              </span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-amber)' }}>{teamSize} 명</span>
             </div>
             <input 
               type="range"
@@ -989,11 +1052,11 @@ export default function BrandShowcase({
                 cursor: 'pointer'
               }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
-              <span>1인 사무소</span>
-              <span>5인 실무팀</span>
-              <span>10인 지사</span>
-              <span>50인+ 대형법인</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#64748b', marginTop: '6px' }}>
+              <span>1명</span>
+              <span>10명</span>
+              <span>25명</span>
+              <span>50명</span>
             </div>
           </div>
 
@@ -1002,38 +1065,120 @@ export default function BrandShowcase({
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '14px',
-            background: 'rgba(0,0,0,0.4)',
-            padding: '20px',
-            borderRadius: '12px',
-            border: '1px solid rgba(255,255,255,0.1)'
+            background: 'rgba(0,0,0,0.5)',
+            padding: '22px 18px',
+            borderRadius: '14px',
+            border: '1px solid rgba(245, 158, 11, 0.25)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.4)'
           }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>월간 절감 시간</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: '4px' }}>
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <Clock size={13} color="var(--accent-cyan)" /> 월간 절감 시간
+              </div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)', marginTop: '4px' }}>
                 {savedHoursPerMonth} 시간
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#64748b' }}>자료조사 공수 90% 절감</div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>1인당 월 8시간 (일 24분 단축)</div>
             </div>
 
             <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>월간 인건비 절감액</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
-                ₩{(savedCostPerMonth / 10000).toLocaleString()} 만원
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <Coins size={13} color="#34d399" /> 월간 순수 창출 가치
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#64748b' }}>컨설팅 시간 확보</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#34d399', marginTop: '4px' }}>
+                ₩{(totalValuePerMonth / 10000).toLocaleString()} 만원
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>인건비 {(savedLaborCostPerMonth / 10000).toLocaleString()}만 + 자문 {(consultingValuePerMonth / 10000).toLocaleString()}만</div>
             </div>
 
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>투자 대비 수익률 (ROI)</div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--accent-amber)', marginTop: '4px' }}>
-                {roiMultiplier > 1000 ? '999+' : roiMultiplier} 배
+              <div style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <TrendingUp size={13} color="var(--accent-amber)" /> 실질 투자 회수율 (ROI)
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#64748b' }}>솔루션 구독료 대비</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-amber)', marginTop: '4px' }}>
+                {roiMultiplier} 배
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '2px' }}>구독료 ₩{(cuswayMonthlyCost / 10000).toLocaleString()}만원 대비</div>
             </div>
           </div>
 
+          {/* Transparent Calculation Grounds Card */}
+          <div style={{
+            background: 'rgba(15, 23, 42, 0.8)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '12px',
+            overflow: 'hidden'
+          }}>
+            <button
+              type="button"
+              onClick={() => setShowBasisDetail(!showBasisDetail)}
+              style={{
+                width: '100%',
+                padding: '12px 18px',
+                background: 'rgba(255,255,255,0.03)',
+                border: 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                color: '#cbd5e1',
+                fontSize: '0.82rem',
+                fontWeight: 700
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Info size={15} color="var(--accent-cyan)" />
+                <span>📊 현실적인 ROI 산출 기준 및 데이터 근거</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontSize: '0.75rem' }}>
+                <span>{showBasisDetail ? '간략히 접기' : '근거 펼쳐보기'}</span>
+                {showBasisDetail ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </div>
+            </button>
+
+            {showBasisDetail && (
+              <div style={{ padding: '16px 18px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', fontSize: '0.78rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-cyan)' }}>
+                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                    1. 리서치 공수 절감 (1인당 월 8시간)
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                    심층 품목분류·WCO 해설서 주규정·결정례 검색(월평균 10~15건)을 기존 수기 검색(건당 40분)에서 CUSWAY AI 코파일럿(건당 10분)으로 단축 (영업일 기준 일 24분 절감).
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #34d399' }}>
+                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                    2. 표준 시급 환산액 (시간당 30,000원)
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                    관세사 및 통관 전문 실무인력 평균 급여(연봉 4,500만~6,500만 원, 주 40시간) 기준 시간당 표준 임금 환산액을 적용하여 객관적인 인건비 절감액을 산출했습니다.
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid var(--accent-amber)' }}>
+                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                    3. A4 소명 리포트 & 자문 가치 창출
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                    사무소 직인/로고가 포함된 표준 검토의견서를 즉시 발급하여 화주 소명 납기를 단축하고 유료 자문 수수료 기회 및 거래처 신뢰도를 증대합니다 (월 6만~80만원 상당).
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(0,0,0,0.25)', padding: '12px', borderRadius: '8px', borderLeft: '3px solid #a855f7' }}>
+                  <div style={{ fontWeight: 800, color: '#e2e8f0', marginBottom: '4px' }}>
+                    4. 합리적인 CUSWAY 요금제 기준
+                  </div>
+                  <div style={{ color: '#94a3b8', lineHeight: '1.45' }}>
+                    1~5인 실무팀 Pro 플랜(월 44,000원), 6~15인 지사 플랜(월 180,000원), 16인 이상 법인 플랜(월 290,000원)을 기준으로 실질 회수 배수를 도출했습니다.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* CTA */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <button
               onClick={() => onNavigate('billing')}
               style={{
@@ -1052,7 +1197,7 @@ export default function BrandShowcase({
               }}
             >
               <Award size={18} />
-              <span>{teamSize <= 5 ? 'Pro 플랜 (월 44,000원) 시작하기' : 'Enterprise 법인 플랜 시작하기'}</span>
+              <span>{teamSize <= 5 ? 'Pro 실무팀 플랜 (월 44,000원) 시작하기' : 'Enterprise 법인 플랜 도입하기'}</span>
             </button>
             <button
               onClick={onOpenKakaoConsult}
