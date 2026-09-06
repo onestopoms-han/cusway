@@ -868,7 +868,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '1.05rem', color: '#000000', fontWeight: 950 }}>관리자 계정:</span>
             <span style={{ fontSize: '1.05rem', fontWeight: 950, color: '#064e3b', background: '#ccfbf1', padding: '10px 18px', borderRadius: '10px', border: '2.5px solid #0d9488' }}>
-              {currentUser?.email || 'admin@cusway.kr'}
+              {currentUser?.email || '인증된 관리자'}
             </span>
           </div>
         </div>

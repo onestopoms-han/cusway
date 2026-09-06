@@ -759,7 +759,7 @@ export default function App() {
             {!isSigningUp ? (
               <>
                 {/* Login Form */}
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.82rem', color: '#f1f5f9', marginBottom: '6px', fontWeight: 700 }}>
                       계정 이메일
@@ -769,8 +769,9 @@ export default function App() {
                       <input 
                         type="email" 
                         required
+                        autoComplete="off"
                         className="login-input"
-                        placeholder="name@example.com"
+                        placeholder="이메일을 입력하세요"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         style={{
@@ -796,8 +797,9 @@ export default function App() {
                       <input 
                         type="password" 
                         required
+                        autoComplete="new-password"
                         className="login-input"
-                        placeholder="••••••••"
+                        placeholder="비밀번호를 입력하세요"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={{
@@ -1243,7 +1245,7 @@ export default function App() {
                   {currentUser?.company_name || 'CUSWAY 관세팀'}
                 </p>
                 <p style={{ fontSize: '0.74rem', color: '#334155', fontWeight: 750, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', margin: '2px 0 0 0' }}>
-                  {currentUser?.email || 'admin@cusway.kr'}
+                  {currentUser?.email || ''}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
                   <span style={{
@@ -1414,7 +1416,7 @@ export default function App() {
           <CashBackManager currentUser={currentUser} />
         )}
         {currentView === 'admin' && (
-          <AdminPortal currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }} />
+          <AdminPortal currentUser={currentUser || { email: '', company_name: 'CUSWAY 관리자' }} />
         )}
         {currentView === 'billing' && (
           <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />
