@@ -548,15 +548,18 @@ export default function CustomsReportModal({
                 </div>
               )}
 
-              {/* Section 4: Clearance Requirements (If present) */}
-              {activeReport.requirements && activeReport.requirements.length > 0 && (
-                <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
-                      4. 수입통관 4대 법령 세관장확인 요건 및 구비서류 체크리스트
-                    </h3>
-                  </div>
+              {/* Section 4: Clearance Requirements or Free Import Certification */}
+              <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '4px', height: '16px', background: activeReport.requirements && activeReport.requirements.length > 0 ? '#0284c7' : '#059669', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                    4. {activeReport.requirements && activeReport.requirements.length > 0 
+                      ? '수입통관 세관장확인 요건 및 구비서류 체크리스트' 
+                      : '수입통관 규제 요건 판정 결과 (세관장확인 대상 비해당 소명)'}
+                  </h3>
+                </div>
+
+                {activeReport.requirements && activeReport.requirements.length > 0 ? (
                   <div style={{
                     border: '1px solid #cbd5e1',
                     borderRadius: '4px',
@@ -573,8 +576,26 @@ export default function CustomsReportModal({
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div style={{
+                    border: '1.5px solid #a7f3d0',
+                    borderRadius: '4px',
+                    padding: '12px 16px',
+                    background: '#f0fdf4',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '5px'
+                  }}>
+                    <div style={{ fontSize: '0.82rem', color: '#065f46', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={15} color="#059669" style={{ flexShrink: 0 }} />
+                      <span>관세법 제226조 세관장확인 및 대외무역법 통합공고 수입 규제 요건 없음 (일반 자유 수입 물품)</span>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: '#334155', margin: '2px 0 0 21px', lineHeight: 1.55 }}>
+                      본 물품(HSK <b>{cleanHs}</b>)은 수입 시 소관 부처의 사전 승인·검역·형식인증 대상에 해당하지 않는 일반 자유 수입 품목으로 판정되었습니다. 상업송장(Invoice), 포장명세서(P/L) 구비 후 세관 수입신고 즉시 통관이 가능합니다.
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Section 5: Country of Origin Marking Regulations & Practical Guide */}
               <div className="print-avoid-break" style={{ marginBottom: '24px' }}>

@@ -1311,33 +1311,74 @@ export default function ClearanceWizard({
               ) : null}
             </div>
 
-            {/* Step 4: 타법령 통관 절차/안내 (Timeline) */}
-            {guideData && guideData.is_restricted && (
+            {/* Step 4: 타법령 통관 절차/안내 (Timeline & Comprehensive Report) */}
+            {guideData && (
               <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Calendar size={18} color="var(--accent-primary)" />
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>[4단계] 소관 부처별 상세 수입 행정 절차 가이드</h3>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>
+                    [4단계] {guideData.is_restricted ? '소관 부처별 상세 수입 행정 절차 가이드' : '수입 적격성 최종 판정 & 통관 종합 검토서'}
+                  </h3>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {guideData.requirements.map((req: any, rIdx: number) => req.guide && (
-                    <div key={rIdx} style={{ borderLeft: '2px solid var(--accent-primary)', paddingLeft: '16px', position: 'relative' }}>
-                      
-                      {/* Department indicator node */}
-                      <div style={{
-                        position: 'absolute',
-                        left: '-9px',
-                        top: '0px',
-                        width: '16px',
-                        height: '16px',
-                        borderRadius: '50%',
-                        background: 'var(--accent-primary)',
-                        border: '3px solid #0f172a'
-                      }} />
+                {/* If Free import (No restrictions) */}
+                {!guideData.is_restricted || guideData.requirements.length === 0 ? (
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.08)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '10px',
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <CheckCircle size={24} color="#10b981" />
+                      <div>
+                        <h4 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#10b981', margin: 0 }}>
+                          세관장 확인 및 대외무역법 통합공고 수입 규제 비해당 (일반 자유 수입 물품)
+                        </h4>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          별도의 관계 부처 사전 승인/검역 절차 없이 즉시 세관 수입신고 가능
+                        </span>
+                      </div>
+                    </div>
 
-                      <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '12px' }}>
-                        {req.agency_name} 소관 ({req.law_name}) 수입 사전 승인 의무
-                      </h4>
+                    <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: 0, lineHeight: 1.6 }}>
+                      본 물품(HSK <b>{hsCode}</b>)은 관세법 제226조에 따른 세관장 확인 대상 및 대외무역법 통합공고상 수입 제한 요건이 없는 <b>일반 자유 수입 물품</b>으로 확인되었습니다.
+                    </p>
+
+                    <div style={{ background: 'rgba(0,0,0,0.3)', padding: '14px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                        📋 관세사/화주 수입신고 필수 준비 체크리스트:
+                      </p>
+                      <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <li><b>기본 선적 서류 구비:</b> 상업송장(Commercial Invoice), 포장명세서(Packing List), 선하증권(B/L)</li>
+                        <li><b>대외무역법 제33조 원산지표시 점검:</b> 현품 또는 최소 포장용기에 적법한 원산지 표기 (아래 가이드 참조)</li>
+                        <li><b>협정관세 특혜 적용:</b> 유효한 FTA 원산지증명서(C/O) 구비 시 특혜세율(0%~협정세율) 적용 신청</li>
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    {guideData.requirements.map((req: any, rIdx: number) => req.guide && (
+                      <div key={rIdx} style={{ borderLeft: '2px solid var(--accent-primary)', paddingLeft: '16px', position: 'relative' }}>
+                        
+                        {/* Department indicator node */}
+                        <div style={{
+                          position: 'absolute',
+                          left: '-9px',
+                          top: '0px',
+                          width: '16px',
+                          height: '16px',
+                          borderRadius: '50%',
+                          background: 'var(--accent-primary)',
+                          border: '3px solid #0f172a'
+                        }} />
+
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent-primary)', marginBottom: '12px' }}>
+                          {req.agency_name} 소관 ({req.law_name}) 수입 사전 승인 의무
+                        </h4>
 
                       {/* Step-by-Step administrative procedures */}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
@@ -1393,6 +1434,7 @@ export default function ClearanceWizard({
                     </div>
                   ))}
                 </div>
+              )}
 
                 {/* Country of Origin Marking Final Checklist & Practical Guide */}
                 <OriginMarkingGuideWidget
