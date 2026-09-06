@@ -10,11 +10,13 @@ import {
   AlertTriangle,
   HelpCircle,
   Share2,
-  Printer
+  Printer,
+  Tag
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
 import CustomsReportModal, { ReportData } from './CustomsReportModal';
 import OfficeBrandingModal from './OfficeBrandingModal';
+import OriginMarkingGuideWidget from './OriginMarkingGuideWidget';
 
 export interface Precedent {
   id: string;
@@ -87,7 +89,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [material, setMaterial] = useState('');
   const [functionUse, setFunctionUse] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'reasoning' | 'precedents' | 'originalText'>('reasoning');
+  const [activeTab, setActiveTab] = useState<'reasoning' | 'precedents' | 'originalText' | 'originMarking'>('reasoning');
   const [approvedStatus, setApprovedStatus] = useState<boolean | null>(null);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
   
@@ -2007,6 +2009,25 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 >
                   <FileCheck size={16} /> HS 해설서 원문 요약 뷰어
                 </button>
+
+                <button 
+                  onClick={() => setActiveTab('originMarking')}
+                  style={{
+                    background: activeTab === 'originMarking' ? 'rgba(20, 184, 166, 0.15)' : 'transparent',
+                    color: activeTab === 'originMarking' ? 'var(--accent-primary)' : 'var(--text-muted)',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Tag size={16} /> 원산지표시(Origin Marking) 가이드
+                </button>
               </div>
 
               {/* TAB 1: Legal Reasoning */}
@@ -2261,6 +2282,17 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                       </>
                     );
                   })()}
+                </div>
+              )}
+
+              {/* TAB 4: Origin Marking Legal Review & Guidelines */}
+              {activeTab === 'originMarking' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <OriginMarkingGuideWidget
+                    hsCode={matchedRule.recommendedHsCode || '8517.62-6090'}
+                    productName={productName || matchedRule?.keywordTrigger?.[0] || '수입신고 대상 물품'}
+                    originCountryCode="CN"
+                  />
                 </div>
               )}
             </div>

@@ -22,6 +22,7 @@ import {
 import ResultShareModal from './ResultShareModal';
 import CustomsReportModal from './CustomsReportModal';
 import OfficeBrandingModal from './OfficeBrandingModal';
+import OriginMarkingGuideWidget from './OriginMarkingGuideWidget';
 
 interface ClearanceWizardProps {
   currentUser?: any;
@@ -1133,6 +1134,13 @@ export default function ClearanceWizard({
                   </div>
                 </div>
 
+                {/* Country of Origin Marking Legal Review & Guide Table */}
+                <OriginMarkingGuideWidget
+                  hsCode={hsCode || confirmedData?.confirmed_code || '8517.62-6090'}
+                  productName={keyword || initialKeyword}
+                  originCountryCode={originCountry}
+                />
+
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                   <button 
                     onClick={() => setCurrentStep(1)}
@@ -1358,6 +1366,13 @@ export default function ClearanceWizard({
                     </div>
                   ))}
                 </div>
+
+                {/* Country of Origin Marking Final Checklist & Practical Guide */}
+                <OriginMarkingGuideWidget
+                  hsCode={hsCode || confirmedData?.confirmed_code || '8517.62-6090'}
+                  productName={keyword || initialKeyword}
+                  originCountryCode={originCountry}
+                />
 
                 {/* Final PDF Report Download Section */}
                 {confirmedData && (

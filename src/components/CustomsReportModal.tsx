@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FileText, Printer, X, Settings, ShieldCheck, CheckCircle2, QrCode } from 'lucide-react';
+import { FileText, Printer, X, Settings, ShieldCheck, CheckCircle2, QrCode, Tag } from 'lucide-react';
 import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
+import { getOriginMarkingGuide } from '../utils/originMarkingHelper';
 
 export interface ReportData {
   type: 'hs-opinion' | 'clearance-pipeline' | 'valuation-brief';
@@ -126,6 +127,7 @@ export default function CustomsReportModal({
   };
 
   const cleanHs = activeReport.targetItem.hsCode || '8517.62-6090';
+  const originGuide = getOriginMarkingGuide(cleanHs, activeReport.targetItem?.productName, activeReport.targetItem?.originCountry);
 
   return (
     <div className="customs-report-modal-overlay" style={{
@@ -574,13 +576,70 @@ export default function CustomsReportModal({
                 </div>
               )}
 
-              {/* Section 5: Custom Memo / Conclusion */}
+              {/* Section 5: Country of Origin Marking Regulations & Practical Guide */}
+              <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
+                    5. 대외무역법 제33조 원산지표시(Origin Marking) 규정 및 라벨링 규격 가이드
+                  </h3>
+                </div>
+
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem', background: '#ffffff', border: '1px solid #cbd5e1' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', width: '22%', color: '#334155', fontWeight: 800 }}>구분 항목</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', width: '36%', color: '#0f172a', fontWeight: 800 }}>대외무역법 법령 규정</th>
+                      <th style={{ padding: '8px 10px', textAlign: 'left', width: '42%', color: '#0d9488', fontWeight: 800 }}>본 품목 권장 실무 가이드</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, background: '#fafafa' }}>표시 문안 예시</td>
+                      <td style={{ padding: '8px 10px', color: '#475569' }}>한글, 한자 또는 영문(Made in 국명)</td>
+                      <td style={{ padding: '8px 10px', fontWeight: 800, color: '#0f172a' }}>
+                        {originGuide.koreanMarkExample} &nbsp;/&nbsp; {originGuide.englishMarkExample}
+                      </td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, background: '#fafafa' }}>표시 위치 및 방식</td>
+                      <td style={{ padding: '8px 10px', color: '#475569' }}>최종 구매자가 용이하게 식별할 수 있는 견고한 방식</td>
+                      <td style={{ padding: '8px 10px', color: '#334155', lineHeight: 1.45 }}>
+                        <strong>[위치]</strong> {originGuide.markingLocation}<br />
+                        <strong>[방식]</strong> {originGuide.markingMethod}
+                      </td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, background: '#fafafa' }}>이중 표시 의무</td>
+                      <td style={{ padding: '8px 10px', color: '#475569' }}>개별 포장 유통 물품은 본체 및 외포장 각각 표시</td>
+                      <td style={{ padding: '8px 10px', fontWeight: 800, color: originGuide.isPackagingDoubleMarkRequired ? '#b45309' : '#059669' }}>
+                        {originGuide.isPackagingDoubleMarkRequired ? '⚠️ 필수 (물품 본체 + 최소 개별 외포장 모두 표시)' : '선택적 (용기 단위 식별 가능 시)'}
+                      </td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, background: '#fafafa' }}>면제 요건 검토</td>
+                      <td style={{ padding: '8px 10px', color: '#475569' }}>대외무역법 시행령 제56조 (제조용 원료/외화획득)</td>
+                      <td style={{ padding: '8px 10px', color: '#475569', fontSize: '0.74rem', lineHeight: 1.4 }}>
+                        {originGuide.exemptionRule}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '8px 10px', fontWeight: 700, background: '#fafafa' }}>위반 시 처분</td>
+                      <td style={{ padding: '8px 10px', color: '#dc2626' }} colSpan={2}>
+                        수입검사 시 원산지 미표시/오표시 적발 시 <strong>통관 보류 및 보세구역 내 보수작업(라벨링) 명령</strong>, 최대 3억원 이하 과징금 부과
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Section 6: Custom Memo / Conclusion */}
               {activeReport.customMemo && (
                 <div className="print-avoid-break" style={{ marginBottom: '24px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                    <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
                     <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#0f172a' }}>
-                      5. 종합 검토 의견 및 세무 리스크 사전 대응 방안
+                      6. 종합 검토 의견 및 세무 리스크 사전 대응 방안
                     </h3>
                   </div>
                   <div style={{
