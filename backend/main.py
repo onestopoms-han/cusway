@@ -102,6 +102,7 @@ class UpgradeWeightRequest(BaseModel):
     years_of_experience: int
 
 class UserResponse(BaseModel):
+    id: Optional[int] = None
     email: str
     company_name: str
     plan: str
@@ -174,6 +175,23 @@ class CashbackResponse(BaseModel):
 
 class CustomerStatusUpdate(BaseModel):
     status: str
+
+class CustomerCreate(BaseModel):
+    email: str
+    company_name: str
+    password: Optional[str] = "1234"
+    plan: Optional[str] = "Free"
+    status: Optional[str] = "Active"
+    accrued_points: Optional[int] = 5000
+    phone_number: Optional[str] = ""
+    user_type: Optional[str] = "broker"
+
+class CustomerUpdate(BaseModel):
+    company_name: Optional[str] = None
+    plan: Optional[str] = None
+    status: Optional[str] = None
+    accrued_points: Optional[int] = None
+    phone_number: Optional[str] = None
 
 class BillingRequest(BaseModel):
     email: str
@@ -1099,6 +1117,45 @@ def trigger_crawler_now():
     from backend.daily_crawler_daemon import run_daily_crawler_task
     threading.Thread(target=run_daily_crawler_task, daemon=True).start()
     return {"message": "정기 크롤러 파이프라인(뉴스/결정례/성분분석) 즉시 실행이 백그라운드에서 시작되었습니다."}
+
+@app.post("/api/customers", response_model=UserResponse)
+def create_customer(req: CustomerCreate, db: Session = Depends(get_db)):
+    existing = db.query(User).filter(User.email == req.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="이미 등록된 이메일 계정입니다.")
+    new_user = User(
+        email=req.email,
+        company_name=req.company_name,
+        password=req.password or "1234",
+        plan=req.plan or "Free",
+        status=req.status or "Active",
+        accrued_points=req.accrued_points if req.accrued_points is not None else 5000,
+        phone_number=req.phone_number or "",
+        user_type=req.user_type or "broker"
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
+
+@app.patch("/api/customers/{customer_id}", response_model=UserResponse)
+def update_customer(customer_id: int, req: CustomerUpdate, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == customer_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="회원을 찾을 수 없습니다.")
+    if req.company_name is not None:
+        user.company_name = req.company_name
+    if req.plan is not None:
+        user.plan = req.plan
+    if req.status is not None:
+        user.status = req.status
+    if req.accrued_points is not None:
+        user.accrued_points = req.accrued_points
+    if req.phone_number is not None:
+        user.phone_number = req.phone_number
+    db.commit()
+    db.refresh(user)
+    return user
 
 @app.patch("/api/customers/{customer_id}/status", response_model=UserResponse)
 def update_customer_status(customer_id: int, req: CustomerStatusUpdate, db: Session = Depends(get_db)):
