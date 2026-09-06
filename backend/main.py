@@ -2186,19 +2186,25 @@ def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):
         clean_code
     ]
     
-    # 1. 요건 내역 조회
+    # 1. 요건 내역 조회 (정확한 10단위 코드 조회)
     reqs = db.query(HSRequirement).filter(HSRequirement.hs_code.in_(formatted_codes)).all()
     
+    # 1-1. 10단위 코드가 누락된 경우 6단위/4단위 부모 호 또는 유사 호 요건 검색
+    if not reqs and len(clean_code) >= 4:
+        prefix_6 = f"{clean_code[:4]}.{clean_code[4:6]}%" if len(clean_code) >= 6 else f"{clean_code[:4]}%"
+        reqs = db.query(HSRequirement).filter(HSRequirement.hs_code.like(prefix_6)).limit(10).all()
+        if not reqs:
+            prefix_4 = f"{clean_code[:4]}%"
+            reqs = db.query(HSRequirement).filter(HSRequirement.hs_code.like(prefix_4)).limit(10).all()
+
     unique_reqs = {}
     for r in reqs:
         key = r.law_name
-        # 동일 법령명이 이미 추가되어 있는 경우 check_type만 병합 처리
         if key in unique_reqs:
             existing = unique_reqs[key]
             if r.check_type and r.check_type not in existing["check_type"]:
                 existing["check_type"] = f"{existing['check_type']}/{r.check_type}"
         else:
-            # 2. 각 법률별 상세 절차 조회
             proc = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == r.law_name).first()
             
             guide_data = None
@@ -2212,16 +2218,16 @@ def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):
                 
             desc = r.description
             if desc:
-                # Fix typo
                 desc = desc.replace("(게 신고하여야 함", "(농림축산검역본부장에게 신고하여야 함")
                 
-            # Append exemption note for highly processed plant products (tablets, capsules)
-            if r.law_name == "식물방역법" or (desc and "식물방역" in desc):
-                exemption_note = "\n\n⚠️ [검역제외 단서조항] 타블렛(정제), 캡슐, 분말 스틱 또는 소매용 포장 액상 등 고도의 가공(열처리, 화학추출 등)을 거쳐 병해충 전파 우려가 없는 완제품 형태의 건강기능식품은 식물방역법 제11조 및 시행규칙에 의거하여 실제 수입 신고 시 식물검역 대상에서 제외(면제)됩니다."
-                if desc:
-                    desc += exemption_note
-                else:
-                    desc = exemption_note
+            # 단서조항 및 실무 지침 보강
+            if "2008" in clean_code or "참깨" in (desc or "") or "1207" in clean_code or "1208" in clean_code:
+                if r.law_name == "식물방역법" or (desc and "식물방역" in desc):
+                    exemption_note = "\n\n💡 [볶음참깨/가루 실무 검역 지침] 고온 볶음 열처리(150℃ 이상) 및 미세 분쇄 공정을 거쳐 병해충 사멸이 입증되는 가공품은 제조사의 [가공공정 설명서]를 첨부하여 국립농림축산검역본부에 제출 시 식물검역 제외(비대상 확인) 또는 서류검역으로 신속 통관이 가능합니다. 단, 수입식품안전관리 특별법에 따른 식약처 수입신고는 필수입니다."
+                    desc = (desc or "") + exemption_note
+            elif r.law_name == "식물방역법" or (desc and "식물방역" in desc):
+                exemption_note = "\n\n⚠️ [검역제외 단서조항] 타블렛(정제), 캡슐, 분말 스틱 또는 소매용 포장 완제품 등 고도의 가공(열처리, 화학추출 등)을 거쳐 병해충 전파 우려가 없는 완제품은 식물방역법 제11조에 의거하여 실제 수입 신고 시 식물검역 대상에서 제외(면제)될 수 있습니다."
+                desc = (desc or "") + exemption_note
 
             unique_reqs[key] = {
                 "law_name": r.law_name,
@@ -2231,6 +2237,43 @@ def get_clearance_guide_api(hs_code: str, db: Session = Depends(get_db)):
                 "guide": guide_data
             }
             
+    # 2. 식품/농축수산물(제1류~제24류) 기본 법정 요건 안전망 (DB에 요건이 전무한 경우 방어 로직)
+    if len(unique_reqs) == 0 and len(clean_code) >= 2:
+        try:
+            ch = int(clean_code[:2])
+            if 1 <= ch <= 24:
+                # 식약처 수입식품안전관리특별법 기본 탑재
+                proc_food = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == "수입식품안전관리 특별법").first()
+                unique_reqs["수입식품안전관리 특별법"] = {
+                    "law_name": "수입식품안전관리 특별법",
+                    "agency_name": "식품의약품안전처",
+                    "check_type": "세관장확인",
+                    "description": "식품, 농산물가공품 및 조제식품류로서 수입식품안전관리 특별법 제20조에 따라 지방식품의약품안전청장에게 수입신고하여 검사(정밀검사, 서류검사 등)를 거쳐 수입신고확인증을 교부받아야 함. (해외제조업소 등록 및 한글표시사항 필수)",
+                    "guide": {
+                        "steps": json.loads(proc_food.pre_clearance_steps) if proc_food else ["1. 수입식품등 수입업 영업등록", "2. 해외제조업소 등록", "3. 관세청 통관포털(UNI-PASS) 수입신고 전송", "4. 정밀검사 수검", "5. 신고필증 교부"],
+                        "documents": json.loads(proc_food.required_documents) if proc_food else ["한글표시사항 시안", "제조공정도 및 원료 배합비율표", "수출국 시험성적서"],
+                        "agency_url": "https://impfood.mfds.go.kr",
+                        "duration": "서류 1~2일 / 정밀검사 7~10일"
+                    }
+                }
+                # 식물/농산물/조제참깨 (제6~14류, 제20류 등)
+                if ch in [6, 7, 8, 9, 10, 11, 12, 13, 14, 20]:
+                    proc_plant = db.query(RequirementProcedure).filter(RequirementProcedure.law_name == "식물방역법").first()
+                    unique_reqs["식물방역법"] = {
+                        "law_name": "식물방역법",
+                        "agency_name": "농림축산검역본부",
+                        "check_type": "세관장확인",
+                        "description": "식물방역법 제10조에 의거 수입금지 지역 확인 및 농림축산검역본부장에게 신고하여 식물검역을 받아야 함. (단, 고온 볶음 열처리 및 미세 분쇄로 병해충 사멸 공정이 확인되는 가공품은 제조공정도 제출 시 검역 제외 또는 서류검역 처리 가능)",
+                        "guide": {
+                            "steps": json.loads(proc_plant.pre_clearance_steps) if proc_plant else ["1. 식물검역대상물품 수입신고서 제출", "2. 검역관 현물 검사 또는 가공공정 확인", "3. 합격 시 검역증명서 발급"],
+                            "documents": json.loads(proc_plant.required_documents) if proc_plant else ["수출국 식물검역증명서", "열처리 가공공정 설명서"],
+                            "agency_url": "https://www.qia.go.kr",
+                            "duration": "1~3 영업일"
+                        }
+                    }
+        except Exception as e:
+            pass
+
     response_requirements = list(unique_reqs.values())
         
     return {

@@ -305,51 +305,78 @@ export default function ClearanceWizard({
         throw new Error('요건 조회 오류');
       }
     } catch (err) {
-      // Fallback guide mockups
-      if (hsCode.includes('2009.89-1090')) {
+      // Fallback guide mockups for food, sesame, and general items
+      const clean = hsCode.replace(/[\.\-]/g, '');
+      const isFoodOrAgri = clean.startsWith('2008') || clean.startsWith('2009') || clean.startsWith('1207') || clean.startsWith('1208') || (clean.length >= 2 && parseInt(clean.slice(0, 2)) >= 1 && parseInt(clean.slice(0, 2)) <= 24);
+      const isSesameItem = clean.includes('2008193000') || clean.includes('120740') || clean.includes('120890');
+
+      if (isFoodOrAgri) {
         setGuideData({
-          hs_code: '2009.89-1090',
+          hs_code: hsCode,
           is_restricted: true,
           requirements: [
             {
               law_name: "수입식품안전관리 특별법",
               agency_name: "식품의약품안전처",
               check_type: "세관장확인",
-              description: "농산물가공식품류 및 과채주스로서 해외제조업소 등록과 수입식품 정밀검사를 득해야 함.",
+              description: isSesameItem 
+                ? "볶음참깨가루 및 조제참깨는 수입식품안전관리 특별법 제20조에 따라 지방식품의약품안전청장에게 수입신고하여 검사(정밀검사, 벤조피렌/잔류농약 검사 등)를 받아 수입신고확인증을 교부받아야 함. (해외제조업소 등록 및 한글표시사항 필수)"
+                : "농수산물 및 가공식품류로서 수입식품안전관리 특별법 제20조에 따라 지방식품의약품안전청장에게 수입신고하여 정밀검사 및 검사 합격 필증을 득해야 함.",
               guide: {
                 steps: [
                   "1. 수입식품등 수입업 영업등록 (식약처 관할)",
                   "2. 해외제조업소 사전 등록 (선적 7일 전 완료 권장)",
                   "3. 관세청 통관포털(UNI-PASS) 또는 식품안전나라를 통한 수입신고서 전송",
-                  "4. 최초 수입 시 정밀검사(시험분석 검출검사) 수행 (약 5영업일 소요)",
+                  "4. 최초 수입 시 정밀검사(잔류농약, 벤조피렌, 중금속 등 시험분석) 수행 (약 5~7영업일 소요)",
                   "5. 검사 적합 시 수입식품등 신고필증 교부 및 세관 요건 매핑 통과"
                 ],
                 documents: [
-                  "한글표시사항 시안 (라벨링 부착 표준 시안)",
-                  "제조공정도 및 원료 성분 비율표 (제조사 서명본)",
-                  "원산지증명서 및 수출국 위생증명서 (해당 시)"
+                  "한글표시사항 시안 (원재료, 유통기한, 보관방법 라벨링 부착 표준 시안)",
+                  "제조공정도 및 원료 성분 배합비율표 (제조사 서명본)",
+                  "수출국 공인 시험성적서 및 위생증명서 (해당 시)"
                 ],
                 agency_url: "https://impfood.mfds.go.kr",
-                duration: "정밀검사 5영업일 / 서류검사 2영업일"
+                duration: "정밀검사 5~7영업일 / 서류검사 2영업일"
               }
             },
             {
               law_name: "식물방역법",
               agency_name: "농림축산검역본부",
-              check_type: "통합공고",
-              description: "과실 가공품으로서 가열 가공 처리 등 병해충 사멸 공정 증명이 필요한 경우 식물검역 합격 필요.",
+              check_type: "세관장확인/통합공고",
+              description: isSesameItem
+                ? "식물방역법 제10조에 의거 농림축산검역본부 식물검역 신고 대상. 💡 [실무 검역 지침] 150℃ 이상 고온 볶음 열처리 및 미세 분쇄 공정을 거친 볶음참깨가루는 병해충 사멸 가공품 입증(제조공정도 제출) 시 식물검역 제외(비대상 확인) 또는 서류검역으로 신속 통관이 가능합니다."
+                : "식물류 및 그 가공품으로서 농림축산검역본부장에게 수입신고하여 식물검역 합격 필요.",
               guide: {
                 steps: [
-                  "1. 식물검역대상물품 수입신고서 제출",
-                  "2. 검역관 현물 검사 및 제조공정상 열처리 조건 충족 여부 확인",
-                  "3. 합격 시 검역증명서 발급 및 통관 완료"
+                  "1. 식물검역대상물품 수입신고서 제출 (UNI-PASS 검역신청)",
+                  "2. 열처리 가공공정 설명서 제출 (150℃ 이상 볶음 가공 입증 시 검역 제외 확인)",
+                  "3. 합격/비대상 승인 시 검역증명서 발급 및 통관 완료"
                 ],
                 documents: [
                   "수출국 식물검역증명서 (Phytosanitary Certificate)",
-                  "가공공정 설명서 (가열/살균 온도 및 시간 표기)"
+                  "가열/볶음 가공공정 설명서 (가열 온도 및 시간, 분쇄 공정 표기)"
                 ],
                 agency_url: "https://www.qia.go.kr",
                 duration: "1~2 영업일"
+              }
+            },
+            {
+              law_name: "대외무역법 (원산지표시)",
+              agency_name: "관세청",
+              check_type: "세관장확인",
+              description: "대외무역법 제33조 및 농수산물의 원산지 표시 등에 관한 법률에 의거 최종 소비자 판매용기 또는 수입 포대표면에 원산지를 적법하게 표시(인쇄/라벨 부착)하여야 함.",
+              guide: {
+                steps: [
+                  "1. 통관 전 원산지 표시방법(크기, 위치, 방법) 사전 적합성 검토",
+                  "2. 수입 현품 포장용기 또는 포대에 원산지 국명 표시(예: 원산지: 중국 / Made in China)",
+                  "3. 세관 수입검사 시 현품 원산지 표시 적정 여부 확인"
+                ],
+                documents: [
+                  "원산지증명서 (C/O)",
+                  "현품 라벨링 시안 및 포장 사진"
+                ],
+                agency_url: "https://unipass.customs.go.kr",
+                duration: "통관 심사 시 즉시 확인"
               }
             }
           ]
