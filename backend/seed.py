@@ -542,12 +542,19 @@ def seed_data():
             "has_seasonal_rate": False, "seasonal_schedule": None
         },
 
-        # 7. 대두 (1201.90-0000)
+        # 7. 대두 (1201.90-0000, 1201.90-1000, 1201.90-2000, 1201.90-3000, 1201.90-9000)
         {
             "hs_code": "1201.90-0000", "country_code": "KR", 
             "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
             "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
             "duty_formula": "487% 또는 956원/kg 양자 중 고액 (aT 추천서 구비 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-0000", "country_code": "CN", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "한-중 FTA/RCEP 양허제외 품목 (aT 추천서 구비 시 3.0%, 미구비 시 487% 또는 956원/kg 양자 중 고액)",
             "has_seasonal_rate": False, "seasonal_schedule": None
         },
         {
@@ -562,6 +569,72 @@ def seed_data():
             "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-EU FTA", "recommended_rate": 0.0,
             "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
             "duty_formula": "0.0% 무관세 (한-EU FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        # 7-1. 콩나물용 대두 (1201.90-1000)
+        {
+            "hs_code": "1201.90-1000", "country_code": "KR", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "487% 또는 956원/kg 양자 중 고액 (aT 추천서 구비 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-1000", "country_code": "CN", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "한-중 FTA/RCEP 양허제외 품목 (aT 추천서 구비 시 3.0%, 미구비 시 487% 또는 956원/kg 양자 중 고액)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-1000", "country_code": "US", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        # 7-2. 밥밑용 대두 (1201.90-3000)
+        {
+            "hs_code": "1201.90-3000", "country_code": "KR", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "487% 또는 956원/kg 양자 중 고액 (aT 추천서 구비 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-3000", "country_code": "CN", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "한-중 FTA/RCEP 양허제외 품목 (aT 추천서 구비 시 3.0%, 미구비 시 487% 또는 956원/kg 양자 중 고액)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-3000", "country_code": "US", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        # 7-3. 채유용 대두 (1201.90-2000)
+        {
+            "hs_code": "1201.90-2000", "country_code": "KR", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "기본/WTO", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "487% 또는 956원/kg 양자 중 고액 (aT 추천서 구비 시 3.0%)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-2000", "country_code": "CN", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": None, "fta_name": "한-중 FTA (양허제외)", "recommended_rate": 3.0,
+            "specific_rate": 956.0, "specific_unit": "원/kg", "duty_type": "ALTERNATIVE",
+            "duty_formula": "한-중 FTA/RCEP 양허제외 품목 (aT 추천서 구비 시 3.0%, 미구비 시 487% 또는 956원/kg 양자 중 고액)",
+            "has_seasonal_rate": False, "seasonal_schedule": None
+        },
+        {
+            "hs_code": "1201.90-2000", "country_code": "US", 
+            "base_rate": 3.0, "wto_rate": 487.0, "fta_rate": 0.0, "fta_name": "한-미 FTA", "recommended_rate": 0.0,
+            "specific_rate": None, "specific_unit": None, "duty_type": "AD_VALOREM",
+            "duty_formula": "0.0% 무관세 (한-미 FTA C/O 구비 시)",
             "has_seasonal_rate": False, "seasonal_schedule": None
         },
 

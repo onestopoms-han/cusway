@@ -1,19 +1,19 @@
 :root {
   --bg-dark: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --border-color: rgba(15, 23, 42, 0.08);
-  --glass-border: rgba(15, 23, 42, 0.08);
+  --bg-secondary: #ffffff;
+  --card-bg: #ffffff;
+  --border-color: #cbd5e1;
+  --glass-border: #cbd5e1;
   --text-main: #0f172a;
-  --text-muted: #475569;
+  --text-muted: #334155;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --accent-primary: #0d9488;
+  --text-secondary: #1e293b;
+  --accent-primary: #0f766e;
   --accent-cyan: #0891b2;
   --accent-amber: #b45309;
   --accent-red: #be123c;
   --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  --transition-smooth: all 0.3s ease;
+  --transition-smooth: all 0.2s ease;
 }
 
 * {
@@ -28,20 +28,14 @@ body {
   font-family: var(--font-family);
   min-height: 100vh;
   overflow-x: hidden;
-  background-image:
-    radial-gradient(circle at 10% 20%, rgba(13, 148, 136, 0.06) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(217, 119, 6, 0.04) 0%, transparent 45%);
-  background-attachment: fixed;
 }
 
 /* Glassmorphism utility */
 .glass-panel {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
   border-radius: 16px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .text-gradient {
@@ -274,28 +268,29 @@ body {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  background: var(--bg-dark);
+  background: #f8fafc;
   width: 100%;
 }
 
 .app-sidebar {
   width: 260px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--glass-border);
+  background: #ffffff;
+  border-right: 2px solid #cbd5e1;
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   z-index: 10;
   gap: 0;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
 }
 
 .app-sidebar-logo-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 40px;
-  padding: 0 10px;
+  margin-bottom: 30px;
+  padding: 0 4px;
 }
 
 .app-sidebar-nav {
@@ -308,18 +303,20 @@ body {
 .app-sidebar-nav-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
-  padding: 12px 16px;
-  border-radius: 6px;
-  border: none;
-  font-size: 0.85rem;
-  transition: var(--transition-smooth);
+  padding: 11px 16px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #0f172a;
+  transition: all 0.15s ease;
 }
 
 .app-main {
   flex: 1;
-  padding: 40px;
+  padding: 32px 40px;
   overflow-y: auto;
   position: relative;
   z-index: 5;
@@ -339,10 +336,12 @@ body {
 
   .app-sidebar {
     width: 100% !important;
+    background: #ffffff !important;
     border-right: none !important;
-    border-bottom: 1px solid var(--glass-border) !important;
-    padding: 12px 16px !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    padding: 14px 16px !important;
     gap: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
   }
 
   .app-sidebar-logo-container {
@@ -351,7 +350,7 @@ body {
 
   .app-sidebar-nav {
     flex-direction: row !important;
-    gap: 6px !important;
+    gap: 8px !important;
     overflow-x: auto !important;
     padding-bottom: 6px !important;
     white-space: nowrap !important;
@@ -360,8 +359,9 @@ body {
   }
 
   .app-sidebar-nav-btn {
-    padding: 8px 12px !important;
-    font-size: 0.75rem !important;
+    padding: 8px 14px !important;
+    font-size: 0.78rem !important;
+    font-weight: 850 !important;
   }
 
   .app-main {

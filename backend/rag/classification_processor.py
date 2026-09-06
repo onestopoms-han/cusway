@@ -384,12 +384,15 @@ class AICustomsClassificationProcessor:
                 if len(sw) >= 2 and sw in cand_lower:
                     score += 30.0 * len(sw)
                     
-            # 3. High-weight domain keywords matching
+            # 3. High-weight domain keywords matching (Bidirectional Korean & English)
             keyword_boosts = [
                 ("가루", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
-                ("분말", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
                 ("참깨", ["참깨", "깨", "sesamum", "sesame"]),
-                ("볶은", ["볶은", "구운", "roasted"]),
+                ("볶은", ["볶은", "구운", "roasted", "heat-treated", "toasted"]),
+                ("콩나물", ["콩나물", "sprout", "sprouting", "yellow soybean"]),
+                ("대두", ["대두", "콩", "soybean", "soya", "glycine max"]),
+                ("모터", ["전동기", "모터", "motor", "pmsm", "actuator", "servo"]),
+                ("배터리", ["축전지", "배터리", "battery", "accumulator", "lithium", "li-ion"]),
                 ("밤", ["밤", "chestnut"]),
                 ("코코넛", ["코코넛", "coconut"]),
                 ("땅콩", ["땅콩", "피넛", "peanut", "ground-nut"]),
@@ -408,18 +411,18 @@ class AICustomsClassificationProcessor:
                 ("로열젤리", ["로열젤리", "royal jelly"]),
             ]
             
-            for input_kw, target_terms in keyword_boosts:
-                input_has_kw = input_kw in full_text
+            for kw_name, target_terms in keyword_boosts:
+                input_has_kw = any(t in full_text for t in target_terms)
                 cand_has_kw = any(t in cand_lower for t in target_terms)
                 
                 if input_has_kw and cand_has_kw:
                     score += 300.0
-                    match_reasons.append(f"특화 품목 키워드 적합: '{input_kw}'")
+                    match_reasons.append(f"특화 품목 키워드 적합: '{kw_name}'")
                 elif not input_has_kw and cand_has_kw:
                     # Penalty if candidate is specific to another item not mentioned in input
-                    if input_kw in ["밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
+                    if kw_name in ["밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
                         score -= 300.0
-                        match_reasons.append(f"타 품목 전용 세번 감점: '{input_kw}' 미포함")
+                        match_reasons.append(f"타 품목 전용 세번 감점: '{kw_name}' 미포함")
 
             # 4. Fallback "기타 (Other)" base score
             if "기타" in cand_name_ko or "other" in cand_lower:

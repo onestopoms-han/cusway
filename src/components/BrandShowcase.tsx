@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Scale, 
-  ShieldCheck, 
-  FileText, 
-  Printer, 
-  Coins, 
-  CheckCircle2, 
-  ArrowRight, 
-  Zap, 
-  Building2, 
-  QrCode, 
-  Lock, 
-  HelpCircle, 
-  TrendingUp, 
-  Users, 
+import {
+  Sparkles,
+  Scale,
+  ShieldCheck,
+  FileText,
+  Printer,
+  Coins,
+  CheckCircle2,
+  ArrowRight,
+  Zap,
+  Building2,
+  QrCode,
+  Lock,
+  HelpCircle,
+  TrendingUp,
+  Users,
   Award,
   ChevronRight,
   Eye,
@@ -39,13 +39,13 @@ interface BrandShowcaseProps {
   currentUser?: any;
 }
 
-export default function BrandShowcase({ 
-  onNavigate, 
-  onOpenBranding, 
+export default function BrandShowcase({
+  onNavigate,
+  onOpenBranding,
   onOpenKakaoConsult,
-  currentUser 
+  currentUser
 }: BrandShowcaseProps) {
-  const [activeTab, setActiveTab] = useState<'branding' | 'cashback' | 'pipeline' | 'valuation'>('branding');
+  const [activeTab, setActiveTab] = useState<'invoice-calc' | 'branding' | 'cashback' | 'pipeline' | 'valuation'>('invoice-calc');
   const [branding, setBranding] = useState<OfficeBranding>(() => getSavedOfficeBranding(currentUser));
   const [showBrochureModal, setShowBrochureModal] = useState(false);
   const [showSampleReportModal, setShowSampleReportModal] = useState(false);
@@ -61,11 +61,11 @@ export default function BrandShowcase({
   useEffect(() => {
     setBranding(getSavedOfficeBranding(currentUser));
   }, [currentUser]);
-  
+
   // Interactive Cashback Simulator State
   const [simDocType, setSimDocType] = useState<'confidential' | 'public'>('confidential');
   const [simDecision, setSimDecision] = useState<'overturned' | 'upheld'>('overturned');
-  
+
   // Interactive ROI Calculator State
   const [teamSize, setTeamSize] = useState<number>(5);
   const [showBasisDetail, setShowBasisDetail] = useState<boolean>(true);
@@ -93,7 +93,7 @@ export default function BrandShowcase({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingBottom: '60px' }}>
-      
+
       {/* 1. Hero Section: Powerful Value Proposition */}
       <section style={{
         position: 'relative',
@@ -117,7 +117,7 @@ export default function BrandShowcase({
         }} />
 
         <div style={{ maxWidth: '820px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
+
           {/* Badge */}
           <div style={{
             display: 'inline-flex',
@@ -145,7 +145,7 @@ export default function BrandShowcase({
             margin: 0
           }}>
             해설서 검색에 쓰던 <span style={{ color: '#94a3b8', textDecoration: 'line-through' }}>하루 3시간</span>,<br />
-            <span style={{ 
+            <span style={{
               background: 'linear-gradient(90deg, #0d9488 0%, #0891b2 50%, #b45309 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
@@ -277,7 +277,7 @@ export default function BrandShowcase({
 
       {/* 2. Interactive 4 Killer Feature Templates Showcase */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
+
         <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
           <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             CORE VALUE PROPOSITION
@@ -298,6 +298,7 @@ export default function BrandShowcase({
           flexWrap: 'wrap'
         }}>
           {[
+            { id: 'invoice-calc', label: '📄 영문 인보이스/PDF 스마트 추출 & 1초 관세 계산기', badge: '신규 탑재 🚀' },
             { id: 'branding', label: '🖨️ 관세사 맞춤 A4 의견서 & Co-Branding', badge: '화주 바이럴 1위' },
             { id: 'cashback', label: '💰 비공개 결정례 AI 가치 감정 & 캐시백', badge: '구독료 0원화' },
             { id: 'pipeline', label: '⚡ 4단계 원스톱 수입통관 파이프라인', badge: '요건/FTA 일괄' },
@@ -345,6 +346,127 @@ export default function BrandShowcase({
           padding: '32px',
           boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)'
         }}>
+
+          {/* TAB 0: Commercial Invoice / PDF Smart Extractor & Duty Savings Calculator */}
+          {activeTab === 'invoice-calc' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Zap size={18} color="var(--accent-cyan)" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                    COMMERCIAL INVOICE PARSER & TARIFF SAVINGS CALCULATOR
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                  영문 송장 사진과 PDF 사양서를 올리면<br />
+                  <span style={{ color: 'var(--accent-cyan)' }}>10단위 HSK 매핑과 관세 절감액</span>이 즉시 나옵니다.
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+                  실무에서 수취하는 <strong>상업송장(Commercial Invoice) 사진(JPG/PNG), PDF 기술사양서, 또는 영문 텍스트</strong>를 입력하면, AI가 WCO 영문 해설서와 한국 관세청 10단위 HSK 마스터를 1:1 이중 앵커링하여 정확한 세번과 실시간 절감 세액을 1초 만에 도출합니다.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
+                    <span><strong>영문 인보이스 1초 스마트 파싱:</strong> 거래품명(Description), 원재료, 규격, CIF 금액 자동 추출</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
+                    <span><strong>실시간 관세 절감액(Duty Savings) 계산:</strong> 기본세율 vs 최적 FTA/TRQ 세액 및 절감액 1초 비교</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
+                    <span><strong>1-Click HSK 복사 & UNI-PASS 연동:</strong> 유니패스/CLIP 직통 포털 링크 및 단골 품목(⭐) 보관함</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="var(--accent-cyan)" />
+                    <span><strong>전문가 소명 팔레트:</strong> 통칙 1호, 본질적 특성, C/O 구비 요건 문구 1클릭 삽입</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                  <button
+                    onClick={() => onNavigate('hs-classifier')}
+                    style={{
+                      padding: '12px 20px',
+                      background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#000000',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)'
+                    }}
+                  >
+                    <Sparkles size={15} /> 인보이스 추출기 & HS 분류기 체험하기
+                  </button>
+                </div>
+              </div>
+
+              {/* Interactive Invoice & Tariff Savings Mockup */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.02) 0%, rgba(6, 182, 212, 0.06) 100%)',
+                border: '1.5px solid rgba(6, 182, 212, 0.3)',
+                borderRadius: '14px',
+                padding: '22px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.04)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                    📄 인보이스 영문 파싱 ➔ HSK 10단위 & 관세 절감 실시간 연동
+                  </span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>
+                    AI Live Demo
+                  </span>
+                </div>
+
+                {/* Simulated Invoice Card */}
+                <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.75rem' }}>
+                  <div style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>INVOICE COMMODITY (영문 송장 원문)</div>
+                  <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+                    PMSM Brushless Synchronous Servo Motor 3.0kW (400V, 3000 RPM)
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '2px' }}>
+                    Origin: Germany (DE) | Amount: USD 9,200.00 CIF
+                  </div>
+                </div>
+
+                {/* Resulting HSK & Tariff Breakdown */}
+                <div style={{ background: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>매핑 확정 세번:</span>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0284c7' }}>HSK 8501.52-9000</span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', background: '#f8fafc', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>기본세율 (8%)</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#dc2626' }}>₩993,600</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>한-EU FTA (0%)</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669' }}>₩0</div>
+                    </div>
+                    <div style={{ background: 'rgba(5, 150, 105, 0.1)', borderRadius: '4px', padding: '2px' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#059669', fontWeight: 700 }}>순 절감 관세</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#059669' }}>₩993,600</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, textAlign: 'right' }}>
+                  * 원산지증명서(C/O) 구비 시 100% 관세 전액 면제 혜택
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* TAB 1: Co-Branding A4 Official Report Preview */}
           {activeTab === 'branding' && (
@@ -447,10 +569,10 @@ export default function BrandShowcase({
                         alignItems: 'center',
                         justifyContent: 'center'
                       }}>
-                        <img 
-                          src={branding.customLogoUrl} 
-                          alt={branding.firmName} 
-                          style={{ maxHeight: '24px', maxWidth: '70px', objectFit: 'contain' }} 
+                        <img
+                          src={branding.customLogoUrl}
+                          alt={branding.firmName}
+                          style={{ maxHeight: '24px', maxWidth: '70px', objectFit: 'contain' }}
                         />
                       </div>
                     ) : (
@@ -900,7 +1022,7 @@ export default function BrandShowcase({
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          
+
           {/* Traditional Bad Way */}
           <div style={{
             background: 'rgba(239, 68, 68, 0.04)',
@@ -1049,7 +1171,7 @@ export default function BrandShowcase({
               </span>
               <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-amber)' }}>{teamSize} 명</span>
             </div>
-            <input 
+            <input
               type="range"
               min={1}
               max={50}
@@ -1294,7 +1416,7 @@ export default function BrandShowcase({
       </section>
 
       {/* Marketing Brochure Printable Modal */}
-      <MarketingBrochureModal 
+      <MarketingBrochureModal
         isOpen={showBrochureModal}
         onClose={() => setShowBrochureModal(false)}
         branding={branding}

@@ -195,6 +195,77 @@ export default function ClearanceWizard({
 
       const isSesame = hsCode.startsWith('1207.40') || hsCode.startsWith('120740');
       const isSoy = hsCode.startsWith('1201');
+      const isChinaOrJapan = ['CN', 'JP', 'RCEP'].includes(originCountry);
+
+      let calcBaseRate = isSoy ? 3.0 : (isSesame ? 40.0 : 8.0);
+      let calcWtoRate = isSoy ? 487.0 : (isSesame ? 630.0 : 8.0);
+      let calcFtaRate: number | null = null;
+      let calcFtaName = resolvedFtaName;
+      let calcRecommendedRate = calcBaseRate;
+      let calcSpecificRate = isSesame ? (['IT', 'EU', 'GB'].includes(originCountry) ? 1051.0 : 6660.0) : (isSoy ? 956.0 : null);
+      let calcSpecificUnit = (isSesame || isSoy) ? '원/kg' : null;
+      let calcDutyType = (isSesame || isSoy) ? 'ALTERNATIVE' : 'AD_VALOREM';
+      let calcDutyFormula: string | null = null;
+      let calcNotice = `공식 관세율 마스터 DB에서 [${hsCode}] 품목의 최신 관세율을 실시간 연동 중입니다.`;
+      let calcExpertInsight = '공식 관세율 마스터 DB에서 최신 관세율을 실시간 연동 중입니다.';
+
+      const cleanCode = hsCode.replace(/[\.\-]/g, '').trim();
+      const isAgriOrFood = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'].some(p => cleanCode.startsWith(p));
+      const isChinaExcludedAgri = isChinaOrJapan && isAgriOrFood;
+
+      if (isSoy) {
+        if (isChinaOrJapan) {
+          calcFtaRate = null;
+          calcFtaName = `${resolvedFtaName} (양허제외)`;
+          calcRecommendedRate = 3.0;
+          calcDutyFormula = "487% 또는 956원/kg (선택세) (aT 추천서 구비 시 3.0%)";
+          calcNotice = "[🌾 TRQ 수입추천 품목] aT 추천서 구비 시 3.0% 적용 / 미구비 시 일반 기본세율(3.0%) 또는 초고율 선택세(487% 또는 956원/kg)가 적용됩니다.";
+          calcExpertInsight = "🇨🇳 [한-중 FTA / RCEP 양허제외 품목] 대두(콩나물용·밥밑용·채유용)는 한-중 FTA 및 RCEP에서 양허제외되어 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사) 수입추천서를 구비하여 3.0% 양허관세를 적용받으십시오.";
+        } else if (['US', 'IT', 'EU', 'DE', 'FR', 'ES', 'NL', 'AU', 'CA'].includes(originCountry)) {
+          calcFtaRate = 0.0;
+          calcRecommendedRate = 0.0;
+          calcDutyType = 'AD_VALOREM';
+          calcSpecificRate = null;
+          calcDutyFormula = '0.0% 무관세 (협정 C/O 구비 시)';
+          calcNotice = `[⭐ 최적 특혜세율] ${resolvedFtaName} 특혜세율 0.0%가 적용됩니다. (원산지증명서 구비 필수)`;
+          calcExpertInsight = `${resolvedFtaName} 원산지증명서(C/O) 구비 시 0.0% 무관세 수입이 가능합니다.`;
+        } else {
+          calcRecommendedRate = 3.0;
+          calcDutyFormula = "487% 또는 956원/kg (선택세) (aT 추천서 구비 시 3.0%)";
+          calcNotice = "[🌾 TRQ 수입추천 품목] aT 추천서 구비 시 3.0% 적용 / 미구비 시 일반 기본세율(3.0%) 또는 초고율 선택세가 적용됩니다.";
+        }
+      } else if (isSesame) {
+        if (originCountry === 'CN') {
+          calcFtaRate = null;
+          calcRecommendedRate = 0.0;
+          calcDutyFormula = '0.0% (FCN6: aT 한-중 TRQ) / 630% 또는 6,660원/kg (FCN1)';
+          calcNotice = '[🌾 한-중 FTA TRQ 추천] aT 한-중 FTA 추천서(FCN6) 구비 시 0.0% 무관세, 미구비 시 630% 또는 6,660원/kg(FCN1) 적용';
+          calcExpertInsight = '🇨🇳 [한-중 FTA FCN6 vs FCN1] aT의 한-중 FTA 추천서 구비 시 0.0% 무관세(FCN6), 미구비 시 630% 또는 6,660원/kg(FCN1)이 적용됩니다.';
+        } else if (['IT', 'EU', 'GB'].includes(originCountry)) {
+          calcFtaRate = 99.4;
+          calcRecommendedRate = 99.4;
+          calcDutyFormula = '99.4% 또는 1,051원/kg 양자 중 고액 (상반기: 132.6% 또는 1,402원/kg)';
+          calcNotice = `[⚠️ 선택세율 대상] ${resolvedFtaName} 복합세율 99.4% 또는 1,051원/kg 양자 중 고액 적용`;
+          calcExpertInsight = `🇪🇺 [${resolvedFtaName} 복합세율 적용] 해당 원산지(${originCountry})산 참깨는 2026년 하반기 기준 [99.4% 또는 1,051원/kg 양자 중 고액]이 적용됩니다.`;
+        }
+      } else if (isChinaExcludedAgri) {
+        // 중국 및 RCEP 대상 일반 농축수산물 양허제외 가드
+        calcFtaRate = null;
+        calcFtaName = `${resolvedFtaName} (양허제외)`;
+        calcRecommendedRate = calcBaseRate;
+        calcNotice = `[⚠️ 한-중 FTA 양허제외 품목] 농축수산물·식품 민감 품목으로 FTA 0% 특혜관세가 배제되며, 기본세율(${calcBaseRate}%) 또는 TRQ 세액이 부과됩니다.`;
+        calcExpertInsight = `🇨🇳 [한-중 FTA / RCEP 양허제외] 해당 품목(${hsCode})은 한-중 FTA에서 국내 산업 보호를 위해 양허제외되어 0% 특혜관세가 적용되지 않습니다.`;
+      } else {
+        if (hasFta) {
+          calcFtaRate = isFtaExempt ? 0.0 : (originCountry === 'CN' ? (isAgriOrFood ? calcBaseRate : 0.0) : 2.0);
+          calcRecommendedRate = calcFtaRate;
+          calcNotice = `[⭐ 최적 특혜세율] ${resolvedFtaName} 특혜세율 ${calcRecommendedRate}%가 적용됩니다. (원산지증명서 구비 필수)`;
+          calcExpertInsight = `원산지 국가(${originCountry})와의 ${resolvedFtaName} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오.`;
+        } else {
+          calcRecommendedRate = calcBaseRate;
+          calcNotice = `기본세율(A) ${calcBaseRate}%가 적용됩니다. (원산지: ${originCountry})`;
+        }
+      }
 
       setRatesData({
         hs_code: hsCode,
@@ -203,21 +274,21 @@ export default function ClearanceWizard({
         active_season_badge: "2026년 하반기(7~12월)",
         has_seasonal_rate: isSesame && ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'GB'].includes(originCountry),
         rates: {
-          base_rate: isSoy ? 3.0 : (isSesame ? 40.0 : 8.0),
-          wto_rate: isSoy ? 487.0 : (isSesame ? 630.0 : 8.0),
-          fta_rate: hasFta ? (isFtaExempt ? 0.0 : (isSesame && ['IT', 'EU', 'GB'].includes(originCountry) ? 99.4 : (originCountry === 'CN' ? 0.0 : 2.0))) : null,
-          fta_name: resolvedFtaName,
-          recommended_rate: hasFta ? (isFtaExempt ? 0.0 : (isSesame && ['IT', 'EU', 'GB'].includes(originCountry) ? 99.4 : (originCountry === 'CN' ? 0.0 : 2.0))) : (isSoy ? 3.0 : 8.0),
-          specific_rate: isSesame ? (['IT', 'EU', 'GB'].includes(originCountry) ? 1051.0 : 6660.0) : (isSoy ? 956.0 : null),
-          specific_unit: (isSesame || isSoy) ? '원/kg' : null,
-          duty_type: (isSesame || isSoy) ? 'ALTERNATIVE' : 'AD_VALOREM',
-          duty_formula: isSesame ? (['IT', 'EU', 'GB'].includes(originCountry) ? '99.4% 또는 1,051원/kg 양자 중 고액 (상반기: 132.6% 또는 1,402원/kg)' : (originCountry === 'CN' ? '0.0% (FCN6: aT 한-중 TRQ) / 630% 또는 6,660원/kg (FCN1)' : '630% 또는 6,660원/kg (선택세)')) : (isSoy ? '487% 또는 956원/kg (선택세)' : null),
+          base_rate: calcBaseRate,
+          wto_rate: calcWtoRate,
+          fta_rate: calcFtaRate,
+          fta_name: calcFtaName,
+          recommended_rate: calcRecommendedRate,
+          specific_rate: calcSpecificRate,
+          specific_unit: calcSpecificUnit,
+          duty_type: calcDutyType,
+          duty_formula: calcDutyFormula,
           is_trq_item: isSesame || isSoy,
           trq_in_rate: isSoy ? 3.0 : (isSesame ? (originCountry === 'CN' ? 0.0 : 40.0) : null),
           trq_out_rate: isSoy ? '487% 또는 956원/kg' : (isSesame ? '630% 또는 6,660원/kg' : null),
           trq_agency: 'aT 한국농수산식품유통공사',
-          expert_insight: isSesame ? (originCountry === 'CN' ? '🇨🇳 [한-중 FTA FCN6 vs FCN1] aT의 한-중 FTA 추천서 구비 시 0.0% 무관세(FCN6), 미구비 시 630% 또는 6,660원/kg(FCN1)이 적용됩니다.' : `🇪🇺 [${resolvedFtaName} 복합세율 적용] 해당 원산지(${originCountry})산 참깨는 2026년 하반기 기준 [99.4% 또는 1,051원/kg 양자 중 고액]이 적용됩니다.`) : '공식 관세율 마스터 DB에서 최신 관세율을 실시간 연동 중입니다.',
-          notice: `공식 관세율 마스터 DB에서 [${hsCode}] 품목의 최신 관세율을 실시간 연동 중입니다.`
+          expert_insight: calcExpertInsight,
+          notice: calcNotice
         }
       });
     } finally {

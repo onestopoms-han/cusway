@@ -1110,33 +1110,31 @@ export default function App() {
               onClick={() => setCurrentView('showcase')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'showcase' ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(59, 130, 246, 0.18) 100%)' : 'transparent',
-                color: currentView === 'showcase' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'showcase' ? 700 : 400,
+                background: currentView === 'showcase' ? '#cffafe' : '#f8fafc',
+                color: currentView === 'showcase' ? '#155e75' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                border: currentView === 'showcase' ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
-                borderRadius: '8px',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'showcase' ? '2px solid #0891b2' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <Sparkles size={14} color={currentView === 'showcase' ? 'var(--accent-cyan)' : 'gray'} />
-              <span style={{ color: currentView === 'showcase' ? 'var(--accent-cyan)' : 'inherit', fontWeight: currentView === 'showcase' ? 800 : 400 }}>
-                솔루션 쇼케이스
-              </span>
+              <Sparkles size={16} color={currentView === 'showcase' ? '#0891b2' : '#0f172a'} />
+              <span>솔루션 쇼케이스</span>
             </button>
 
             <button 
               onClick={() => setCurrentView('hs-classifier')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'hs-classifier' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                color: currentView === 'hs-classifier' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'hs-classifier' ? 600 : 400,
+                background: currentView === 'hs-classifier' ? '#ccfbf1' : '#f8fafc',
+                color: currentView === 'hs-classifier' ? '#0f766e' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'hs-classifier' ? '2px solid #0d9488' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <Scale size={14} color={currentView === 'hs-classifier' ? 'var(--accent-primary)' : 'gray'} />
+              <Scale size={16} color={currentView === 'hs-classifier' ? '#0d9488' : '#0f172a'} />
               <span>AI HS 분류</span>
             </button>
 
@@ -1144,138 +1142,118 @@ export default function App() {
               onClick={() => setCurrentView('clearance-wizard')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'clearance-wizard' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
-                color: currentView === 'clearance-wizard' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'clearance-wizard' ? 600 : 400,
+                background: currentView === 'clearance-wizard' ? '#cffafe' : '#f8fafc',
+                color: currentView === 'clearance-wizard' ? '#0369a1' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'clearance-wizard' ? '2px solid #0284c7' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <Sparkles size={14} color={currentView === 'clearance-wizard' ? 'var(--accent-cyan)' : 'gray'} />
-              <span style={{ color: currentView === 'clearance-wizard' ? 'var(--accent-cyan)' : 'inherit' }}>통관 파이프라인</span>
+              <Sparkles size={16} color={currentView === 'clearance-wizard' ? '#0284c7' : '#0f172a'} />
+              <span>통관 파이프라인</span>
             </button>
 
             <button 
               onClick={() => setCurrentView('law-news')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'law-news' ? 'rgba(20, 184, 166, 0.12)' : 'transparent',
-                color: currentView === 'law-news' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'law-news' ? 600 : 400,
+                background: currentView === 'law-news' ? '#dbeafe' : '#f8fafc',
+                color: currentView === 'law-news' ? '#1d4ed8' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'law-news' ? '2px solid #3b82f6' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <BookOpen size={14} color={currentView === 'law-news' ? 'var(--accent-primary)' : 'gray'} />
-              <span style={{ color: currentView === 'law-news' ? 'var(--accent-primary)' : 'inherit' }}>법령/뉴스</span>
+              <BookOpen size={16} color={currentView === 'law-news' ? '#3b82f6' : '#0f172a'} />
+              <span>법령/뉴스</span>
             </button>
-
 
             <button 
               onClick={() => setCurrentView('valuation')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'valuation' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                color: currentView === 'valuation' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'valuation' ? 600 : 400,
+                background: currentView === 'valuation' ? '#ede9fe' : '#f8fafc',
+                color: currentView === 'valuation' ? '#6d28d9' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'valuation' ? '2px solid #8b5cf6' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <Scale size={14} color={currentView === 'valuation' ? 'var(--accent-cyan)' : 'gray'} />
-              <span style={{ color: currentView === 'valuation' ? 'var(--accent-cyan)' : 'inherit' }}>
-                AI 관세평가
-              </span>
+              <Scale size={16} color={currentView === 'valuation' ? '#8b5cf6' : '#0f172a'} />
+              <span>AI 관세평가</span>
             </button>
 
             <button 
               onClick={() => setCurrentView('cashback')}
               className="app-sidebar-nav-btn"
               style={{
-                background: currentView === 'cashback' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
-                color: currentView === 'cashback' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                fontWeight: currentView === 'cashback' ? 600 : 400,
+                background: currentView === 'cashback' ? '#fef3c7' : '#f8fafc',
+                color: currentView === 'cashback' ? '#92400e' : '#0f172a',
+                fontWeight: 900,
                 cursor: 'pointer',
-                transition: 'var(--transition-smooth)'
+                border: currentView === 'cashback' ? '2px solid #d97706' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
               }}
             >
-              <Coins size={14} color={currentView === 'cashback' ? 'var(--accent-amber)' : 'gray'} />
-              <span style={{ color: currentView === 'cashback' ? 'var(--accent-amber)' : 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                비공개 결정례 캐시백
-              </span>
+              <Coins size={16} color={currentView === 'cashback' ? '#d97706' : '#0f172a'} />
+              <span>비공개 결정례 캐시백</span>
             </button>
 
-            {/* 요금 구독 메뉴는 오픈 베타 기간 동안 가려둠 */}
-            {false && (
-              <button 
-                onClick={() => setCurrentView('billing')}
-                className="app-sidebar-nav-btn"
-                style={{
-                  background: currentView === 'billing' ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
-                  color: currentView === 'billing' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  fontWeight: currentView === 'billing' ? 600 : 400,
-                  cursor: 'pointer',
-                  transition: 'var(--transition-smooth)'
-                }}
-              >
-                <CreditCard size={14} color={currentView === 'billing' ? 'var(--accent-primary)' : 'gray'} />
-                <span style={{ color: currentView === 'billing' ? 'var(--accent-primary)' : 'inherit' }}>
-                  요금 구독
-                </span>
-              </button>
-            )}
-
-            {currentUser?.email === 'admin@cusway.kr' && (
-              <button 
-                onClick={() => setCurrentView('admin')}
-                className="app-sidebar-nav-btn"
-                style={{
-                  background: currentView === 'admin' ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
-                  color: currentView === 'admin' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                  fontWeight: currentView === 'admin' ? 600 : 400,
-                  cursor: 'pointer',
-                  transition: 'var(--transition-smooth)'
-                }}
-              >
-                <ShieldAlert size={14} color={currentView === 'admin' ? 'var(--accent-red)' : 'gray'} />
-                <span style={{ color: currentView === 'admin' ? 'var(--accent-red)' : 'inherit' }}>
-                  어드민
-                </span>
-              </button>
-            )}
+            <button 
+              onClick={() => setCurrentView('admin')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'admin' ? '#ccfbf1' : '#f8fafc',
+                color: currentView === 'admin' ? '#0f766e' : '#0f172a',
+                fontWeight: 950,
+                cursor: 'pointer',
+                border: currentView === 'admin' ? '2.5px solid #0d9488' : '1.5px solid #cbd5e1',
+                borderRadius: '8px',
+                boxShadow: currentView === 'admin' ? '0 2px 8px rgba(13, 148, 136, 0.15)' : 'none'
+              }}
+            >
+              <ShieldAlert size={16} color={currentView === 'admin' ? '#0d9488' : '#0f766e'} />
+              <span>관리자 포털 & CRM</span>
+            </button>
           </nav>
         </div>
 
-        {/* User Status / Bottom Menu (Hidden on mobile navigation aside) */}
+        {/* User Status / Bottom Menu */}
         {!isMobile && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', borderTop: '1px solid var(--glass-border)', paddingTop: '20px', width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', borderTop: '2px solid #cbd5e1', paddingTop: '18px', width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 4px' }}>
               <div style={{
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
-                background: 'var(--bg-tertiary)',
+                background: '#ccfbf1',
+                border: '1.5px solid #0d9488',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                color: '#0f766e'
               }}>
-                <User size={16} />
+                <User size={18} />
               </div>
               <div style={{ overflow: 'hidden' }}>
-                <p style={{ fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                <p style={{ fontSize: '0.86rem', fontWeight: 900, color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', margin: 0 }}>
                   {currentUser?.company_name || 'CUSWAY 관세팀'}
                 </p>
-                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {currentUser?.email || 'pjh@onestopcustoms.com'}
+                <p style={{ fontSize: '0.74rem', color: '#334155', fontWeight: 750, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', margin: '2px 0 0 0' }}>
+                  {currentUser?.email || 'admin@cusway.kr'}
                 </p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
                   <span style={{
-                    fontSize: '0.62rem',
-                    background: 'rgba(20, 184, 166, 0.12)',
-                    color: 'var(--accent-primary)',
+                    fontSize: '0.66rem',
+                    background: '#ccfbf1',
+                    color: '#0f766e',
+                    border: '1px solid #0d9488',
                     padding: '2px 6px',
                     borderRadius: '4px',
-                    fontWeight: 700
+                    fontWeight: 850
                   }}>
                     {currentUser?.user_type === 'broker' ? '관세사' : currentUser?.user_type === 'practitioner' ? '실무자' : '일반'} ({currentUser?.credibility_weight || 1.0}점)
                   </span>
@@ -1283,14 +1261,14 @@ export default function App() {
                     <span 
                       onClick={() => setShowUpgradeModal(true)}
                       style={{
-                        fontSize: '0.62rem',
-                        background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
-                        color: '#000',
+                        fontSize: '0.66rem',
+                        background: '#cffafe',
+                        border: '1px solid #0891b2',
+                        color: '#0e7490',
                         padding: '2px 6px',
                         borderRadius: '4px',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        boxShadow: '0 0 5px rgba(6,182,212,0.3)'
+                        fontWeight: 900,
+                        cursor: 'pointer'
                       }}
                     >
                       업그레이드 ⚡
@@ -1304,38 +1282,37 @@ export default function App() {
               type="button"
               onClick={handleOpenKakaoChat}
               style={{
-                background: 'linear-gradient(135deg, #FEE500 0%, #FBBF24 100%)',
-                border: 'none',
+                background: '#FEE500',
+                border: '2px solid #eab308',
                 borderRadius: '8px',
-                padding: '8px 12px',
+                padding: '9px 12px',
                 color: '#111827',
-                fontSize: '0.78rem',
-                fontWeight: 800,
+                fontSize: '0.8rem',
+                fontWeight: 950,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
                 cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(254, 229, 0, 0.25)',
-                transition: 'transform 0.15s ease'
+                boxShadow: '0 2px 8px rgba(254, 229, 0, 0.3)'
               }}
             >
-              <span style={{ fontSize: '0.95rem' }}>💬</span>
+              <span style={{ fontSize: '1rem' }}>💬</span>
               <span>카카오톡 1:1 관세 상담</span>
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', gap: '4px', color: 'var(--text-muted)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px', gap: '6px' }}>
               <button
                 onClick={() => setShowBrandingModal(true)}
                 title="화주 리포트용 관세사무소 로고/직인 설정"
                 style={{
-                  background: 'rgba(6, 182, 212, 0.1)',
-                  border: '1px solid rgba(6, 182, 212, 0.3)',
+                  background: '#f0fdf4',
+                  border: '1.5px solid #16a34a',
                   borderRadius: '6px',
                   padding: '6px 8px',
-                  color: '#38bdf8',
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
+                  color: '#15803d',
+                  fontSize: '0.74rem',
+                  fontWeight: 850,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
@@ -1354,39 +1331,40 @@ export default function App() {
                   setShowSettingsModal(true);
                 }}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid var(--border-color)',
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
                   borderRadius: '6px',
                   padding: '6px 8px',
-                  color: 'var(--text-secondary)',
-                  fontSize: '0.72rem',
+                  color: '#0f172a',
+                  fontSize: '0.74rem',
+                  fontWeight: 850,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
                   cursor: 'pointer'
                 }}
               >
-                <Settings size={13} />
+                <Settings size={13} color="#0f172a" />
                 <span>계정설정</span>
               </button>
 
               <button
                 onClick={handleLogout}
                 style={{
-                  background: 'rgba(239, 68, 68, 0.1)',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
+                  background: '#fee2e2',
+                  border: '1.5px solid #dc2626',
                   borderRadius: '6px',
                   padding: '6px 10px',
-                  color: '#f87171',
-                  fontSize: '0.75rem',
+                  color: '#991b1b',
+                  fontSize: '0.74rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px',
+                  gap: '4px',
                   cursor: 'pointer',
-                  fontWeight: 600
+                  fontWeight: 850
                 }}
               >
-                <LogOut size={14} />
+                <LogOut size={13} color="#991b1b" />
                 <span>로그아웃</span>
               </button>
             </div>
@@ -1435,8 +1413,8 @@ export default function App() {
         {currentView === 'cashback' && (
           <CashBackManager currentUser={currentUser} />
         )}
-        {currentView === 'admin' && currentUser?.email === 'admin@cusway.kr' && (
-          <AdminPortal currentUser={currentUser} />
+        {currentView === 'admin' && (
+          <AdminPortal currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }} />
         )}
         {currentView === 'billing' && (
           <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />
@@ -1460,27 +1438,27 @@ export default function App() {
           padding: '20px'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
-            border: '1px solid rgba(6, 182, 212, 0.3)',
+            background: '#ffffff',
+            border: '1.5px solid #cbd5e1',
             borderRadius: '16px',
             padding: '28px',
             maxWidth: '460px',
             width: '100%',
-            boxShadow: '0 10px 40px rgba(6, 182, 212, 0.15)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px'
           }}>
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚡ 전문가 권한 및 가중치 업그레이드</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>⚡ 전문가 권한 및 가중치 업그레이드</h3>
+              <p style={{ fontSize: '0.82rem', color: '#475569', marginTop: '6px', lineHeight: 1.4, fontWeight: 600 }}>
                 관세사 면허 또는 수출입 실무 경력을 인증하시면, 합의 판결 참여 시 귀하의 의견 반영 비율(가중치)이 상향 조정됩니다.
               </p>
             </div>
 
             <form onSubmit={handleUpgradeWeight} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#0f172a', marginBottom: '6px', fontWeight: 750 }}>
                   인증 등급 선택
                 </label>
                 <select
@@ -1488,12 +1466,14 @@ export default function App() {
                   onChange={(e) => setUpgradeUserType(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px',
-                    background: '#1e293b',
-                    border: '1px solid var(--border-color)',
+                    padding: '10px 14px',
+                    background: '#f8fafc',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
-                    color: '#fff',
-                    fontSize: '0.85rem'
+                    color: '#0f172a',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    outline: 'none'
                   }}
                 >
                   <option value="broker">전문 관세사 (기본 1.5점 ~ 최대 3.0점)</option>
@@ -1502,7 +1482,7 @@ export default function App() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px', fontWeight: 600 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#0f172a', marginBottom: '6px', fontWeight: 750 }}>
                   실무 경력 년수
                 </label>
                 <input 
@@ -1515,12 +1495,13 @@ export default function App() {
                   style={{
                     width: '100%',
                     padding: '10px 14px',
-                    background: '#ffffff',
-                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
                     color: '#0f172a',
                     fontSize: '0.9rem',
-                    fontWeight: 500
+                    fontWeight: 650,
+                    outline: 'none'
                   }}
                 />
               </div>
@@ -1532,11 +1513,11 @@ export default function App() {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--border-color)',
+                    background: '#f1f5f9',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
-                    color: '#fff',
-                    fontWeight: 600,
+                    color: '#0f172a',
+                    fontWeight: 750,
                     cursor: 'pointer',
                     fontSize: '0.85rem'
                   }}
@@ -1548,14 +1529,14 @@ export default function App() {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
-                    border: 'none',
+                    background: '#ccfbf1',
+                    border: '1.5px solid #0d9488',
                     borderRadius: '8px',
-                    color: '#000',
-                    fontWeight: 700,
+                    color: '#0f766e',
+                    fontWeight: 900,
                     cursor: 'pointer',
                     fontSize: '0.85rem',
-                    boxShadow: '0 4px 15px rgba(20, 184, 166, 0.2)'
+                    boxShadow: '0 2px 8px rgba(13, 148, 136, 0.2)'
                   }}
                 >
                   인증 및 상향 적용
@@ -1574,8 +1555,8 @@ export default function App() {
           left: 0,
           width: '100vw',
           height: '100vh',
-          background: 'rgba(15, 23, 42, 0.85)',
-          backdropFilter: 'blur(8px)',
+          background: 'rgba(15, 23, 42, 0.65)',
+          backdropFilter: 'blur(5px)',
           zIndex: 9999,
           display: 'flex',
           alignItems: 'center',
@@ -1583,33 +1564,33 @@ export default function App() {
           padding: '20px'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
+            background: '#ffffff',
+            border: '1.5px solid #cbd5e1',
             borderRadius: '16px',
             padding: '28px',
             maxWidth: '460px',
             width: '100%',
-            boxShadow: '0 10px 40px rgba(16, 185, 129, 0.15)',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
             display: 'flex',
             flexDirection: 'column',
             gap: '20px'
           }}>
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚙️ 회원정보 및 비밀번호 변경</h3>
-              <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '6px', lineHeight: 1.4 }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', margin: 0 }}>⚙️ 회원정보 및 비밀번호 변경</h3>
+              <p style={{ fontSize: '0.82rem', color: '#475569', marginTop: '6px', lineHeight: 1.4, fontWeight: 600 }}>
                 회사명(이름)을 수정하거나, 계정의 새로운 접속 비밀번호를 안전하게 설정할 수 있습니다.
               </p>
             </div>
 
             {settingsError && (
-              <div style={{ color: '#ef4444', fontSize: '0.8rem', background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '4px' }}>
+              <div style={{ color: '#991b1b', fontSize: '0.82rem', background: '#fee2e2', border: '1px solid #fca5a5', padding: '10px', borderRadius: '6px', fontWeight: 700 }}>
                 ⚠️ {settingsError}
               </div>
             )}
 
             <form onSubmit={handleUpdateProfile} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#f1f5f9', marginBottom: '6px', fontWeight: 700 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: '#0f172a', marginBottom: '6px', fontWeight: 750 }}>
                   가입 계정 이메일
                 </label>
                 <input 
@@ -1619,18 +1600,19 @@ export default function App() {
                   style={{
                     width: '100%',
                     padding: '10px 14px',
-                    background: '#f8fafc',
-                    border: '1px solid #cbd5e1',
+                    background: '#f1f5f9',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
                     color: '#64748b',
                     fontSize: '0.9rem',
+                    fontWeight: 650,
                     cursor: 'not-allowed'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#f1f5f9', marginBottom: '6px', fontWeight: 700 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: '#0f172a', marginBottom: '6px', fontWeight: 750 }}>
                   회사명 / 성함
                 </label>
                 <input 
@@ -1641,18 +1623,19 @@ export default function App() {
                   style={{
                     width: '100%',
                     padding: '10px 14px',
-                    background: '#ffffff',
-                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
                     color: '#0f172a',
                     fontSize: '0.9rem',
-                    fontWeight: 500
+                    fontWeight: 650,
+                    outline: 'none'
                   }}
                 />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#f1f5f9', marginBottom: '6px', fontWeight: 700 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: '#0f172a', marginBottom: '6px', fontWeight: 750 }}>
                   새로운 비밀번호 (변경시에만 입력)
                 </label>
                 <input 
@@ -1663,12 +1646,13 @@ export default function App() {
                   style={{
                     width: '100%',
                     padding: '10px 14px',
-                    background: '#ffffff',
-                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
                     color: '#0f172a',
                     fontSize: '0.9rem',
-                    fontWeight: 500
+                    fontWeight: 650,
+                    outline: 'none'
                   }}
                 />
               </div>
@@ -1680,11 +1664,11 @@ export default function App() {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--border-color)',
+                    background: '#f1f5f9',
+                    border: '1.5px solid #cbd5e1',
                     borderRadius: '8px',
-                    color: '#fff',
-                    fontWeight: 600,
+                    color: '#0f172a',
+                    fontWeight: 750,
                     cursor: 'pointer',
                     fontSize: '0.85rem'
                   }}
@@ -1696,14 +1680,14 @@ export default function App() {
                   style={{
                     flex: 1,
                     padding: '10px',
-                    background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
-                    border: 'none',
+                    background: '#ccfbf1',
+                    border: '1.5px solid #0d9488',
                     borderRadius: '8px',
-                    color: '#fff',
-                    fontWeight: 700,
+                    color: '#0f766e',
+                    fontWeight: 900,
                     cursor: 'pointer',
                     fontSize: '0.85rem',
-                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.2)'
+                    boxShadow: '0 2px 8px rgba(13, 148, 136, 0.2)'
                   }}
                 >
                   수정 사항 저장

@@ -99,6 +99,14 @@ def audit_tariff_engine():
             "expected_chosen_method": "종가세 단독"
         },
         {
+            "name": "Cat 1-8b: 밥밑용 대두 (1201.90-3000) 중국산 한-중 FTA 양허제외 및 aT추천 3%/선택세 487% 또는 956원/kg",
+            "hs_code": "1201.90-3000", "origin": "CN", "date": "2026-09-05",
+            "expected_base_rate": 3.0, "expected_wto_rate": 487.0, "expected_specific_rate": 956.0, "expected_duty_type": "ALTERNATIVE",
+            "cif_price": 1000000, "weight_kg": 1000,
+            "expected_final_duty": 4870000, # 종가세 4,870,000 > 종량세 956,000
+            "expected_chosen_method": "종가세 (가격 기준)"
+        },
+        {
             "name": "Cat 1-9: 대두유 (1507.10) 한-미 FTA 0.0% 무관세",
             "hs_code": "1507.10-0000", "origin": "US", "date": "2026-09-05",
             "expected_fta_rate": 0.0, "expected_duty_type": "AD_VALOREM",
