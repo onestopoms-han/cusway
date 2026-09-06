@@ -231,9 +231,9 @@ export default function MarketingBrochureModal({
               flexDirection: 'column',
               gap: '10px'
             }}>
-              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f766e', margin: 0, lineHeight: 1.35 }}>
-                "해설서 검색에 쓰던 하루 3시간, 3초 만에 끝내고<br />
-                진짜 고부가가치 관세 컨설팅에 집중하십시오."
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#0f766e', margin: 0, lineHeight: 1.4 }}>
+                "해설서 검색에 쓰던 하루 3시간,<br />
+                3초 만에 끝내고 진짜 관세 컨설팅에 집중하세요."
               </h2>
               <p style={{ fontSize: '0.82rem', color: '#334155', lineHeight: 1.55, margin: 0 }}>
                 CUSWAY는 관세 업무의 핵심인 <strong>WCO 해설서 본문, 관세율표 통칙 1~6, 부·류 주규정, 관세청 공식 결정례</strong>를 실시간으로 결합하여 <strong>관세사무소 맞춤 A4 공식 검토의견서</strong>를 원스톱 자동 생성합니다.

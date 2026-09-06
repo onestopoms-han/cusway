@@ -139,7 +139,7 @@ export default function BrandShowcase({
           <h1 style={{
             fontSize: '2.4rem',
             fontWeight: 900,
-            lineHeight: 1.3,
+            lineHeight: 1.35,
             letterSpacing: '-0.03em',
             color: 'var(--text-main)',
             margin: 0
@@ -151,7 +151,7 @@ export default function BrandShowcase({
               WebkitTextFillColor: 'transparent'
             }}>
               3초 만에 끝내고
-            </span> 진짜 관세 컨설팅에 집중하십시오.
+            </span> 진짜 관세 컨설팅에 집중하세요.
           </h1>
 
           {/* Subtitle */}
