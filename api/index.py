@@ -976,26 +976,40 @@ def hs_classify_api(req: ClassifyReq):
         # Fallback to direct lookup if full pipeline fails
         prod_low = (req.product_name + " " + req.material + " " + req.function_use).lower()
 
-        # 1-A. 들깨 분말 / 미가공 들깨가루 (1208.90-9000) vs 볶은 들깨가루 / 조제 들깨가루 (2008.19-9000)
-        if ("들깨" in prod_low or "perilla" in prod_low) and ("가루" in prod_low or "분말" in prod_low or "powder" in prod_low or "flour" in prod_low or "세말" in prod_low or "조말" in prod_low or "들깨분" in prod_low):
-            if any(raw_kw in prod_low for raw_kw in ["생", "미가공", "미볶", "비가열", "raw", "unroasted", "탈지"]) or (not any(rk in prod_low for rk in ["볶", "구운", "roast", "toasted", "조제"]) and "가루" not in prod_low and "분말" in prod_low):
-                # 생들깨가루 / 들깨 분말 (1208.90-9000)
-                return {
-                    "keywordTrigger": ["생들깨가루", "생들깨 분말", "들깨 분말", "raw perilla powder"],
-                    "recommendedHsCode": "1208.90-9000",
-                    "headingName": "제1208호 (채유용 종실의 분과 밀)",
-                    "subheadingName": "제1208.90호 (기타 - 채유용 미가공 들깨 분말)",
-                    "confidence": 99,
-                    "technicalTerms": "Flours and meals of raw perilla seeds, non-defatted or partially defatted",
-                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
-                    "legalReasoning": "본 물품은 열처리 볶음 공정을 거치지 않은 미가공 생들깨를 분쇄한 들깨 분말로서 관세율표 일반통칙 제1호 및 제6호에 따라 제1208.90-9000호에 분류됩니다.",
-                    "sectionNote": "제2부 식물성 생산품",
-                    "chapterNote": "제12류 채유용 종실",
-                    "exclusionNote": "⚠️ 볶음 열처리를 거친 식용 들깨가루는 제2008.19-9000호로 분류됩니다.",
-                    "headingExplanation": "제1208호에는 미가공 종실 분말을 분류합니다.",
-                    "precedents": [],
-                    "competingHsCodes": []
-                }
+        is_perilla = ("들깨" in prod_low or "perilla" in prod_low)
+        is_sesame = ("참깨" in prod_low or ("깨" in prod_low and not is_perilla) or "sesame" in prod_low or "sesamum" in prod_low)
+        is_negated_roasted = any(
+            neg in prod_low for neg in [
+                "볶지않", "볶지 않", "안볶", "안 볶", "미볶", "비볶", "비가열", "미가공", 
+                "생", "날것", "raw", "unroasted", "non-roasted", "not roasted", "탈지"
+            ]
+        )
+        is_truly_roasted = not is_negated_roasted and any(
+            rk in prod_low for rk in ["볶은", "볶음", "구운", "로스팅", "roast", "toasted", "조제"]
+        )
+        has_powder = any(pk in prod_low for pk in ["가루", "분말", "powder", "flour", "세말", "조말", "분"])
+
+        # 1-A. 생 들깨 분말 / 볶지않은 들깨가루 (1208.90-9000)
+        if is_perilla and has_powder and (is_negated_roasted or (not is_truly_roasted and "분말" in prod_low and "가루" not in prod_low)):
+            return {
+                "keywordTrigger": ["생들깨가루", "생들깨 분말", "들깨 분말", "볶지않은 들깨가루", "볶지 않은 들깨가루", "미가공 들깨가루", "raw perilla powder"],
+                "recommendedHsCode": "1208.90-9000",
+                "headingName": "제1208호 (채유용 종실의 분과 밀)",
+                "subheadingName": "제1208.90호 (기타 - 채유용 미가공 들깨 분말)",
+                "confidence": 99,
+                "technicalTerms": "Flours and meals of raw perilla seeds, non-defatted or partially defatted",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 열처리 볶음 공정을 거치지 않은 미가공 생들깨를 분쇄한 들깨 분말로서 관세율표 일반통칙 제1호 및 제6호에 따라 제1208.90-9000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제12류 채유용 종실",
+                "exclusionNote": "⚠️ 볶음 열처리를 거친 식용 들깨가루는 제2008.19-9000호로 분류됩니다.",
+                "headingExplanation": "제1208호에는 미가공 종실 분말을 분류합니다.",
+                "precedents": [],
+                "competingHsCodes": []
+            }
+
+        # 1-B. 들깨가루 / 볶은 들깨가루 (2008.19-9000)
+        if is_perilla and has_powder:
             return {
                 "keywordTrigger": ["들깨가루", "볶은 들깨가루", "볶음들깨 분말", "볶음들깨가루", "perilla powder", "perilla flour"],
                 "recommendedHsCode": "2008.19-9000",
@@ -1047,8 +1061,8 @@ def hs_classify_api(req: ClassifyReq):
                 ]
             }
 
-        # 1-B. 볶은 들깨 원형 낟알 (2008.19-9000)
-        if ("들깨" in prod_low or "perilla" in prod_low) and any(rk in prod_low for rk in ["볶", "구운", "roast", "toasted"]):
+        # 1-C. 볶은 들깨 원형 낟알 (2008.19-9000)
+        if is_perilla and is_truly_roasted:
             return {
                 "keywordTrigger": ["볶은 들깨", "볶은들깨", "볶음들깨", "roasted perilla seeds"],
                 "recommendedHsCode": "2008.19-9000",
@@ -1066,8 +1080,8 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
-        # 1-C. 생들깨 원형 종실 (1207.99-1000)
-        if "들깨" in prod_low or "생들깨" in prod_low or "perilla" in prod_low:
+        # 1-D. 생들깨 원형 종실 (1207.99-1000)
+        if is_perilla:
             return {
                 "keywordTrigger": ["생들깨", "들깨", "perilla seeds"],
                 "recommendedHsCode": "1207.99-1000",
@@ -1085,26 +1099,27 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
-        # 2-A. 참깨 분말 / 미가공 참깨가루 (1208.90-9000) vs 볶은 참깨가루 / 조제 참깨가루 (2008.19-3000)
-        if ("참깨" in prod_low or ("깨" in prod_low and "들깨" not in prod_low) or "sesame" in prod_low) and ("가루" in prod_low or "분말" in prod_low or "powder" in prod_low or "flour" in prod_low or "분" in prod_low or "세말" in prod_low or "조말" in prod_low):
-            if any(raw_kw in prod_low for raw_kw in ["생", "미가공", "미볶", "비가열", "raw", "unroasted", "탈지"]) or (not any(rk in prod_low for rk in ["볶", "구운", "roast", "toasted", "조제"]) and "가루" not in prod_low and "분말" in prod_low):
-                # 생참깨가루 / 참깨 분말 (1208.90-9000)
-                return {
-                    "keywordTrigger": ["생참깨가루", "생참깨 분말", "참깨 분말", "raw sesame powder"],
-                    "recommendedHsCode": "1208.90-9000",
-                    "headingName": "제1208호 (채유용 종실의 분과 밀)",
-                    "subheadingName": "제1208.90호 (기타 - 채유용 미가공 참깨 분말)",
-                    "confidence": 99,
-                    "technicalTerms": "Flours and meals of raw sesamum seeds",
-                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
-                    "legalReasoning": "본 물품은 열처리 볶음 공정을 거치지 않은 미가공 생참깨를 분쇄한 참깨 분말로서 관세율표 일반통칙 제1호 및 제6호에 따라 제1208.90-9000호에 분류됩니다.",
-                    "sectionNote": "제2부 식물성 생산품",
-                    "chapterNote": "제12류 채유용 종실",
-                    "exclusionNote": "⚠️ 볶음 열처리를 거친 식용 참깨가루는 제2008.19-3000호로 분류됩니다.",
-                    "headingExplanation": "제1208호에는 미가공 종실 분말을 분류합니다.",
-                    "precedents": [],
-                    "competingHsCodes": []
-                }
+        # 2-A. 생 참깨 분말 / 볶지않은 참깨가루 (1208.90-9000)
+        if is_sesame and has_powder and (is_negated_roasted or (not is_truly_roasted and "분말" in prod_low and "가루" not in prod_low)):
+            return {
+                "keywordTrigger": ["생참깨가루", "생참깨 분말", "참깨 분말", "볶지않은 참깨가루", "볶지 않은 참깨가루", "미가공 참깨가루", "raw sesame powder"],
+                "recommendedHsCode": "1208.90-9000",
+                "headingName": "제1208호 (채유용 종실의 분과 밀)",
+                "subheadingName": "제1208.90호 (기타 - 채유용 미가공 참깨 분말)",
+                "confidence": 99,
+                "technicalTerms": "Flours and meals of raw sesamum seeds",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 열처리 볶음 공정을 거치지 않은 미가공 생참깨를 분쇄한 참깨 분말로서 관세율표 일반통칙 제1호 및 제6호에 따라 제1208.90-9000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제12류 채유용 종실",
+                "exclusionNote": "⚠️ 볶음 열처리를 거친 식용 참깨가루는 제2008.19-3000호로 분류됩니다.",
+                "headingExplanation": "제1208호에는 미가공 종실 분말을 분류합니다.",
+                "precedents": [],
+                "competingHsCodes": []
+            }
+
+        # 2-B. 볶은 참깨가루 / 식용 조제 참깨가루 (2008.19-3000)
+        if is_sesame and has_powder:
             return {
                 "keywordTrigger": ["참깨가루", "깨가루", "볶은 참깨가루", "볶음참깨 분말", "볶음참깨가루", "roasted sesame powder"],
                 "recommendedHsCode": "2008.19-3000",
@@ -1147,8 +1162,8 @@ def hs_classify_api(req: ClassifyReq):
                 ]
             }
 
-        # 2-B. 볶은 참깨 원형 낟알 (2008.19-9000)
-        if ("참깨" in prod_low or ("깨" in prod_low and "들깨" not in prod_low) or "sesame" in prod_low) and any(rk in prod_low for rk in ["볶", "구운", "roast", "toasted"]):
+        # 2-C. 볶은 참깨 원형 낟알 (2008.19-9000)
+        if is_sesame and is_truly_roasted:
             return {
                 "keywordTrigger": ["볶은 참깨", "볶은참깨", "볶음참깨", "roasted sesame seeds"],
                 "recommendedHsCode": "2008.19-9000",
@@ -1166,8 +1181,8 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
-        # 2-C. 생참깨 원형 종실 (1207.40-0000)
-        if "참깨" in prod_low or ("깨" in prod_low and "들깨" not in prod_low) or "생참깨" in prod_low or "sesame" in prod_low:
+        # 2-D. 생참깨 원형 종실 (1207.40-0000)
+        if is_sesame:
             return {
                 "keywordTrigger": ["생참깨", "참깨", "sesamum seeds"],
                 "recommendedHsCode": "1207.40-0000",

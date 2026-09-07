@@ -272,6 +272,12 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0c. 건조표고버섯 / 표고버섯 로컬 우회 예외 처리
+    const isPerilla = query.includes('들깨') || query.includes('perilla');
+    const isSesame = (query.includes('참깨') || (query.includes('깨') && !isPerilla) || query.includes('sesame') || query.includes('sesamum'));
+    const isNegatedRoasted = ['볶지않', '볶지 않', '안볶', '안 볶', '미볶', '비볶', '비가열', '미가공', '생', '날것', 'raw', 'unroasted', 'non-roasted', '탈지'].some(kw => query.includes(kw));
+    const isTrulyRoasted = !isNegatedRoasted && ['볶은', '볶음', '구운', '로스팅', 'roast', 'toasted', '조제'].some(kw => query.includes(kw));
+    const hasPowder = ['가루', '분말', 'powder', 'flour', '세말', '조말', '분'].some(kw => query.includes(kw));
+
     if (query.includes('표고버섯') || query.includes('건조표고') || query.includes('shiitake') || (query.includes('버섯') && query.includes('건조'))) {
       return {
         keywordTrigger: ['표고버섯', '건조표고버섯', '건조 버섯', 'shiitake'],
@@ -316,10 +322,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
-    // 0-0d-0a. 생 들깨가루 / 미가공 들깨분말 (Raw Perilla Flour) 1208.90-9000
-    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('분')) && (query.includes('생') || query.includes('미가공') || query.includes('미볶') || query.includes('비가열') || query.includes('탈지') || query.includes('raw') || query.includes('unroasted') || (!query.includes('볶') && !query.includes('구운') && !query.includes('roast') && !query.includes('toasted') && !query.includes('조제') && !query.includes('가루') && query.includes('분말')))) {
+    // 0-0d-0a. 생 들깨 분말 / 볶지않은 들깨가루 / 미가공 들깨가루 (Raw Perilla Flour) 1208.90-9000
+    if (isPerilla && hasPowder && (isNegatedRoasted || (!isTrulyRoasted && query.includes('분말') && !query.includes('가루')))) {
       return {
-        keywordTrigger: ['생들깨가루', '생들깨 분말', '들깨 분말', '미가공 들깨가루', 'raw perilla powder'],
+        keywordTrigger: ['생들깨가루', '생들깨 분말', '들깨 분말', '볶지않은 들깨가루', '볶지 않은 들깨가루', '미가공 들깨가루', 'raw perilla powder'],
         recommendedHsCode: "1208.90-9000",
         headingName: "제1208호 (채유용(採油用)에 적합한 종실이나 유질(油質)을 함유한 과실의 고운 가루와 거친 가루 - 겨자의 것은 제외한다)",
         subheadingName: "제1208.90호 (기타 - 채유용 미가공 들깨의 분말)",
@@ -345,9 +351,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0d-0b. 들깨가루 / 볶은 들깨가루 (Roasted/Prepared Perilla Seed Flour) 2008.19-9000
-    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말') || query.includes('들깨분'))) {
+    if (isPerilla && hasPowder) {
       return {
-        keywordTrigger: ['들깨가루', '들깨 분말', '볶은 들깨가루', '볶음들깨가루', 'perilla powder', 'perilla flour', '들깨가루 100%'],
+        keywordTrigger: ['들깨가루', '볶은 들깨가루', '볶음들깨가루', '볶음들깨 분말', 'perilla powder', 'perilla flour', '들깨가루 100%'],
         recommendedHsCode: "2008.19-9000",
         headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
         subheadingName: "제2008.19호 (기타 - 조제한 들깨가루)",
@@ -376,7 +382,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
             issuingBody: "관세평가분류원",
             date: "2023-11-15",
             similarity: 98,
-            reasoningSnippet: "들깨의 종실을 세척 탈피 후 고온 볶음 처리하여 조제 분쇄한 조미용 제품으로, 제2008.19호의 기타 조제 식물류(2008.19-9000)로 분류함."
+            reasoningSnippet: "들깨의 종실을 세척 탈피 후 고온 볶음하여 분쇄한 조미용 제품으로, 제2008.19호의 기타 조제 식물류(2008.19-9000)로 분류함."
           }
         ],
         competingHsCodes: [
@@ -406,7 +412,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0d-0c. 볶은 들깨 (원형 낟알 형태) 2008.19-9000
-    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('볶') || query.includes('구운') || query.includes('roast') || query.includes('toasted'))) {
+    if (isPerilla && isTrulyRoasted) {
       return {
         keywordTrigger: ['볶은 들깨', '볶은들깨', '볶음들깨', 'roasted perilla seeds'],
         recommendedHsCode: "2008.19-9000",
@@ -434,7 +440,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0d-0d. 생 들깨 (Raw Perilla Seeds) 1207.99-1000
-    if (query.includes('들깨') || query.includes('생들깨') || query.includes('perilla seed') || query.includes('perilla')) {
+    if (isPerilla) {
       return {
         keywordTrigger: ['들깨', '생들깨', 'perilla seeds', 'raw perilla'],
         recommendedHsCode: "1207.99-1000",
@@ -461,10 +467,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
-    // 0-0d-1. 생 참깨 분말 / 미가공 참깨가루 (Raw Sesame Flour) 1208.90-9000
-    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('분')) && (query.includes('생') || query.includes('미가공') || query.includes('미볶') || query.includes('비가열') || query.includes('탈지') || query.includes('raw') || query.includes('unroasted') || (!query.includes('볶') && !query.includes('구운') && !query.includes('roast') && !query.includes('toasted') && !query.includes('조제') && !query.includes('가루') && query.includes('분말')))) {
+    // 0-0d-1. 생 참깨 분말 / 볶지않은 참깨가루 / 미가공 참깨가루 (Raw Sesame Flour) 1208.90-9000
+    if (isSesame && hasPowder && (isNegatedRoasted || (!isTrulyRoasted && query.includes('분말') && !query.includes('가루')))) {
       return {
-        keywordTrigger: ['생참깨가루', '생참깨 분말', '참깨 분말', '미가공 참깨가루', 'raw sesame powder'],
+        keywordTrigger: ['생참깨가루', '생참깨 분말', '참깨 분말', '볶지않은 참깨가루', '볶지 않은 참깨가루', '미가공 참깨가루', 'raw sesame powder'],
         recommendedHsCode: "1208.90-9000",
         headingName: "제1208호 (채유용(採油用)에 적합한 종실이나 유질(油質)을 함유한 과실의 고운 가루와 거친 가루 - 겨자의 것은 제외한다)",
         subheadingName: "제1208.90호 (기타 - 채유용 미가공 참깨의 분말)",
@@ -490,7 +496,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0d-2. 볶은 참깨가루 / 일반 참깨가루 (Roasted Sesame Powder) 2008.19-3000 로컬 우회 예외 처리
-    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말') || query.includes('참깨분') || query.includes('깨분'))) {
+    if (isSesame && hasPowder) {
       return {
         keywordTrigger: ['참깨가루', '깨가루', '볶은 참깨가루', '볶음참깨 분말', '볶음참깨가루', 'roasted sesame powder', 'sesame flour'],
         recommendedHsCode: "2008.19-3000",
@@ -551,7 +557,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0e. 볶은 참깨 (원형 낟알 형태) 2008.19-9000 로컬 우회 예외 처리
-    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('볶') || query.includes('구운') || query.includes('roast') || query.includes('toasted'))) {
+    if (isSesame && isTrulyRoasted) {
       return {
         keywordTrigger: ['볶은 참깨', '볶은참깨', '볶음참깨', '볶은 깨', 'roasted sesame seeds'],
         recommendedHsCode: "2008.19-9000",
@@ -586,7 +592,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0f-2. 생 참깨 (Raw Sesame Seeds) 1207.40-0000 로컬 우회 예외 처리
-    if (query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame') || query.includes('생참깨') || query.includes('sesamum')) {
+    if (isSesame) {
       return {
         keywordTrigger: ['참깨', '생참깨', 'sesamum seeds', 'raw sesame'],
         recommendedHsCode: "1207.40-0000",
