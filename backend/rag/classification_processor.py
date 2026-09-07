@@ -337,6 +337,39 @@ class AICustomsClassificationProcessor:
 
         # Prepare query tokens and text
         full_text = f"{product_name} {material} {function_use}".lower()
+
+        # 0. Domain Specific Hard Pre-Resolution for Sesame & Perilla Varieties
+        is_perilla = ("들깨" in full_text or "perilla" in full_text)
+        is_sesame = ("참깨" in full_text or ("깨" in full_text and not is_perilla) or "sesame" in full_text)
+        
+        if is_perilla or is_sesame:
+            has_powder = any(pk in full_text for pk in ["가루", "분말", "powder", "flour", "세말", "조말", "분"])
+            has_roasted = any(rk in full_text for rk in ["볶", "구운", "roast", "toasted", "조제"])
+            has_raw = any(rw in full_text for rw in ["생", "미가공", "미볶", "비가열", "raw", "unroasted", "탈지"])
+            
+            if is_perilla:
+                if has_powder:
+                    if has_raw or (not has_roasted and "가루" not in full_text and "분말" in full_text):
+                        return "1208.90-9000", "기타 (채유용 미가공 들깨 분말)", []
+                    else:
+                        return "2008.19-9000", "기타 (조제한 들깨가루)", []
+                else:
+                    if has_roasted:
+                        return "2008.19-9000", "기타 (원형 낟알 볶은 들깨)", []
+                    else:
+                        return "1207.99-1000", "들깨", []
+            elif is_sesame:
+                if has_powder:
+                    if has_raw or (not has_roasted and "가루" not in full_text and "분말" in full_text):
+                        return "1208.90-9000", "기타 (채유용 미가공 참깨 분말)", []
+                    else:
+                        return "2008.19-3000", "볶은 참깨가루", []
+                else:
+                    if has_roasted:
+                        return "2008.19-9000", "기타 (원형 낟알 볶은 참깨)", []
+                    else:
+                        return "1207.40-0000", "참깨", []
+
         text_words = [w for w in re.findall(r'[\w가-힣]+', full_text) if w not in generic_stopwords]
         
         # Extract key morphemes / subwords for Korean (e.g., 참깨가루 -> 참깨, 가루)

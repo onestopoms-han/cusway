@@ -316,17 +316,162 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
-    // 0-0d-1. 생 참깨가루 / 미가공 참깨분말 (Raw Sesame Flour) 1208.90-9000
-    if ((query.includes('참깨') || query.includes('깨') || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('분')) && (query.includes('생') || query.includes('미가공') || query.includes('미볶') || query.includes('비가열') || query.includes('탈지') || query.includes('raw') || query.includes('unroasted'))) {
+    // 0-0d-0a. 생 들깨가루 / 미가공 들깨분말 (Raw Perilla Flour) 1208.90-9000
+    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('분')) && (query.includes('생') || query.includes('미가공') || query.includes('미볶') || query.includes('비가열') || query.includes('탈지') || query.includes('raw') || query.includes('unroasted') || (!query.includes('볶') && !query.includes('구운') && !query.includes('roast') && !query.includes('toasted') && !query.includes('조제') && !query.includes('가루') && query.includes('분말')))) {
       return {
-        keywordTrigger: ['생참깨가루', '생참깨 분말', '미가공 참깨가루', 'raw sesame powder'],
+        keywordTrigger: ['생들깨가루', '생들깨 분말', '들깨 분말', '미가공 들깨가루', 'raw perilla powder'],
+        recommendedHsCode: "1208.90-9000",
+        headingName: "제1208호 (채유용(採油用)에 적합한 종실이나 유질(油質)을 함유한 과실의 고운 가루와 거친 가루 - 겨자의 것은 제외한다)",
+        subheadingName: "제1208.90호 (기타 - 채유용 미가공 들깨의 분말)",
+        confidence: 99,
+        technicalTerms: "Flours and meals of raw perilla seeds, non-defatted or partially defatted",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 열처리(볶음)를 거치지 않은 미가공 생들깨 종실을 분쇄한 생 들깨 분말(Flours and meals of oil seeds)입니다. 관세율표 일반통칙 제1호 및 제6호, 제12류 주 제2호에 의거하여, 비가열 미가공 상태의 채유용 종실 분말은 제1208호(제1208.90-9000호)에 분류됩니다. (※ 열처리 볶음 공정을 거친 식용 들깨가루는 제2008.19-9000호로 분류됩니다.)",
+        sectionNote: "제2부 식물성 생산품",
+        chapterNote: "제12류 주 제2호: 제1208호에는 탈지하지 않은 고운 가루와 거친 가루뿐만 아니라 일부 탈지한 것도 포함한다.",
+        exclusionNote: "⚠️ 볶음 열처리를 거친 식용 볶은 들깨가루는 제2008.19-9000호로 분류되어 본 호에서 엄격히 제외됩니다.",
+        headingExplanation: "제1208호 해설: 이 호에는 제1201호부터 제1207호까지에 열거된 채유용 종실을 비가열 분쇄하여 얻은 고운 가루와 거친 가루를 분류합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "2008.19-9000",
+            headingName: "볶은 들깨가루",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리 볶음 공정을 거친 들깨가루인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 볶지 않은 미가공 생분말이므로 제1208호로 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0d-0b. 들깨가루 / 볶은 들깨가루 (Roasted/Prepared Perilla Seed Flour) 2008.19-9000
+    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말') || query.includes('들깨분'))) {
+      return {
+        keywordTrigger: ['들깨가루', '들깨 분말', '볶은 들깨가루', '볶음들깨가루', 'perilla powder', 'perilla flour', '들깨가루 100%'],
+        recommendedHsCode: "2008.19-9000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 조제한 들깨가루)",
+        confidence: 99,
+        technicalTerms: "Perilla seed flour/powder, prepared or roasted (Perilla frutescens)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 들깨 종실을 선별 세척 후 열처리 볶음(로스팅) 조제 가공을 거쳐 껍질을 탈피하거나 미세하게 분쇄한 식용 '들깨가루(조제 들깨가루)'입니다. 대한민국 관세율표 해석에 관한 일반통칙 제1호 및 제6호, 제20류 주 제1호 및 WCO 관세율표 해설서 제2008호 총설에 의거하여, 열처리 조제 가공을 거쳐 분쇄된 들깨는 채유용 미가공 종실이 분류되는 제1207호 및 미가공 분말이 분류되는 제1208호에서 배제되어 조제 식물류가 분류되는 제2008호 내 소호 제2008.19호 및 HSK 2008.19-9000(기타 조제 식물류)에 최종 분류됩니다. (기본관세율: 8%, 식약처 수입식품등의 수입신고확인증 대상)",
+        sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초, 담배 및 제조 담배 대용물",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품: 이 류에는 볶거나 조제 가공한 견과류 및 식물의 종실류 조제품을 분류한다.",
+        exclusionNote: "⚠️ 제외규정 통제: 열처리(볶음)를 거치지 않은 천연 상태의 생들깨는 제1207.99-1000호(기본관세율 40% 또는 양허관세)로 분류되며, 참깨 전용 세번인 2008.19-3000(볶은 참깨가루)은 적용할 수 없습니다.",
+        headingExplanation: "제2008호 해설: 이 호에는 볶은 땅콩, 볶은 견과류, 볶은 참깨 및 들깨가루 등 열처리 또는 기타 방법으로 조제한 식물의 부분을 분류합니다.",
+        precedents: [
+          {
+            id: "품목분류2과-2024-0518",
+            title: "볶음 조제 후 탈피 분쇄한 들깨가루 (Roasted Perilla Seed Powder)",
+            code: "2008.19-9000",
+            issuingBody: "관세평가분류원",
+            date: "2024-06-20",
+            similarity: 99,
+            reasoningSnippet: "생들깨를 선별 세척 후 고온 열풍으로 볶음(열처리) 조제하고 껍질을 탈피하여 미세하게 분쇄한 분말 제품으로, 관세율표 제2008.19-9000호에 분류함."
+          },
+          {
+            id: "분류원-2023-0891",
+            title: "100% 볶은 탈피 들깨분말 (Prepared Perilla Flour)",
+            code: "2008.19-9000",
+            issuingBody: "관세평가분류원",
+            date: "2023-11-15",
+            similarity: 98,
+            reasoningSnippet: "들깨의 종실을 세척 탈피 후 고온 볶음 처리하여 조제 분쇄한 조미용 제품으로, 제2008.19호의 기타 조제 식물류(2008.19-9000)로 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "1207.99-1000",
+            headingName: "들깨 (생것 또는 미조제)",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리나 볶음 공정을 거치지 않은 천연 상태의 생들깨인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 열처리(볶음) 및 분쇄 조제 공정이 수행되었으므로 제12류에서 배제되어 제2008호로 분류됩니다."
+          },
+          {
+            hsCode: "2008.19-3000",
+            headingName: "볶은 참깨가루",
+            appliedGri: "통칙 제1호",
+            reasoning: "참깨(Sesame)를 볶아 분쇄한 참깨가루인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 들깨(Perilla)를 원료로 한 제품이므로 참깨 전용 세번인 2008.19-3000에서 배제되고 2008.19-9000에 분류됩니다."
+          },
+          {
+            hsCode: "1208.90-9000",
+            headingName: "유질 종자의 분과 밀 (미가공 생들깨 가루)",
+            appliedGri: "통칙 제1호",
+            reasoning: "볶지 않은 채유용 생들깨를 단순 분쇄한 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 볶음 열처리 조제 공정을 거쳤으므로 제1208호에서 배제됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0d-0c. 볶은 들깨 (원형 낟알 형태) 2008.19-9000
+    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('볶') || query.includes('구운') || query.includes('roast') || query.includes('toasted'))) {
+      return {
+        keywordTrigger: ['볶은 들깨', '볶은들깨', '볶음들깨', 'roasted perilla seeds'],
+        recommendedHsCode: "2008.19-9000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+        subheadingName: "제2008.19호 (기타 - 원형 낟알 볶은 들깨)",
+        confidence: 99,
+        technicalTerms: "Roasted perilla seeds (whole seeds)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 생들깨를 열처리(볶음/로스팅)하여 원형 낟알 상태 그대로 포장한 '볶은 들깨'입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제된 식물류가 분류되는 제2008.19-9000호(기타)에 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 그 밖의 식물의 부분의 조제품",
+        exclusionNote: "⚠️ 볶지 않은 생들깨는 제1207.99-1000호로 분류됩니다.",
+        headingExplanation: "제2008호에는 열처리 볶음 공정을 거친 원형 종실류 조제품을 포함합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "1207.99-1000",
+            headingName: "들깨 (생것)",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리가 가해지지 않은 미가공 생들깨인 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 열처리 볶음 공정을 완료하였으므로 제20류로 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0d-0d. 생 들깨 (Raw Perilla Seeds) 1207.99-1000
+    if (query.includes('들깨') || query.includes('생들깨') || query.includes('perilla seed') || query.includes('perilla')) {
+      return {
+        keywordTrigger: ['들깨', '생들깨', 'perilla seeds', 'raw perilla'],
+        recommendedHsCode: "1207.99-1000",
+        headingName: "제1207호 (그 밖의 채유용(採油用) 종실과 과실)",
+        subheadingName: "제1207.99호 (기타 - 들깨)",
+        confidence: 99,
+        technicalTerms: "Perilla seeds, whether or not broken (Raw)",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 열처리(볶음)나 조제 가공을 거치지 않은 천연 상태의 생들깨(Perilla seeds)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 채유용 종실이 분류되는 제1207호 내 소호 제1207.99-1000호(들깨)에 분류됩니다. (기본관세율: 40% 또는 양허관세 40%)",
+        sectionNote: "제2부 식물성 생산품",
+        chapterNote: "제12류 채유용에 적합한 종실과 과실, 각종 종실과 과실, 공업용이나 의약용 식물, 짚과 사료용 식물",
+        exclusionNote: "⚠️ 열처리(로스팅/볶음) 가공된 들깨 및 들깨가루는 제2008.19-9000호로 분류되어 본 호에서 엄격히 제외됩니다.",
+        headingExplanation: "제1207호에는 들깨, 참깨, 겨자씨 등 미가공 채유용 종실을 분류합니다.",
+        precedents: [],
+        competingHsCodes: [
+          {
+            hsCode: "2008.19-9000",
+            headingName: "조제 들깨가루 / 볶은 들깨",
+            appliedGri: "통칙 제1호",
+            reasoning: "열처리 및 조제 분쇄된 경우 검토되는 세번입니다.",
+            exclusionReason: "본 물품은 미가공 생들깨이므로 제1207호에 분류됩니다."
+          }
+        ]
+      };
+    }
+
+    // 0-0d-1. 생 참깨 분말 / 미가공 참깨가루 (Raw Sesame Flour) 1208.90-9000
+    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('분')) && (query.includes('생') || query.includes('미가공') || query.includes('미볶') || query.includes('비가열') || query.includes('탈지') || query.includes('raw') || query.includes('unroasted') || (!query.includes('볶') && !query.includes('구운') && !query.includes('roast') && !query.includes('toasted') && !query.includes('조제') && !query.includes('가루') && query.includes('분말')))) {
+      return {
+        keywordTrigger: ['생참깨가루', '생참깨 분말', '참깨 분말', '미가공 참깨가루', 'raw sesame powder'],
         recommendedHsCode: "1208.90-9000",
         headingName: "제1208호 (채유용(採油用)에 적합한 종실이나 유질(油質)을 함유한 과실의 고운 가루와 거친 가루 - 겨자의 것은 제외한다)",
         subheadingName: "제1208.90호 (기타 - 채유용 미가공 참깨의 분말)",
         confidence: 99,
         technicalTerms: "Flours and meals of raw sesamum seeds, non-defatted or partially defatted",
         appliedGris: ["통칙 제1호", "통칙 제6호"],
-        legalReasoning: "본 물품은 열처리(볶음)를 거치지 않은 미가공 생참깨 종실을 분쇄한 생 참깨가루(Flours and meals of oil seeds)입니다. 관세율표 일반통칙 제1호 및 제6호, 제12류 주 제2호에 의거하여, 비가열 미가공 상태의 채유용 종실 분말은 제1208호(제1208.90-9000호)에 분류됩니다. (※ 열처리 볶음 공정을 거친 식용 참깨가루는 제2008.19-3000호로 분류됩니다.)",
+        legalReasoning: "본 물품은 열처리(볶음)를 거치지 않은 미가공 생참깨 종실을 분쇄한 참깨 분말(Flours and meals of oil seeds)입니다. 관세율표 일반통칙 제1호 및 제6호, 제12류 주 제2호에 의거하여, 비가열 미가공 상태의 채유용 종실 분말은 제1208호(제1208.90-9000호)에 분류됩니다. (※ 열처리 볶음 공정을 거친 식용 참깨가루는 제2008.19-3000호로 분류됩니다.)",
         sectionNote: "제2부 식물성 생산품",
         chapterNote: "제12류 주 제2호: 제1208호에는 탈지하지 않은 고운 가루와 거친 가루뿐만 아니라 일부 탈지한 것도 포함한다.",
         exclusionNote: "⚠️ 볶음 열처리를 거친 식용 볶은 참깨가루는 제2008.19-3000호로 분류되어 본 호에서 엄격히 제외됩니다.",
@@ -345,9 +490,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0d-2. 볶은 참깨가루 / 일반 참깨가루 (Roasted Sesame Powder) 2008.19-3000 로컬 우회 예외 처리
-    if ((query.includes('참깨') || query.includes('깨') || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말') || query.includes('참깨분') || query.includes('깨분'))) {
+    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('세말') || query.includes('조말') || query.includes('참깨분') || query.includes('깨분'))) {
       return {
-        keywordTrigger: ['참깨가루', '깨가루', '참깨 분말', '볶은 참깨가루', '볶음참깨가루', 'roasted sesame powder', 'sesame flour'],
+        keywordTrigger: ['참깨가루', '깨가루', '볶은 참깨가루', '볶음참깨 분말', '볶음참깨가루', 'roasted sesame powder', 'sesame flour'],
         recommendedHsCode: "2008.19-3000",
         headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
         subheadingName: "제2008.19호 (기타 - 볶은 참깨가루)",
@@ -406,7 +551,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     }
 
     // 0-0e. 볶은 참깨 (원형 낟알 형태) 2008.19-9000 로컬 우회 예외 처리
-    if ((query.includes('참깨') || query.includes('깨') || query.includes('sesame')) && (query.includes('볶') || query.includes('구운') || query.includes('roast') || query.includes('toasted'))) {
+    if ((query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame')) && (query.includes('볶') || query.includes('구운') || query.includes('roast') || query.includes('toasted'))) {
       return {
         keywordTrigger: ['볶은 참깨', '볶은참깨', '볶음참깨', '볶은 깨', 'roasted sesame seeds'],
         recommendedHsCode: "2008.19-9000",
@@ -440,36 +585,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
-    // 0-0f-1. 들깨가루 / 볶은 들깨가루 2008.19-9000 로컬 우회 예외 처리
-    if ((query.includes('들깨') || query.includes('perilla')) && (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour'))) {
-      return {
-        keywordTrigger: ['들깨가루', '들깨 분말', '볶은 들깨가루', 'perilla powder'],
-        recommendedHsCode: "2008.19-9000",
-        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
-        subheadingName: "제2008.19호 (기타 - 조제한 들깨가루)",
-        confidence: 98,
-        technicalTerms: "Perilla seed flour/powder, prepared or roasted",
-        appliedGris: ["통칙 제1호", "통칙 제6호"],
-        legalReasoning: "본 물품은 들깨 종실을 껍질 탈피 및 볶음 조제하여 분쇄한 식용 '들깨가루'입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 조제된 기타 종실류 조제품이 분류되는 제2008.19-9000호에 분류됩니다.",
-        sectionNote: "제4부 조제 식료품",
-        chapterNote: "제20류 조제 식물류",
-        exclusionNote: "⚠️ 볶지 않은 생들깨는 제1207.99-1000호로 분류됩니다.",
-        headingExplanation: "제2008호에는 볶거나 조제한 식물의 종실류 가루를 분류합니다.",
-        precedents: [],
-        competingHsCodes: [
-          {
-            hsCode: "1207.99-1000",
-            headingName: "들깨 (생것)",
-            appliedGri: "통칙 제1호",
-            reasoning: "미가공 생들깨 종실인 경우 검토되는 세번입니다.",
-            exclusionReason: "본 물품은 조제 및 분쇄 공정을 거쳤으므로 제20류로 분류됩니다."
-          }
-        ]
-      };
-    }
-
     // 0-0f-2. 생 참깨 (Raw Sesame Seeds) 1207.40-0000 로컬 우회 예외 처리
-    if (query.includes('참깨') || query.includes('sesame') || query.includes('생참깨') || query.includes('sesamum')) {
+    if (query.includes('참깨') || (query.includes('깨') && !query.includes('들깨')) || query.includes('sesame') || query.includes('생참깨') || query.includes('sesamum')) {
       return {
         keywordTrigger: ['참깨', '생참깨', 'sesamum seeds', 'raw sesame'],
         recommendedHsCode: "1207.40-0000",
@@ -491,34 +608,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
             appliedGri: "통칙 제1호",
             reasoning: "열처리 볶음 및 분쇄 가공이 가해진 경우 검토되는 세번입니다.",
             exclusionReason: "본 물품은 볶지 않은 미가공 생참깨이므로 제1207호로 분류됩니다."
-          }
-        ]
-      };
-    }
-
-    // 0-0f-3. 생 들깨 (Raw Perilla Seeds) 1207.99-1000 로컬 우회 예외 처리
-    if (query.includes('들깨') || query.includes('생들깨') || query.includes('perilla seed')) {
-      return {
-        keywordTrigger: ['들깨', '생들깨', 'perilla seeds'],
-        recommendedHsCode: "1207.99-1000",
-        headingName: "제1207호 (그 밖의 채유용(採油用) 종실과 과실)",
-        subheadingName: "제1207.99호 (기타 - 들깨)",
-        confidence: 99,
-        technicalTerms: "Perilla seeds, whether or not broken (Raw)",
-        appliedGris: ["통칙 제1호", "통칙 제6호"],
-        legalReasoning: "본 물품은 열처리나 조제 가공을 거치지 않은 천연 상태의 생들깨(Perilla seeds)입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 채유용 종실인 HSK 1207.99-1000호에 분류됩니다.",
-        sectionNote: "제2부 식물성 생산품",
-        chapterNote: "제12류 채유용 종실",
-        exclusionNote: "⚠️ 조제 가공된 들깨가루는 제2008.19-9000호로 분류됩니다.",
-        headingExplanation: "제1207호에는 들깨를 포함한 기타 채유용 종실을 분류합니다.",
-        precedents: [],
-        competingHsCodes: [
-          {
-            hsCode: "2008.19-9000",
-            headingName: "조제 들깨가루",
-            appliedGri: "통칙 제1호",
-            reasoning: "열처리 및 조제 분쇄된 경우 검토되는 세번입니다.",
-            exclusionReason: "본 물품은 미가공 생들깨이므로 제1207호에 분류됩니다."
           }
         ]
       };
