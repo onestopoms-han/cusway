@@ -388,9 +388,44 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
     }
   };
 
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.email?.toLowerCase() === 'admin@cusway.kr' ||
+      currentUser.email?.toLowerCase().startsWith('admin@') ||
+      currentUser.is_admin === true ||
+      currentUser.role === 'admin' ||
+      currentUser.user_type === 'admin'
+    )
+  );
+
   useEffect(() => {
-    fetchAdminData();
-  }, []);
+    if (isAdmin) {
+      fetchAdminData();
+    }
+  }, [isAdmin]);
+
+  if (!isAdmin) {
+    return (
+      <div style={{
+        padding: '60px 24px',
+        textAlign: 'center',
+        background: '#ffffff',
+        borderRadius: '16px',
+        border: '1.5px solid #e2e8f0',
+        maxWidth: '520px',
+        margin: '60px auto',
+        boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
+      }}>
+        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#dc2626' }}>
+          <ShieldAlert size={28} />
+        </div>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>관리자 전용 페이지</h2>
+        <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '20px', lineHeight: 1.5 }}>
+          해당 화면은 CUSWAY 총괄 관리자 계정(admin@cusway.kr)으로 로그인된 경우에만 접근할 수 있습니다.
+        </p>
+      </div>
+    );
+  }
 
   const saveCustomersState = (updated: Customer[]) => {
     setCustomers(updated);

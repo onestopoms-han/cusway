@@ -21,6 +21,10 @@ class User(Base):
     credibility_weight = Column(Float, default=1.0)
     phone_number = Column(String, default="")
 
+    @property
+    def is_admin(self) -> bool:
+        return bool(self.email and (self.email.lower() == "admin@cusway.kr" or self.email.lower().startswith("admin@")))
+
 class Precedent(Base):
     __tablename__ = "precedents"
 

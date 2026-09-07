@@ -38,6 +38,8 @@ export default function App() {
     years_of_experience?: number;
     credibility_weight?: number;
     phone_number?: string;
+    is_admin?: boolean;
+    role?: string;
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,6 +48,23 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
+
+  // Admin Role Validation (Only admin@cusway.kr or admin-flagged accounts)
+  const isAdmin = Boolean(
+    currentUser && (
+      currentUser.email?.toLowerCase() === 'admin@cusway.kr' ||
+      currentUser.email?.toLowerCase().startsWith('admin@') ||
+      currentUser.is_admin === true ||
+      currentUser.role === 'admin' ||
+      currentUser.user_type === 'admin'
+    )
+  );
+
+  useEffect(() => {
+    if (isLoggedIn && !isAdmin && currentView === 'admin') {
+      setCurrentView('showcase');
+    }
+  }, [isLoggedIn, isAdmin, currentView]);
   
   // Signup states
   const [isSigningUp, setIsSigningUp] = useState(false);
@@ -1204,22 +1223,24 @@ export default function App() {
               <span>비공개 결정례 캐시백</span>
             </button>
 
-            <button 
-              onClick={() => setCurrentView('admin')}
-              className="app-sidebar-nav-btn"
-              style={{
-                background: currentView === 'admin' ? '#ccfbf1' : '#f8fafc',
-                color: currentView === 'admin' ? '#0f766e' : '#0f172a',
-                fontWeight: 950,
-                cursor: 'pointer',
-                border: currentView === 'admin' ? '2.5px solid #0d9488' : '1.5px solid #cbd5e1',
-                borderRadius: '8px',
-                boxShadow: currentView === 'admin' ? '0 2px 8px rgba(13, 148, 136, 0.15)' : 'none'
-              }}
-            >
-              <ShieldAlert size={16} color={currentView === 'admin' ? '#0d9488' : '#0f766e'} />
-              <span>관리자 포털 & CRM</span>
-            </button>
+            {isAdmin && (
+              <button 
+                onClick={() => setCurrentView('admin')}
+                className="app-sidebar-nav-btn"
+                style={{
+                  background: currentView === 'admin' ? '#ccfbf1' : '#f8fafc',
+                  color: currentView === 'admin' ? '#0f766e' : '#0f172a',
+                  fontWeight: 950,
+                  cursor: 'pointer',
+                  border: currentView === 'admin' ? '2.5px solid #0d9488' : '1.5px solid #cbd5e1',
+                  borderRadius: '8px',
+                  boxShadow: currentView === 'admin' ? '0 2px 8px rgba(13, 148, 136, 0.15)' : 'none'
+                }}
+              >
+                <ShieldAlert size={16} color={currentView === 'admin' ? '#0d9488' : '#0f766e'} />
+                <span>관리자 포털 & CRM</span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -1416,7 +1437,43 @@ export default function App() {
           <CashBackManager currentUser={currentUser} />
         )}
         {currentView === 'admin' && (
-          <AdminPortal currentUser={currentUser || { email: '', company_name: 'CUSWAY 관리자' }} />
+          isAdmin ? (
+            <AdminPortal currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }} />
+          ) : (
+            <div style={{
+              padding: '60px 24px',
+              textAlign: 'center',
+              background: '#ffffff',
+              borderRadius: '16px',
+              border: '1.5px solid #e2e8f0',
+              maxWidth: '520px',
+              margin: '60px auto',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
+            }}>
+              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#dc2626' }}>
+                <ShieldAlert size={28} />
+              </div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>관리자 전용 페이지</h2>
+              <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '24px', lineHeight: 1.5 }}>
+                해당 화면은 CUSWAY 총괄 관리자 계정(admin@cusway.kr)으로 로그인된 경우에만 접근할 수 있습니다.
+              </p>
+              <button
+                onClick={() => setCurrentView('showcase')}
+                style={{
+                  padding: '10px 24px',
+                  background: '#0d9488',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  fontSize: '0.9rem'
+                }}
+              >
+                메인 쇼케이스로 이동
+              </button>
+            </div>
+          )
         )}
         {currentView === 'billing' && (
           <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />

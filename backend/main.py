@@ -113,6 +113,7 @@ class UserResponse(BaseModel):
     years_of_experience: int = 0
     credibility_weight: float = 1.0
     phone_number: Optional[str] = ""
+    is_admin: bool = False
 
     class Config:
         from_attributes = True
