@@ -387,7 +387,8 @@ class AICustomsClassificationProcessor:
             # 3. High-weight domain keywords matching (Bidirectional Korean & English)
             keyword_boosts = [
                 ("가루", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
-                ("참깨", ["참깨", "깨", "sesamum", "sesame"]),
+                ("참깨", ["참깨", "볶음참깨", "sesamum", "sesame", "흰깨", "검은깨", "흑임자"]),
+                ("들깨", ["들깨", "perilla"]),
                 ("볶은", ["볶은", "구운", "roasted", "heat-treated", "toasted"]),
                 ("콩나물", ["콩나물", "sprout", "sprouting", "yellow soybean"]),
                 ("대두", ["대두", "콩", "soybean", "soya", "glycine max"]),
@@ -412,19 +413,30 @@ class AICustomsClassificationProcessor:
             ]
             
             for kw_name, target_terms in keyword_boosts:
-                input_has_kw = any(t in full_text for t in target_terms)
-                cand_has_kw = any(t in cand_lower for t in target_terms)
+                # Handle special case: '깨' alone without '들깨'
+                if kw_name == "참깨":
+                    input_has_kw = any(t in full_text for t in target_terms) or ("깨" in full_text and "들깨" not in full_text)
+                    cand_has_kw = any(t in cand_lower for t in target_terms) or ("깨" in cand_lower and "들깨" not in cand_lower)
+                else:
+                    input_has_kw = any(t in full_text for t in target_terms)
+                    cand_has_kw = any(t in cand_lower for t in target_terms)
                 
                 if input_has_kw and cand_has_kw:
                     score += 300.0
                     match_reasons.append(f"특화 품목 키워드 적합: '{kw_name}'")
                 elif not input_has_kw and cand_has_kw:
                     # Penalty if candidate is specific to another item not mentioned in input
-                    if kw_name in ["밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
+                    if kw_name in ["참깨", "밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
                         score -= 300.0
                         match_reasons.append(f"타 품목 전용 세번 감점: '{kw_name}' 미포함")
 
-            # 4. Fallback "기타 (Other)" base score
+            # 4. Domain Specific Mutual Exclusion Penalties
+            if ("들깨" in full_text or "perilla" in full_text) and ("참깨" not in full_text and "sesame" not in full_text):
+                if clean_cand.startswith("2008193000") or clean_cand.startswith("1207400000") or "참깨" in cand_name_ko or "sesame" in cand_name_en.lower():
+                    score -= 800.0
+                    match_reasons.append("들깨 품목으로 참깨 세번 배제")
+
+            # 5. Fallback "기타 (Other)" base score
             if "기타" in cand_name_ko or "other" in cand_lower:
                 score += 1.0
                 
