@@ -49,22 +49,20 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
 
-  // Admin Role Validation (Only admin@cusway.kr or admin-flagged accounts)
+  // Admin Role Validation (Strictly admin@cusway.kr or verified is_admin flag only)
   const isAdmin = Boolean(
-    currentUser && (
-      currentUser.email?.toLowerCase() === 'admin@cusway.kr' ||
-      currentUser.email?.toLowerCase().startsWith('admin@') ||
+    currentUser && currentUser.email && (
+      currentUser.email.toLowerCase().trim() === 'admin@cusway.kr' ||
       currentUser.is_admin === true ||
-      currentUser.role === 'admin' ||
-      currentUser.user_type === 'admin'
+      currentUser.role === 'admin'
     )
   );
 
   useEffect(() => {
-    if (isLoggedIn && !isAdmin && currentView === 'admin') {
+    if (!isAdmin && currentView === 'admin') {
       setCurrentView('showcase');
     }
-  }, [isLoggedIn, isAdmin, currentView]);
+  }, [isAdmin, currentView]);
   
   // Signup states
   const [isSigningUp, setIsSigningUp] = useState(false);

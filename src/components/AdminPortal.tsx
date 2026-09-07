@@ -389,12 +389,10 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
   };
 
   const isAdmin = Boolean(
-    currentUser && (
-      currentUser.email?.toLowerCase() === 'admin@cusway.kr' ||
-      currentUser.email?.toLowerCase().startsWith('admin@') ||
+    currentUser && currentUser.email && (
+      currentUser.email.toLowerCase().trim() === 'admin@cusway.kr' ||
       currentUser.is_admin === true ||
-      currentUser.role === 'admin' ||
-      currentUser.user_type === 'admin'
+      currentUser.role === 'admin'
     )
   );
 

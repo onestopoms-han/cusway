@@ -141,7 +141,8 @@ def social_login_kakao(req: SocialCallbackRequest):
         user_type="general_user",
         years_of_experience=0,
         credibility_weight=0.5,
-        phone_number=phone_number
+        phone_number=phone_number,
+        is_admin=False
     )
 
 @app.post("/api/auth/social/google", response_model=UserResponse)
@@ -198,7 +199,8 @@ def social_login_google(req: SocialCallbackRequest):
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type="general_user",
         years_of_experience=0,
-        credibility_weight=0.5
+        credibility_weight=0.5,
+        is_admin=False
     )
 
 @app.post("/api/auth/signup", response_model=UserResponse)
