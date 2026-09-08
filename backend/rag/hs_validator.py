@@ -45,6 +45,12 @@ class HSConsistencyValidator:
             "error_msg": "제3926호(기타 플라스틱 제품)는 플라스틱제 완구/인형(제9503호) 또는 모조 신변장식용품(제7117호)을 제외하며, 이들은 해당 전용 호로 우선 분류됩니다."
         },
         {
+            "target_chapter": "03",  # Fish, crustaceans, molluscs (Uncooked/raw)
+            "excluded_chapters": ["16", "21"],  # Prepared or cooked seafood belongs to Chapter 16 or 21
+            "exception_keywords": ["생물", "활어", "신선", "냉장", "단순냉동", "원형", "통어류", "필레", "미조리", "염장", "건조", "훈제"],
+            "error_msg": "제3류(어류·갑각류·연체동물)는 조리(열처리: 볶음, 튀김, 구이, 찜 등)되거나 조제된 물품을 제외합니다(제3류 주 제1호 나목). 조리·볶음된 해물/수산물은 제16류(1604호 또는 1605호)나 제21류(조제 식료품)로 분류되어야 합니다."
+        },
+        {
             "target_chapter": "87",  # Vehicles parts
             "excluded_headings": ["8483", "8511", "8512"],  # Specific machinery parts prioritized over vehicle parts (17부 주2호 마목)
             "exception_keywords": ["범퍼", "섀시", "차체", "핸들", "브레이크"],
@@ -119,6 +125,12 @@ class HSConsistencyValidator:
                     elif excl_ch in ["34", "38"] and ("비누" in query_text or "세제" in query_text or "세척" in query_text or "소독" in query_text or "살균" in query_text or "알코올" in query_text):
                         if not any(exc in query_text for exc in rule["exception_keywords"]):
                             score_deduction += 35
+                            warnings.append(rule["error_msg"])
+                            break
+                    # Check Cooked/Prepared Seafood exclusion in Chapter 3
+                    elif excl_ch in ["16", "21"] and ("볶음" in query_text or "조리" in query_text or "튀김" in query_text or "구이" in query_text or "양념" in query_text or "가열" in query_text or "조제" in query_text):
+                        if not any(exc in query_text for exc in ["단순냉동", "생물", "활어", "신선", "미조리"]):
+                            score_deduction += 50
                             warnings.append(rule["error_msg"])
                             break
                             

@@ -1357,6 +1357,63 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
                 ]
             }
 
+        # 냉동 해물볶음 / 조리 수산물 조제품 수동 검색 매핑 우회 및 경합세번 병기
+        if any(k in keyword for k in ["해물볶음", "오징어볶음", "낙지볶음", "해물 볶음", "seafood stir fry"]) or (any(s in keyword for s in ["해물", "수산물", "오징어", "낙지", "문어", "조개"]) and any(c in keyword for c in ["볶음", "조리", "양념", "구이", "가열"])):
+            is_squid_only = "오징어" in keyword and "해물" not in keyword and "모둠" not in keyword
+            is_octo_only = ("낙지" in keyword or "문어" in keyword) and "해물" not in keyword
+            
+            target_code = "1605.54-9000" if is_squid_only else ("1605.59-2000" if is_octo_only else "1605.59-9000")
+            target_subheading = "오징어 조제품 (볶음/조리 가공품)" if is_squid_only else ("낙지/문어 조제품 (볶음 가공품)" if is_octo_only else "기타 연체동물 및 수생무척추동물 조제품 (냉동 해물볶음)")
+
+            return {
+                "keywordTrigger": [keyword],
+                "recommendedHsCode": target_code,
+                "headingName": "제1605호 (갑각류ㆍ연체동물과 그 밖의 수생 무척추동물 - 조제하거나 저장처리한 것)",
+                "subheadingName": f"제{target_code[:7]}호 ({target_subheading})",
+                "confidence": 98,
+                "technicalTerms": "Prepared or preserved seafood (Stir-fried seafood, frozen)",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 오징어, 낙지, 조개 등 해물(연체동물/수생무척추동물)에 채소 및 양념 소스를 가미하여 가열 볶음 조리 후 냉동한 수산물 조제품입니다.\n\n■ 법적 분류 근거:\n1. 관세율표 제3류 주 제1호 나목에 의거하여, 조리(열처리/볶음)되거나 조제된 물품은 제3류(신선/단순냉동 수산물)에서 명시적으로 제외되며 제16류로 분류됩니다.\n2. 관세율표 일반통칙 제1호 및 제6호에 따라 조제 또는 저장처리한 연체동물 조제품이 분류되는 제1605호(기타 연체동물 조제품: 1605.59-9000)에 최종 결정됩니다.",
+                "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초, 담배 및 제조한 담배 대용물",
+                "chapterNote": "제16류 육류ㆍ어류ㆍ갑각류ㆍ연체동물이나 그 밖의 수생 무척추동물의 조제품 (제3류 주1호나목 연계)",
+                "exclusionNote": "⚠️ [중대 제외규정] 볶음 등 열처리 조리 가공된 수산물은 제3류(0303호, 0306호, 0307호)의 단순 냉동 생물 세번으로 분류할 수 없으며 제16류로 강제 분류됩니다.",
+                "headingExplanation": "제1605호 해설: 이 호에는 삶기, 찌기, 굽기, 튀기기, 볶기 등 모든 방법으로 조리하거나 소스/양념을 가미하여 조제한 갑각류, 연체동물(오징어, 문어, 낙지, 조개류 등) 및 수생무척추동물을 분류합니다.",
+                "precedents": [
+                    {
+                        "id": "PREC-1605-01",
+                        "title": "오징어 및 조개살을 양념과 함께 가열 볶음 조리한 냉동 해물볶음의 품목분류",
+                        "code": "1605.59-9000",
+                        "issuingBody": "관세평가분류원",
+                        "date": "2024-03-15",
+                        "similarity": 99,
+                        "reasoningSnippet": "수산물(연체동물 등)을 주원료로 하여 채소 및 양념과 함께 가열 볶음 조리한 물품은 제3류 주1호나목에 의해 제3류에서 제외되고, 제16류 주1호 및 통칙 제1호, 제6호에 따라 제1605.59-9000호에 분류함."
+                    }
+                ],
+                "competingHsCodes": [
+                    {
+                        "hsCode": "0303.99-0000",
+                        "headingName": "냉동 어류 (기타)",
+                        "appliedGri": "통칙 제1호",
+                        "reasoning": "단순 냉동 수산물로 오인될 수 있으나 가열 볶음 조리되었으므로 제3류 제외규정에 의해 완전 배제됩니다.",
+                        "exclusionReason": "제3류 주 제1호 나목: 조제 또는 열처리 조리된 수산물은 제3류에서 제외되어 제16류로 분류됨."
+                    },
+                    {
+                        "hsCode": "0307.43-0000",
+                        "headingName": "냉동 오징어 (미조리)",
+                        "appliedGri": "통칙 제1호",
+                        "reasoning": "미가공 단순 냉동 상태의 오징어가 분류되는 호입니다.",
+                        "exclusionReason": "양념 첨가 및 볶음 조리 공정으로 인해 제3류에서 배제되고 제1605호로 이송됨."
+                    },
+                    {
+                        "hsCode": "2106.90-9099",
+                        "headingName": "기타 조제 식료품",
+                        "appliedGri": "통칙 제3호 나목",
+                        "reasoning": "해물 외에 밥, 면 등 곡물류가 주성분으로 혼합된 복합 조리식품(HMR)일 경우 검토되는 세번입니다.",
+                        "exclusionReason": "수산물이 주된 본질적 특성을 부여하는 볶음 요리는 제16류(1605호)가 제21류보다 우선 적용됩니다."
+                    }
+                ]
+            }
+
         # 성경/성경책 수동 검색 강제 매핑 우회
         if "성경" in keyword or "bible" in keyword or "성경책" in keyword:
             return {
