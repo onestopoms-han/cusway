@@ -353,9 +353,12 @@ class AICustomsClassificationProcessor:
                 rk in full_text for rk in ["볶은", "볶음", "구운", "로스팅", "roast", "toasted", "조제"]
             )
             has_powder = any(pk in full_text for pk in ["가루", "분말", "powder", "flour", "세말", "조말", "분"])
+            has_crushed = any(ck in full_text for ck in ["파쇄", "부순", "거칠", "1.25", "체", "crushed", "broken"])
             
             if is_perilla:
-                if has_powder:
+                if has_crushed:
+                    return "1207.99-1000", "들깨", []
+                elif has_powder:
                     if is_negated_roasted or (not is_truly_roasted and "분말" in full_text and "가루" not in full_text):
                         return "1208.90-9000", "기타 (채유용 미가공 들깨 분말)", []
                     else:
@@ -366,7 +369,9 @@ class AICustomsClassificationProcessor:
                     else:
                         return "1207.99-1000", "들깨", []
             elif is_sesame:
-                if has_powder:
+                if has_crushed:
+                    return "1207.40-0000", "참깨", []
+                elif has_powder:
                     if is_negated_roasted or (not is_truly_roasted and "분말" in full_text and "가루" not in full_text):
                         return "1208.90-9000", "기타 (채유용 미가공 참깨 분말)", []
                     else:

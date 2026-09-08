@@ -25,6 +25,9 @@ const testCases = [
   { input: "볶지 않은 참깨가루", expected: "1208.90-9000", desc: "볶지 않은 참깨가루" },
   { input: "안 볶은 참깨가루", expected: "1208.90-9000", desc: "안 볶은 참깨가루" },
   { input: "미가공 참깨가루", expected: "1208.90-9000", desc: "미가공 참깨가루" },
+  { input: "볶은 참깨 파쇄물", expected: "1207.40-0000", desc: "볶은 참깨 파쇄물 (분석47260-1300)" },
+  { input: "파쇄 참깨", expected: "1207.40-0000", desc: "파쇄 참깨" },
+  { input: "거칠게 파쇄된 참깨", expected: "1207.40-0000", desc: "거칠게 파쇄된 참깨" },
   { input: "생참깨", expected: "1207.40-0000", desc: "생참깨 (미가공 원형 종실)" },
   { input: "참깨", expected: "1207.40-0000", desc: "참깨 (미가공 원형 종실)" },
   { input: "볶은 참깨", expected: "2008.19-9000", desc: "볶은 참깨 (원형 낟알)" }
@@ -59,6 +62,11 @@ function runMockClassifier(prod, mat = "", func = "") {
   // 0-0d-0d. 생 들깨 (Raw Perilla Seeds) 1207.99-1000
   if (isPerilla) {
     return "1207.99-1000";
+  }
+
+  // 0-0f-1. 파쇄된 참깨 / 볶은 참깨 파쇄물 (Crushed Sesame Seeds, 1.25mm 체 통과율 95% 미만 - 분석47260-1300) 1207.40-0000
+  if (isSesame && (query.includes('파쇄') || query.includes('부순') || query.includes('거칠') || query.includes('1.25') || query.includes('체') || query.includes('crushed') || query.includes('broken'))) {
+    return "1207.40-0000";
   }
 
   // 0-0d-1. 생 참깨 분말 / 볶지않은 참깨가루 / 미가공 참깨가루 (Raw Sesame Flour) 1208.90-9000

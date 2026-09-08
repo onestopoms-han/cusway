@@ -1162,7 +1162,44 @@ def hs_classify_api(req: ClassifyReq):
                 ]
             }
 
-        # 2-C. 볶은 참깨 원형 낟알 (2008.19-9000)
+        # 2-C. 파쇄 참깨 / 볶은 참깨 파쇄물 (1.25mm 체 통과율 95% 미만) (1207.40-0000)
+        if is_sesame and any(ck in prod_low for ck in ["파쇄", "부순", "거칠", "1.25", "체", "crushed", "broken"]):
+            return {
+                "keywordTrigger": ["파쇄 참깨", "볶은 참깨 파쇄물", "거칠게 파쇄된 참깨", "crushed sesame seeds"],
+                "recommendedHsCode": "1207.40-0000",
+                "headingName": "제1207호 (그 밖의 채유용 종실과 과실)",
+                "subheadingName": "제1207.40호 (참깨 - 부순 것 포함)",
+                "confidence": 99,
+                "technicalTerms": "Sesamum seeds, whether or not broken (Crushed/Broken)",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 참깨(볶음 여부 불문)를 파쇄한 것으로 거칠게 파쇄된 참깨와 원형의 참깨가 혼합되어 1.25mm 금속망 체를 통과하는 중량비율이 95% 미만(약 60%)인 '파쇄 참깨'입니다. 관세청 품목분류 적용기준 고시 및 관세평가분류원 공식 결정례(분석47260-1300)에 의거하여, 1.25mm 체 통과율이 95% 미만인 물품은 분/가루(제1208호 또는 제2008.19-3000호)가 아닌 파쇄된 종실로 보아 제1207호의 '그 밖의 채유용에 적합한 종자와 과실(부수었는지에 상관없다)'이 분류되는 HSK 1207.40-0000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제12류 채유용 종실(부수었는지에 상관없다)",
+                "exclusionNote": "⚠️ 1.25mm 체 통과율이 95% 이상으로 곱게 분쇄된 볶은 참깨가루는 제2008.19-3000호, 미가공 참깨 분말은 제1208.90-9000호로 분류됩니다.",
+                "headingExplanation": "제1207호 해설: 이 호에는 부순 것(broken/crushed)인지에 상관없이 종실류를 분류하며, 1.25mm 체 통과율 95% 미만 파쇄 참깨는 1207.40호에 분류합니다.",
+                "precedents": [
+                    {
+                        "id": "분석47260-1300",
+                        "title": "볶은 참깨 파쇄물 (Crushed Roasted Sesamum Seeds - 1.25mm 체 통과율 약 60%)",
+                        "code": "1207.40-0000",
+                        "issuingBody": "관세청 중앙관세분석소 / 관세평가분류원",
+                        "date": "2018-05-15",
+                        "similarity": 100,
+                        "reasoningSnippet": "볶은 참깨를 파쇄한 것으로 거칠게 파쇄된 참깨와 원형 참깨의 혼합물로 1.25mm 체 통과 중량비율이 약 60%임. 관세율표 제1207호의 채유용 종실(부수었는지의 여부를 불문한다)에 해당하여 HSK 1207.40-0000호에 분류함."
+                    }
+                ],
+                "competingHsCodes": [
+                    {
+                        "hsCode": "2008.19-3000",
+                        "headingName": "볶은 참깨가루",
+                        "appliedGri": "통칙 제1호",
+                        "reasoning": "1.25mm 체 통과율이 95% 이상으로 곱게 분쇄 조제된 가루 형태인 경우 검토되는 세번입니다.",
+                        "exclusionReason": "본 물품은 1.25mm 체 통과율이 95% 미만인 거친 파쇄물이므로 제1207.40-0000호로 분류됩니다."
+                    }
+                ]
+            }
+
+        # 2-D. 볶은 참깨 원형 낟알 (2008.19-9000)
         if is_sesame and is_truly_roasted:
             return {
                 "keywordTrigger": ["볶은 참깨", "볶은참깨", "볶음참깨", "roasted sesame seeds"],
@@ -1181,7 +1218,7 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
-        # 2-D. 생참깨 원형 종실 (1207.40-0000)
+        # 2-E. 생참깨 원형 종실 (1207.40-0000)
         if is_sesame:
             return {
                 "keywordTrigger": ["생참깨", "참깨", "sesamum seeds"],
@@ -1194,9 +1231,19 @@ def hs_classify_api(req: ClassifyReq):
                 "legalReasoning": "열처리나 조제 가공을 거치지 않은 천연 상태의 생참깨(Sesamum seeds)로서 제1207.40-0000호에 분류됩니다.",
                 "sectionNote": "제2부 식물성 생산품",
                 "chapterNote": "제12류 채유용 종실",
-                "exclusionNote": "⚠️ 볶음 가공된 참깨는 제2008호로 분류됩니다.",
+                "exclusionNote": "⚠️ 볶음 가공된 볶은 참깨는 2008.19-9000호, 분쇄된 볶은 참깨가루는 2008.19-3000호로 분류됩니다.",
                 "headingExplanation": "제1207호에는 미가공 채유용 종실을 분류합니다.",
-                "precedents": [],
+                "precedents": [
+                    {
+                        "id": "분석47260-1300",
+                        "title": "볶은 참깨 파쇄물 (Crushed Roasted Sesamum Seeds)",
+                        "code": "1207.40-0000",
+                        "issuingBody": "관세청 중앙관세분석소 / 관세평가분류원",
+                        "date": "2018-05-15",
+                        "similarity": 98,
+                        "reasoningSnippet": "1.25mm 체 통과 중량비율이 약 60%인 파쇄 참깨는 제1207호의 종실(부수었는지 불문)인 HSK 1207.40-0000호에 분류."
+                    }
+                ],
                 "competingHsCodes": []
             }
 
