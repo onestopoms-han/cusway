@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
