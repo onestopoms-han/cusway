@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2 } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
@@ -10,6 +9,7 @@ import LawNewsPortal from './components/LawNewsPortal'
 import KakaoConsultModal from './components/KakaoConsultModal'
 import OfficeBrandingModal from './components/OfficeBrandingModal'
 import BrandShowcase from './components/BrandShowcase'
+import ServiceGuideModal from './components/ServiceGuideModal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -90,6 +90,28 @@ export default function App() {
 
   // Customs Office White-Label Branding Modal State
   const [showBrandingModal, setShowBrandingModal] = useState(false);
+
+  // Service Manual & Button Guide Modal State
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [guideDefaultSection, setGuideDefaultSection] = useState('hs-classifier');
+
+  const handleOpenGuide = (sectionId?: string) => {
+    if (sectionId) {
+      setGuideDefaultSection(sectionId);
+    } else {
+      const viewMap: Record<string, string> = {
+        'showcase': 'hs-classifier',
+        'hs-classifier': 'hs-classifier',
+        'clearance-wizard': 'clearance-wizard',
+        'law-news': 'law-news',
+        'valuation': 'valuation',
+        'cashback': 'cashback',
+        'admin': 'hs-classifier'
+      };
+      setGuideDefaultSection(viewMap[currentView] || 'hs-classifier');
+    }
+    setShowGuideModal(true);
+  };
 
   // States for transferring details to ClearanceWizard
   const [wizardHsCode, setWizardHsCode] = useState('2009.89-1090');
@@ -1239,6 +1261,26 @@ export default function App() {
                 <span>관리자 포털 & CRM</span>
               </button>
             )}
+
+            {/* Service & Button Guide Trigger */}
+            <button 
+              onClick={() => handleOpenGuide()}
+              className="app-sidebar-nav-btn"
+              title="각 화면별 버튼 및 기능 가이드북 열기"
+              style={{
+                background: 'linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%)',
+                color: '#1d4ed8',
+                fontWeight: 950,
+                cursor: 'pointer',
+                border: '1.5px solid #3b82f6',
+                borderRadius: '8px',
+                marginTop: '4px',
+                boxShadow: '0 2px 6px rgba(59, 130, 246, 0.15)'
+              }}
+            >
+              <HelpCircle size={16} color="#2563eb" />
+              <span>💡 버튼 & 기능 가이드</span>
+            </button>
           </nav>
         </div>
 
@@ -1401,6 +1443,7 @@ export default function App() {
             onNavigate={(view) => setCurrentView(view)}
             onOpenBranding={() => setShowBrandingModal(true)}
             onOpenKakaoConsult={handleOpenKakaoChat}
+            onOpenGuide={handleOpenGuide}
           />
         )}
         {currentView === 'hs-classifier' && (
@@ -1816,6 +1859,13 @@ export default function App() {
         isOpen={showBrandingModal}
         onClose={() => setShowBrandingModal(false)}
         currentUser={currentUser}
+      />
+
+      {/* Service Manual & Button Usage Guide Modal */}
+      <ServiceGuideModal
+        isOpen={showGuideModal}
+        onClose={() => setShowGuideModal(false)}
+        defaultSectionId={guideDefaultSection}
       />
     </div>
   )

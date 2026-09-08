@@ -1275,30 +1275,55 @@ export default function CustomsReportModal({
                   </div>
                 </div>
 
-                {/* Red Circular Seal Stamp Graphic */}
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  border: '3.5px solid #dc2626',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#dc2626',
-                  fontWeight: 900,
-                  fontSize: '0.84rem',
-                  textAlign: 'center',
-                  lineHeight: 1.2,
-                  padding: '4px',
-                  boxShadow: '0 0 0 1px rgba(220,38,38,0.2)',
-                  transform: 'rotate(-4deg)',
-                  userSelect: 'none',
-                  background: 'rgba(254, 242, 242, 0.4)',
-                  marginLeft: '20px',
-                  flexShrink: 0
-                }}>
-                  {branding.sealText || `${branding.firmName}인`}
-                </div>
+                {/* Red Circular Seal Stamp Graphic / Custom Seal Image */}
+                {branding.customSealUrl && branding.sealMode !== 'auto-text' ? (
+                  <div style={{
+                    width: '84px',
+                    height: '84px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: 'rotate(-3deg)',
+                    userSelect: 'none',
+                    marginLeft: '20px',
+                    flexShrink: 0
+                  }}>
+                    <img 
+                      src={branding.customSealUrl} 
+                      alt="공인 직인" 
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '100%',
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 1px 3px rgba(220,38,38,0.35))'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    border: '3.5px solid #dc2626',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#dc2626',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    padding: '4px',
+                    boxShadow: '0 0 0 1px rgba(220,38,38,0.2)',
+                    transform: 'rotate(-4deg)',
+                    userSelect: 'none',
+                    background: 'rgba(254, 242, 242, 0.4)',
+                    marginLeft: '20px',
+                    flexShrink: 0
+                  }}>
+                    {branding.sealText || `${branding.firmName}인`}
+                  </div>
+                )}
               </div>
 
               {/* Verification Footer */}

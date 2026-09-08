@@ -12,6 +12,8 @@ export interface OfficeBranding {
   logoIcon: 'scales' | 'building' | 'globe' | 'shield' | 'custom';
   customLogoUrl?: string;
   sealText: string;
+  sealMode?: 'custom-image' | 'auto-text';
+  customSealUrl?: string;
   brandingMode: 'co-branding' | 'white-label';
   customDisclaimer?: string;
 }
@@ -27,6 +29,8 @@ export const DEFAULT_OFFICE_BRANDING: OfficeBranding = {
   logoIcon: 'scales',
   customLogoUrl: '',
   sealText: '대한관세법인인',
+  sealMode: 'auto-text',
+  customSealUrl: '',
   brandingMode: 'co-branding',
   customDisclaimer: '본 검토서는 관세법, 관세율표 해석에 관한 통칙 및 WCO 해설서에 근거하여 작성된 전문 사전의견서입니다.'
 };
@@ -45,7 +49,9 @@ export const getSavedOfficeBranding = (user?: any): OfficeBranding => {
       ...DEFAULT_OFFICE_BRANDING,
       firmName: user.company_name,
       firmNameEn: `${user.company_name.toUpperCase()} CUSTOMS`,
-      sealText: `${user.company_name}인`.slice(0, 8)
+      sealText: `${user.company_name}인`.slice(0, 8),
+      sealMode: 'auto-text',
+      customSealUrl: ''
     };
   }
   return DEFAULT_OFFICE_BRANDING;
@@ -62,6 +68,7 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
   const [branding, setBranding] = useState<OfficeBranding>(() => getSavedOfficeBranding(currentUser));
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [sealUploadError, setSealUploadError] = useState<string | null>(null);
 
   const isEnterprise = currentUser?.plan?.toLowerCase() === 'business' || currentUser?.plan?.toLowerCase() === 'enterprise';
 
@@ -105,10 +112,52 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
     }));
   };
 
+  const handleSealFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSealUploadError(null);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setSealUploadError('이미지 파일(PNG, JPG, WebP)만 업로드할 수 있습니다.');
+      return;
+    }
+
+    if (file.size > 2.5 * 1024 * 1024) {
+      setSealUploadError('직인 이미지 용량은 최대 2.5MB 이하로 업로드해 주세요.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      if (result) {
+        setBranding(prev => ({
+          ...prev,
+          sealMode: 'custom-image',
+          customSealUrl: result
+        }));
+      }
+    };
+    reader.onerror = () => {
+      setSealUploadError('직인 이미지 파일을 읽는 중 오류가 발생했습니다.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveCustomSeal = () => {
+    setBranding(prev => ({
+      ...prev,
+      sealMode: 'auto-text',
+      customSealUrl: ''
+    }));
+  };
+
   useEffect(() => {
     if (isOpen) {
       setBranding(getSavedOfficeBranding(currentUser));
       setSaveSuccess(false);
+      setUploadError(null);
+      setSealUploadError(null);
     }
   }, [isOpen, currentUser]);
 
@@ -573,44 +622,232 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
                 </div>
               </div>
 
-              {/* Red Seal Custom Stamp */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.78rem', color: '#cbd5e1', marginBottom: '4px', fontWeight: 700 }}>
-                  관세사 공인 직인/인장 문구 (붉은 원형 직인 자동 생성)
-                </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={branding.sealText}
-                    onChange={(e) => setBranding(prev => ({ ...prev, sealText: e.target.value }))}
-                    placeholder="예: 대한관세법인인"
-                    style={{
-                      flex: 1,
-                      padding: '9px 12px',
-                      background: '#1e293b',
-                      border: '1px solid #334155',
-                      borderRadius: '6px',
-                      color: '#fff',
-                      fontSize: '0.85rem'
-                    }}
-                  />
+              {/* Red Seal Custom Stamp / Image Upload Section */}
+              <div style={{
+                background: 'rgba(30, 41, 59, 0.6)',
+                border: '1px solid #334155',
+                borderRadius: '8px',
+                padding: '14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: '#f8fafc', fontWeight: 800 }}>
+                    🔴 관세사 공인 직인 (인장/도장 날인)
+                  </label>
+                  <span style={{ fontSize: '0.7rem', color: branding.customSealUrl ? '#ef4444' : '#94a3b8', fontWeight: 700 }}>
+                    {branding.customSealUrl ? '✓ 공인 직인 이미지 등록됨' : '자동 텍스트 도장 사용 중'}
+                  </span>
+                </div>
+
+                {/* Seal Mode Selection Tabs */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <button
                     type="button"
-                    onClick={() => setBranding(prev => ({ ...prev, sealText: `${prev.firmName}인` }))}
+                    onClick={() => setBranding(prev => ({ ...prev, sealMode: 'custom-image' }))}
                     style={{
-                      padding: '0 12px',
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid #334155',
+                      padding: '8px 10px',
+                      background: branding.sealMode === 'custom-image' ? 'rgba(239, 68, 68, 0.2)' : '#0f172a',
+                      border: branding.sealMode === 'custom-image' ? '1.5px solid #ef4444' : '1px solid #334155',
                       borderRadius: '6px',
-                      color: '#94a3b8',
+                      color: branding.sealMode === 'custom-image' ? '#f87171' : '#94a3b8',
+                      fontWeight: 800,
                       fontSize: '0.75rem',
                       cursor: 'pointer',
-                      whiteSpace: 'nowrap'
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
                     }}
                   >
-                    상호 연동
+                    <span>🔴 실제 직인 이미지 업로드</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBranding(prev => ({ ...prev, sealMode: 'auto-text' }))}
+                    style={{
+                      padding: '8px 10px',
+                      background: branding.sealMode === 'auto-text' ? 'rgba(6, 182, 212, 0.2)' : '#0f172a',
+                      border: branding.sealMode === 'auto-text' ? '1.5px solid #06b6d4' : '1px solid #334155',
+                      borderRadius: '6px',
+                      color: branding.sealMode === 'auto-text' ? '#38bdf8' : '#94a3b8',
+                      fontWeight: 800,
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <span>🔤 텍스트 자동 도장 생성</span>
                   </button>
                 </div>
+
+                {/* 1. Custom Image Seal Mode */}
+                {branding.sealMode === 'custom-image' ? (
+                  <div>
+                    {branding.customSealUrl ? (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        background: '#0f172a',
+                        border: '1.5px solid #ef4444',
+                        borderRadius: '8px',
+                        padding: '10px 14px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                          <div style={{
+                            background: '#ffffff',
+                            borderRadius: '8px',
+                            padding: '6px',
+                            width: '56px',
+                            height: '56px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: '1px solid #fca5a5',
+                            boxShadow: '0 2px 6px rgba(239, 68, 68, 0.15)'
+                          }}>
+                            <img 
+                              src={branding.customSealUrl} 
+                              alt="Official Seal" 
+                              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} 
+                            />
+                          </div>
+                          <div>
+                            <span style={{ fontSize: '0.78rem', color: '#f8fafc', fontWeight: 800, display: 'block' }}>
+                              등록된 공인 직인/인감 이미지
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 600 }}>
+                              ✓ 검토의견서/통관 리포트 서명란에 실시간 날인 중
+                            </span>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <label style={{
+                            padding: '6px 10px',
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            border: '1px solid #dc2626',
+                            borderRadius: '6px',
+                            color: '#f87171',
+                            fontSize: '0.72rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <Upload size={13} /> 변경
+                            <input 
+                              type="file" 
+                              accept="image/png, image/jpeg, image/jpg, image/webp" 
+                              onChange={handleSealFileUpload} 
+                              style={{ display: 'none' }} 
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={handleRemoveCustomSeal}
+                            style={{
+                              padding: '6px 10px',
+                              background: 'rgba(148, 163, 184, 0.15)',
+                              border: '1px solid #64748b',
+                              borderRadius: '6px',
+                              color: '#94a3b8',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Trash2 size={13} /> 삭제
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <label style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '18px',
+                        background: '#0f172a',
+                        border: '1.5px dashed #dc2626',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f87171', fontWeight: 800, fontSize: '0.82rem' }}>
+                          <Upload size={16} />
+                          <span>공인 직인/인장 도장 이미지 파일 업로드 (클릭)</span>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center' }}>
+                          투명 배경 PNG 권장 (JPG, WebP 가능, 최대 2.5MB) • 스캔된 붉은 인감 도장 이미지
+                        </span>
+                        <input 
+                          type="file" 
+                          accept="image/png, image/jpeg, image/jpg, image/webp" 
+                          onChange={handleSealFileUpload} 
+                          style={{ display: 'none' }} 
+                        />
+                      </label>
+                    )}
+
+                    {sealUploadError && (
+                      <p style={{ margin: '6px 0 0 0', fontSize: '0.72rem', color: '#ef4444' }}>
+                        ⚠️ {sealUploadError}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  /* 2. Auto Text Seal Mode */
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.74rem', color: '#cbd5e1', marginBottom: '6px' }}>
+                      원형 직인에 각인될 문구 (자동 붉은 원형 인장 그래픽)
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="text"
+                        value={branding.sealText}
+                        onChange={(e) => setBranding(prev => ({ ...prev, sealText: e.target.value }))}
+                        placeholder="예: 대한관세법인인"
+                        style={{
+                          flex: 1,
+                          padding: '9px 12px',
+                          background: '#0f172a',
+                          border: '1px solid #334155',
+                          borderRadius: '6px',
+                          color: '#fff',
+                          fontSize: '0.85rem'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBranding(prev => ({ ...prev, sealText: `${prev.firmName}인` }))}
+                        style={{
+                          padding: '0 12px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid #334155',
+                          borderRadius: '6px',
+                          color: '#94a3b8',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        상호 연동
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Branding Mode Toggle */}
@@ -798,28 +1035,55 @@ export default function OfficeBrandingModal({ isOpen, onClose, currentUser, onSa
                     </div>
                   </div>
 
-                  {/* Red Official Seal Graphic */}
-                  <div style={{
-                    width: '68px',
-                    height: '68px',
-                    borderRadius: '50%',
-                    border: '3px solid #dc2626',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#dc2626',
-                    fontWeight: 900,
-                    fontSize: '0.72rem',
-                    textAlign: 'center',
-                    lineHeight: 1.15,
-                    padding: '4px',
-                    boxShadow: '0 0 0 1px rgba(220,38,38,0.2)',
-                    transform: 'rotate(-4deg)',
-                    userSelect: 'none',
-                    background: 'rgba(254, 242, 242, 0.4)'
-                  }}>
-                    {branding.sealText || '대한관세법인인'}
-                  </div>
+                  {/* Red Official Seal Graphic / Custom Seal Image */}
+                  {branding.customSealUrl && branding.sealMode !== 'auto-text' ? (
+                    <div style={{
+                      width: '74px',
+                      height: '74px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transform: 'rotate(-3deg)',
+                      userSelect: 'none',
+                      marginLeft: '12px',
+                      flexShrink: 0
+                    }}>
+                      <img 
+                        src={branding.customSealUrl} 
+                        alt="Official Seal Stamp" 
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          objectFit: 'contain',
+                          filter: 'drop-shadow(0 1px 2px rgba(220,38,38,0.35))'
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '68px',
+                      height: '68px',
+                      borderRadius: '50%',
+                      border: '3px solid #dc2626',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#dc2626',
+                      fontWeight: 900,
+                      fontSize: '0.72rem',
+                      textAlign: 'center',
+                      lineHeight: 1.15,
+                      padding: '4px',
+                      boxShadow: '0 0 0 1px rgba(220,38,38,0.2)',
+                      transform: 'rotate(-4deg)',
+                      userSelect: 'none',
+                      background: 'rgba(254, 242, 242, 0.4)',
+                      marginLeft: '12px',
+                      flexShrink: 0
+                    }}>
+                      {branding.sealText || '대한관세법인인'}
+                    </div>
+                  )}
                 </div>
 
                 {/* Verification Footer (Preview) */}

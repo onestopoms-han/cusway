@@ -36,6 +36,7 @@ interface BrandShowcaseProps {
   onNavigate: (view: 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'billing' | 'law-news') => void;
   onOpenBranding: () => void;
   onOpenKakaoConsult: () => void;
+  onOpenGuide?: (sectionId?: string) => void;
   currentUser?: any;
 }
 
@@ -43,6 +44,7 @@ export default function BrandShowcase({
   onNavigate,
   onOpenBranding,
   onOpenKakaoConsult,
+  onOpenGuide,
   currentUser
 }: BrandShowcaseProps) {
   const [activeTab, setActiveTab] = useState<'invoice-calc' | 'branding' | 'cashback' | 'pipeline' | 'valuation'>('invoice-calc');
@@ -241,8 +243,33 @@ export default function BrandShowcase({
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
               <FileText size={17} color="var(--accent-amber)" />
-              <span>📄 공식 브로슈어 인쇄/PDF</span>
+              <span>📄 공식 브로슈어</span>
             </button>
+
+            {onOpenGuide && (
+              <button
+                onClick={() => onOpenGuide('hs-classifier')}
+                style={{
+                  padding: '14px 20px',
+                  background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.1) 0%, rgba(2, 132, 199, 0.1) 100%)',
+                  border: '1.5px solid #0284c7',
+                  borderRadius: '10px',
+                  color: '#0369a1',
+                  fontSize: '0.92rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <HelpCircle size={17} color="#0284c7" />
+                <span>💡 버튼 & 기능 가이드북</span>
+              </button>
+            )}
           </div>
 
           {/* Realtime Trust Metrics Bar */}
@@ -613,23 +640,48 @@ export default function BrandShowcase({
                     <div style={{ fontSize: '0.65rem', color: '#64748b' }}>{branding.firmName} 대표/담당 관세사</div>
                     <div style={{ fontWeight: 900, fontSize: '0.8rem', color: '#0f172a' }}>{branding.brokerName || '홍길동 공인관세사'} ({branding.licenseNo})</div>
                   </div>
-                  {/* Red Stamp */}
-                  <div style={{
-                    width: '46px',
-                    height: '46px',
-                    borderRadius: '50%',
-                    border: '2px solid #dc2626',
-                    color: '#dc2626',
-                    fontWeight: 900,
-                    fontSize: '0.58rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transform: 'rotate(-4deg)',
-                    background: 'rgba(254, 242, 242, 0.6)'
-                  }}>
-                    {branding.sealText || `${branding.firmName}인`}
-                  </div>
+                  {/* Red Stamp / Custom Seal Image */}
+                  {branding.customSealUrl && branding.sealMode !== 'auto-text' ? (
+                    <div style={{
+                      width: '48px',
+                      height: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transform: 'rotate(-3deg)',
+                      userSelect: 'none',
+                      flexShrink: 0
+                    }}>
+                      <img 
+                        src={branding.customSealUrl} 
+                        alt="공인 직인" 
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          objectFit: 'contain',
+                          filter: 'drop-shadow(0 1px 2px rgba(220,38,38,0.35))'
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '46px',
+                      height: '46px',
+                      borderRadius: '50%',
+                      border: '2px solid #dc2626',
+                      color: '#dc2626',
+                      fontWeight: 900,
+                      fontSize: '0.58rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transform: 'rotate(-4deg)',
+                      background: 'rgba(254, 242, 242, 0.6)',
+                      flexShrink: 0
+                    }}>
+                      {branding.sealText || `${branding.firmName}인`}
+                    </div>
+                  )}
                 </div>
 
                 {/* Co-Branding Bar */}
