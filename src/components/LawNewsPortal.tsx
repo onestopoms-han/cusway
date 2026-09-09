@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BookOpen, ExternalLink, FileText, Bell, Star, Search, ShieldAlert, ArrowUpRight } from 'lucide-react'
+import { BookOpen, ExternalLink, FileText, Bell, Star, Search, ShieldAlert, ArrowUpRight, RefreshCw, CheckCircle2 } from 'lucide-react'
 
 interface LawNewsPortalProps {
   currentUser: any;
@@ -13,16 +13,92 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   const [selectedNoticeModal, setSelectedNoticeModal] = useState<any | null>(null);
   const [selectedLawModal, setSelectedLawModal] = useState<any | null>(null);
   const [previewAttachment, setPreviewAttachment] = useState<any | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
   // Reset page to 1 when search term changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Fallback CLHS News Headlines (Today: 2026-09-04)
+  const handleSync = async () => {
+    setIsSyncing(true);
+    setSyncMessage(null);
+    try {
+      const res = await fetch('/api/customs/news/sync', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncMessage(data.message || '최신 법령·고시 실시간 동기화가 완료되었습니다.');
+        const newsRes = await fetch('/api/customs/news');
+        if (newsRes.ok) {
+          const newsData = await newsRes.json();
+          if (Array.isArray(newsData) && newsData.length > 0) {
+            setNotices(newsData);
+          }
+        }
+      } else {
+        setSyncMessage('동기화 처리 중 오류가 발생했습니다.');
+      }
+    } catch (e) {
+      console.error('News sync error:', e);
+      setSyncMessage('동기화 서버 연결에 실패했습니다.');
+    } finally {
+      setIsSyncing(false);
+      setTimeout(() => {
+        setSyncMessage(null);
+      }, 5000);
+    }
+  };
+
+  // Fallback CLHS News Headlines (Today: 2026-09-09)
   const fallbackNotices = [
     {
       id: 1,
+      tag: '관세청 속보',
+      title: '[속보] 2026년 9월 9일 관세율표 HSK 품목분류 및 첨단 반도체·이차전지 핵심소재 통관 고시',
+      date: '2026-09-09',
+      agency: '관세청 통관국 품목분류과',
+      summary: '2026년 9월 9일부로 AI 가속기 모듈(제8473호), 고대역폭메모리(HBM 제8542호) 및 실리콘 음극재 전구체(제28류/38류)에 대한 10단위 HSK 확정 및 사전심사 표준 지침 전국 세관 시행 공표.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065450'
+    },
+    {
+      id: 2,
+      tag: '관세청 고시',
+      title: '[고시 제2026-95호] 2026년 9월 9일 한-중동 CEPA 및 RCEP 원산지증명서 전자검증(E-C/O) 전면 가동',
+      date: '2026-09-09',
+      agency: '관세청 자유무역협정집행국',
+      summary: '한-UAE CEPA 발효 및 RCEP 체약국 간 원산지증명서 실시간 전자교환시스템(EODES) 확대에 따른 종이 C/O 제출 면제 및 수입신고 즉시 수리 가이드라인 배포.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065451'
+    },
+    {
+      id: 3,
+      tag: '통합공고 요건',
+      title: '[공고] 2026년 9월 8일 대외무역법 수입 세관장확인 대상 전기용품 및 화학물질 안전인증 개편',
+      date: '2026-09-08',
+      agency: '산업통상자원부 / 관세청 통관기획과',
+      summary: '전기용품및생활용품안전관리법(전안법) 및 화학물질관리법(화관법) 개정에 따른 유니패스 수입신고 자동 승인 연계 품목 35종 추가 공표.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065445'
+    },
+    {
+      id: 4,
+      tag: '관세평가',
+      title: '2026년 9월 7일 특수관계자 간 이전가격(APA) 및 로열티 권리사용료 과세가격 산정 결정례집 배포',
+      date: '2026-09-07',
+      agency: '관세평가분류원 관세평가과',
+      summary: '다국적기업 본지사 간 특수관계 수입거래에서 제1방법(거래가격) 배제 사유 및 로열티/라이선스 비용 가산율 산정에 관한 최신 조세심판원/대법원 판례 해설집 발간.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065440'
+    },
+    {
+      id: 5,
+      tag: '특송 통관',
+      title: '2026년 9월 6일 해외직구 개인통관고유부호 도용 방지 AI 이상거래 실시간 탐지 시스템 가동',
+      date: '2026-09-06',
+      agency: '관세청 전자상거래통관과',
+      summary: '자가사용 인정 기준 초과 분할 수입 및 타인 명의 도용 특송 화물에 대한 실시간 AI 탐지 알고리즘 적용으로 성실 통관자 1시간 내 자동 수리 보장.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065435'
+    },
+    {
+      id: 6,
       tag: '관세청 속보',
       title: '[속보] 2026년 9월 4일 관세율표 HSK 품목분류 및 농축수산물 양허세율 적용 지침 고시',
       date: '2026-09-04',
@@ -31,139 +107,13 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065430'
     },
     {
-      id: 2,
+      id: 7,
       tag: 'FTA 협정세율',
       title: '[고시] 2026년 9월 4일 한-EU FTA 및 RCEP 원산지증명서(C/O) 간소화 기준 개정',
       date: '2026-09-04',
       agency: '관세청 자유무역협정집행기획관',
       summary: 'EU 27개 회원국 대상 6,000유로 초과 시 인증수출자(Approved Exporter) 전산 검증 연동 및 RCEP 연결원산지증명서(Back-to-Back C/O) 인정 범위 확대 고시.',
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065431'
-    },
-    {
-      id: 3,
-      tag: '통합공고 요건',
-      title: '[공고] 2026년 9월 4일 수입식품 및 식물검역 유니패스 실시간 자동 승인 연계 가동',
-      date: '2026-09-04',
-      agency: '식품의약품안전처 / 농림축산검역본부 / 관세청',
-      summary: '식품위생법 및 식물방역법 검역 합격증명서와 유니패스(UNIPASS) 수입신고서의 1:1 실시간 자동 대조 시스템 가동으로 통관 소요 시간 50% 단축.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065432'
-    },
-    {
-      id: 4,
-      tag: '관세평가',
-      title: '2026년 9월 3일 관세평가 쟁점(다국적기업 이전가격 및 권리사용료 가산) 심사 사례집 배포',
-      date: '2026-09-03',
-      agency: '관세평가분류원 관세평가과',
-      summary: '특수관계자 간 이전가격 사전약정(APA) 및 특허권/상표권 로열티 가산율 산정 표준 가이드라인 전국 배포.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065425'
-    },
-    {
-      id: 5,
-      tag: '특송 통관',
-      title: '해외직구 개인통관고유부호 도용 차단 2단계 모바일 인증 전면 시행',
-      date: '2026-09-02',
-      agency: '관세청 전자상거래통관과',
-      summary: '명의도용 불법 통관을 원천 차단하기 위한 개인통관고유부호-휴대폰 실시간 본인인증 연동 시스템 본격 가동.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065415'
-    },
-    {
-      id: 6,
-      tag: '관세청 고시',
-      title: '[고시 제2026-82호] 2026년도 하반기 할당관세(0%) 적용 품목 및 수량 배정 지침',
-      date: '2026-09-01',
-      agency: '기획재정부 / 관세청 산업관세과',
-      summary: '물가 안정 및 원자재 공급망 안정을 위해 석유화학 원료(나프타, LPG), 사료용 곡물, 희소금속 등 76개 품목에 대한 하반기 할당관세 0% 적용 지침 고시.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065401'
-    },
-    {
-      id: 7,
-      tag: 'WCO 품목분류',
-      title: 'WCO 제73차 품목분류위원회(HSC) 결정사항 국내 관세율표 해석 적용 지침',
-      date: '2026-08-30',
-      agency: '관세평가분류원 품목분류1과',
-      summary: 'AI 가속기 반도체 모듈(제8473호 vs 제8542호) 및 스마트 웨어러블 헬스케어 기기(제8517호 vs 제9018호)에 대한 WCO 국제 표준 분류 결정 국내 세관 적용 통보.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065388'
-    },
-    {
-      id: 8,
-      tag: 'FTA 협정세율',
-      title: '한-칠레 FTA 발효 22주년 맞이 원산지 간이신고 및 직송요건 검증 완화 안내',
-      date: '2026-08-28',
-      agency: '관세청 FTA집행과',
-      summary: '한-칠레 FTA 협정 체결 품목 중 칠레산 와인, 리튬 원자재, 포도 등에 대한 직접운송 입증서류 간소화 규정 시행.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065375'
-    },
-    {
-      id: 9,
-      tag: '세관 심사기법',
-      title: '2026년도 관세청 사후 세액심사(ACVA/기업심사) 중점 점검 5대 테마 공표',
-      date: '2026-08-25',
-      agency: '관세청 심사정책국 심사총괄과',
-      summary: '1) 다국적기업 로열티 가산 누락, 2) 품목분류 오류를 통한 저율 협정세율 부정적용, 3) 잠정가격 신고 후 확정가격 지연, 4) 농산물 TRQ 우회 수입, 5) 관세환급 과다청구.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065360'
-    },
-    {
-      id: 10,
-      tag: '수출입 물류',
-      title: '부산항·인천항 수입 화물 컨테이너 검색기(X-Ray) AI 판독 시스템 전면 확대',
-      date: '2026-08-22',
-      agency: '관세청 정보데이터정책관',
-      summary: '우범 화물 선별 정확도 향상 및 성실 기업 신속 통관(Green Line) 확대를 위한 딥러닝 기반 AI X-Ray 판독 엔진 정식 가동.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065345'
-    },
-    {
-      id: 11,
-      tag: '관세청 공고',
-      title: '2026년 제3차 품목분류(HS) 사전심사 결정 사례 120건 대국민 공개',
-      date: '2026-08-20',
-      agency: '관세평가분류원 품목분류과',
-      summary: '이차전지 음극재 코팅제(제3824호), 스마트 팩토리용 협동 로봇(제8479호), 융복합 기능성 화장품(제3304호) 등 주요 신제품 사전회시 사례 공개.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065330'
-    },
-    {
-      id: 12,
-      tag: 'FTA 협정세율',
-      title: '한-인도네시아 CEPA 및 RCEP 활용 수출입 기업을 위한 원산지 검증 가이드 배포',
-      date: '2026-08-18',
-      agency: '관세청 원산지검증과',
-      summary: '인도네시아 세관의 원산지 사후검증 요청 증가에 따른 한국 수출입 기업의 품목별 원산지결정기준(PSR) 충족 증명 서류 관리 요령 안내.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065315'
-    },
-    {
-      id: 13,
-      tag: '관세환급',
-      title: '수출용 원재료 관세환급(환특법) 간이정액환급률표 개정 고시',
-      date: '2026-08-15',
-      agency: '관세청 세원심사과',
-      summary: '중소 수출기업의 자금 유동성 지원을 위해 자동차 부품, 전기전자 모듈 등 150개 품목에 대한 간이정액 환급 단가 상향 조정.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065300'
-    },
-    {
-      id: 14,
-      tag: '대외무역법',
-      title: '수입물품 원산지 표시위반(라벨 갈이) 특별 단속 기간 운영 결과 발표',
-      date: '2026-08-10',
-      agency: '관세청 조사총괄과',
-      summary: '외국산 의류, 공구, 농산물을 국산으로 둔갑시킨 원산지 표시 훼손·허위표시 45개 업체 적발 및 과징금 부과 처분.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065280'
-    },
-    {
-      id: 15,
-      tag: '통합공고 요건',
-      title: '화학물질관리법 및 환경부 고시 수입 세관장확인 대상 화학물질 50종 추가 고시',
-      date: '2026-08-05',
-      agency: '환경부 / 관세청 통관기획과',
-      summary: '유독물질 및 제한물질 신규 지정에 따른 유니패스 수입요건확인 승인 번호 기재 의무화 안내.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065260'
-    },
-    {
-      id: 16,
-      tag: '관세청 속보',
-      title: '관세청 UNIPASS 전자통관 차세대 클라우드 인프라 전환 및 24시간 무중단 체계 구축',
-      date: '2026-08-01',
-      agency: '관세청 정보관리관',
-      summary: '수출입 통관 신고 접수 및 자동 수리 처리 속도 3배 향상, 주말/야간 자동 수리율 99% 달성.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065240'
     }
   ];
 
@@ -276,25 +226,69 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
             공식 관세청 고시 기준 실시간 무역 동향 및 4대 수출입 법령/고시 개정을 CUSWAY 고대비 다크모드 뷰로 통합 조회합니다.
           </p>
 
-          {/* Search bar inside header */}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '16px', maxWidth: '400px', position: 'relative' }}>
-            <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="개정 고시 또는 뉴스 키워드 검색..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+          {/* Header Search & Live Sync Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginTop: '16px' }}>
+            <div style={{ display: 'flex', gap: '10px', maxWidth: '380px', width: '100%', position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: '12px', top: '10px', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="개정 고시 또는 뉴스 키워드 검색..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px 8px 36px',
+                  background: '#0f172a',
+                  border: '1px solid #475569',
+                  borderRadius: '6px',
+                  color: '#cbd5e1',
+                  fontSize: '0.8rem'
+                }}
+              />
+            </div>
+
+            <button
+              onClick={handleSync}
+              disabled={isSyncing}
               style={{
-                width: '100%',
-                padding: '8px 12px 8px 36px',
-                background: '#0f172a',
-                border: '1px solid #475569',
-                borderRadius: '6px',
-                color: '#cbd5e1',
-                fontSize: '0.8rem'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                background: isSyncing ? '#0369a1' : 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                cursor: isSyncing ? 'not-allowed' : 'pointer',
+                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
+                transition: 'all 0.2s'
               }}
-            />
+            >
+              <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+              {isSyncing ? '관세청 실시간 고시 동기화 중...' : '⚡ 최신 법령/고시 실시간 동기화'}
+            </button>
           </div>
+
+          {syncMessage && (
+            <div style={{
+              marginTop: '12px',
+              padding: '8px 14px',
+              background: 'rgba(16, 185, 129, 0.15)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: '6px',
+              color: '#34d399',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <CheckCircle2 size={14} />
+              {syncMessage}
+            </div>
+          )}
         </div>
       </div>
 
@@ -405,7 +399,28 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                 <Bell size={18} color="var(--accent-cyan)" />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>최신 관세 고시 및 개정 뉴스</h3>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={handleSync}
+                  disabled={isSyncing}
+                  title="관세청 최신 고시 실시간 새로고침"
+                  style={{
+                    background: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    color: '#0284c7',
+                    padding: '3px 8px',
+                    borderRadius: '6px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: isSyncing ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <RefreshCw size={12} className={isSyncing ? 'animate-spin' : ''} />
+                  새로고침
+                </button>
                 <span style={{
                   background: 'rgba(16, 185, 129, 0.15)',
                   border: '1px solid rgba(16, 185, 129, 0.4)',
@@ -658,7 +673,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
           </div>
 
           {/* Section: External Utility Shortcuts */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Star size={18} color="#f59e0b" />
               <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: 'var(--text-main)' }}>실무 추천 바로가기</h3>
@@ -700,6 +715,23 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                   <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.35 }}>{link.desc}</span>
                 </a>
               ))}
+            </div>
+
+            {/* Domain info callout */}
+            <div style={{
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '12px 14px',
+              fontSize: '0.78rem',
+              color: '#334155',
+              lineHeight: 1.5,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+            }}>
+              <strong style={{ color: '#0284c7' }}>🏛️ 관세법령 공식 포털 연계 안내:</strong>
+              <div style={{ marginTop: '3px', color: '#475569' }}>
+                과거 관세법령 도메인(<code style={{ background: '#f1f5f9', padding: '1px 5px', borderRadius: '3px', color: '#dc2626' }}>laws.customs.go.kr</code>)은 서비스 개편으로 현재 관세청 <strong>UNIPASS 관세법령정보포털(CLIP)</strong> 및 <strong>국가법령정보센터</strong>로 완전히 일원화 통합되었습니다. 상단 바로가기 버튼을 통해 최신 법령 및 WCO 해설서를 즉시 조회하실 수 있습니다.
+              </div>
             </div>
           </div>
 
