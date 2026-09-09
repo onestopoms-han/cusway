@@ -147,15 +147,15 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm 12mm 15mm;
+    margin: 8mm 12mm 8mm 12mm;
   }
 
   html, body {
     background: #ffffff !important;
     color: #0f172a !important;
     font-family: 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    font-size: 9.5pt !important;
-    line-height: 1.5 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.35 !important;
     margin: 0 !important;
     padding: 0 !important;
     -webkit-print-color-adjust: exact !important;
@@ -250,6 +250,8 @@ body {
     color: #0f172a !important;
     border: none !important;
     box-shadow: none !important;
+    font-size: 8.5pt !important;
+    line-height: 1.35 !important;
   }
 
   .print-avoid-break {

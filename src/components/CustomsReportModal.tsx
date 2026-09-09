@@ -614,7 +614,7 @@ export default function CustomsReportModal({
         {/* Printable Document Paper Area */}
         <div className="customs-report-modal-scroll" style={{
           overflowY: 'auto',
-          padding: '24px',
+          padding: '20px',
           background: '#0b1120',
           display: 'flex',
           justifyContent: 'center'
@@ -625,16 +625,15 @@ export default function CustomsReportModal({
             color: '#0f172a',
             width: '100%',
             maxWidth: '820px',
-            minHeight: '1080px',
-            padding: '44px 50px',
+            padding: '28px 34px',
             boxShadow: '0 12px 40px rgba(0,0,0,0.3)',
             fontFamily: "'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif",
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             position: 'relative',
-            fontSize: '13px',
-            lineHeight: 1.6
+            fontSize: '12px',
+            lineHeight: 1.45
           }}>
 
             {/* Document Content */}
@@ -645,15 +644,15 @@ export default function CustomsReportModal({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderBottom: '2.5px solid #0f172a',
-                paddingBottom: '14px',
-                marginBottom: '20px'
+                borderBottom: '2px solid #0f172a',
+                paddingBottom: '10px',
+                marginBottom: '12px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   {branding.customLogoUrl ? (
                     <div style={{
                       background: '#ffffff',
-                      padding: '4px 8px',
+                      padding: '2px 6px',
                       borderRadius: '4px',
                       border: '1px solid #cbd5e1',
                       display: 'flex',
@@ -664,39 +663,39 @@ export default function CustomsReportModal({
                         src={branding.customLogoUrl} 
                         alt={branding.firmName} 
                         style={{
-                          maxHeight: '44px',
-                          maxWidth: '140px',
+                          maxHeight: '36px',
+                          maxWidth: '120px',
                           objectFit: 'contain'
                         }} 
                       />
                     </div>
                   ) : (
                     <div style={{
-                      width: '42px',
-                      height: '42px',
+                      width: '36px',
+                      height: '36px',
                       borderRadius: '6px',
                       background: '#0f172a',
                       color: '#ffffff',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '1.3rem'
+                      fontSize: '1.15rem'
                     }}>
                       {branding.logoIcon === 'scales' ? '⚖️' : branding.logoIcon === 'building' ? '🏛️' : branding.logoIcon === 'globe' ? '🌐' : '🛡️'}
                     </div>
                   )}
                   <div>
-                    <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
+                    <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>
                       {branding.firmName || '대한관세법인'}
                     </h2>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.05em' }}>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748b', letterSpacing: '0.04em' }}>
                       {branding.firmNameEn || 'CUSTOMS LAW FIRM & VALUATION ADVISORY'}
                     </span>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right', fontSize: '0.76rem', color: '#475569' }}>
-                  <div style={{ fontWeight: 800, color: '#0369a1', fontSize: '0.84rem', marginBottom: '2px' }}>
+                <div style={{ textAlign: 'right', fontSize: '0.72rem', color: '#475569' }}>
+                  <div style={{ fontWeight: 800, color: '#0369a1', fontSize: '0.8rem', marginBottom: '2px' }}>
                     {initialData.type === 'hs-opinion' ? '공식 품목분류 소명의견서' : initialData.type === 'clearance-pipeline' ? '수입통관 심사 파이프라인 검토서' : '과세가격 결정 자문/소명의견서'}
                   </div>
                   <div>문서번호: <strong style={{ color: '#0f172a' }}>{docNumber}</strong></div>
@@ -706,55 +705,55 @@ export default function CustomsReportModal({
 
               {/* Document Meta Address Grid */}
               <div style={{
-                border: '1.5px solid #334155',
+                border: '1px solid #94a3b8',
                 borderRadius: '4px',
-                padding: '14px 18px',
-                marginBottom: '22px',
+                padding: '8px 14px',
+                marginBottom: '12px',
                 background: '#f8fafc'
               }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
                   <tbody>
                     <tr>
-                      <td style={{ width: '12%', padding: '4px 0', color: '#475569', fontWeight: 700 }}>수 &nbsp; 신 :</td>
-                      <td style={{ width: '48%', padding: '4px 0', fontWeight: 800, color: '#0f172a' }}>
+                      <td style={{ width: '10%', padding: '2px 0', color: '#475569', fontWeight: 700 }}>수 &nbsp; 신 :</td>
+                      <td style={{ width: '50%', padding: '2px 0', fontWeight: 800, color: '#0f172a' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={clientInput}
                             onChange={(e) => setClientInput(e.target.value)}
-                            style={{ width: '90%', padding: '3px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.82rem', fontWeight: 800 }}
+                            style={{ width: '90%', padding: '2px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.78rem', fontWeight: 800 }}
                           />
                         ) : (
                           clientInput
                         )}
                       </td>
-                      <td style={{ width: '12%', padding: '4px 0', color: '#475569', fontWeight: 700 }}>발 &nbsp; 행 :</td>
-                      <td style={{ width: '28%', padding: '4px 0', fontWeight: 800, color: '#0f172a' }}>
+                      <td style={{ width: '10%', padding: '2px 0', color: '#475569', fontWeight: 700 }}>발 &nbsp; 행 :</td>
+                      <td style={{ width: '30%', padding: '2px 0', fontWeight: 800, color: '#0f172a' }}>
                         {branding.firmName}
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '4px 0', color: '#475569', fontWeight: 700 }}>참 &nbsp; 조 :</td>
-                      <td style={{ padding: '4px 0', color: '#334155' }}>
+                      <td style={{ padding: '2px 0', color: '#475569', fontWeight: 700 }}>참 &nbsp; 조 :</td>
+                      <td style={{ padding: '2px 0', color: '#334155' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={refInput}
                             onChange={(e) => setRefInput(e.target.value)}
-                            style={{ width: '90%', padding: '3px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.8rem' }}
+                            style={{ width: '90%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.76rem' }}
                           />
                         ) : (
                           refInput
                         )}
                       </td>
-                      <td style={{ padding: '4px 0', color: '#475569', fontWeight: 700 }}>담당자 :</td>
-                      <td style={{ padding: '4px 0', color: '#334155' }}>
+                      <td style={{ padding: '2px 0', color: '#475569', fontWeight: 700 }}>담당자 :</td>
+                      <td style={{ padding: '2px 0', color: '#334155' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={brokerContactName}
                             onChange={(e) => setBrokerContactName(e.target.value)}
-                            style={{ width: '90%', padding: '3px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.8rem' }}
+                            style={{ width: '90%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.76rem' }}
                           />
                         ) : (
                           brokerContactName
@@ -762,14 +761,14 @@ export default function CustomsReportModal({
                       </td>
                     </tr>
                     <tr style={{ borderTop: '1px dashed #cbd5e1' }}>
-                      <td style={{ padding: '8px 0 2px 0', color: '#0369a1', fontWeight: 800 }}>제 &nbsp; 목 :</td>
-                      <td colSpan={3} style={{ padding: '8px 0 2px 0', fontSize: '0.94rem', fontWeight: 900, color: '#0f172a' }}>
+                      <td style={{ padding: '5px 0 1px 0', color: '#0369a1', fontWeight: 800 }}>제 &nbsp; 목 :</td>
+                      <td colSpan={3} style={{ padding: '5px 0 1px 0', fontSize: '0.86rem', fontWeight: 900, color: '#0f172a' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={docTitle}
                             onChange={(e) => setDocTitle(e.target.value)}
-                            style={{ width: '100%', padding: '4px 8px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.92rem', fontWeight: 900 }}
+                            style={{ width: '100%', padding: '3px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.84rem', fontWeight: 900 }}
                           />
                         ) : (
                           docTitle
@@ -781,50 +780,50 @@ export default function CustomsReportModal({
               </div>
 
               {/* Section 1: Target Item Specifications */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+              <div className="print-avoid-break" style={{ marginBottom: '11px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '3.5px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
                       1. 검토 대상 물품 정보 (Item Specifications)
                     </h3>
                   </div>
-                  {isEditMode && <span style={{ fontSize: '0.68rem', color: '#0284c7' }}>* 항목별 직접 수정 가능</span>}
+                  {isEditMode && <span style={{ fontSize: '0.65rem', color: '#0284c7' }}>* 항목별 직접 수정 가능</span>}
                 </div>
                 
                 <table style={{
                   width: '100%',
                   borderCollapse: 'collapse',
-                  fontSize: '0.82rem',
-                  border: '1.5px solid #64748b'
+                  fontSize: '0.76rem',
+                  border: '1px solid #94a3b8'
                 }}>
                   <tbody>
                     <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ width: '22%', padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                      <th style={{ width: '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
                         품명 (Invoice Name)
                       </th>
-                      <td style={{ width: '28%', padding: '8px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                      <td style={{ width: '30%', padding: '5px 8px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={prodName}
                             onChange={(e) => setProdName(e.target.value)}
-                            style={{ width: '100%', padding: '3px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.82rem', fontWeight: 800 }}
+                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.76rem', fontWeight: 800 }}
                           />
                         ) : (
                           prodName
                         )}
                       </td>
-                      <th style={{ width: '22%', padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                      <th style={{ width: '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
                         원산지 (Origin)
                       </th>
-                      <td style={{ width: '28%', padding: '8px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
+                      <td style={{ width: '30%', padding: '5px 8px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>
                         {isEditMode ? (
                           <input
                             type="text"
                             value={originCountry}
                             onChange={(e) => setOriginCountry(e.target.value)}
-                            style={{ width: '100%', padding: '3px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.82rem' }}
+                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.76rem' }}
                           />
                         ) : (
                           originCountry
@@ -832,31 +831,31 @@ export default function CustomsReportModal({
                       </td>
                     </tr>
                     <tr>
-                      <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
+                      <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
                         성상 및 성분 구성
                       </th>
-                      <td style={{ padding: '8px 10px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
+                      <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
                         {isEditMode ? (
                           <textarea
                             rows={2}
                             value={material}
                             onChange={(e) => setMaterial(e.target.value)}
-                            style={{ width: '100%', padding: '3px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.8rem', resize: 'vertical' }}
+                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem', resize: 'vertical' }}
                           />
                         ) : (
                           material
                         )}
                       </td>
-                      <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
+                      <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#475569', background: '#f8fafc', fontWeight: 700 }}>
                         주요 기능 및 용도
                       </th>
-                      <td style={{ padding: '8px 10px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
+                      <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#1e293b' }}>
                         {isEditMode ? (
                           <textarea
                             rows={2}
                             value={functionUse}
                             onChange={(e) => setFunctionUse(e.target.value)}
-                            style={{ width: '100%', padding: '3px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.8rem', resize: 'vertical' }}
+                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem', resize: 'vertical' }}
                           />
                         ) : (
                           functionUse
@@ -864,11 +863,11 @@ export default function CustomsReportModal({
                       </td>
                     </tr>
                     <tr style={{ background: 'rgba(2, 132, 199, 0.04)' }}>
-                      <th style={{ padding: '9px 10px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#0369a1', fontWeight: 900 }}>
+                      <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#0369a1', fontWeight: 900 }}>
                         {initialData.type === 'valuation-brief' ? '평가 쟁점 코드' : '확정 HSK 세번'}
                       </th>
-                      <td colSpan={3} style={{ padding: '9px 10px', border: '1px solid #cbd5e1' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                      <td colSpan={3} style={{ padding: '6px 8px', border: '1px solid #cbd5e1' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                           {isEditMode ? (
                             <input
                               type="text"
@@ -877,10 +876,10 @@ export default function CustomsReportModal({
                                 setTargetHsCode(e.target.value);
                                 setCleanHs(e.target.value);
                               }}
-                              style={{ width: '160px', padding: '4px 8px', border: '1.5px solid #0284c7', borderRadius: '3px', fontSize: '0.95rem', fontWeight: 900, color: '#0284c7' }}
+                              style={{ width: '140px', padding: '2px 6px', border: '1.5px solid #0284c7', borderRadius: '3px', fontSize: '0.88rem', fontWeight: 900, color: '#0284c7' }}
                             />
                           ) : (
-                            <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0284c7', letterSpacing: '0.02em' }}>
+                            <span style={{ fontSize: '0.94rem', fontWeight: 900, color: '#0284c7', letterSpacing: '0.02em' }}>
                               {targetHsCode}
                             </span>
                           )}
@@ -891,10 +890,10 @@ export default function CustomsReportModal({
                               value={rateComment}
                               onChange={(e) => setRateComment(e.target.value)}
                               placeholder="적용 세율 문구 입력..."
-                              style={{ flex: 1, minWidth: '220px', padding: '4px 8px', border: '1px solid #a7f3d0', borderRadius: '3px', fontSize: '0.78rem', color: '#059669', background: '#ecfdf5', fontWeight: 700 }}
+                              style={{ flex: 1, minWidth: '180px', padding: '2px 6px', border: '1px solid #a7f3d0', borderRadius: '3px', fontSize: '0.74rem', color: '#059669', background: '#ecfdf5', fontWeight: 700 }}
                             />
                           ) : (
-                            <span style={{ fontSize: '0.78rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                            <span style={{ fontSize: '0.74rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
                               {rateComment}
                             </span>
                           )}
@@ -906,29 +905,29 @@ export default function CustomsReportModal({
               </div>
 
               {/* Section 2: Legal Basis & WCO Explanatory Notes */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+              <div className="print-avoid-break" style={{ marginBottom: '11px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '3.5px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
                       {initialData.type === 'valuation-brief' ? '2. 관세법 제30조 및 관세평가 법리 소명 근거' : '2. 관세율표 해석 통칙 및 WCO 해설서 기반 법리적 분류 근거'}
                     </h3>
                   </div>
-                  {isEditMode && <span style={{ fontSize: '0.68rem', color: '#0284c7' }}>* 소명 논리 및 WCO 인용구 수정 가능</span>}
+                  {isEditMode && <span style={{ fontSize: '0.65rem', color: '#0284c7' }}>* 소명 논리 및 WCO 인용구 수정 가능</span>}
                 </div>
                 
                 <div style={{
                   border: '1px solid #cbd5e1',
                   borderRadius: '4px',
-                  padding: '14px 16px',
-                  fontSize: '0.82rem',
+                  padding: '8px 12px',
+                  fontSize: '0.76rem',
                   color: '#1e293b',
-                  lineHeight: 1.65,
+                  lineHeight: 1.5,
                   background: '#ffffff'
                 }}>
                   {/* General GRI Rules */}
-                  <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ border: '1px solid #0f172a', color: '#0f172a', fontSize: '0.72rem', padding: '2px 6px', borderRadius: '3px', fontWeight: 800 }}>
+                  <div style={{ marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ border: '1px solid #0f172a', color: '#0f172a', fontSize: '0.68rem', padding: '1px 5px', borderRadius: '3px', fontWeight: 800 }}>
                       적용 통칙
                     </span>
                     {isEditMode ? (
@@ -936,25 +935,25 @@ export default function CustomsReportModal({
                         type="text"
                         value={generalRule}
                         onChange={(e) => setGeneralRule(e.target.value)}
-                        style={{ flex: 1, padding: '3px 8px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.84rem', fontWeight: 800 }}
+                        style={{ flex: 1, padding: '2px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.76rem', fontWeight: 800 }}
                       />
                     ) : (
-                      <strong style={{ color: '#0f172a', fontSize: '0.86rem' }}>
+                      <strong style={{ color: '#0f172a', fontSize: '0.8rem' }}>
                         {generalRule}
                       </strong>
                     )}
                   </div>
 
                   {/* Legal Reasoning Logic */}
-                  <div style={{ marginBottom: '12px', color: '#334155' }}>
+                  <div style={{ marginBottom: '6px', color: '#334155' }}>
                     <strong style={{ color: '#0f172a' }}>[분류 논리]</strong>{' '}
                     {isEditMode ? (
                       <textarea
-                        rows={4}
+                        rows={3}
                         value={rationaleSummary}
                         onChange={(e) => setRationaleSummary(e.target.value)}
                         placeholder="관세사 고유의 법리적 소명의견을 상세히 작성하세요..."
-                        style={{ width: '100%', marginTop: '4px', padding: '8px', border: '1.5px solid #0284c7', borderRadius: '4px', fontSize: '0.82rem', lineHeight: '1.5', resize: 'vertical' }}
+                        style={{ width: '100%', marginTop: '3px', padding: '4px 6px', border: '1.5px solid #0284c7', borderRadius: '3px', fontSize: '0.76rem', lineHeight: '1.4', resize: 'vertical' }}
                       />
                     ) : (
                       <span style={{ whiteSpace: 'pre-line' }}>{rationaleSummary}</span>
@@ -964,23 +963,23 @@ export default function CustomsReportModal({
                   {/* WCO Explanatory Notes Snippet */}
                   <div style={{
                     background: '#f8fafc',
-                    borderLeft: '3.5px solid #0284c7',
+                    borderLeft: '3px solid #0284c7',
                     borderTop: '1px solid #e2e8f0',
                     borderRight: '1px solid #e2e8f0',
                     borderBottom: '1px solid #e2e8f0',
-                    padding: '10px 12px',
-                    fontSize: '0.78rem',
+                    padding: '6px 10px',
+                    fontSize: '0.72rem',
                     color: '#475569',
                     borderRadius: '0 4px 4px 0'
                   }}>
                     <strong style={{ color: '#0369a1' }}>📖 공식 WCO 관세율표 해설서 및 주규정 발췌:</strong><br />
                     {isEditMode ? (
                       <textarea
-                        rows={3}
+                        rows={2}
                         value={wcoNoteSnippet}
                         onChange={(e) => setWcoNoteSnippet(e.target.value)}
                         placeholder="WCO 해설서 또는 부/류의 주석 발췌문..."
-                        style={{ width: '100%', marginTop: '4px', padding: '6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.78rem', resize: 'vertical' }}
+                        style={{ width: '100%', marginTop: '3px', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.72rem', resize: 'vertical' }}
                       />
                     ) : (
                       <span style={{ whiteSpace: 'pre-line' }}>"{wcoNoteSnippet}"</span>
@@ -989,13 +988,13 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Section 3: Secondary Deep Analysis & Competing HS Code Exclusion Rationale */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                      3. 2차 심층 분석: 경합 세번(1·2순위) 비교 검토 및 배제 사유 (Secondary Deep Analysis & Exclusion Review)
+              {/* Section 3: Competing HS Code Exclusion Rationale */}
+              <div className="print-avoid-break" style={{ marginBottom: '11px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '3.5px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+                      3. 경합 세번(1·2순위) 비교 검토 및 배제 사유 (Competing HS Codes & Exclusion Logic)
                     </h3>
                   </div>
                   {isEditMode && (
@@ -1003,48 +1002,48 @@ export default function CustomsReportModal({
                       type="button"
                       onClick={handleAddCompetingCode}
                       style={{
-                        padding: '2px 8px',
+                        padding: '1px 6px',
                         background: 'rgba(2, 132, 199, 0.1)',
                         border: '1px solid #0284c7',
-                        borderRadius: '4px',
+                        borderRadius: '3px',
                         color: '#0284c7',
-                        fontSize: '0.7rem',
+                        fontSize: '0.65rem',
                         fontWeight: 700,
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '3px'
+                        gap: '2px'
                       }}
                     >
-                      <Plus size={11} /> 경합 세번 추가
+                      <Plus size={10} /> 경합 세번 추가
                     </button>
                   )}
                 </div>
 
                 <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', background: '#ffffff' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.74rem' }}>
                     <thead>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #cbd5e1' }}>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '18%', color: '#334155', fontWeight: 800 }}>구분 / 세번</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '24%', color: '#334155', fontWeight: 800 }}>호의 용어 (품명)</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '16%', color: '#334155', fontWeight: 800 }}>적용 통칙</th>
-                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '42%', color: '#0369a1', fontWeight: 800 }}>비교 검토 및 배제 사유 (Exclusion Logic)</th>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
+                        <th style={{ padding: '5px 8px', textAlign: 'left', width: '18%', color: '#334155', fontWeight: 800 }}>구분 / 세번</th>
+                        <th style={{ padding: '5px 8px', textAlign: 'left', width: '24%', color: '#334155', fontWeight: 800 }}>호의 용어 (품명)</th>
+                        <th style={{ padding: '5px 8px', textAlign: 'left', width: '16%', color: '#334155', fontWeight: 800 }}>적용 통칙</th>
+                        <th style={{ padding: '5px 8px', textAlign: 'left', width: '42%', color: '#0369a1', fontWeight: 800 }}>비교 검토 및 배제 사유 (Exclusion Logic)</th>
                       </tr>
                     </thead>
                     <tbody>
                       {/* 1st Recommended Confirmed Code Row */}
                       <tr style={{ background: 'rgba(2, 132, 199, 0.05)', borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '8px 10px', fontWeight: 900, color: '#0284c7' }}>
-                          <span style={{ fontSize: '0.68rem', padding: '1px 5px', background: '#0284c7', color: '#fff', borderRadius: '3px', marginRight: '4px' }}>채택</span>
+                        <td style={{ padding: '5px 8px', fontWeight: 900, color: '#0284c7' }}>
+                          <span style={{ fontSize: '0.65rem', padding: '1px 4px', background: '#0284c7', color: '#fff', borderRadius: '2px', marginRight: '4px' }}>채택</span>
                           {targetHsCode}
                         </td>
-                        <td style={{ padding: '8px 10px', fontWeight: 800, color: '#0f172a' }}>
+                        <td style={{ padding: '5px 8px', fontWeight: 800, color: '#0f172a' }}>
                           {prodName} (신청 확정 세번)
                         </td>
-                        <td style={{ padding: '8px 10px', color: '#0f172a', fontWeight: 700 }}>
+                        <td style={{ padding: '5px 8px', color: '#0f172a', fontWeight: 700 }}>
                           {generalRule}
                         </td>
-                        <td style={{ padding: '8px 10px', color: '#0369a1', fontWeight: 700, lineHeight: 1.45 }}>
+                        <td style={{ padding: '5px 8px', color: '#0369a1', fontWeight: 700, lineHeight: 1.35 }}>
                           ✅ 관세율표 부·류의 주규정 및 호의 용어에 정확히 일치하여 최종 세번으로 분류 확정함.
                         </td>
                       </tr>
@@ -1052,15 +1051,15 @@ export default function CustomsReportModal({
                       {/* Competing HS Code Rows */}
                       {competingList.length === 0 ? (
                         <tr>
-                          <td colSpan={4} style={{ padding: '10px', textAlign: 'center', color: '#64748b', fontSize: '0.76rem', background: '#fafafa' }}>
+                          <td colSpan={4} style={{ padding: '6px 8px', textAlign: 'center', color: '#64748b', fontSize: '0.72rem', background: '#fafafa' }}>
                             타 세번과의 경합 요인이 없으며, 관세율표 통칙 제1호 및 제6호에 의해 단일 확정 세번으로 명백히 귀속됩니다.
                           </td>
                         </tr>
                       ) : (
                         competingList.map((comp, cIdx) => (
                           <tr key={cIdx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                            <td style={{ padding: '8px 10px', fontWeight: 800, color: '#b91c1c' }}>
-                              <span style={{ fontSize: '0.68rem', padding: '1px 5px', background: '#fee2e2', color: '#b91c1c', borderRadius: '3px', marginRight: '4px' }}>배제</span>
+                            <td style={{ padding: '5px 8px', fontWeight: 800, color: '#b91c1c' }}>
+                              <span style={{ fontSize: '0.65rem', padding: '1px 4px', background: '#fee2e2', color: '#b91c1c', borderRadius: '2px', marginRight: '4px' }}>배제</span>
                               {isEditMode ? (
                                 <input
                                   type="text"
@@ -1070,13 +1069,13 @@ export default function CustomsReportModal({
                                     updated[cIdx].hsCode = e.target.value;
                                     setCompetingList(updated);
                                   }}
-                                  style={{ width: '90px', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem', fontWeight: 800 }}
+                                  style={{ width: '80px', padding: '1px 3px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem', fontWeight: 800 }}
                                 />
                               ) : (
                                 comp.hsCode
                               )}
                             </td>
-                            <td style={{ padding: '8px 10px', color: '#334155' }}>
+                            <td style={{ padding: '5px 8px', color: '#334155' }}>
                               {isEditMode ? (
                                 <input
                                   type="text"
@@ -1086,13 +1085,13 @@ export default function CustomsReportModal({
                                     updated[cIdx].headingName = e.target.value;
                                     setCompetingList(updated);
                                   }}
-                                  style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
+                                  style={{ width: '100%', padding: '1px 3px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem' }}
                                 />
                               ) : (
                                 comp.headingName
                               )}
                             </td>
-                            <td style={{ padding: '8px 10px', color: '#475569' }}>
+                            <td style={{ padding: '5px 8px', color: '#475569' }}>
                               {isEditMode ? (
                                 <input
                                   type="text"
@@ -1102,14 +1101,14 @@ export default function CustomsReportModal({
                                     updated[cIdx].appliedGri = e.target.value;
                                     setCompetingList(updated);
                                   }}
-                                  style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.72rem' }}
+                                  style={{ width: '100%', padding: '1px 3px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.7rem' }}
                                 />
                               ) : (
                                 comp.appliedGri || '통칙 제1호 / 제3호'
                               )}
                             </td>
-                            <td style={{ padding: '8px 10px', color: '#475569', lineHeight: 1.4 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                            <td style={{ padding: '5px 8px', color: '#475569', lineHeight: 1.35 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px' }}>
                                 <div style={{ flex: 1 }}>
                                   {isEditMode ? (
                                     <textarea
@@ -1120,7 +1119,7 @@ export default function CustomsReportModal({
                                         updated[cIdx].exclusionReason = e.target.value;
                                         setCompetingList(updated);
                                       }}
-                                      style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.72rem' }}
+                                      style={{ width: '100%', padding: '1px 3px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.7rem' }}
                                     />
                                   ) : (
                                     <span>{comp.exclusionReason}</span>
@@ -1129,156 +1128,73 @@ export default function CustomsReportModal({
                                 {isEditMode && (
                                   <button
                                     type="button"
-                                    onClick={() => handleRemoveCompetingCode(cIdx)}
-                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}
+                                    onClick={() => handleRemoveCompeting(cIdx)}
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '1px' }}
                                   >
-                                    <Trash2 size={12} />
+                                    <Trash2 size={11} />
                                   </button>
                                 )}
                               </div>
                             </td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
-                {/* Exclusion Note Highlight */}
-                {exclusionNoteState && (
-                  <div style={{
-                    marginTop: '8px',
-                    padding: '8px 12px',
-                    background: '#fffbeb',
-                    border: '1px solid #fef3c7',
-                    borderLeft: '3.5px solid #d97706',
-                    borderRadius: '0 4px 4px 0',
-                    fontSize: '0.76rem',
-                    color: '#92400e',
-                    lineHeight: 1.45
-                  }}>
-                    <strong>⚠️ WCO 관세율표 주규정상 제외 규정(Exclusion Note) 검토:</strong><br />
-                    {isEditMode ? (
-                      <textarea
-                        rows={2}
-                        value={exclusionNoteState}
-                        onChange={(e) => setExclusionNoteState(e.target.value)}
-                        style={{ width: '100%', marginTop: '4px', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
-                      />
-                    ) : (
-                      <span>{exclusionNoteState}</span>
+                {/* Section 4: Precedents & Rulings */}
+                <div className="print-avoid-break" style={{ marginBottom: '11px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{ width: '3.5px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
+                      <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+                        4. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례 (Precedents & Rulings)
+                      </h3>
+                    </div>
+                    {isEditMode && (
+                      <button
+                        type="button"
+                        onClick={handleAddPrecedent}
+                        style={{ fontSize: '0.68rem', padding: '1px 6px', background: '#f0f9ff', border: '1px solid #bae6fd', color: '#0284c7', borderRadius: '3px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '3px' }}
+                      >
+                        <Plus size={10} /> 판례 추가
+                      </button>
                     )}
                   </div>
-                )}
-              </div>
 
-              {/* Section 4: Secondary Duty & Tax Calculation Simulation */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ width: '4px', height: '16px', background: '#059669', borderRadius: '2px' }} />
-                  <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                    4. 2차 관세율·세액 정밀 시뮬레이션 및 FTA 특혜 절감액 (Duty & Tax Simulation)
-                  </h3>
-                </div>
-
-                <div style={{ border: '1.5px solid #cbd5e1', borderRadius: '4px', background: '#ffffff', overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
-                    <tbody>
-                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                        <th style={{ width: '20%', padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>신고 과세가격 (CIF)</th>
-                        <td style={{ width: '30%', padding: '7px 10px', fontWeight: 800, color: '#0f172a' }}>
-                          {dutySimState?.cifPrice ? `₩ ${dutySimState.cifPrice.toLocaleString()} 원` : '수입신고 송품장(Invoice) 기준'}
-                        </td>
-                        <th style={{ width: '20%', padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>원산지 증명/결정기준</th>
-                        <td style={{ width: '30%', padding: '7px 10px', fontWeight: 700, color: '#0284c7' }}>
-                          {dutySimState?.originCriteria || '세번변경기준(CTH) 충족 (C/O 구비필)'}
-                        </td>
-                      </tr>
-                      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>기본 관세율 vs 적용세율</th>
-                        <td style={{ padding: '7px 10px', color: '#334155' }}>
-                          기본 {dutySimState?.baseRate || initialData.rates?.baseRate || '8.0%'} ➡️ <strong style={{ color: '#059669' }}>{dutySimState?.appliedBasis || initialData.rates?.ftaName || 'FTA 특혜'} {dutySimState?.appliedRate !== undefined ? `${dutySimState.appliedRate}%` : (initialData.rates?.recommendedRate !== undefined ? `${initialData.rates.recommendedRate}%` : '0.0%')}</strong>
-                        </td>
-                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>관세 절감 혜택 (Savings)</th>
-                        <td style={{ padding: '7px 10px', fontWeight: 900, color: '#059669', background: '#ecfdf5' }}>
-                          {dutySimState?.savings ? `₩ ${dutySimState.savings.toLocaleString()} 원 절감` : 'FTA 특혜세율 적용 시 관세 대폭 절감'}
-                        </td>
-                      </tr>
-                      <tr style={{ background: '#f8fafc' }}>
-                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#0f172a', fontWeight: 800 }}>산출 관세액</th>
-                        <td style={{ padding: '7px 10px', fontWeight: 800, color: '#0f172a' }}>
-                          {dutySimState?.appliedDuty !== undefined ? `₩ ${dutySimState.appliedDuty.toLocaleString()} 원` : '과세가격 × 특혜세율'}
-                        </td>
-                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#0f172a', fontWeight: 800 }}>총 납부 예상 세액 (관세+부가세)</th>
-                        <td style={{ padding: '7px 10px', fontWeight: 900, color: '#0369a1', fontSize: '0.84rem' }}>
-                          {dutySimState?.totalTax ? `₩ ${dutySimState.totalTax.toLocaleString()} 원 (VAT 포함)` : '수입통관 2단계 시뮬레이션 기준'}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Section 5: Precedents / Tax Tribunal Ruling Evidence */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                      5. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례
-                    </h3>
-                  </div>
-                  {isEditMode && (
-                    <button
-                      type="button"
-                      onClick={handleAddPrecedent}
-                      style={{
-                        padding: '2px 8px',
-                        background: 'rgba(2, 132, 199, 0.1)',
-                        border: '1px solid #0284c7',
-                        borderRadius: '4px',
-                        color: '#0284c7',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '3px'
-                      }}
-                    >
-                      <Plus size={11} /> 판례 추가
-                    </button>
-                  )}
-                </div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {precedentsList.length === 0 ? (
-                    <div style={{ padding: '10px 14px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.78rem', color: '#64748b' }}>
-                      등록된 유사 결정례가 없습니다. (통칙 및 해설서 본문 원칙 적용)
-                    </div>
-                  ) : (
-                    precedentsList.map((prec, idx) => (
-                      <div key={idx} style={{
-                        padding: '10px 12px',
-                        background: '#ffffff',
-                        border: '1px solid #cbd5e1',
-                        borderRadius: '4px',
-                        fontSize: '0.78rem'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
-                            {isEditMode ? (
-                              <>
-                                <input
-                                  type="text"
-                                  value={prec.caseNumber}
-                                  onChange={(e) => {
-                                    const updated = [...precedentsList];
-                                    updated[idx].caseNumber = e.target.value;
-                                    setPrecedentsList(updated);
-                                  }}
-                                  style={{ width: '120px', padding: '2px 6px', border: '1px solid #0284c7', borderRadius: '3px', fontSize: '0.75rem', fontWeight: 800, color: '#0284c7' }}
-                                />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {precedentsList.length === 0 ? (
+                      <div style={{ padding: '6px 8px', textAlign: 'center', color: '#64748b', fontSize: '0.72rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
+                        해당 물품에 대해 인용 가능한 특이 쟁점 판례 없음 (표준 품목분류 지침에 따라 분류)
+                      </div>
+                    ) : (
+                      precedentsList.map((prec, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '4px',
+                            padding: '5px 8px',
+                            fontSize: '0.74rem'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+                              {isEditMode ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    value={prec.caseNumber}
+                                    onChange={(e) => {
+                                      const updated = [...precedentsList];
+                                      updated[idx].caseNumber = e.target.value;
+                                      setPrecedentsList(updated);
+                                    }}
+                                    style={{ width: '110px', padding: '1px 4px', border: '1px solid #0284c7', borderRadius: '2px', fontSize: '0.72rem', fontWeight: 800, color: '#0284c7' }}
+                                  />
                                 <input
                                   type="text"
                                   value={prec.title}
@@ -1287,7 +1203,7 @@ export default function CustomsReportModal({
                                     updated[idx].title = e.target.value;
                                     setPrecedentsList(updated);
                                   }}
-                                  style={{ flex: 1, padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.75rem', fontWeight: 800 }}
+                                  style={{ flex: 1, padding: '1px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem', fontWeight: 800 }}
                                 />
                               </>
                             ) : (
@@ -1300,17 +1216,17 @@ export default function CustomsReportModal({
                             )}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '0.7rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 6px', borderRadius: '3px', fontWeight: 700 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span style={{ fontSize: '0.68rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 5px', borderRadius: '2px', fontWeight: 700 }}>
                               {prec.authority || '관세평가분류원'}
                             </span>
                             {isEditMode && (
                               <button
                                 type="button"
                                 onClick={() => handleRemovePrecedent(idx)}
-                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '1px' }}
                               >
-                                <Trash2 size={12} />
+                                <Trash2 size={11} />
                               </button>
                             )}
                           </div>
@@ -1326,11 +1242,11 @@ export default function CustomsReportModal({
                               setPrecedentsList(updated);
                             }}
                             placeholder="쟁점 요지 및 판시사항 입력..."
-                            style={{ width: '100%', marginTop: '4px', padding: '4px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
+                            style={{ width: '100%', marginTop: '2px', padding: '3px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem' }}
                           />
                         ) : (
                           prec.keyPoint && (
-                            <div style={{ color: '#475569', fontSize: '0.74rem', lineHeight: 1.45, marginTop: '2px' }}>
+                            <div style={{ color: '#475569', fontSize: '0.72rem', lineHeight: 1.35 }}>
                               <strong>쟁점 요지:</strong> {prec.keyPoint}
                             </div>
                           )
@@ -1341,188 +1257,107 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Section 6: Clearance Requirements */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ width: '4px', height: '16px', background: requirementsList.length > 0 ? '#0284c7' : '#059669', borderRadius: '2px' }} />
-                  <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                    6. {requirementsList.length > 0 
-                      ? '수입통관 세관장확인 요건 및 구비서류 체크리스트' 
-                      : '수입통관 규제 요건 판정 결과 (세관장확인 대상 비해당 소명)'}
+              {/* Section 5: Clearance Requirements & Origin Marking Guide (Compact Combined) */}
+              <div className="print-avoid-break" style={{ marginBottom: '11px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                  <div style={{ width: '3.5px', height: '14px', background: '#0d9488', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+                    5. 수입통관 규제 요건 및 원산지표시(Origin Marking) 판정 가이드
                   </h3>
                 </div>
 
-                {requirementsList.length > 0 ? (
-                  <div style={{
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '4px',
-                    padding: '12px 14px',
-                    background: '#ffffff',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '6px'
-                  }}>
-                    {requirementsList.map((req, i) => (
-                      <div key={i} style={{ fontSize: '0.78rem', color: '#334155', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                        <CheckCircle2 size={13} color="#059669" style={{ marginTop: '3px', flexShrink: 0 }} />
-                        {isEditMode ? (
-                          <input
-                            type="text"
-                            value={req}
-                            onChange={(e) => {
-                              const updated = [...requirementsList];
-                              updated[i] = e.target.value;
-                              setRequirementsList(updated);
-                            }}
-                            style={{ flex: 1, padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.76rem' }}
-                          />
-                        ) : (
-                          <span>{req}</span>
-                        )}
+                <div style={{
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '4px',
+                  background: '#ffffff',
+                  overflow: 'hidden',
+                  fontSize: '0.74rem'
+                }}>
+                  {/* Regulatory Requirement Row */}
+                  <div style={{ padding: '6px 10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    {requirementsList.length > 0 ? (
+                      <div>
+                        <strong style={{ color: '#0369a1' }}>📋 세관장확인 및 수입요건:</strong>
+                        <div style={{ marginTop: '3px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          {requirementsList.map((req, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#334155' }}>
+                              <CheckCircle2 size={11} color="#059669" style={{ flexShrink: 0 }} />
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  value={req}
+                                  onChange={(e) => {
+                                    const updated = [...requirementsList];
+                                    updated[i] = e.target.value;
+                                    setRequirementsList(updated);
+                                  }}
+                                  style={{ flex: 1, padding: '1px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem' }}
+                                />
+                              ) : (
+                                <span>{req}</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#065f46', fontWeight: 700 }}>
+                        <CheckCircle2 size={12} color="#059669" style={{ flexShrink: 0 }} />
+                        <span>관세법 제226조 세관장확인 및 통합공고 수입 규제 요건 없음 (일반 자유 수입 물품)</span>
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div style={{
-                    border: '1.5px solid #a7f3d0',
-                    borderRadius: '4px',
-                    padding: '10px 14px',
-                    background: '#f0fdf4',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px'
-                  }}>
-                    <div style={{ fontSize: '0.8rem', color: '#065f46', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <CheckCircle2 size={14} color="#059669" style={{ flexShrink: 0 }} />
-                      <span>관세법 제226조 세관장확인 및 대외무역법 통합공고 수입 규제 요건 없음 (일반 자유 수입 물품)</span>
+
+                  {/* Origin Marking Row */}
+                  <div style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontWeight: 800, color: '#0f172a' }}>대외무역법 원산지표시:</span>
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          value={originMarkExample}
+                          onChange={(e) => setOriginMarkExample(e.target.value)}
+                          style={{ width: '180px', padding: '1px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.72rem', fontWeight: 700 }}
+                        />
+                      ) : (
+                        <strong style={{ color: '#0d9488' }}>{originMarkExample}</strong>
+                      )}
                     </div>
-                    <p style={{ fontSize: '0.76rem', color: '#334155', margin: '2px 0 0 20px', lineHeight: 1.5 }}>
-                      본 물품(HSK <b>{targetHsCode}</b>)은 수입 시 소관 부처의 사전 승인·검역·형식인증 대상에 해당하지 않는 일반 자유 수입 품목으로 판정되었습니다. 상업송장(Invoice), 포장명세서(P/L) 구비 후 세관 수입신고 즉시 통관이 가능합니다.
-                    </p>
+                    <div style={{ color: '#475569', fontSize: '0.72rem' }}>
+                      표시방식: <span style={{ color: '#0f172a' }}>{originGuide.markingMethod}</span> | 이중표시: <span style={{ color: originGuide.isPackagingDoubleMarkRequired ? '#b45309' : '#059669', fontWeight: 700 }}>{originGuide.isPackagingDoubleMarkRequired ? '필수' : '선택적'}</span>
+                    </div>
                   </div>
-                )}
-              </div>
-
-              {/* Section 7: Country of Origin Marking Regulations */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
-                  <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                    7. 대외무역법 제33조 원산지표시(Origin Marking) 규정 및 라벨링 규격 가이드
-                  </h3>
                 </div>
-
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem', background: '#ffffff', border: '1px solid #cbd5e1' }}>
-                  <thead>
-                    <tr style={{ background: '#f8fafc', borderBottom: '2px solid #cbd5e1' }}>
-                      <th style={{ padding: '7px 9px', textAlign: 'left', width: '22%', color: '#334155', fontWeight: 800 }}>구분 항목</th>
-                      <th style={{ padding: '7px 9px', textAlign: 'left', width: '36%', color: '#0f172a', fontWeight: 800 }}>대외무역법 법령 규정</th>
-                      <th style={{ padding: '7px 9px', textAlign: 'left', width: '42%', color: '#0d9488', fontWeight: 800 }}>본 품목 권장 실무 가이드</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '7px 9px', fontWeight: 700, background: '#fafafa' }}>표시 문안 예시</td>
-                      <td style={{ padding: '7px 9px', color: '#475569' }}>한글, 한자 또는 영문(Made in 국명)</td>
-                      <td style={{ padding: '7px 9px', fontWeight: 800, color: '#0f172a' }}>
-                        {isEditMode ? (
-                          <input
-                            type="text"
-                            value={originMarkExample}
-                            onChange={(e) => setOriginMarkExample(e.target.value)}
-                            style={{ width: '100%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.75rem', fontWeight: 800 }}
-                          />
-                        ) : (
-                          originMarkExample
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '7px 9px', fontWeight: 700, background: '#fafafa' }}>표시 위치 및 방식</td>
-                      <td style={{ padding: '7px 9px', color: '#475569' }}>최종 구매자가 용이하게 식별할 수 있는 견고한 방식</td>
-                      <td style={{ padding: '7px 9px', color: '#334155', lineHeight: 1.4 }}>
-                        {isEditMode ? (
-                          <textarea
-                            rows={2}
-                            value={originLocationMethod}
-                            onChange={(e) => setOriginLocationMethod(e.target.value)}
-                            style={{ width: '100%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
-                          />
-                        ) : (
-                          originLocationMethod
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '7px 9px', fontWeight: 700, background: '#fafafa' }}>이중 표시 의무</td>
-                      <td style={{ padding: '7px 9px', color: '#475569' }}>개별 포장 유통 물품은 본체 및 외포장 각각 표시</td>
-                      <td style={{ padding: '7px 9px', fontWeight: 800, color: '#b45309' }}>
-                        {isEditMode ? (
-                          <input
-                            type="text"
-                            value={originDoubleMark}
-                            onChange={(e) => setOriginDoubleMark(e.target.value)}
-                            style={{ width: '100%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem', fontWeight: 800 }}
-                          />
-                        ) : (
-                          originDoubleMark
-                        )}
-                      </td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '7px 9px', fontWeight: 700, background: '#fafafa' }}>면제 요건 검토</td>
-                      <td style={{ padding: '7px 9px', color: '#475569' }}>대외무역법 시행령 제56조 (제조용 원료/외화획득)</td>
-                      <td style={{ padding: '7px 9px', color: '#475569', fontSize: '0.74rem', lineHeight: 1.4 }}>
-                        {isEditMode ? (
-                          <textarea
-                            rows={2}
-                            value={originExemption}
-                            onChange={(e) => setOriginExemption(e.target.value)}
-                            style={{ width: '100%', padding: '2px 6px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
-                          />
-                        ) : (
-                          originExemption
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '7px 9px', fontWeight: 700, background: '#fafafa' }}>위반 시 처분</td>
-                      <td style={{ padding: '7px 9px', color: '#dc2626' }} colSpan={2}>
-                        수입검사 시 원산지 미표시/오표시 적발 시 <strong>통관 보류 및 보세구역 내 보수작업(라벨링) 명령</strong>, 최대 3억원 이하 과징금 부과
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
 
-              {/* Section 8: Custom Memo / Conclusion */}
-              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
-                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                      8. 종합 검토 의견 및 세무 리스크 사전 대응 방안
+              {/* Section 6: Custom Memo / Conclusion */}
+              <div className="print-avoid-break" style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '3.5px', height: '14px', background: '#0d9488', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+                      6. 관세사 종합 검토의견 및 세무 리스크 사전 대응 방안
                     </h3>
                   </div>
-                  {isEditMode && <span style={{ fontSize: '0.68rem', color: '#0d9488' }}>* 관세사 전용 종합의견 입력란</span>}
+                  {isEditMode && <span style={{ fontSize: '0.65rem', color: '#0d9488' }}>* 관세사 전용 종합의견 입력란</span>}
                 </div>
                 
                 <div style={{
                   background: '#f8fafc',
                   border: '1px solid #cbd5e1',
                   borderRadius: '4px',
-                  padding: '12px 14px',
-                  fontSize: '0.8rem',
+                  padding: '8px 12px',
+                  fontSize: '0.76rem',
                   color: '#1e293b',
-                  lineHeight: 1.6
+                  lineHeight: 1.45
                 }}>
                   {isEditMode ? (
                     <textarea
-                      rows={4}
+                      rows={3}
                       value={customMemo}
                       onChange={(e) => setCustomMemo(e.target.value)}
                       placeholder="관세사 고유의 검토의견, 실무 유의사항, 세액 리스크 대응 조언을 작성하세요..."
-                      style={{ width: '100%', padding: '8px', border: '1.5px solid #0d9488', borderRadius: '4px', fontSize: '0.8rem', lineHeight: '1.5', resize: 'vertical' }}
+                      style={{ width: '100%', padding: '6px', border: '1.5px solid #0d9488', borderRadius: '3px', fontSize: '0.76rem', lineHeight: '1.4', resize: 'vertical' }}
                     />
                   ) : (
                     <div style={{ whiteSpace: 'pre-line' }}>{customMemo}</div>
@@ -1533,30 +1368,30 @@ export default function CustomsReportModal({
             </div>
 
             {/* Official Sign-off Footer Box */}
-            <div className="print-avoid-break" style={{ marginTop: '28px' }}>
+            <div className="print-avoid-break" style={{ marginTop: '14px' }}>
               
               <div style={{
-                borderTop: '2px solid #0f172a',
-                paddingTop: '16px',
+                borderTop: '1.5px solid #0f172a',
+                paddingTop: '10px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: '0 0 8px 0', fontSize: '0.76rem', color: '#475569', lineHeight: 1.5 }}>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.7rem', color: '#475569', lineHeight: 1.4 }}>
                     {branding.customDisclaimer || '위 검토 사항은 대한민국 관세법 및 WCO 국제 품목분류 기준에 의거하여 당 관세법인에서 정밀 검토하여 확정한 공식 의견서입니다.'}
                   </p>
                   
-                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0f172a' }}>
+                  <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#0f172a' }}>
                     {branding.firmName} 대표 / 담당 관세사
                   </div>
                   
-                  <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0f172a', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 900, color: '#0f172a', marginTop: '1px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span>{brokerContactName}</span>
-                    <span style={{ fontSize: '0.76rem', color: '#0284c7', fontWeight: 700 }}>({branding.licenseNo})</span>
+                    <span style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700 }}>({branding.licenseNo})</span>
                   </div>
                   
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>
                     📍 {branding.address} &nbsp;|&nbsp; 📞 {branding.phone} &nbsp;|&nbsp; ✉️ {branding.email}
                   </div>
                 </div>
