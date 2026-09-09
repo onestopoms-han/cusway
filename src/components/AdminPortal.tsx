@@ -347,6 +347,41 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
         }
       }
 
+      // Check newly registered users in browser session
+      const localUsersRaw = localStorage.getItem('cusway_local_users');
+      if (localUsersRaw) {
+        try {
+          const parsedUsers = JSON.parse(localUsersRaw);
+          if (Array.isArray(parsedUsers)) {
+            const merged = [...loadedCustomers];
+            parsedUsers.forEach((u: any) => {
+              const prof = u.profile || u;
+              if (prof && prof.email) {
+                const idx = merged.findIndex(x => x.email.toLowerCase() === prof.email.toLowerCase());
+                if (idx < 0) {
+                  merged.unshift({
+                    id: String(prof.id || prof.email),
+                    email: prof.email,
+                    companyName: prof.company_name || `${prof.email.split('@')[0]} (신규회원)`,
+                    contactName: prof.contact_name || `${prof.company_name?.slice(0, 4) || '신규'} 담당자`,
+                    plan: (prof.plan || 'Basic') as any,
+                    status: (prof.status || 'Active') as any,
+                    joinDate: prof.join_date || new Date().toISOString().split('T')[0],
+                    accruedPoints: prof.accrued_points || 15000,
+                    phoneNumber: prof.phone_number || '010-0000-0000',
+                    tags: ['#신규가입', prof.user_type === 'broker' ? '#관세사' : '#화주'],
+                    notes: '웹 회원가입을 통해 신규 가입한 고객'
+                  });
+                }
+              }
+            });
+            loadedCustomers = merged;
+          }
+        } catch (e) {
+          console.warn('local users parse error', e);
+        }
+      }
+
       if (loadedCustomers.length === 0) {
         loadedCustomers = INITIAL_MOCK_CUSTOMERS;
         localStorage.setItem('cusway_admin_customers_v5', JSON.stringify(INITIAL_MOCK_CUSTOMERS));
