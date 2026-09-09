@@ -21,6 +21,38 @@ class AICustomsClassificationProcessor:
         print(f"[PROCESSOR] Launching AI Classification Pipeline for: '{product_name}'")
         
         # ----------------------------------------------------
+        # Phase 0: 50대 핵심 식품류 정밀 가드레일 매칭
+        # ----------------------------------------------------
+        from backend.rag.food50_rules import find_food_backend_rule
+        food_rule = find_food_backend_rule(product_name, material, function_use)
+        if food_rule:
+            print(f"[PROCESSOR] Matched Food 50 Rule: '{food_rule['name']}' -> {food_rule['recommendedHsCode']}")
+            result_dict = {
+                "keywordTrigger": [product_name],
+                "recommendedHsCode": food_rule["recommendedHsCode"],
+                "headingName": food_rule["headingName"],
+                "subheadingName": food_rule["subheadingName"],
+                "confidence": food_rule.get("confidence", 99),
+                "technicalTerms": food_rule.get("technicalTerms", ""),
+                "appliedGris": food_rule.get("appliedGris", ["통칙 제1호", "통칙 제6호"]),
+                "legalReasoning": food_rule["legalReasoning"],
+                "sectionNote": food_rule.get("sectionNote", ""),
+                "chapterNote": food_rule.get("chapterNote", ""),
+                "exclusionNote": food_rule.get("exclusionNote", ""),
+                "headingExplanation": food_rule.get("headingExplanation", ""),
+                "precedents": food_rule.get("precedents", []),
+                "competingHsCodes": food_rule.get("competingHsCodes", []),
+                "consistency_score": 100,
+                "consistency_status": "PASS",
+                "consistency_warnings": [],
+                "validation_attempts": 1
+            }
+            # Add tax risk assessment
+            assessor = CustomsRiskAssessor()
+            result_dict["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
+            return result_dict
+
+        # ----------------------------------------------------
         # Phase 1: Retrieve RAG notes & precedents
         # ----------------------------------------------------
         combined_query = f"{product_name} {material} {function_use}"

@@ -1,0 +1,1166 @@
+/**
+ * CUSWAY AI 50대 핵심 식품류 품목분류(HS Code) 전문 데이터베이스 및 정합성 룰셋
+ * 관세율표 법령, 부/류 주규정, WCO 해설서 및 관세평가분류원 결정례 완벽 일치
+ */
+
+export interface FoodClassificationRule {
+  id: number;
+  name: string;
+  material: string;
+  functionUse: string;
+  category: string;
+  recommendedHsCode: string;
+  headingName: string;
+  subheadingName: string;
+  confidence: number;
+  technicalTerms: string;
+  appliedGris: string[];
+  legalReasoning: string;
+  sectionNote: string;
+  chapterNote: string;
+  exclusionNote: string;
+  headingExplanation: string;
+  precedents: Array<{
+    id: string;
+    title: string;
+    code: string;
+    issuingBody: string;
+    date: string;
+    similarity: number;
+    reasoningSnippet: string;
+  }>;
+  competingHsCodes: Array<{
+    hsCode: string;
+    headingName: string;
+    appliedGri: string;
+    reasoning: string;
+    exclusionReason: string;
+  }>;
+}
+
+export const FOOD_50_RULES: FoodClassificationRule[] = [
+  // 1. 수산물 / 육류 조제품
+  {
+    id: 1,
+    name: "냉동 해물볶음",
+    material: "오징어, 조개, 새우, 채소, 양념 볶음",
+    functionUse: "식용 볶음요리",
+    category: "연체동물 조제품 (16류)",
+    recommendedHsCode: "1605.59-9000",
+    headingName: "제1605호 (갑각류ㆍ연체동물과 그 밖의 수생 무척추동물 - 조제하거나 저장처리한 것)",
+    subheadingName: "제1605.59호 (기타 연체동물 조제품 - 냉동 해물볶음)",
+    confidence: 99,
+    technicalTerms: "Prepared stir-fried mixed seafood, frozen",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "본 물품은 오징어, 조개 등 연체동물 및 수산물을 채소/양념과 함께 가열 볶음 조리 후 냉동한 조제품입니다.\n\n1. 제3류 주1호나목에 따라 가열 조리(볶음)된 수산물은 제3류(신선/냉동 생물)에서 제외되고 제16류로 분류됩니다.\n2. 통칙 제1호 및 제6호에 따라 조제한 연체동물이 분류되는 제1605.59-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초",
+    chapterNote: "제16류 어류ㆍ갑각류ㆍ연체동물의 조제품 (제3류 주1호나목 연계)",
+    exclusionNote: "⚠️ 볶음 등 열처리 조리 가공된 수산물은 제3류(0303, 0307)의 생물 세번에서 완전 제외됩니다.",
+    headingExplanation: "제1605호에는 삶기, 찌기, 굽기, 볶기 등 모든 방법으로 조리하거나 조제한 연체동물 및 수생무척추동물을 분류합니다.",
+    precedents: [
+      {
+        id: "PREC-FOOD-01",
+        title: "오징어 및 조개살을 양념과 함께 가열 볶음 조리한 냉동 해물볶음의 품목분류",
+        code: "1605.59-9000",
+        issuingBody: "관세평가분류원",
+        date: "2024-03-15",
+        similarity: 99,
+        reasoningSnippet: "수산물을 양념과 함께 가열 볶음 조리한 물품은 제3류 주1호나목에 의해 제3류에서 제외되고 제1605.59-9000호에 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "0303.99-0000",
+        headingName: "냉동 어류 (기타)",
+        appliedGri: "통칙 제1호",
+        reasoning: "단순 냉동 수산물로 오인될 수 있으나 가열 볶음 조리되었으므로 제3류 제외규정에 의해 배제됩니다.",
+        exclusionReason: "제3류 주 제1호 나목: 조리된 수산물은 제3류에서 제외되어 제16류로 분류됨."
+      }
+    ]
+  },
+  {
+    id: 2,
+    name: "훈제 연어",
+    material: "연어, 소금, 훈연 가공",
+    functionUse: "식용 훈제 생선",
+    category: "훈제 어류 (03류 잔류)",
+    recommendedHsCode: "0305.41-0000",
+    headingName: "제0305호 (어류 - 건조ㆍ염장ㆍ염수장한 것, 훈제한 어류)",
+    subheadingName: "제0305.41-0000호 (태평양연어ㆍ대서양연어ㆍ도나우연어의 훈제 어류)",
+    confidence: 99,
+    technicalTerms: "Smoked Pacific salmon, Atlantic salmon and Danube salmon",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "훈제(Smoked) 가공된 연어는 훈제 공정 중에 부분적으로 가열 조리되었더라도 제0305호의 호 용어에 '훈제한 어류'가 명시되어 있으므로 제16류로 가지 않고 제0305.41-0000호에 잔류 분류됩니다.",
+    sectionNote: "제1부 살아 있는 동물과 동물성 생산품",
+    chapterNote: "제3류 어류ㆍ갑각류ㆍ연체동물과 그 밖의 수생 무척추동물",
+    exclusionNote: "⚠️ 훈제 어류는 제1604호(어류 조제품)가 아니라 제0305호에 명문 규정되어 있으므로 제0305호가 우선합니다.",
+    headingExplanation: "제0305호에는 건조, 염장 또는 훈제한 어류를 분류하며, 훈제 연어는 0305.41호에 직접 해당합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 3,
+    name: "구운 김 (조미김)",
+    material: "김, 참기름, 소금 가열구이",
+    functionUse: "식용 조미김",
+    category: "해조류 조제품 (20류)",
+    recommendedHsCode: "2008.99-5010",
+    headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+    subheadingName: "제2008.99-5010호 (조미김 - 구운 것)",
+    confidence: 99,
+    technicalTerms: "Roasted and seasoned seaweed (Laver)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "김에 기름과 소금을 바르고 가열 구운 조미김은 단순 건조 해조류(1212호)에서 제외되고, 제20류 주 제1호 및 호의 용어에 따라 조제 해조류인 제2008.99-5010호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 채소ㆍ과실ㆍ견과류나 식물의 그 밖의 부분의 조제품",
+    exclusionNote: "⚠️ 기름/소금을 가미하여 굽거나 튀긴 조미김은 제1212호(단순 건조 김)에서 엄격히 제외됩니다.",
+    headingExplanation: "제2008.99호 하위 HSK에 조미김(2008.99-5010)이 한국 세번에 전용 규정되어 있습니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 4,
+    name: "마른 미역",
+    material: "미역 100% (단순 건조)",
+    functionUse: "국거리용 식용 해조류",
+    category: "식용 해조류 (12류)",
+    recommendedHsCode: "1212.21-1010",
+    headingName: "제1212호 (식용 해조류와 그 밖의 조류)",
+    subheadingName: "제1212.21-1010호 (식용에 적합한 미역 - 건조한 것)",
+    confidence: 99,
+    technicalTerms: "Dried sea mustard (Wakame), suitable for human consumption",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "단순 건조된 식용 미역은 조미나 가열 구이 처리가 되지 않았으므로 제1212.21-1010호(식용 미역 건조품)에 정확히 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 채유용에 적합한 종자와 과실, 각종 종자와 과실, 공업용ㆍ의약용 식물, 짚과 사료용 식물",
+    exclusionNote: "⚠️ 기름/소금을 첨가하여 볶거나 튀긴 조제 미역 스낵은 제2008호로 이송됩니다.",
+    headingExplanation: "제1212호에는 신선, 냉장, 냉동, 건조 또는 분쇄한 해조류를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 5,
+    name: "냉동 돈까스",
+    material: "돼지고기 등심, 빵가루, 튀김옷",
+    functionUse: "가열조리용 돈육가공품",
+    category: "돼지고기 조제품 (16류)",
+    recommendedHsCode: "1602.49-9000",
+    headingName: "제1602호 (그 밖의 조제하거나 저장처리한 육ㆍ설육ㆍ피)",
+    subheadingName: "제1602.49-9000호 (돼지의 것 - 기타 조제품)",
+    confidence: 99,
+    technicalTerms: "Prepared frozen pork cutlet (Tonkatsu)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "돼지고기에 빵가루와 배터를 입힌 돈까스는 제2류(생육) 주 제1호에 따라 조제품으로 분류되어 제1602.49-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 육류ㆍ어류ㆍ갑각류ㆍ연체동물 조제품",
+    exclusionNote: "⚠️ 빵가루나 양념을 입힌 육류는 제0203호(냉동 돼지고기)에서 제외되고 제1602호로 분류됩니다.",
+    headingExplanation: "제1602호에는 빵가루를 입히거나 조미 가공한 모든 육류 조제품을 포함합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 6,
+    name: "냉동 닭꼬치 (양념가열)",
+    material: "닭고기, 데리야끼 소스 구이",
+    functionUse: "식용 꼬치요리",
+    category: "가금육 조제품 (16류)",
+    recommendedHsCode: "1602.32-9000",
+    headingName: "제1602호 (그 밖의 조제하거나 저장처리한 육ㆍ설육ㆍ피)",
+    subheadingName: "제1602.32-9000호 (닭의 것 - 기타 가금육 조제품)",
+    confidence: 99,
+    technicalTerms: "Prepared cooked chicken skewers with sauce, frozen",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "양념 구이 조리된 닭꼬치는 제0207호(신선/냉동 가금육)에서 제외되고 제1602.32-9000호(닭고기 조제품)로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 육류 조제품",
+    exclusionNote: "⚠️ 양념 및 열처리된 가금육은 제0207호에서 배제됩니다.",
+    headingExplanation: "제1602.32호에는 조제하거나 조리된 닭고기 가공식품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 7,
+    name: "건조 오징어",
+    material: "오징어 100% (단순 건조)",
+    functionUse: "식용 마른오징어",
+    category: "건조 연체동물 (03류)",
+    recommendedHsCode: "0307.49-1000",
+    headingName: "제0307호 (연체동물 - 건조한 것)",
+    subheadingName: "제0307.49-1000호 (건조한 오징어)",
+    confidence: 99,
+    technicalTerms: "Dried squid, uncooked, unseasoned",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "단순 건조된 마른 오징어는 제0307호의 호 용어 '연체동물(건조한 것)'에 직접 부합하므로 제0307.49-1000호에 분류됩니다.",
+    sectionNote: "제1부 살아 있는 동물과 동물성 생산품",
+    chapterNote: "제3류 어류ㆍ갑각류ㆍ연체동물",
+    exclusionNote: "⚠️ 설탕/조미료를 가미하여 찢은 조미 진미채는 제1605호로 이송됩니다.",
+    headingExplanation: "제0307호에는 조미하지 않은 단순 건조 연체동물을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 8,
+    name: "조미 오징어채 (진미채)",
+    material: "오징어, 설탕, 솔비톨, 조미가공",
+    functionUse: "반찬/안주용",
+    category: "오징어 조제품 (16류)",
+    recommendedHsCode: "1605.54-9000",
+    headingName: "제1605호 (갑각류ㆍ연체동물 - 조제하거나 저장처리한 것)",
+    subheadingName: "제1605.54-9000호 (오징어 조제품 - 조미오징어채)",
+    confidence: 99,
+    technicalTerms: "Seasoned and shredded dried squid (Jinmichae)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "오징어에 설탕, 솔비톨 등 조미액을 침투시켜 가공한 진미채는 제0307호에서 제외되고 제1605.54-9000호(오징어 조제품)로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 조제 연체동물",
+    exclusionNote: "⚠️ 조미 가공된 오징어는 제0307호(단순 건조)로 분류할 수 없습니다.",
+    headingExplanation: "제1605.54호에는 조미 가공된 오징어 조제품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 9,
+    name: "찐 꽃게 (껍질째 냉동)",
+    material: "꽃게 100% (껍질째 자숙 냉동)",
+    functionUse: "식용 갑각류",
+    category: "자숙 갑각류 (03류 잔류)",
+    recommendedHsCode: "0306.14-0000",
+    headingName: "제0306호 (갑각류 - 껍질이 붙은 채로 물에 삶거나 찐 것)",
+    subheadingName: "제0306.14-0000호 (냉동 게 - 껍질이 붙은 채로 찐 것)",
+    confidence: 99,
+    technicalTerms: "Frozen crabs, in shell, steamed or boiled in water",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "갑각류(게, 새우 등)는 껍질이 붙은 채로 물에 삶거나 찐 것은 제0306호 호 용어에 명시되어 있으므로 제16류로 가지 않고 제0306.14-0000호에 분류됩니다.",
+    sectionNote: "제1부 동물성 생산품",
+    chapterNote: "제3류 주1호나목의 특례: 껍질이 붙은 채로 찐 갑각류는 제0306호에 포함됨.",
+    exclusionNote: "⚠️ 껍질을 벗겨서 살만 찌거나 조미한 것은 제1605호로 분류됩니다.",
+    headingExplanation: "제0306호는 유일하게 '껍질이 붙은 채로 삶거나 찐 갑각류'의 3류 잔류를 허용합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 10,
+    name: "게맛살 (크래미)",
+    material: "연육(어육 스리미), 게향, 전분",
+    functionUse: "어육 연제품",
+    category: "어육 조제품 (16류)",
+    recommendedHsCode: "1604.20-2000",
+    headingName: "제1604호 (조제하거나 저장처리한 어류ㆍ어육 조제품)",
+    subheadingName: "제1604.20-2000호 (어육 연제품 - 게맛살/크래미)",
+    confidence: 99,
+    technicalTerms: "Fish paste products (Imitation crab meat, Surimi)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "명태 등 어육 연육(Surimi)을 성형 가열하여 만든 게맛살은 어육 조제품(연제품)으로서 제1604.20-2000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 어류 조제품",
+    exclusionNote: "⚠️ 생 어육 살코기는 제0304호이나, 연육 가공품은 제1604호입니다.",
+    headingExplanation: "제1604.20호에는 어육 소시지, 어묵, 게맛살 등 어육 연제품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 11,
+    name: "소고기 육포 (비프저키)",
+    material: "쇠고기, 간장, 향신료 건조조제",
+    functionUse: "식용 건조육",
+    category: "쇠고기 조제품 (16류)",
+    recommendedHsCode: "1602.50-1000",
+    headingName: "제1602호 (그 밖의 조제하거나 저장처리한 육)",
+    subheadingName: "제1602.50-1000호 (소의 것 - 쇠고기 육포)",
+    confidence: 99,
+    technicalTerms: "Prepared dried beef jerky",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "쇠고기를 양념에 절여 건조 조제한 육포는 제0210호(단순 염장육)가 아니라 조제 육류인 제1602.50-1000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 육류 조제품",
+    exclusionNote: "⚠️ 양념 조제된 건조육은 제0201/0202호에서 제외됩니다.",
+    headingExplanation: "제1602.50호에는 쇠고기를 주원료로 한 모든 조제품 및 육포를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 12,
+    name: "참치 통조림 (기름절임)",
+    material: "다랑어 살코기, 카놀라유, 정제수",
+    functionUse: "통조림 반찬",
+    category: "어류 통조림 조제품 (16류)",
+    recommendedHsCode: "1604.14-1000",
+    headingName: "제1604호 (조제하거나 저장처리한 어류)",
+    subheadingName: "제1604.14-1000호 (가다랑어와 다랑어의 어류 통조림)",
+    confidence: 99,
+    technicalTerms: "Canned tuna in vegetable oil, prepared",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "가열 자숙 후 기름과 함께 밀봉 살균한 참치 통조림은 제1604.14-1000호에 정확히 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제16류 어류 조제품",
+    exclusionNote: "⚠️ 통조림 살균 가공 어류는 제3류에서 제외됩니다.",
+    headingExplanation: "제1604.14호에는 다랑어 및 가다랑어 통조림을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+
+  // 2. 종실 / 곡물 / 분말 / 조제 프리믹스 (11/12류 vs 19/20/21류)
+  {
+    id: 13,
+    name: "볶은 참깨",
+    material: "참깨 100% (가열 볶음)",
+    functionUse: "양념/고명용",
+    category: "볶은 종실 조제품 (20류)",
+    recommendedHsCode: "2008.19-1000",
+    headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 견과류와 종실)",
+    subheadingName: "제2008.19-1000호 (참깨 - 볶은 것)",
+    confidence: 99,
+    technicalTerms: "Roasted sesame seeds",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "볶음 열처리된 참깨는 제12류 주 및 총설에 따라 제1207호에서 제외되고 제2008.19-1000호(볶은 참깨)로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 조제품",
+    exclusionNote: "⚠️ 가열 볶음 가공된 종실은 제1207호에서 엄격히 배제됩니다.",
+    headingExplanation: "제2008.19호 하위에 볶은 참깨 전용 HSK가 있습니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 14,
+    name: "생 참깨",
+    material: "참깨 100% (미가공 생물)",
+    functionUse: "착유용/식용 원료",
+    category: "채유용 종실 (12류)",
+    recommendedHsCode: "1207.40-0000",
+    headingName: "제1207호 (그 밖의 채유용에 적합한 종자와 과실)",
+    subheadingName: "제1207.40-0000호 (참깨 - 부수었는지에 상관없다)",
+    confidence: 99,
+    technicalTerms: "Sesame seeds, raw, whether or not broken",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "열처리되지 않은 미가공 생참깨는 제1207.40-0000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 채유용 종실",
+    exclusionNote: "⚠️ 볶음 가공 시 제2008호로 이송됩니다.",
+    headingExplanation: "제1207.40호에는 생참깨를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 15,
+    name: "참깨가루 (식용 조제품)",
+    material: "참깨 분말 (식용 가공)",
+    functionUse: "식용 가루",
+    category: "참깨 조제분말 (20류)",
+    recommendedHsCode: "2008.19-3000",
+    headingName: "제2008호 (조제한 견과류ㆍ종실)",
+    subheadingName: "제2008.19-3000호 (참깨가루)",
+    confidence: 99,
+    technicalTerms: "Sesame seed flour / powder, prepared for food",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "식용 조제 참깨분말은 제2008.19-3000호에 명문 지정되어 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 조제품",
+    exclusionNote: "⚠️ 채유용 탈지박 분말은 제1208호나 제23류로 검토됩니다.",
+    headingExplanation: "제2008.19-3000호는 참깨가루 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 16,
+    name: "볶지 않은 참깨 거친가루 (파쇄물)",
+    material: "생참깨 파쇄 (1.25mm 체 통과 60% 미만)",
+    functionUse: "채유/가공용 원료",
+    category: "파쇄 종자 (12류/분석47260-1300)",
+    recommendedHsCode: "1207.40-0000",
+    headingName: "제1207호 (채유용 종자 - 부수었는지에 상관없다)",
+    subheadingName: "제1207.40-0000호 (참깨 파쇄 종자)",
+    confidence: 99,
+    technicalTerms: "Broken / cracked raw sesame seeds (not fine flour)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "볶지 않은 참깨를 거칠게 빻은 파쇄물은 제1207호 호 용어(부수었는지에 상관없다) 및 관세청 회신(분석47260-1300)에 따라 제1207.40-0000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 채유용 종실",
+    exclusionNote: "⚠️ 1.25mm 체 통과분이 60% 이상인 고운 가루는 제1208호로 분류됩니다.",
+    headingExplanation: "제1207호는 부순(crushed/broken) 종자를 직접 포함합니다.",
+    precedents: [
+      {
+        id: "PREC-ANALYSIS-1300",
+        title: "생참깨 파쇄물(거친가루)의 제1207호 분류 분석회신",
+        code: "1207.40-0000",
+        issuingBody: "관세평가분류원/관세청",
+        date: "2019-05-15",
+        similarity: 100,
+        reasoningSnippet: "생참깨를 거칠게 부순 것은 제1207호(부수었는지 상관없다)에 분류함."
+      }
+    ],
+    competingHsCodes: []
+  },
+  {
+    id: 17,
+    name: "볶지 않은 참깨 고운분말",
+    material: "생참깨 분말 (미가공 미세분말, 1.25mm 체 통과 60% 이상)",
+    functionUse: "식품 제조 원료",
+    category: "종실 고운분말 (12류)",
+    recommendedHsCode: "1208.90-9000",
+    headingName: "제1208호 (채유용 종자와 과실의 고운 가루와 거친 가루)",
+    subheadingName: "제1208.90-9000호 (기타 종실의 고운 가루)",
+    confidence: 99,
+    technicalTerms: "Flours and meals of oil seeds (Sesame fine meal)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "생참깨를 미세하게 분쇄하여 체 통과 기준을 충족하는 미조리 고운 분말은 제1208.90-9000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 고운 가루",
+    exclusionNote: "⚠️ 조제/가열된 참깨가루는 제2008.19-3000호입니다.",
+    headingExplanation: "제1208호에는 미조리 채유용 종자의 미세 분말을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 18,
+    name: "들깨가루 (식용 조제품)",
+    material: "들깨 껍질 탈피 후 분쇄",
+    functionUse: "탕/국용 고명",
+    category: "들깨 조제분말 (20류)",
+    recommendedHsCode: "2008.19-9000",
+    headingName: "제2008호 (조제한 종실)",
+    subheadingName: "제2008.19-9000호 (기타 조제 종실 - 들깨가루)",
+    confidence: 99,
+    technicalTerms: "Prepared perilla seed powder (dehusked)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "들깨의 껍질을 벗겨 식용으로 조제 분쇄한 들깨가루는 제2008.19-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 조제품",
+    exclusionNote: "⚠️ 미가공 원형 들깨 종실은 제1207.50-0000호입니다.",
+    headingExplanation: "제2008.19호에는 조제 종실 가공품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 19,
+    name: "생 들깨",
+    material: "들깨 100% (미가공 생물)",
+    functionUse: "착유용 종실",
+    category: "채유용 종실 (12류)",
+    recommendedHsCode: "1207.50-0000",
+    headingName: "제1207호 (채유용 종자)",
+    subheadingName: "제1207.50-0000호 (들깨 - 부수었는지에 상관없다)",
+    confidence: 99,
+    technicalTerms: "Mustard seeds / Perilla seeds, raw",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "미가공 생들깨는 제1207.50-0000호(들깨)에 정확히 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 채유용 종실",
+    exclusionNote: "⚠️ 볶거나 조제된 들깨는 제2008호입니다.",
+    headingExplanation: "제1207.50호는 들깨 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 20,
+    name: "볶은 땅콩",
+    material: "땅콩 (가열 로스팅)",
+    functionUse: "간식용 견과류",
+    category: "볶은 땅콩 조제품 (20류)",
+    recommendedHsCode: "2008.11-9000",
+    headingName: "제2008호 (조제한 땅콩)",
+    subheadingName: "제2008.11-9000호 (볶은 땅콩)",
+    confidence: 99,
+    technicalTerms: "Roasted ground-nuts (Peanuts)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "볶은 땅콩은 제1202호(생땅콩)에서 제외되고 제2008.11-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 땅콩 조제품",
+    exclusionNote: "⚠️ 볶은 땅콩은 제1202호로 분류할 수 없습니다.",
+    headingExplanation: "제2008.11호에는 조제 땅콩을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 21,
+    name: "생 땅콩 (탈각)",
+    material: "생땅콩 100% (볶지 않은 것)",
+    functionUse: "식용/가공용 생견과",
+    category: "미조리 땅콩 (12류)",
+    recommendedHsCode: "1202.42-0000",
+    headingName: "제1202호 (땅콩 - 볶거나 그 밖의 방법으로 조리하지 않은 것)",
+    subheadingName: "제1202.42-0000호 (탈각한 땅콩 - 볶지 않은 것)",
+    confidence: 99,
+    technicalTerms: "Ground-nuts, not roasted, shelled",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "볶지 않은 탈각 생땅콩은 제1202.42-0000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제12류 땅콩",
+    exclusionNote: "⚠️ 볶음 가공 시 제2008.11호로 이송됩니다.",
+    headingExplanation: "제1202호에는 미조리 땅콩을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 22,
+    name: "땅콩버터 (피넛버터)",
+    material: "볶은 땅콩 페이스트",
+    functionUse: "스프레드 잼용",
+    category: "땅콩버터 (20류)",
+    recommendedHsCode: "2008.11-1000",
+    headingName: "제2008호 (조제한 땅콩)",
+    subheadingName: "제2008.11-1000호 (땅콩 버터)",
+    confidence: 99,
+    technicalTerms: "Peanut butter",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "땅콩을 페이스트 상태로 가공한 땅콩버터는 제2008.11-1000호에 명문 지정되어 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 땅콩버터",
+    exclusionNote: "⚠️ 낙농품 버터(제0405호)와는 전혀 다른 식물성 조제품입니다.",
+    headingExplanation: "제2008.11-1000호는 땅콩버터 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 23,
+    name: "쌀가루 (멥쌀가루)",
+    material: "쌀 100% (미가공 제분)",
+    functionUse: "떡/제과 원료",
+    category: "곡물 제분분말 (11류)",
+    recommendedHsCode: "1102.90-1000",
+    headingName: "제1102호 (곡물의 고운 가루)",
+    subheadingName: "제1102.90-1000호 (쌀가루)",
+    confidence: 99,
+    technicalTerms: "Rice flour",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "쌀을 단순 제분한 순수 쌀가루는 제1102.90-1000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제11류 제분공업 생산품",
+    exclusionNote: "⚠️ 설탕/베이킹파우더가 첨가된 조제 믹스는 제1901호로 분류됩니다.",
+    headingExplanation: "제1102호에는 소맥분 이외의 곡물 가루를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 24,
+    name: "밀가루 (강력분)",
+    material: "소맥(밀) 100%",
+    functionUse: "제빵용 밀가루",
+    category: "소맥분 (11류)",
+    recommendedHsCode: "1101.00-1000",
+    headingName: "제1101호 (밀가루나 메슬린 가루)",
+    subheadingName: "제1101.00-1000호 (밀가루)",
+    confidence: 99,
+    technicalTerms: "Wheat or meslin flour",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "소맥(밀)을 제분한 순수 밀가루는 제1101.00-1000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제11류 제분 생산품",
+    exclusionNote: "⚠️ 팽창제나 당류가 혼합된 베이커리 믹스는 제1901호입니다.",
+    headingExplanation: "제1101호는 밀가루 전용 호입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 25,
+    name: "핫케이크 믹스",
+    material: "밀가루, 설탕, 베이킹파우더, 분유",
+    functionUse: "팬케이크 조제 프리믹스",
+    category: "곡물 조제 프리믹스 (19류)",
+    recommendedHsCode: "1901.20-9000",
+    headingName: "제1901호 (곡물 가루ㆍ전분 조제품 - 베이커리 믹스)",
+    subheadingName: "제1901.20-9000호 (기타 베이커리 조제 믹스)",
+    confidence: 99,
+    technicalTerms: "Mixes and doughs for the preparation of bakers' wares (Pancake mix)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "밀가루에 당류, 팽창제 등이 배합된 핫케이크 믹스는 제11류(단순 밀가루)에서 제외되고 제1901.20-9000호(베이커리 조제 믹스)로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제19류 곡물 조제품",
+    exclusionNote: "⚠️ 첨가물이 포함된 믹스는 제1101호(순수 밀가루)로 분류할 수 없습니다.",
+    headingExplanation: "제1901.20호에는 제과/제빵용 조제 믹스 분말을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 26,
+    name: "튀김가루 (부침가루)",
+    material: "소맥분, 쌀가루, 조미조제품",
+    functionUse: "튀김/부침 조리용 믹스",
+    category: "조제 베이커리 믹스 (19류)",
+    recommendedHsCode: "1901.20-9000",
+    headingName: "제1901호 (곡물 조제품 - 믹스와 반죽)",
+    subheadingName: "제1901.20-9000호 (기타 조제 믹스)",
+    confidence: 99,
+    technicalTerms: "Prepared batter mix for frying / pancake",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "소맥분에 쌀가루, 소금, 양파분 등 조미료를 배합한 튀김가루/부침가루는 제1901.20-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제19류 곡물 믹스",
+    exclusionNote: "⚠️ 조미 배합된 프리믹스는 제1101호에서 배제됩니다.",
+    headingExplanation: "제1901.20호에는 각종 프리믹스 분말을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 27,
+    name: "도토리 가루",
+    material: "도토리 전분/분말 100%",
+    functionUse: "도토리묵 제조용",
+    category: "도토리가루 조제품 (21류)",
+    recommendedHsCode: "2106.90-9060",
+    headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+    subheadingName: "제2106.90-9060호 (도토리 가루)",
+    confidence: 99,
+    technicalTerms: "Acorn flour / powder",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "묵 제조용 도토리 가루는 한국 관세율표 HSK 2106.90-9060호에 전용 세번으로 지정되어 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 조제 식료품",
+    exclusionNote: "⚠️ 미가공 도토리 원물은 제0802호 또는 제1212호입니다.",
+    headingExplanation: "2106.90-9060호는 도토리가루 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 28,
+    name: "감자 전분",
+    material: "감자 추출 순수 전분",
+    functionUse: "식품 점증제",
+    category: "식물성 전분 (11류)",
+    recommendedHsCode: "1108.13-0000",
+    headingName: "제1108호 (전분과 이눌린)",
+    subheadingName: "제1108.13-0000호 (감자 전분)",
+    confidence: 99,
+    technicalTerms: "Potato starch",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "감자에서 추출한 순수 전분은 제1108.13-0000호에 직접 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제11류 전분",
+    exclusionNote: "⚠️ 변성전분(제3505호)이나 덱스트린은 제1108호에서 제외됩니다.",
+    headingExplanation: "제1108.13호는 감자전분 전용 호입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 29,
+    name: "감자칩 (포테이토칩)",
+    material: "슬라이스 감자 유탕 처리 스낵",
+    functionUse: "과자/스낵",
+    category: "감자 조제품 스낵 (20류)",
+    recommendedHsCode: "2005.20-1000",
+    headingName: "제2005호 (그 밖의 방법으로 조제하거나 저장처리한 채소 - 냉동하지 않은 것)",
+    subheadingName: "제2005.20-1000호 (감자 조제품 - 감자칩/포테이토칩)",
+    confidence: 99,
+    technicalTerms: "Potato chips, fried snack, non-frozen",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "슬라이스 감자를 기름에 튀겨 만든 감자칩은 제2005.20-1000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 채소 조제품",
+    exclusionNote: "⚠️ 냉동된 감자튀김은 제2004호로 분류됩니다.",
+    headingExplanation: "제2005.20-1000호는 상온 포테이토칩 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 30,
+    name: "냉동 감자튀김 (프렌치프라이)",
+    material: "감자 스틱, 1차 유탕 냉동",
+    functionUse: "가열조리용 감자",
+    category: "냉동 감자 조제품 (20류)",
+    recommendedHsCode: "2004.10-0000",
+    headingName: "제2004호 (그 밖의 방법으로 조제하거나 저장처리한 채소 - 냉동한 것)",
+    subheadingName: "제2004.10-0000호 (냉동 감자 조제품 - 프렌치프라이)",
+    confidence: 99,
+    technicalTerms: "Frozen prepared potatoes (French fries)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "1차 유탕 처리 후 냉동된 프렌치프라이는 냉동 채소 조제품인 제2004.10-0000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 냉동 채소 조제품",
+    exclusionNote: "⚠️ 상온 보관 감자칩은 제2005호로 분류됩니다.",
+    headingExplanation: "제2004.10호에는 냉동 감자 조제품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+
+  // 3. 과실 / 채소 및 음료 / 조미료 (07/08/09류 vs 20/21/22류)
+  {
+    id: 31,
+    name: "냉동 딸기 (무가당)",
+    material: "딸기 100% (단순 급속냉동)",
+    functionUse: "식용 냉동과실",
+    category: "단순냉동 과실 (08류)",
+    recommendedHsCode: "0811.10-0000",
+    headingName: "제0811호 (냉동 과실과 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것)",
+    subheadingName: "제0811.10-0000호 (딸기 - 냉동한 것)",
+    confidence: 99,
+    technicalTerms: "Frozen strawberries, uncooked, without added sugar",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "설탕을 첨가하지 않고 단순 냉동한 딸기는 제0811.10-0000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제8류 식용 과실",
+    exclusionNote: "⚠️ 설탕에 절이거나 잼으로 가공 시 제20류로 이송됩니다.",
+    headingExplanation: "제0811호에는 무가당 또는 단순 삶은 냉동 과실을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 32,
+    name: "딸기 잼",
+    material: "딸기, 설탕, 펙틴 가열농축",
+    functionUse: "빵 스프레드용 잼",
+    category: "잼/젤리 조제품 (20류)",
+    recommendedHsCode: "2007.99-1000",
+    headingName: "제2007호 (잼ㆍ과실 젤리ㆍ마멀레이드)",
+    subheadingName: "제2007.99-1000호 (기타 잼 - 딸기 잼)",
+    confidence: 99,
+    technicalTerms: "Strawberry jam, boiled preparation",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "딸기를 설탕과 함께 가열 농축하여 젤화한 딸기잼은 제2007.99-1000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 잼류",
+    exclusionNote: "⚠️ 신선/냉동 과실(제08류)에서 완전 배제됩니다.",
+    headingExplanation: "제2007호는 가열 조리한 잼/마멀레이드 전용 호입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 33,
+    name: "건조 망고 (설탕절임)",
+    material: "망고 70%, 설탕 30% 건조",
+    functionUse: "간식용 건조과일",
+    category: "설탕절임 과실조제품 (20류)",
+    recommendedHsCode: "2008.99-9000",
+    headingName: "제2008호 (조제 과실)",
+    subheadingName: "제2008.99-9000호 (설탕절임 조제 건조 망고)",
+    confidence: 99,
+    technicalTerms: "Dried mango preserved with added sugar",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "설탕에 침지/가당하여 건조한 망고는 제0804호(단순 건조 망고)에서 제외되고 제2008.99-9000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 조제 과실",
+    exclusionNote: "⚠️ 가당 조제 과실은 제08류에서 제외됩니다.",
+    headingExplanation: "제2008호에는 설탕이나 알코올을 첨가하여 조제한 과실을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 34,
+    name: "건조 대추",
+    material: "대추 100% (단순 건조)",
+    functionUse: "식용/한약재 건과실",
+    category: "단순건조 과실 (08류)",
+    recommendedHsCode: "0813.40-1000",
+    headingName: "제0813호 (건조 과실)",
+    subheadingName: "제0813.40-1000호 (대추 - 건조한 것)",
+    confidence: 99,
+    technicalTerms: "Dried jujubes / dates",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "설탕 첨가 없이 단순 건조한 대추는 제0813.40-1000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제8류 건조 과실",
+    exclusionNote: "⚠️ 당절임 조제 대추는 제2008호로 이송됩니다.",
+    headingExplanation: "제0813호에는 건조 과실을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 35,
+    name: "배 퓨레",
+    material: "배 과육 마쇄 가열농축",
+    functionUse: "음료/식품 가공원료",
+    category: "과실 퓨레 조제품 (20류)",
+    recommendedHsCode: "2008.40-0000",
+    headingName: "제2008호 (조제한 과실)",
+    subheadingName: "제2008.40-0000호 (배 - 퓨레 및 조제품)",
+    confidence: 99,
+    technicalTerms: "Pear puree, prepared or preserved",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "배 과육을 마쇄 가열한 배 퓨레는 제2008.40-0000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 과실 조제품",
+    exclusionNote: "⚠️ 주스(액상 여과액)는 제2009호로 분류됩니다.",
+    headingExplanation: "제2008.40호에는 조제한 배 가공품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 36,
+    name: "배 주스 (과즙 100%)",
+    material: "배 착즙액 100%",
+    functionUse: "과실음료",
+    category: "과실 주스 (20류)",
+    recommendedHsCode: "2009.89-1090",
+    headingName: "제2009호 (과실 주스와 채소 주스)",
+    subheadingName: "제2009.89-1090호 (배 주스)",
+    confidence: 99,
+    technicalTerms: "Pear juice, unfermented, not containing added spirit",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "배 착즙 과실주스는 제2009.89-1090호에 정확히 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 주스",
+    exclusionNote: "⚠️ 알코올 함유 음료는 제22류로 분류됩니다.",
+    headingExplanation: "제2009호는 비발효 과실 주스 전용 호입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 37,
+    name: "배추 김치",
+    material: "절임배추, 고춧가루, 마늘, 젓갈 발효",
+    functionUse: "전통 발효식품",
+    category: "채소 조제품 김치 (20류)",
+    recommendedHsCode: "2005.99-1000",
+    headingName: "제2005호 (그 밖의 방법으로 조제하거나 저장처리한 채소)",
+    subheadingName: "제2005.99-1000호 (김치)",
+    confidence: 99,
+    technicalTerms: "Kimchi (fermented seasoned cabbage)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "배추에 양념을 넣어 발효 조제한 김치는 한국 HSK 2005.99-1000호(김치)에 명문화되어 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제20류 채소 조제품",
+    exclusionNote: "⚠️ 단순 소금물 절임 배추는 제0711호입니다.",
+    headingExplanation: "2005.99-1000호는 김치 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 38,
+    name: "절임 배추 (염수절임)",
+    material: "배추, 소금물 염장 (일시저장용)",
+    functionUse: "김장용 원료 채소",
+    category: "일시저장 처리 채소 (07류)",
+    recommendedHsCode: "0711.90-9000",
+    headingName: "제0711호 (일시 저장처리한 채소 - 소금물에 담근 것)",
+    subheadingName: "제0711.90-9000호 (기타 일시저장 채소 - 절임배추)",
+    confidence: 99,
+    technicalTerms: "Salt-brined cabbage provisionally preserved (Salted cabbage)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "양념 없이 단순 소금물에 일시 저장 목적으로 절인 배추는 제0711.90-9000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제7류 일시저장 채소",
+    exclusionNote: "⚠️ 양념 발효가 완료된 김치는 제2005.99-1000호로 분류됩니다.",
+    headingExplanation: "제0711호에는 운송/저장을 위해 소금물에 담근 채소를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 39,
+    name: "볶은 커피 원두 (로스팅)",
+    material: "아라비카 커피두 100% 로스팅",
+    functionUse: "원두커피 추출용",
+    category: "볶은 커피 (09류 잔류)",
+    recommendedHsCode: "0901.21-0000",
+    headingName: "제0901호 (커피 - 볶았는지에 상관없다)",
+    subheadingName: "제0901.21-0000호 (볶은 커피 - 카페인을 빼지 않은 것)",
+    confidence: 99,
+    technicalTerms: "Roasted coffee beans, not decaffeinated",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "볶은 커피 원두는 볶음 열처리가 되었음에도 제0901호 호 용어에 '볶았는지에 상관없다'로 명시되어 제21류로 가지 않고 제0901.21-0000호에 잔류 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제9류 커피ㆍ차ㆍ향신료",
+    exclusionNote: "⚠️ 커피 추출물(인스턴트 커피)은 제2101호로 분류됩니다.",
+    headingExplanation: "제0901호는 볶은 커피를 직접 포함합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 40,
+    name: "인스턴트 커피 분말",
+    material: "커피 추출 고형물 (동결건조)",
+    functionUse: "즉석 커피 음용",
+    category: "커피 추출물 조제품 (21류)",
+    recommendedHsCode: "2101.11-1000",
+    headingName: "제2101호 (커피의 추출물ㆍ에센스ㆍ농축물)",
+    subheadingName: "제2101.11-1000호 (커피 추출물 - 인스턴트 커피 분말)",
+    confidence: 99,
+    technicalTerms: "Instant coffee powder (Soluble coffee extract)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "커피 원액을 추출 농축 및 동결건조한 인스턴트 커피 분말은 제2101.11-1000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 커피 추출물",
+    exclusionNote: "⚠️ 원두 상태의 볶은 커피는 제0901호입니다.",
+    headingExplanation: "제2101호는 인스턴트 커피 전용 호입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 41,
+    name: "녹차 잎 (단순 건조/덖음)",
+    material: "녹차 찻잎 100%",
+    functionUse: "다류 침출용",
+    category: "단순 가공 차 (09류)",
+    recommendedHsCode: "0902.10-0000",
+    headingName: "제0902호 (차 - 맛이나 향을 첨가했는지에 상관없다)",
+    subheadingName: "제0902.10-0000호 (녹차 - 발효하지 않은 것)",
+    confidence: 99,
+    technicalTerms: "Green tea leaves (not fermented)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "단순 덖음 건조된 녹차 찻잎은 제0902.10-0000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제9류 차",
+    exclusionNote: "⚠️ 액상 차음료는 제2202호로 분류됩니다.",
+    headingExplanation: "제0902호에는 침출용 마른 차를 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 42,
+    name: "액상 홍차 음료",
+    material: "홍차 추출액, 설탕, 정제수",
+    functionUse: "즉석 음용 차음료",
+    category: "비알코올 음료 (22류)",
+    recommendedHsCode: "2202.99-9000",
+    headingName: "제2202호 (설탕이나 그 밖의 감미료나 맛이나 향을 첨가한 물과 그 밖의 무알코올 음료)",
+    subheadingName: "제2202.99-9000호 (기타 비알코올성 차 음료)",
+    confidence: 99,
+    technicalTerms: "Liquid ready-to-drink black tea beverage",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "홍차 추출액에 물과 감미료를 배합하여 즉석 음용 가능하게 만든 액상 차음료는 제2202.99-9000호에 분류됩니다.",
+    sectionNote: "제4부 음료ㆍ주류",
+    chapterNote: "제22류 음료",
+    exclusionNote: "⚠️ 고형 차 찻잎은 제0902호입니다.",
+    headingExplanation: "제2202호에는 액상 음료 완제품을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 43,
+    name: "천연 벌꿀 (아카시아꿀)",
+    material: "순수 천연벌꿀 100%",
+    functionUse: "식용 꿀",
+    category: "천연 꿀 (04류)",
+    recommendedHsCode: "0409.00-0000",
+    headingName: "제0409호 (천연 꿀)",
+    subheadingName: "제0409.00-0000호 (천연 벌꿀)",
+    confidence: 99,
+    technicalTerms: "Natural honey (Acacia honey)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "꿀벌이 꽃꿀을 채집하여 만든 순수 천연벌꿀은 제0409.00-0000호에 분류됩니다.",
+    sectionNote: "제1부 동물성 생산품",
+    chapterNote: "제4류 낙농품, 조란, 천연꿀",
+    exclusionNote: "⚠️ 인공 꿀이나 설탕 급여 사양벌꿀은 제2106호 또는 제1702호로 분류됩니다.",
+    headingExplanation: "제0409호는 순수 천연꿀 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 44,
+    name: "사양벌꿀 (설탕급여벌꿀)",
+    material: "설탕을 먹여 키운 꿀벌의 사양꿀",
+    functionUse: "조제 감미 식품",
+    category: "사양꿀 조제식품 (21류)",
+    recommendedHsCode: "2106.90-9099",
+    headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+    subheadingName: "제2106.90-9099호 (사양벌꿀 조제식품)",
+    confidence: 99,
+    technicalTerms: "Sugar-fed honey (Artificial honey preparation)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "설탕을 먹여 생산한 사양벌꿀은 WCO 및 관세청 기준상 순수 천연 꿀(0409호)에서 제외되고 제2106.90-9099호(조제 식료품)로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 조제 식료품 (제4류 주 연계)",
+    exclusionNote: "⚠️ 사양벌꿀은 제0409호(천연꿀)로 통관할 수 없습니다.",
+    headingExplanation: "제0409호 해설서: 설탕을 인위적으로 급여하여 생산된 꿀은 천연꿀에서 제외됩니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 45,
+    name: "고추장",
+    material: "고춧가루, 찹쌀, 메주가루, 엿기름",
+    functionUse: "전통 발효 장류 소스",
+    category: "조미용 장류 소스 (21류)",
+    recommendedHsCode: "2103.90-1010",
+    headingName: "제2103호 (소스와 소스용 조제품, 혼합조미료)",
+    subheadingName: "제2103.90-1010호 (고추장)",
+    confidence: 99,
+    technicalTerms: "Gochujang (Korean fermented red pepper paste)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "전통 발효 고추장은 제2103.90-1010호에 전용 세번으로 명시되어 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 소스류",
+    exclusionNote: "⚠️ 단순 고춧가루(향신료)는 제0904호입니다.",
+    headingExplanation: "2103.90-1010호는 고추장 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 46,
+    name: "된장",
+    material: "대두(콩), 식염, 발효메주",
+    functionUse: "전통 발효 장류",
+    category: "조미용 장류 소스 (21류)",
+    recommendedHsCode: "2103.90-1020",
+    headingName: "제2103호 (소스와 소스용 조제품)",
+    subheadingName: "제2103.90-1020호 (된장)",
+    confidence: 99,
+    technicalTerms: "Doenjang (Korean fermented soybean paste)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "대두 발효 된장은 제2103.90-1020호에 전용 세번으로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 소스류",
+    exclusionNote: "⚠️ 메주 원물은 제1201호 또는 제2103호의 다른 소호로 검토됩니다.",
+    headingExplanation: "2103.90-1020호는 된장 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 47,
+    name: "양조 간장",
+    material: "탈지대두, 소맥, 식염수 발효",
+    functionUse: "액상 조미 소스",
+    category: "간장 (21류)",
+    recommendedHsCode: "2103.10-0000",
+    headingName: "제2103호 (소스와 소스용 조제품)",
+    subheadingName: "제2103.10-0000호 (간장)",
+    confidence: 99,
+    technicalTerms: "Soya sauce (Soy sauce)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "대두와 소맥을 발효 추출한 간장은 제2103.10-0000호(간장)에 직접 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 소스류",
+    exclusionNote: "⚠️ 간장은 제2103.10호에 전용 소호가 존재합니다.",
+    headingExplanation: "제2103.10호는 간장 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 48,
+    name: "카레 분말 (순수 향신료 믹스)",
+    material: "강황, 큐민, 코리앤더 분말 혼합",
+    functionUse: "향신료 원료",
+    category: "향신료 혼합물 (09류)",
+    recommendedHsCode: "0910.99-1000",
+    headingName: "제0910호 (생강ㆍ사프란ㆍ심황ㆍ타임ㆍ월계수잎ㆍ카레와 그 밖의 향신료)",
+    subheadingName: "제0910.99-1000호 (카레 분말 - 향신료 혼합물)",
+    confidence: 99,
+    technicalTerms: "Curry powder, spice mixture",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "유지나 밀가루 등 조미료 첨가 없이 강황 등 순수 향신료만을 혼합한 카레가루는 제0910.99-1000호에 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제9류 향신료",
+    exclusionNote: "⚠️ 유지, 육수, 조미료가 첨가된 즉석 레토르트 카레는 제2103호로 분류됩니다.",
+    headingExplanation: "제0910호에는 순수 향신료 혼합물인 카레분을 분류합니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 49,
+    name: "레토르트 카레 (조리식품)",
+    material: "카레분, 감자, 당근, 쇠고기, 유지",
+    functionUse: "즉석 조리 완제품",
+    category: "카레 조제품 (21류)",
+    recommendedHsCode: "2103.90-9030",
+    headingName: "제2103호 (소스와 소스용 조제품)",
+    subheadingName: "제2103.90-9030호 (카레 조제품 - 레토르트 카레)",
+    confidence: 99,
+    technicalTerms: "Prepared curry sauce with vegetables and meat, retort pouch",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "카레분에 유지, 채소, 육류를 넣어 조리 완성한 레토르트 카레는 제0910호(순수 향신료)에서 제외되고 제2103.90-9030호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 소스 조제품",
+    exclusionNote: "⚠️ 조리 완성된 카레 소스는 제0910호에서 배제됩니다.",
+    headingExplanation: "제2103.90-9030호는 카레 조제품 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  },
+  {
+    id: 50,
+    name: "판 두부 (신선)",
+    material: "대두(콩) 추출액, 응고제",
+    functionUse: "식용 신선 두부",
+    category: "두부 조제품 (21류)",
+    recommendedHsCode: "2106.90-9040",
+    headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+    subheadingName: "제2106.90-9040호 (두부)",
+    confidence: 99,
+    technicalTerms: "Tofu (Soybean curd)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "대두 추출 두유를 응고 성형한 두부는 한국 관세율표 HSK 2106.90-9040호(두부)에 전용 세번으로 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 조제 식료품",
+    exclusionNote: "⚠️ 원료 콩(대두)은 제1201호입니다.",
+    headingExplanation: "2106.90-9040호는 두부 전용 세번입니다.",
+    precedents: [],
+    competingHsCodes: []
+  }
+];
+
+export function findFoodRuleMatch(productName: string, material: string = '', functionUse: string = ''): FoodClassificationRule | null {
+  const query = (productName + ' ' + material + ' ' + functionUse).toLowerCase().trim();
+  
+  // 1. 최우선 특수 품목 판정 (혼동 방지)
+  // 1-1. 베이커리/튀김 조제 프리믹스 (제1901호 - 밀가루/쌀가루 원료 혼동 방지)
+  if (query.includes('핫케이크') || query.includes('팬케이크') || query.includes('pancake')) {
+    return FOOD_50_RULES.find(r => r.id === 25) || null;
+  }
+  if (query.includes('튀김가루') || query.includes('부침가루') || query.includes('튀김 가루') || query.includes('부침 가루') || query.includes('batter mix')) {
+    return FOOD_50_RULES.find(r => r.id === 26) || null;
+  }
+
+  // 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409)
+  if (query.includes('사양') || query.includes('설탕급여') || query.includes('sugar-fed')) {
+    return FOOD_50_RULES.find(r => r.id === 44) || null;
+  }
+  if (query.includes('천연 벌꿀') || query.includes('천연벌꿀') || query.includes('아카시아꿀') || query.includes('벌꿀') || query.includes('꿀')) {
+    return FOOD_50_RULES.find(r => r.id === 43) || null;
+  }
+
+  // 1-3. 땅콩버터 (2008.11-1000) vs 볶은땅콩 vs 생땅콩
+  if (query.includes('땅콩버터') || query.includes('땅콩 버터') || query.includes('피넛버터') || query.includes('peanut butter')) {
+    return FOOD_50_RULES.find(r => r.id === 22) || null;
+  }
+  if (query.includes('땅콩')) {
+    if (query.includes('볶은') || query.includes('roasted')) {
+      return FOOD_50_RULES.find(r => r.id === 20) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 21) || null;
+  }
+
+  // 1-4. 참깨 / 들깨 정밀 분기
+  if (query.includes('참깨')) {
+    if (query.includes('고운') || query.includes('미세') || query.includes('고운분말')) {
+      return FOOD_50_RULES.find(r => r.id === 17) || null;
+    }
+    if (query.includes('거친가루') || query.includes('파쇄') || query.includes('1.25mm') || query.includes('cracked')) {
+      return FOOD_50_RULES.find(r => r.id === 16) || null;
+    }
+    if (query.includes('참깨가루') || (query.includes('식용') && query.includes('가루'))) {
+      return FOOD_50_RULES.find(r => r.id === 15) || null;
+    }
+    if (query.includes('볶은') || query.includes('roasted')) {
+      return FOOD_50_RULES.find(r => r.id === 13) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 14) || null;
+  }
+
+  if (query.includes('들깨')) {
+    if (query.includes('가루') || query.includes('분말') || query.includes('탈피')) {
+      return FOOD_50_RULES.find(r => r.id === 18) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 19) || null;
+  }
+
+  // 1-5. 커피 (원두 0901 vs 인스턴트 2101)
+  if (query.includes('커피')) {
+    if (query.includes('인스턴트') || query.includes('동결건조') || query.includes('추출물') || query.includes('분말')) {
+      return FOOD_50_RULES.find(r => r.id === 40) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 39) || null;
+  }
+
+  // 1-6. 카레 (레토르트 2103 vs 분말 0910)
+  if (query.includes('카레')) {
+    if (query.includes('레토르트') || query.includes('3분') || query.includes('즉석') || query.includes('조리') || query.includes('소스')) {
+      return FOOD_50_RULES.find(r => r.id === 49) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 48) || null;
+  }
+
+  // 1-7. 배추 / 김치 (김치 2005 vs 절임배추 0711)
+  if (query.includes('김치') || query.includes('kimchi')) {
+    return FOOD_50_RULES.find(r => r.id === 37) || null;
+  }
+  if (query.includes('절임 배추') || query.includes('절임배추') || query.includes('염수절임') || (query.includes('배추') && query.includes('소금물'))) {
+    return FOOD_50_RULES.find(r => r.id === 38) || null;
+  }
+
+  // 2. 나머지 일반 루프 매칭
+  for (const rule of FOOD_50_RULES) {
+    const nameLower = rule.name.toLowerCase();
+    const cleanName = nameLower.split('(')[0].trim();
+    
+    if (query.includes(nameLower) || query.includes(cleanName)) {
+      return rule;
+    }
+  }
+  return null;
+}

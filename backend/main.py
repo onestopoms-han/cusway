@@ -1275,7 +1275,28 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
     log_search(db, "hs_manual", keyword, email)
 
     from backend.rag.retriever import retrieve_relevant_notes
+    from backend.rag.food50_rules import find_food_backend_rule
     try:
+        # 50대 핵심 식품류 즉시 매칭
+        food_rule = find_food_backend_rule(keyword)
+        if food_rule:
+            return {
+                "keywordTrigger": [keyword],
+                "recommendedHsCode": food_rule["recommendedHsCode"],
+                "headingName": food_rule["headingName"],
+                "subheadingName": food_rule["subheadingName"],
+                "confidence": food_rule.get("confidence", 99),
+                "technicalTerms": food_rule.get("technicalTerms", ""),
+                "appliedGris": food_rule.get("appliedGris", ["통칙 제1호", "통칙 제6호"]),
+                "legalReasoning": food_rule["legalReasoning"],
+                "sectionNote": food_rule.get("sectionNote", ""),
+                "chapterNote": food_rule.get("chapterNote", ""),
+                "exclusionNote": food_rule.get("exclusionNote", ""),
+                "headingExplanation": food_rule.get("headingExplanation", ""),
+                "precedents": food_rule.get("precedents", []),
+                "competingHsCodes": food_rule.get("competingHsCodes", [])
+            }
+
         # 선풍기 조끼 수동 검색 강제 매핑 우회 및 경합세번 병기
         if "선풍기" in keyword and "조끼" in keyword or "fan vest" in keyword:
             return {

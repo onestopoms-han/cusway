@@ -82,6 +82,7 @@ export interface ClassificationRule {
 }
 
 import { KOREAN_HS_RULES } from '../data/rules';
+import { findFoodRuleMatch } from '../data/food50Rules';
 
 
 
@@ -200,6 +201,12 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
 
   // Advanced local heuristic classifier to provide relevant fallback logic
   const runLocalHeuristicClassifier = (prod: string, mat: string, func: string): ClassificationRule => {
+    // 0-0. 50대 핵심 식품류 품목분류 가드레일 최우선 매칭 (완벽 일치)
+    const foodMatch = findFoodRuleMatch(prod, mat, func);
+    if (foodMatch) {
+      return foodMatch as ClassificationRule;
+    }
+
     const query = (prod + ' ' + mat + ' ' + func).toLowerCase();
     
     // 0. 최우선 순위로 핵심 품목 명사 하드코딩 우회 (백엔드 오프라인 대응 및 7308 오분류 원천 차단)
