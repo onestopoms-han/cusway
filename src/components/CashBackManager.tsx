@@ -43,7 +43,14 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
   const [isParsingFile, setIsParsingFile] = useState(false);
   const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
   const [isConfidential, setIsConfidential] = useState(true); // 비공개 결정서 기본 체크
-  const [decisionType, setDecisionType] = useState<'overturned' | 'approved' | 'rejected'>('overturned'); // 승소/인용 여부
+  const [decisionType, setDecisionType] = useState<'overturned' | 'approved' | 'rejected'>('approved'); // 승소/인용 여부
+  
+  // FTA 원산지 & GRI 정밀 심사 파라미터 (사용자 피드백 반영: 대량 비공개 회신 정밀 감정)
+  const [ftaAgreement, setFtaAgreement] = useState<string>('none'); // FTA 협정 대상
+  const [psrSensitivity, setPsrSensitivity] = useState<'standard' | 'cth_sensitive' | 'rvc_sensitive' | 'origin_dispute'>('standard');
+  const [griComplexity, setGriComplexity] = useState<'gri_1' | 'gri_2' | 'gri_3' | 'chapter_note'>('gri_1');
+  const [hasEvidencePackage, setHasEvidencePackage] = useState<boolean>(false);
+
   const [uploadStatus, setUploadStatus] = useState<boolean | null>(null);
   const [toastNotification, setToastNotification] = useState<{
     type: 'success' | 'info' | 'error';
@@ -100,10 +107,21 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
     .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 15000)) + localAddedPoints;
 
   // AI 실시간 가치 감정 실행 함수
-  const triggerAppraisal = async (customFile?: File, overrideHs?: string, overrideItem?: string, overrideType?: 'hs' | 'valuation') => {
+  const triggerAppraisal = async (
+    customFile?: File, 
+    overrideHs?: string, 
+    overrideItem?: string, 
+    overrideType?: 'hs' | 'valuation',
+    overridePsr?: 'standard' | 'cth_sensitive' | 'rvc_sensitive' | 'origin_dispute',
+    overrideGri?: 'gri_1' | 'gri_2' | 'gri_3' | 'chapter_note',
+    overrideEvidence?: boolean
+  ) => {
     const currentShareType = overrideType || shareType;
     const identifier = overrideHs || (currentShareType === 'hs' ? hsCode : valuationIssue);
     const nameToEvaluate = overrideItem || itemName || (customFile ? customFile.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ') : '');
+    const activePsr = overridePsr !== undefined ? overridePsr : psrSensitivity;
+    const activeGri = overrideGri !== undefined ? overrideGri : griComplexity;
+    const activeEvidence = overrideEvidence !== undefined ? overrideEvidence : hasEvidencePackage;
 
     setIsAnalyzing(true);
     setAnalysisResult(null);
@@ -117,7 +135,11 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           item_name: nameToEvaluate || '수입물품 비공개 결정서',
           identifier: identifier || (currentShareType === 'hs' ? '8517.62-6000' : '특수관계 이전가격'),
           is_confidential: isConfidential,
-          decision_type: decisionType
+          decision_type: decisionType,
+          fta_agreement: ftaAgreement,
+          psr_sensitivity: activePsr,
+          gri_complexity: activeGri,
+          has_evidence_package: activeEvidence
         })
       });
 
@@ -143,18 +165,32 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         const basePts = 500;
         const confBonus = isConfidential ? 1000 : 300;
         const decBonus = decisionType === 'overturned' ? 1000 : 500;
-        const total = Math.min(3000, basePts + confBonus + decBonus);
+        
+        let psrBonus = 0;
+        let psrLabel = '일반 분류';
+        if (activePsr === 'cth_sensitive') { psrBonus = 2000; psrLabel = 'FTA 세번변경(CTH/CTSH) 경합'; }
+        else if (activePsr === 'rvc_sensitive') { psrBonus = 2500; psrLabel = '부가가치기준(RVC) 쟁점'; }
+        else if (activePsr === 'origin_dispute') { psrBonus = 3500; psrLabel = 'FTA 원산지검증 방어 소명'; }
+
+        let griBonus = 0;
+        let griLabel = '통칙 1호 표준';
+        if (activeGri === 'gri_2') { griBonus = 1500; griLabel = '통칙 2호 (미완성/혼합물)'; }
+        else if (activeGri === 'gri_3') { griBonus = 2500; griLabel = '통칙 3호 (본질적 특성)'; }
+        else if (activeGri === 'chapter_note') { griBonus = 2000; griLabel = '부·류 주규정 배제'; }
+
+        const evidenceBonus = activeEvidence ? 1500 : 0;
+        const total = Math.min(10000, basePts + confBonus + decBonus + psrBonus + griBonus + evidenceBonus);
 
         setAnalysisResult({
           appraisedPoints: total,
-          scarcityGrade: isConfidential ? '신규 세번 (DB 미등재 신제품)' : '일반 세번 (표준 분류 규격)',
-          scarcityRate: isConfidential ? 92.0 : 75.0,
-          matchedPublicCount: isConfidential ? 1 : 6,
+          scarcityGrade: activePsr !== 'standard' || activeGri !== 'gri_1' ? '고난도 FTA 법리 회시 (Level 3~4)' : (isConfidential ? '신규 세번 (DB 미등재 신제품)' : '일반 세번 (표준 분류 규격)'),
+          scarcityRate: activePsr !== 'standard' ? 95.0 : (isConfidential ? 92.0 : 75.0),
+          matchedPublicCount: isConfidential ? 1 : 4,
           basePoints: basePts,
           confidentialBonus: confBonus,
-          decisionBonus: decBonus,
+          decisionBonus: decBonus + psrBonus + griBonus + evidenceBonus,
           scarcityBonus: 0,
-          appraisalSnippet: `HS 품목분류 사전심사 회시서는 표준 정형화된 세번 매핑 데이터로서, AI 학습 기여도에 맞춰 건당 ₩${total.toLocaleString()}P의 소액 실비 마일리지가 합리적으로 산정되었습니다.`
+          appraisalSnippet: `본 품목분류 회시서는 CUSWAY FTA 정밀 심사 결과 [${psrLabel} + ${griLabel}${activeEvidence ? ' + 원산지증빙 완비' : ''}]로 판정되어, 정밀 가치 평가에 따라 ₩${total.toLocaleString()}P의 캐시백이 산정되었습니다.`
         });
       } else {
         const basePts = 10000;
@@ -205,23 +241,46 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       // 2. 심판/평가 키워드 감지 (조심, 국심, 이전가격, 로열티, 특수관계, 과세가격 등)
       const isValuationDoc = /조심|국심|심판|평가|로열티|이전가격|특수관계|가산세|생산지원/i.test(file.name);
       
+      // 3. FTA PSR 및 고난도 법리 키워드 감지
+      const isFtaCth = /fta|원산지|cth|ctsh|psr|세번변경|부가가치|rvc/i.test(file.name);
+      const isGriComplex = /통칙|본질|세트|주규정|혼합|가공/i.test(file.name);
+      const isEvidence = /bom|소명|의견서|공정도|사양/i.test(file.name);
+
       let determinedType: 'hs' | 'valuation' = shareType;
       let finalHs = hsCode;
       let finalIssue = valuationIssue;
       let finalItem = itemName || cleanName;
+
+      let detectedPsr: 'standard' | 'cth_sensitive' | 'rvc_sensitive' | 'origin_dispute' = psrSensitivity;
+      let detectedGri: 'gri_1' | 'gri_2' | 'gri_3' | 'chapter_note' = griComplexity;
+      let detectedEvidence = hasEvidencePackage;
 
       if (isValuationDoc) {
         determinedType = 'valuation';
         setShareType('valuation');
         finalIssue = cleanName;
         setValuationIssue(cleanName);
-        setParseSuccessMsg(`⚖️ 조세심판원/관세평가 결정문 감지: 고가치 법리 자산 (최대 50,000P 캐시백 대상)`);
-      } else if (detectedHs) {
+        setParseSuccessMsg(`⚖️ 조세심판원/관세평가 결정문 감지: 고가치 법리 자산 (최대 50,000P 대상)`);
+      } else if (detectedHs || isFtaCth) {
         determinedType = 'hs';
         setShareType('hs');
-        finalHs = detectedHs;
-        setHsCode(detectedHs);
-        setParseSuccessMsg(`📦 품목분류 사전심사 회시서 감지: 표준 세번 매핑 (소액 실비 마일리지 대상)`);
+        if (detectedHs) {
+          finalHs = detectedHs;
+          setHsCode(detectedHs);
+        }
+        if (isFtaCth) {
+          detectedPsr = 'cth_sensitive';
+          setPsrSensitivity('cth_sensitive');
+        }
+        if (isGriComplex) {
+          detectedGri = 'gri_3';
+          setGriComplexity('gri_3');
+        }
+        if (isEvidence) {
+          detectedEvidence = true;
+          setHasEvidencePackage(true);
+        }
+        setParseSuccessMsg(`📦 FTA 품목분류 회시서 감지: ${isFtaCth ? 'FTA 세번변경(CTH) 경합' : '정형 세번'} 정밀 심사 가동`);
       } else {
         if (shareType === 'hs' && !hsCode) {
           finalHs = '8517.62-6000';
@@ -230,7 +289,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           finalIssue = cleanName;
           setValuationIssue(cleanName);
         }
-        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! 가치 감정을 시작합니다.`);
+        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! FTA 정밀 가치 감정을 시작합니다.`);
       }
 
       if (!itemName) {
@@ -239,7 +298,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       }
 
       setIsParsingFile(false);
-      triggerAppraisal(file, finalHs, finalItem, determinedType);
+      triggerAppraisal(file, finalHs, finalItem, determinedType, detectedPsr, detectedGri, detectedEvidence);
     }, 600);
   };
 
@@ -645,6 +704,182 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 </div>
               </div>
             </div>
+
+            {/* [NEW] FTA Precision Review Matrix for HS Classification Rulings */}
+            {shareType === 'hs' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                padding: '16px',
+                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(59, 130, 246, 0.05) 100%)',
+                border: '1.5px solid rgba(6, 182, 212, 0.35)',
+                borderRadius: '12px',
+                boxShadow: '0 4px 15px rgba(6, 182, 212, 0.08)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🔬</span>
+                    <strong style={{ fontSize: '0.88rem', color: '#38bdf8', fontWeight: 800 }}>
+                      FTA 원산지결정기준(PSR) & GRI 법리 정밀 심사
+                    </strong>
+                  </div>
+                  <span style={{ fontSize: '0.72rem', background: '#0891b2', color: '#ffffff', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
+                    정밀 차등 보상 (최대 10,000P)
+                  </span>
+                </div>
+
+                {/* 1. FTA 협정 대상 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 700 }}>
+                    FTA 적용 협정 (원산지증명서 발급 대상)
+                  </label>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {[
+                      { id: 'none', label: '일반/미적용' },
+                      { id: 'kor_eu', label: '한-EU FTA' },
+                      { id: 'kor_us', label: '한-미 FTA' },
+                      { id: 'rcep', label: 'RCEP' },
+                      { id: 'kor_cn', label: '한-중 FTA' },
+                      { id: 'kor_asean', label: '한-아세안' }
+                    ].map(f => (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => {
+                          setFtaAgreement(f.id);
+                          triggerAppraisal(undefined, undefined, undefined, 'hs', psrSensitivity, griComplexity, hasEvidencePackage);
+                        }}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: '6px',
+                          border: ftaAgreement === f.id ? '1.5px solid #38bdf8' : '1px solid var(--border-color)',
+                          background: ftaAgreement === f.id ? 'rgba(6, 182, 212, 0.25)' : 'rgba(0,0,0,0.3)',
+                          color: ftaAgreement === f.id ? '#38bdf8' : 'var(--text-muted)',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. 원산지결정기준(PSR) 민감도 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 700 }}>
+                    원산지결정기준(PSR) 세번변경 민감도
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {[
+                      { id: 'standard', label: '🏷️ 일반 규격 회시', bonus: '기본' },
+                      { id: 'cth_sensitive', label: '⚡ 세번변경(CTH/CTSH) 경합', bonus: '+2,000P' },
+                      { id: 'rvc_sensitive', label: '📊 부가가치(RVC)/미소기준 연계', bonus: '+2,500P' },
+                      { id: 'origin_dispute', label: '🛡️ 원산지검증(사후추징) 방어', bonus: '+3,500P' }
+                    ].map(p => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          setPsrSensitivity(p.id as any);
+                          triggerAppraisal(undefined, undefined, undefined, 'hs', p.id as any, griComplexity, hasEvidencePackage);
+                        }}
+                        style={{
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          textAlign: 'left',
+                          border: psrSensitivity === p.id ? '1.5px solid #38bdf8' : '1px solid var(--border-color)',
+                          background: psrSensitivity === p.id ? 'rgba(6, 182, 212, 0.2)' : 'rgba(0,0,0,0.25)',
+                          color: psrSensitivity === p.id ? '#ffffff' : 'var(--text-muted)',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <span>{p.label}</span>
+                        <span style={{ fontSize: '0.68rem', color: '#38bdf8' }}>{p.bonus}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. GRI 통칙 및 법리 심도 */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.76rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 700 }}>
+                    적용 통칙 및 법리 심도 (GRI Rule Depth)
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {[
+                      { id: 'gri_1', label: '📜 통칙 1호 (표준 표제/용어)', bonus: '기본' },
+                      { id: 'gri_2', label: '🧩 통칙 2호 (미완성/혼합물)', bonus: '+1,500P' },
+                      { id: 'gri_3', label: '⚖️ 통칙 3호 (본질적 특성/세트)', bonus: '+2,500P' },
+                      { id: 'chapter_note', label: '📖 부·류 주규정 배제 적용', bonus: '+2,000P' }
+                    ].map(g => (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() => {
+                          setGriComplexity(g.id as any);
+                          triggerAppraisal(undefined, undefined, undefined, 'hs', psrSensitivity, g.id as any, hasEvidencePackage);
+                        }}
+                        style={{
+                          padding: '8px 10px',
+                          borderRadius: '8px',
+                          textAlign: 'left',
+                          border: griComplexity === g.id ? '1.5px solid #38bdf8' : '1px solid var(--border-color)',
+                          background: griComplexity === g.id ? 'rgba(6, 182, 212, 0.2)' : 'rgba(0,0,0,0.25)',
+                          color: griComplexity === g.id ? '#ffffff' : 'var(--text-muted)',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <span>{g.label}</span>
+                        <span style={{ fontSize: '0.68rem', color: '#38bdf8' }}>{g.bonus}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. 증빙자료 패키지 완비 체크 */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: 'rgba(0,0,0,0.25)',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '1px dashed rgba(6, 182, 212, 0.3)'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <FileText size={16} color="#38bdf8" />
+                    <span style={{ fontSize: '0.78rem', color: '#ffffff', fontWeight: 700 }}>
+                      원자재명세서(BOM) / 제조공정도 / 관세사 검토서 완비
+                    </span>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox"
+                      checked={hasEvidencePackage}
+                      onChange={(e) => {
+                        setHasEvidencePackage(e.target.checked);
+                        triggerAppraisal(undefined, undefined, undefined, 'hs', psrSensitivity, griComplexity, e.target.checked);
+                      }}
+                      style={{ width: '16px', height: '16px', accentColor: '#38bdf8', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', color: '#38bdf8', fontWeight: 800 }}>+₩1,500P</span>
+                  </label>
+                </div>
+              </div>
+            )}
 
             {/* Toast Notification Banner */}
             {toastNotification && (
