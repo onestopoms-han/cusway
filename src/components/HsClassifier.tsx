@@ -2014,7 +2014,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                         </a>
 
                         <a
-                          href="https://laws.customs.go.kr"
+                          href="https://unipass.customs.go.kr/clip/index.do"
                           target="_blank"
                           rel="noopener noreferrer"
                           title="관세법령정보포털(CLIP) 법령 및 결정례 직통 조회"
