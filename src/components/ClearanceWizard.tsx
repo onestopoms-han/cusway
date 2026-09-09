@@ -11,7 +11,6 @@ import {
   TrendingDown,
   Info,
   Calendar,
-  Calculator,
   CheckCircle,
   FileDown,
   RefreshCw,
@@ -98,12 +97,6 @@ export default function ClearanceWizard({
   const [loadingRates, setLoadingRates] = useState(false);
   const [ratesData, setRatesData] = useState<any>(null);
   
-  // Real-time Duty Simulator State (복합세/선택세/계절관세 실시간 세액 시뮬레이터)
-  const [simCifPrice, setSimCifPrice] = useState<number>(10000000); // 기본 1,000만원
-  const [simWeightKg, setSimWeightKg] = useState<number>(1000);     // 기본 1,000kg
-  const [simDate, setSimDate] = useState<string>('2026-09-05');
-  const [simHasCo, setSimHasCo] = useState<boolean>(true);
-  const [simHasTrq, setSimHasTrq] = useState<boolean>(false);
 
   // Step 3 & 4 states
   const [loadingGuide, setLoadingGuide] = useState(false);
@@ -114,7 +107,7 @@ export default function ClearanceWizard({
     if (currentStep === 2 && confirmedData) {
       fetchRates();
     }
-  }, [currentStep, originCountry, simDate]);
+  }, [currentStep, originCountry]);
 
   useEffect(() => {
     if (currentStep >= 3 && confirmedData) {
@@ -271,7 +264,7 @@ export default function ClearanceWizard({
       setRatesData({
         hs_code: hsCode,
         origin: originCountry,
-        declaration_date: simDate,
+        declaration_date: new Date().toISOString().split('T')[0],
         active_season_badge: "2026년 하반기(7~12월)",
         has_seasonal_rate: isSesame && ['IT', 'DE', 'FR', 'ES', 'NL', 'EU', 'GB'].includes(originCountry),
         rates: {
@@ -295,74 +288,6 @@ export default function ClearanceWizard({
     } finally {
       setLoadingRates(false);
     }
-  };
-
-  const computeSimulation = () => {
-    if (!ratesData || !ratesData.rates) return null;
-    const r = ratesData.rates;
-    
-    let appliedRate = r.base_rate;
-    let appliedBasis = "기본세율 (A)";
-    let specificRate = r.specific_rate;
-    let specificUnit = r.specific_unit || '원/kg';
-    let dutyType = r.duty_type || 'AD_VALOREM';
-
-    if (simHasCo && r.fta_rate !== null && r.fta_rate !== undefined) {
-      appliedRate = r.fta_rate;
-      appliedBasis = `${r.fta_name} 특혜세율`;
-    } else if (simHasTrq && r.trq_in_rate !== null && r.trq_in_rate !== undefined) {
-      appliedRate = r.trq_in_rate;
-      appliedBasis = `TRQ 수입추천 양허세율 (${r.trq_agency || 'aT'})`;
-      specificRate = null;
-      dutyType = 'AD_VALOREM';
-    } else if (r.is_trq_item && !simHasTrq) {
-      if (r.wto_rate !== null && r.wto_rate > r.base_rate) {
-        appliedRate = r.wto_rate;
-        dutyType = 'ALTERNATIVE';
-        appliedBasis = "TRQ 미추천 시장접근초과세율(고율)";
-      }
-    }
-
-    const adValoremDuty = Math.round(simCifPrice * (appliedRate / 100));
-    const specificDuty = (specificRate && simWeightKg > 0) ? Math.round(simWeightKg * specificRate) : 0;
-    
-    let finalDuty = adValoremDuty;
-    let chosenMethod = "종가세 (가격 기준)";
-    let comparisonReason = `과세가격(${simCifPrice.toLocaleString()}원)에 ${appliedRate}%가 적용되었습니다.`;
-
-    if (dutyType === 'ALTERNATIVE' && specificRate) {
-      if (specificDuty >= adValoremDuty) {
-        finalDuty = specificDuty;
-        chosenMethod = "종량세 적용 (중량 기준)";
-        comparisonReason = `종량세액(${specificDuty.toLocaleString()}원)이 종가세액(${adValoremDuty.toLocaleString()}원)보다 크거나 같으므로 종량세가 적용됩니다. (양자 중 고액 과세 규정)`;
-      } else {
-        finalDuty = adValoremDuty;
-        chosenMethod = "종가세 적용 (가격 기준)";
-        comparisonReason = `종가세액(${adValoremDuty.toLocaleString()}원)이 종량세액(${specificDuty.toLocaleString()}원)보다 크므로 종가세가 적용됩니다. (양자 중 고액 과세 규정)`;
-      }
-    } else if (dutyType === 'SPECIFIC' && specificRate) {
-      finalDuty = specificDuty;
-      chosenMethod = "종량세 단독";
-      comparisonReason = `수입 중량 ${simWeightKg.toLocaleString()}kg × ${specificRate.toLocaleString()}${specificUnit}이 부과되었습니다.`;
-    }
-
-    const vatEstimated = Math.round((simCifPrice + finalDuty) * 0.1);
-    const totalTaxEstimated = finalDuty + vatEstimated;
-
-    return {
-      appliedRate,
-      appliedBasis,
-      specificRate,
-      specificUnit,
-      dutyType,
-      adValoremDuty,
-      specificDuty,
-      finalDuty,
-      chosenMethod,
-      comparisonReason,
-      vatEstimated,
-      totalTaxEstimated
-    };
   };
 
 
@@ -1072,183 +997,6 @@ export default function ClearanceWizard({
                   </div>
                 )}
 
-                {/* Real-time Dual Duty & Tax Simulator Interactive Widget */}
-                {computeSimulation() && (
-                  <div style={{
-                    background: 'linear-gradient(145deg, #1e293b 0%, #0f172a 100%)',
-                    border: '1.5px solid #38bdf8',
-                    borderRadius: '12px',
-                    padding: '22px',
-                    color: '#fff',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Calculator size={22} color="#38bdf8" />
-                        <h4 style={{ fontSize: '1.05rem', fontWeight: 900, color: '#f8fafc', margin: 0 }}>
-                          ⚖️ [실무 세액 시뮬레이터] 종가세 vs 종량세 실시간 정밀 계산
-                        </h4>
-                      </div>
-                      <span style={{ fontSize: '0.78rem', padding: '4px 10px', background: 'rgba(56,189,248,0.2)', color: '#38bdf8', borderRadius: '6px', fontWeight: 800 }}>
-                        실시간 반응형 연산
-                      </span>
-                    </div>
-
-                    {/* Simulator Inputs Grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-                      <div>
-                        <label style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-                          📅 수입신고 일자 (계절 분기)
-                        </label>
-                        <input
-                          type="date"
-                          value={simDate}
-                          onChange={(e) => setSimDate(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            background: 'rgba(0,0,0,0.4)',
-                            border: '1px solid #475569',
-                            borderRadius: '6px',
-                            color: '#fff',
-                            fontSize: '0.85rem'
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-                          💵 과세가격 (CIF, 원화)
-                        </label>
-                        <input
-                          type="number"
-                          value={simCifPrice}
-                          onChange={(e) => setSimCifPrice(Math.max(0, Number(e.target.value)))}
-                          placeholder="예: 10000000"
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            background: 'rgba(0,0,0,0.4)',
-                            border: '1px solid #475569',
-                            borderRadius: '6px',
-                            color: '#fff',
-                            fontSize: '0.85rem'
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-                          ⚖️ 수입 중량 (kg)
-                        </label>
-                        <input
-                          type="number"
-                          value={simWeightKg}
-                          onChange={(e) => setSimWeightKg(Math.max(0, Number(e.target.value)))}
-                          placeholder="예: 1000"
-                          style={{
-                            width: '100%',
-                            padding: '8px 12px',
-                            background: 'rgba(0,0,0,0.4)',
-                            border: '1px solid #475569',
-                            borderRadius: '6px',
-                            color: '#fff',
-                            fontSize: '0.85rem'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Options checkboxes */}
-                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', background: 'rgba(255,255,255,0.04)', padding: '10px 14px', borderRadius: '6px' }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', color: '#cbd5e1', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={simHasCo}
-                          onChange={(e) => setSimHasCo(e.target.checked)}
-                          style={{ cursor: 'pointer' }}
-                        />
-                        <span>📜 원산지증명서(C/O) 구비 완료 (FTA 특혜신고)</span>
-                      </label>
-                      {ratesData.rates.is_trq_item && (
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.82rem', color: '#cbd5e1', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={simHasTrq}
-                            onChange={(e) => setSimHasTrq(e.target.checked)}
-                            style={{ cursor: 'pointer' }}
-                          />
-                          <span>🌾 TRQ 수입추천서 구비 완료 ({ratesData.rates.trq_agency || 'aT'})</span>
-                        </label>
-                      )}
-                    </div>
-
-                    {/* Live Calculation Result Cards */}
-                    {(() => {
-                      const sim = computeSimulation();
-                      if (!sim) return null;
-                      return (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '4px' }}>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-                            {/* Ad Valorem Card */}
-                            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>
-                                ① 종가세액 ({sim.appliedRate}%)
-                              </span>
-                              <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#38bdf8', marginTop: '4px' }}>
-                                {sim.adValoremDuty.toLocaleString()}원
-                              </div>
-                              <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                                {simCifPrice.toLocaleString()}원 × {sim.appliedRate}%
-                              </span>
-                            </div>
-
-                            {/* Specific Duty Card (if applicable) */}
-                            {sim.specificRate && (
-                              <div style={{ background: 'rgba(255,255,255,0.06)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>
-                                  ② 종량세액 ({sim.specificRate.toLocaleString()}{sim.specificUnit})
-                                </span>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#f59e0b', marginTop: '4px' }}>
-                                  {sim.specificDuty.toLocaleString()}원
-                                </div>
-                                <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                                  {simWeightKg.toLocaleString()}kg × {sim.specificRate.toLocaleString()}원
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Final Decided Duty Card */}
-                            <div style={{ background: 'rgba(16,185,129,0.12)', padding: '12px 16px', borderRadius: '8px', border: '1.5px solid #10b981' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 800 }}>
-                                  🎯 최종 결정 관세액
-                                </span>
-                                <span style={{ fontSize: '0.7rem', padding: '2px 6px', background: '#10b981', color: '#000', borderRadius: '4px', fontWeight: 900 }}>
-                                  {sim.chosenMethod.split(' ')[0]}
-                                </span>
-                              </div>
-                              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#10b981', marginTop: '4px' }}>
-                                {sim.finalDuty.toLocaleString()}원
-                              </div>
-                              <span style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>
-                                부가세 포함 총 {sim.totalTaxEstimated.toLocaleString()}원
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Rationale explanation banner */}
-                          <div style={{ background: 'rgba(0,0,0,0.35)', padding: '10px 14px', borderRadius: '6px', borderLeft: '4px solid #38bdf8', fontSize: '0.84rem', color: '#e2e8f0', lineHeight: 1.6 }}>
-                            <b>💡 실무 산출 근거:</b> {sim.comparisonReason} (적용 기준: <b>{sim.appliedBasis}</b>)
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-
                 {/* Recommended rate banner */}
                 <div style={{ 
                   background: '#f0f9ff', 
@@ -1835,7 +1583,6 @@ export default function ClearanceWizard({
 
         {/* Customs Official Report Modal */}
         {showReportModal && (() => {
-          const sim = computeSimulation();
           const cleanHsCode = confirmedData?.confirmed_code || hsCode || '0000.00-0000';
           const originInfo = countries.find(c => c.code === originCountry)?.name || originCountry;
           
@@ -1965,21 +1712,9 @@ export default function ClearanceWizard({
                 },
                 rates: {
                   baseRate: ratesData?.rates?.base_rate !== undefined ? `${ratesData.rates.base_rate}%` : '8.0%',
-                  recommendedRate: sim?.appliedRate !== undefined ? `${sim.appliedRate}%` : (ratesData?.rates?.recommended_rate !== undefined ? `${ratesData.rates.recommended_rate}%` : '0.0%'),
-                  ftaName: sim?.appliedBasis || ratesData?.rates?.fta_name || 'FTA 특혜'
+                  recommendedRate: ratesData?.rates?.recommended_rate !== undefined ? `${ratesData.rates.recommended_rate}%` : '0.0%',
+                  ftaName: ratesData?.rates?.fta_name || '기본세율'
                 },
-                dutySimulation: sim ? {
-                  cifPrice: simCifPrice,
-                  baseRate: ratesData?.rates?.base_rate !== undefined ? `${ratesData.rates.base_rate}%` : '8.0%',
-                  baseDuty: sim.baseDuty,
-                  appliedRate: sim.appliedRate,
-                  appliedDuty: sim.finalDuty,
-                  savings: sim.savings,
-                  vat: sim.vatEstimated,
-                  totalTax: sim.totalTaxEstimated,
-                  appliedBasis: sim.appliedBasis,
-                  originCriteria: ratesData?.rates?.origin_criteria || '세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)'
-                } : undefined,
                 competingHsCodes: competingList,
                 exclusionNote: exclusionNote,
                 precedents: precedentsData,
@@ -1989,7 +1724,7 @@ export default function ClearanceWizard({
                 ],
                 legalBasis: {
                   generalRule: '관세율표 해석에 관한 일반통칙 제1호 및 제6호 (HSK 10단위 세번확정)',
-                  rationaleSummary: `■ 2차 심층 분석 및 법리적 분류 근거:\n1. 본 물품은 수입통관 1단계 심사 및 2차 정밀 분석에 의거 HSK ${cleanHsCode}호로 최종 확정 승인되었습니다.\n2. 적용 세율: ${sim?.appliedBasis || '기본세율'} ${sim?.appliedRate || 8}%\n3. 예상 세액: 관세 ${sim ? sim.finalDuty.toLocaleString() : '0'}원 + 부가세 ${sim ? sim.vatEstimated.toLocaleString() : '0'}원 = 총 세액 ${sim ? sim.totalTaxEstimated.toLocaleString() : '0'}원 (과세가격 ${sim ? simCifPrice.toLocaleString() : '0'}원 기준)\n4. 관세 절감 혜택: ${sim && sim.savings > 0 ? `₩ ${sim.savings.toLocaleString()}원 절감 (특혜세율 적용)` : '기본세율 적용'}\n5. 원산지 결정기준: ${ratesData?.rates?.origin_criteria || '세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)'}`,
+                  rationaleSummary: `■ 2차 심층 분석 및 법리적 분류 근거:\n1. 본 물품은 수입통관 1단계 심사 및 2차 정밀 분석에 의거 HSK ${cleanHsCode}호로 최종 확정 승인되었습니다.\n2. 적용 법정 세율: ${ratesData?.rates?.fta_name || '기본세율'} (${ratesData?.rates?.recommended_rate !== undefined ? ratesData.rates.recommended_rate : (ratesData?.rates?.base_rate || 8)}%)\n3. 원산지 결정기준: ${ratesData?.rates?.origin_criteria || '세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)'}`,
                   wcoNoteSnippet: '통관 전 수입요건 구비 및 필수 선적서류(Commercial Invoice, Packing List, B/L, C/O, 요건승인서) 일괄 대조 심사 완료'
                 },
                 customMemo: `■ 관세사 종합 검토의견:\n본 물품(HSK ${cleanHsCode})은 관세법 제226조 세관장확인 및 대외무역법 통합공고 요건 심사를 완료하였으며, 적법한 원산지증명서(C/O) 및 한글표시사항을 구비하여 수입신고를 진행하시기 바랍니다.\n\n📋 필수 선적/통관 구비서류:\n${(guideData?.requirements?.flatMap((r: any) => r.guide?.documents || [])?.length > 0
