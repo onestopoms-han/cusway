@@ -515,21 +515,21 @@ export default function BrandShowcase({
                   <span style={{ color: 'var(--accent-primary)' }}>자신들만의 관세사 상호와 직인</span>이 찍힙니다.
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-                  CUSWAY 설정에서 관세사무소 로고와 공인직인을 한 번만 등록해 두면, 모든 AI 품목분류·통관 사전심사 결과가 <strong>완벽한 A4 공문서 규격 PDF</strong>로 즉시 출력됩니다.
+                  CUSWAY 설정에서 관세사무소 로고와 공인직인을 한 번만 등록해 두면, 모든 AI 품목분류·통관 사전심사 결과가 <strong>정식 2페이지 편철 공문서 규격(1면 핵심 요약서 + 2면 심층 법리/증빙 편철) PDF</strong>로 즉시 출력됩니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="#059669" />
-                    <span><strong>100% 관세사무소 명의:</strong> 상호명, 라이선스 번호, 붉은색 원형 직인 도장 적용</span>
+                    <span><strong>100% 관세사무소 명의:</strong> 상호명, 라이선스 번호, 붉은색 원형 공인 직인 도장 적용</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
+                    <span><strong>정식 2페이지 편철 구조:</strong> 1면(원스톱 의사결정 요약서) + 2면(WCO 해설서/판례/경합세번 배제 상세편철)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="#059669" />
                     <span><strong>공인 검증 마크:</strong> 최하단 `Powered by CUSWAY & 진위확인 QR`로 공신력 배가</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
-                    <CheckCircle2 size={16} color="#059669" />
-                    <span><strong>화주 역유입 바이럴:</strong> 의견서를 본 화주 기업 무역팀의 CUSWAY 신규 유입 창출</span>
                   </div>
                 </div>
 
@@ -569,7 +569,7 @@ export default function BrandShowcase({
                       gap: '6px'
                     }}
                   >
-                    <Printer size={15} color="var(--accent-primary)" /> 실제 의견서 인쇄/발급 미리보기
+                    <Printer size={15} color="var(--accent-primary)" /> 2페이지 소명의견서 미리보기
                   </button>
                 </div>
               </div>
@@ -618,8 +618,8 @@ export default function BrandShowcase({
                     </div>
                   </div>
                   <div style={{ textAlign: 'right', fontSize: '0.65rem', color: '#64748b' }}>
-                    <div style={{ color: '#0284c7', fontWeight: 800 }}>공식 관세 검토의견서</div>
-                    <div>문서번호: DOC-2026-9821</div>
+                    <div style={{ color: '#0284c7', fontWeight: 800 }}>공식 소명의견서 [종합 요약본]</div>
+                    <div>문서번호: DOC-2026-9821 (1면/2면)</div>
                   </div>
                 </div>
 

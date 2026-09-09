@@ -253,12 +253,12 @@ export default function MarketingBrochureModal({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                     <Award size={18} color="#0d9488" />
                     <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
-                      1. 관세사 맞춤 Co-Branding A4 출력
+                      1. 관세사 맞춤 정식 2페이지 편철 공문서
                     </span>
                   </div>
                   <p style={{ fontSize: '0.74rem', color: '#475569', lineHeight: 1.45, margin: 0 }}>
-                    • 관세사무소 로고, 상호, 공인직인 도장이 찍힌 정식 A4 PDF 즉시 인쇄<br />
-                    • 최하단 CUSWAY 공인 인증 바 & QR코드로 화주 신뢰도 200% 배가
+                    • [1면: 핵심 결론 요약서 & 공인 직인] + [2면: WCO 해설서/판례/2차 경합세번 배제 상세편철]<br />
+                    • 관세사무소 로고/직인 자동 조판 및 CUSWAY AI 공인 인증 마크/QR코드 탑재
                   </p>
                 </div>
 
