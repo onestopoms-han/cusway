@@ -835,22 +835,56 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
   {
     id: 39,
     name: "볶은 커피 원두 (로스팅)",
-    material: "아라비카 커피두 100% 로스팅",
-    functionUse: "원두커피 추출용",
+    material: "아라비카 커피두 100% 로스팅 (단순 열풍 볶음)",
+    functionUse: "원두커피 침출/추출 음용",
     category: "볶은 커피 (09류 잔류)",
     recommendedHsCode: "0901.21-0000",
     headingName: "제0901호 (커피 - 볶았는지에 상관없다)",
     subheadingName: "제0901.21-0000호 (볶은 커피 - 카페인을 빼지 않은 것)",
     confidence: 99,
-    technicalTerms: "Roasted coffee beans, not decaffeinated",
+    technicalTerms: "Roasted coffee beans, not decaffeinated (GRI 1 & 6 residue classification)",
     appliedGris: ["통칙 제1호", "통칙 제6호"],
-    legalReasoning: "볶은 커피 원두는 볶음 열처리가 되었음에도 제0901호 호 용어에 '볶았는지에 상관없다'로 명시되어 제21류로 가지 않고 제0901.21-0000호에 잔류 분류됩니다.",
-    sectionNote: "제2부 식물성 생산품",
-    chapterNote: "제9류 커피ㆍ차ㆍ향신료",
-    exclusionNote: "⚠️ 커피 추출물(인스턴트 커피)은 제2101호로 분류됩니다.",
-    headingExplanation: "제0901호는 볶은 커피를 직접 포함합니다.",
-    precedents: [],
-    competingHsCodes: []
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 의거, 제0901호의 호 용어에는 '커피(볶았는지 또는 카페인을 뺐는지에 상관없다)'라고 명시되어 있습니다. 따라서 생두에 고온 볶음(Roasting) 열처리가 가해졌더라도 호 용어의 명문 규정에 의해 제4부 조제식료품(제21류)으로 가지 않고 제0901.21-0000호(볶은 커피 - 카페인을 빼지 않은 것)에 확정 잔류 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품 (농산물 원형 및 단순 가공품)",
+    chapterNote: "제9류 커피ㆍ차ㆍ마테ㆍ향신료 (호 용어 우선 원칙)",
+    exclusionNote: "⚠️ 커피 추출물(인스턴트 커피 분말 및 액상 농축액)은 제2101호로 분류되며, 볶지 않은 생두는 제0901.11호로 분류됩니다.",
+    headingExplanation: "WCO 관세율표 해설서 제09.01호: (3) 볶은 커피(카페인을 뺐는지에 상관없으며, 분쇄했는지에 상관없다)를 직접 포함하며, 추출물·에센스·농축물 및 이를 기본 재료로 한 조제품(인스턴트 커피 등)만 제2101호로 제외함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2023-0418",
+        title: "수입산 아라비카 다크 로스팅 원두의 품목분류 판정",
+        code: "0901.21-0000",
+        issuingBody: "관세평가분류원",
+        date: "2023-08-14",
+        similarity: 99,
+        reasoningSnippet: "생두를 220℃에서 열풍 로스팅한 원두는 제0901호 호 용어 '볶았는지에 상관없다'에 명확히 포섭되어 제0901.21-0000호로 결정."
+      },
+      {
+        id: "조심 2021관0189",
+        title: "원두 로스팅 및 분쇄 원두의 제21류 가공식품 해당 여부 쟁점",
+        code: "0901.21-0000",
+        issuingBody: "조세심판원",
+        date: "2021-11-25",
+        similarity: 98,
+        reasoningSnippet: "추출 공정을 거치지 않은 단순 로스팅 원두는 제21류 조제식료품이 아닌 제9류 제0901호에 잔류 분류함이 타당함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "2101.11-1000",
+        headingName: "제2101호 커피의 추출물ㆍ에센스ㆍ농축물 (인스턴트 커피 분말)",
+        appliedGri: "통칙 제1호",
+        reasoning: "열처리 및 로스팅 가공된 식품으로서 제21류 각종 조제식료품 분류 경합 검토",
+        exclusionReason: "본 물품은 수용성 추출물이 아닌 원두 자체이므로 제0901호 호 용어의 '볶았는지에 상관없다'는 명문 규정에 의해 제2101호 적용 배제."
+      },
+      {
+        hsCode: "0901.11-0000",
+        headingName: "제0901.11호 커피 (볶지 아니한 것 - 카페인을 빼지 않은 것, 생두)",
+        appliedGri: "통칙 제6호",
+        reasoning: "동일 0901호 내 6단위 소호 분류 경합 검토",
+        exclusionReason: "원두 표면 열풍 로스팅(볶음 열처리) 공정이 완료되었으므로 생두(0901.11) 소호가 배제되고 제0901.21(볶은 것) 소호로 최종 확정."
+      }
+    ]
   },
   {
     id: 40,

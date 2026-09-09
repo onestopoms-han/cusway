@@ -240,18 +240,36 @@ body {
 
   .customs-official-paper,
   .brochure-printable-paper {
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
     width: 100% !important;
     max-width: 100% !important;
-    min-height: auto !important;
+    min-height: 270mm !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 16mm 14mm 12mm 14mm !important;
     background: #ffffff !important;
     color: #0f172a !important;
     border: none !important;
     box-shadow: none !important;
     font-size: 8.5pt !important;
-    line-height: 1.35 !important;
+    line-height: 1.4 !important;
+    box-sizing: border-box !important;
+  }
+
+  .customs-page-1 {
+    page-break-after: always !important;
+    break-after: page !important;
+    margin-bottom: 0 !important;
+  }
+
+  .customs-page-2 {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  .page-separator {
+    display: none !important;
   }
 
   .print-avoid-break {
