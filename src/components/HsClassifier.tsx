@@ -2895,9 +2895,17 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
             },
             legalBasis: {
               generalRule: (matchedRule?.appliedGris && matchedRule.appliedGris.length > 0 ? matchedRule.appliedGris : ['통칙 제1호', '통칙 제6호']).join(', '),
-              rationaleSummary: matchedRule?.legalReasoning || '관세율표 제16부 주 규정 및 해당 세번의 호의 용어에 따라 분류가 명백함',
+              rationaleSummary: matchedRule?.legalReasoning || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함',
               wcoNoteSnippet: matchedRule?.headingExplanation || matchedRule?.chapterNote || '해당 호에는 이와 같은 성상과 용도를 지닌 물품 및 전용 부분품을 명시적으로 포함함'
             },
+            competingHsCodes: matchedRule?.competingHsCodes?.map((c: any) => ({
+              hsCode: c.hsCode,
+              headingName: c.headingName,
+              appliedGri: c.appliedGri,
+              reasoning: c.reasoning,
+              exclusionReason: c.exclusionReason
+            })) || [],
+            exclusionNote: matchedRule?.exclusionNote || '',
             precedents: (matchedRule?.precedents || []).slice(0, 3).map((p: any) => ({
               caseNumber: p.id || p.caseNumber || '사전심사-2026',
               title: p.title || '유사 품목분류 사전회시',
@@ -2905,8 +2913,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               keyPoint: p.reasoningSnippet || '물품 성상 및 주기능 일치 판정'
             })),
             customMemo: matchedRule?.exclusionNote
-              ? `■ 주석 및 제외규정 확인:\n${matchedRule.exclusionNote}`
-              : '■ 관세사 검토의견:\n본 물품은 관세율표 해석에 관한 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.'
+              ? `■ 관세사 2차 심층 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.\n\n■ 주석 및 제외규정 확인:\n${matchedRule.exclusionNote}`
+              : '■ 관세사 종합의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.'
           }}
         />
       )}

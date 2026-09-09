@@ -20,6 +20,29 @@ import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
 import { getOriginMarkingGuide } from '../utils/originMarkingHelper';
 import ResultShareModal from './ResultShareModal';
 
+export interface CompetingHsReportItem {
+  hsCode: string;
+  headingName: string;
+  appliedGri?: string;
+  reasoning?: string;
+  exclusionReason: string;
+}
+
+export interface DutySimulationReportData {
+  cifPrice?: number;
+  baseRate?: string | number;
+  baseDuty?: number;
+  appliedRate?: string | number;
+  appliedDuty?: number;
+  savings?: number;
+  vat?: number;
+  totalTax?: number;
+  appliedBasis?: string;
+  originCriteria?: string;
+  dutyType?: string;
+  specificDutyCalc?: string;
+}
+
 export interface ReportData {
   type: 'hs-opinion' | 'clearance-pipeline' | 'valuation-brief';
   title?: string;
@@ -40,12 +63,15 @@ export interface ReportData {
     recommendedRate?: number | string;
     ftaName?: string;
   };
+  dutySimulation?: DutySimulationReportData;
   legalBasis?: {
     generalRule?: string; // 통칙 제1호, 제6호 등
     wcoNoteSnippet?: string;
     chapterNoteSnippet?: string;
     rationaleSummary?: string;
   };
+  competingHsCodes?: CompetingHsReportItem[];
+  exclusionNote?: string;
   precedents?: Array<{
     caseNumber: string;
     title: string;
@@ -153,6 +179,13 @@ export default function CustomsReportModal({
   const [rationaleSummary, setRationaleSummary] = useState(initialData.legalBasis?.rationaleSummary || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함');
   const [wcoNoteSnippet, setWcoNoteSnippet] = useState(initialData.legalBasis?.wcoNoteSnippet || '해당 호에는 이와 같은 성상과 용도를 지닌 물품을 명시적으로 포함함');
 
+  // Secondary Deep Analysis (2차 심층 분석: 경합 세번 비교 및 배제 사유, WCO 제외 주석)
+  const [competingList, setCompetingList] = useState<CompetingHsReportItem[]>(initialData.competingHsCodes || []);
+  const [exclusionNoteState, setExclusionNoteState] = useState<string>(initialData.exclusionNote || '');
+
+  // Secondary Duty & Tax Simulation (2차 세액 정밀 시뮬레이션)
+  const [dutySimState, setDutySimState] = useState<DutySimulationReportData | undefined>(initialData.dutySimulation);
+
   // Precedents & Rulings
   const [precedentsList, setPrecedentsList] = useState(initialData.precedents || []);
 
@@ -201,6 +234,9 @@ export default function CustomsReportModal({
       setGeneralRule(fresh.legalBasis?.generalRule || '관세율표 해석에 관한 일반통칙 제1호 및 제6호');
       setRationaleSummary(fresh.legalBasis?.rationaleSummary || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함');
       setWcoNoteSnippet(fresh.legalBasis?.wcoNoteSnippet || '해당 호에는 이와 같은 성상과 용도를 지닌 물품을 명시적으로 포함함');
+      setCompetingList(fresh.competingHsCodes || []);
+      setExclusionNoteState(fresh.exclusionNote || '');
+      setDutySimState(fresh.dutySimulation);
       setPrecedentsList(fresh.precedents || []);
       setRequirementsList(fresh.requirements || []);
       setCustomMemo(fresh.customMemo || '■ 종합 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.');
@@ -223,12 +259,32 @@ export default function CustomsReportModal({
     setGeneralRule(fresh.legalBasis?.generalRule || '관세율표 해석에 관한 일반통칙 제1호 및 제6호');
     setRationaleSummary(fresh.legalBasis?.rationaleSummary || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함');
     setWcoNoteSnippet(fresh.legalBasis?.wcoNoteSnippet || '해당 호에는 이와 같은 성상과 용도를 지닌 물품을 명시적으로 포함함');
+    setCompetingList(fresh.competingHsCodes || []);
+    setExclusionNoteState(fresh.exclusionNote || '');
+    setDutySimState(fresh.dutySimulation);
     setPrecedentsList(fresh.precedents || []);
     setRequirementsList(fresh.requirements || []);
     setCustomMemo(fresh.customMemo || '■ 종합 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.');
     
     setSaveToast(true);
     setTimeout(() => setSaveToast(false), 2000);
+  };
+
+  const handleAddCompetingCode = () => {
+    setCompetingList([
+      ...competingList,
+      {
+        hsCode: '0000.00-0000',
+        headingName: '경합 후보 품목 호의 용어',
+        appliedGri: '통칙 제1호 / 통칙 제3호',
+        reasoning: '외관 및 성상 유사성으로 인한 경합 검토',
+        exclusionReason: '가공도, 주기능 또는 주성분 함량 기준 불부합으로 본 세번 적용 배제'
+      }
+    ]);
+  };
+
+  const handleRemoveCompetingCode = (idx: number) => {
+    setCompetingList(competingList.filter((_, i) => i !== idx));
   };
 
   const handlePrint = () => {
@@ -933,13 +989,243 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Section 3: Precedents / Tax Tribunal Ruling Evidence */}
+              {/* Section 3: Secondary Deep Analysis & Competing HS Code Exclusion Rationale */}
               <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
                     <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                      3. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례
+                      3. 2차 심층 분석: 경합 세번(1·2순위) 비교 검토 및 배제 사유 (Secondary Deep Analysis & Exclusion Review)
+                    </h3>
+                  </div>
+                  {isEditMode && (
+                    <button
+                      type="button"
+                      onClick={handleAddCompetingCode}
+                      style={{
+                        padding: '2px 8px',
+                        background: 'rgba(2, 132, 199, 0.1)',
+                        border: '1px solid #0284c7',
+                        borderRadius: '4px',
+                        color: '#0284c7',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px'
+                      }}
+                    >
+                      <Plus size={11} /> 경합 세번 추가
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ border: '1px solid #cbd5e1', borderRadius: '4px', overflow: 'hidden', background: '#ffffff' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+                    <thead>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #cbd5e1' }}>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '18%', color: '#334155', fontWeight: 800 }}>구분 / 세번</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '24%', color: '#334155', fontWeight: 800 }}>호의 용어 (품명)</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '16%', color: '#334155', fontWeight: 800 }}>적용 통칙</th>
+                        <th style={{ padding: '8px 10px', textAlign: 'left', width: '42%', color: '#0369a1', fontWeight: 800 }}>비교 검토 및 배제 사유 (Exclusion Logic)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* 1st Recommended Confirmed Code Row */}
+                      <tr style={{ background: 'rgba(2, 132, 199, 0.05)', borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '8px 10px', fontWeight: 900, color: '#0284c7' }}>
+                          <span style={{ fontSize: '0.68rem', padding: '1px 5px', background: '#0284c7', color: '#fff', borderRadius: '3px', marginRight: '4px' }}>채택</span>
+                          {targetHsCode}
+                        </td>
+                        <td style={{ padding: '8px 10px', fontWeight: 800, color: '#0f172a' }}>
+                          {prodName} (신청 확정 세번)
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#0f172a', fontWeight: 700 }}>
+                          {generalRule}
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#0369a1', fontWeight: 700, lineHeight: 1.45 }}>
+                          ✅ 관세율표 부·류의 주규정 및 호의 용어에 정확히 일치하여 최종 세번으로 분류 확정함.
+                        </td>
+                      </tr>
+
+                      {/* Competing HS Code Rows */}
+                      {competingList.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} style={{ padding: '10px', textAlign: 'center', color: '#64748b', fontSize: '0.76rem', background: '#fafafa' }}>
+                            타 세번과의 경합 요인이 없으며, 관세율표 통칙 제1호 및 제6호에 의해 단일 확정 세번으로 명백히 귀속됩니다.
+                          </td>
+                        </tr>
+                      ) : (
+                        competingList.map((comp, cIdx) => (
+                          <tr key={cIdx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                            <td style={{ padding: '8px 10px', fontWeight: 800, color: '#b91c1c' }}>
+                              <span style={{ fontSize: '0.68rem', padding: '1px 5px', background: '#fee2e2', color: '#b91c1c', borderRadius: '3px', marginRight: '4px' }}>배제</span>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  value={comp.hsCode}
+                                  onChange={(e) => {
+                                    const updated = [...competingList];
+                                    updated[cIdx].hsCode = e.target.value;
+                                    setCompetingList(updated);
+                                  }}
+                                  style={{ width: '90px', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem', fontWeight: 800 }}
+                                />
+                              ) : (
+                                comp.hsCode
+                              )}
+                            </td>
+                            <td style={{ padding: '8px 10px', color: '#334155' }}>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  value={comp.headingName}
+                                  onChange={(e) => {
+                                    const updated = [...competingList];
+                                    updated[cIdx].headingName = e.target.value;
+                                    setCompetingList(updated);
+                                  }}
+                                  style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
+                                />
+                              ) : (
+                                comp.headingName
+                              )}
+                            </td>
+                            <td style={{ padding: '8px 10px', color: '#475569' }}>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  value={comp.appliedGri || '통칙 제1호 / 제3호'}
+                                  onChange={(e) => {
+                                    const updated = [...competingList];
+                                    updated[cIdx].appliedGri = e.target.value;
+                                    setCompetingList(updated);
+                                  }}
+                                  style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.72rem' }}
+                                />
+                              ) : (
+                                comp.appliedGri || '통칙 제1호 / 제3호'
+                              )}
+                            </td>
+                            <td style={{ padding: '8px 10px', color: '#475569', lineHeight: 1.4 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                                <div style={{ flex: 1 }}>
+                                  {isEditMode ? (
+                                    <textarea
+                                      rows={2}
+                                      value={comp.exclusionReason}
+                                      onChange={(e) => {
+                                        const updated = [...competingList];
+                                        updated[cIdx].exclusionReason = e.target.value;
+                                        setCompetingList(updated);
+                                      }}
+                                      style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.72rem' }}
+                                    />
+                                  ) : (
+                                    <span>{comp.exclusionReason}</span>
+                                  )}
+                                </div>
+                                {isEditMode && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveCompetingCode(cIdx)}
+                                    style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '2px' }}
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Exclusion Note Highlight */}
+                {exclusionNoteState && (
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: '#fffbeb',
+                    border: '1px solid #fef3c7',
+                    borderLeft: '3.5px solid #d97706',
+                    borderRadius: '0 4px 4px 0',
+                    fontSize: '0.76rem',
+                    color: '#92400e',
+                    lineHeight: 1.45
+                  }}>
+                    <strong>⚠️ WCO 관세율표 주규정상 제외 규정(Exclusion Note) 검토:</strong><br />
+                    {isEditMode ? (
+                      <textarea
+                        rows={2}
+                        value={exclusionNoteState}
+                        onChange={(e) => setExclusionNoteState(e.target.value)}
+                        style={{ width: '100%', marginTop: '4px', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '3px', fontSize: '0.74rem' }}
+                      />
+                    ) : (
+                      <span>{exclusionNoteState}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Section 4: Secondary Duty & Tax Calculation Simulation */}
+              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ width: '4px', height: '16px', background: '#059669', borderRadius: '2px' }} />
+                  <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+                    4. 2차 관세율·세액 정밀 시뮬레이션 및 FTA 특혜 절감액 (Duty & Tax Simulation)
+                  </h3>
+                </div>
+
+                <div style={{ border: '1.5px solid #cbd5e1', borderRadius: '4px', background: '#ffffff', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.78rem' }}>
+                    <tbody>
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                        <th style={{ width: '20%', padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>신고 과세가격 (CIF)</th>
+                        <td style={{ width: '30%', padding: '7px 10px', fontWeight: 800, color: '#0f172a' }}>
+                          {dutySimState?.cifPrice ? `₩ ${dutySimState.cifPrice.toLocaleString()} 원` : '수입신고 송품장(Invoice) 기준'}
+                        </td>
+                        <th style={{ width: '20%', padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>원산지 증명/결정기준</th>
+                        <td style={{ width: '30%', padding: '7px 10px', fontWeight: 700, color: '#0284c7' }}>
+                          {dutySimState?.originCriteria || '세번변경기준(CTH) 충족 (C/O 구비필)'}
+                        </td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>기본 관세율 vs 적용세율</th>
+                        <td style={{ padding: '7px 10px', color: '#334155' }}>
+                          기본 {dutySimState?.baseRate || initialData.rates?.baseRate || '8.0%'} ➡️ <strong style={{ color: '#059669' }}>{dutySimState?.appliedBasis || initialData.rates?.ftaName || 'FTA 특혜'} {dutySimState?.appliedRate !== undefined ? `${dutySimState.appliedRate}%` : (initialData.rates?.recommendedRate !== undefined ? `${initialData.rates.recommendedRate}%` : '0.0%')}</strong>
+                        </td>
+                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#475569', fontWeight: 700 }}>관세 절감 혜택 (Savings)</th>
+                        <td style={{ padding: '7px 10px', fontWeight: 900, color: '#059669', background: '#ecfdf5' }}>
+                          {dutySimState?.savings ? `₩ ${dutySimState.savings.toLocaleString()} 원 절감` : 'FTA 특혜세율 적용 시 관세 대폭 절감'}
+                        </td>
+                      </tr>
+                      <tr style={{ background: '#f8fafc' }}>
+                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#0f172a', fontWeight: 800 }}>산출 관세액</th>
+                        <td style={{ padding: '7px 10px', fontWeight: 800, color: '#0f172a' }}>
+                          {dutySimState?.appliedDuty !== undefined ? `₩ ${dutySimState.appliedDuty.toLocaleString()} 원` : '과세가격 × 특혜세율'}
+                        </td>
+                        <th style={{ padding: '7px 10px', textAlign: 'left', color: '#0f172a', fontWeight: 800 }}>총 납부 예상 세액 (관세+부가세)</th>
+                        <td style={{ padding: '7px 10px', fontWeight: 900, color: '#0369a1', fontSize: '0.84rem' }}>
+                          {dutySimState?.totalTax ? `₩ ${dutySimState.totalTax.toLocaleString()} 원 (VAT 포함)` : '수입통관 2단계 시뮬레이션 기준'}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Section 5: Precedents / Tax Tribunal Ruling Evidence */}
+              <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '4px', height: '16px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
+                      5. 관세청 사전심사 회시례 및 조세심판원/대법원 인용 판례
                     </h3>
                   </div>
                   {isEditMode && (
@@ -1055,12 +1341,12 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Section 4: Clearance Requirements */}
+              {/* Section 6: Clearance Requirements */}
               <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <div style={{ width: '4px', height: '16px', background: requirementsList.length > 0 ? '#0284c7' : '#059669', borderRadius: '2px' }} />
                   <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                    4. {requirementsList.length > 0 
+                    6. {requirementsList.length > 0 
                       ? '수입통관 세관장확인 요건 및 구비서류 체크리스트' 
                       : '수입통관 규제 요건 판정 결과 (세관장확인 대상 비해당 소명)'}
                   </h3>
@@ -1117,12 +1403,12 @@ export default function CustomsReportModal({
                 )}
               </div>
 
-              {/* Section 5: Country of Origin Marking Regulations */}
+              {/* Section 7: Country of Origin Marking Regulations */}
               <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
                   <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                    5. 대외무역법 제33조 원산지표시(Origin Marking) 규정 및 라벨링 규격 가이드
+                    7. 대외무역법 제33조 원산지표시(Origin Marking) 규정 및 라벨링 규격 가이드
                   </h3>
                 </div>
 
@@ -1209,13 +1495,13 @@ export default function CustomsReportModal({
                 </table>
               </div>
 
-              {/* Section 6: Custom Memo / Conclusion */}
+              {/* Section 8: Custom Memo / Conclusion */}
               <div className="print-avoid-break" style={{ marginBottom: '22px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '4px', height: '16px', background: '#0d9488', borderRadius: '2px' }} />
                     <h3 style={{ margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#0f172a' }}>
-                      6. 종합 검토 의견 및 세무 리스크 사전 대응 방안
+                      8. 종합 검토 의견 및 세무 리스크 사전 대응 방안
                     </h3>
                   </div>
                   {isEditMode && <span style={{ fontSize: '0.68rem', color: '#0d9488' }}>* 관세사 전용 종합의견 입력란</span>}
