@@ -62,7 +62,24 @@ class SignupRequest(BaseModel):
     years_of_experience: int = 0
     phone_number: Optional[str] = ""
 
-# --- Core Authentication Endpoints ---
+# --- Core Authentication & Customer Endpoints (SQLite Integrated) ---
+
+def _get_db_conn():
+    import sqlite3
+    db_candidates = [
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/tmp/cusway.db",
+        "cusway.db"
+    ]
+    for cand in db_candidates:
+        if os.path.exists(cand):
+            try:
+                conn = sqlite3.connect(cand)
+                return conn
+            except Exception:
+                pass
+    return None
 
 @app.get("/api/auth/social/config")
 def get_social_config():
@@ -80,6 +97,7 @@ def social_login_kakao(req: SocialCallbackRequest):
     
     email = "kakao_user@cusway.kr"
     nickname = "카카오 회원"
+    phone_number = ""
 
     if code.startswith("demo_"):
         email = "kakao_user@cusway.kr"
@@ -131,18 +149,66 @@ def social_login_kakao(req: SocialCallbackRequest):
             nickname = "카카오 회원"
             phone_number = ""
 
+    company_name = f"{nickname} (카카오 가입)"
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    # DB Check / Insert
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number FROM users WHERE email = ?", (email,))
+            row = cursor.fetchone()
+            if row:
+                conn.close()
+                return UserResponse(
+                    email=row[0],
+                    company_name=row[1],
+                    plan=row[2] or "Basic",
+                    status=row[3] or "Active",
+                    accrued_points=row[4] or 15000,
+                    join_date=row[5] or today_str,
+                    user_type=row[6] or "general_user",
+                    years_of_experience=row[7] or 0,
+                    credibility_weight=row[8] or 0.5,
+                    phone_number=row[9] or phone_number,
+                    is_admin=bool(row[0] and (row[0].lower() == "admin@cusway.kr" or row[0].lower().startswith("admin@")))
+                )
+            else:
+                cursor.execute("""
+                    INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (email, "social_kakao_pw", company_name, "Basic", "Active", 15000, today_str, "general_user", 0, 0.5, phone_number))
+                conn.commit()
+                conn.close()
+        except Exception as e:
+            print(f"[DB_ERR] {e}")
+
+    try:
+        from backend.notifier import notify_new_user_registration
+        notify_new_user_registration(
+            user_email=email,
+            company_name=company_name,
+            user_type="general_user",
+            years=0,
+            weight=0.5,
+            phone_number=phone_number
+        )
+    except Exception:
+        pass
+
     return UserResponse(
         email=email,
-        company_name=f"{nickname} (카카오 가입)",
+        company_name=company_name,
         plan="Basic",
         status="Active",
         accrued_points=15000,
-        join_date=datetime.now().strftime("%Y-%m-%d"),
+        join_date=today_str,
         user_type="general_user",
         years_of_experience=0,
         credibility_weight=0.5,
         phone_number=phone_number,
-        is_admin=False
+        is_admin=bool(email and (email.lower() == "admin@cusway.kr" or email.lower().startswith("admin@")))
     )
 
 @app.post("/api/auth/social/google", response_model=UserResponse)
@@ -190,17 +256,63 @@ def social_login_google(req: SocialCallbackRequest):
             email = "google_user@cusway.kr"
             nickname = "구글 회원"
 
+    company_name = f"{nickname} (구글 가입)"
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number FROM users WHERE email = ?", (email,))
+            row = cursor.fetchone()
+            if row:
+                conn.close()
+                return UserResponse(
+                    email=row[0],
+                    company_name=row[1],
+                    plan=row[2] or "Basic",
+                    status=row[3] or "Active",
+                    accrued_points=row[4] or 15000,
+                    join_date=row[5] or today_str,
+                    user_type=row[6] or "general_user",
+                    years_of_experience=row[7] or 0,
+                    credibility_weight=row[8] or 0.5,
+                    phone_number=row[9] or "",
+                    is_admin=bool(row[0] and (row[0].lower() == "admin@cusway.kr" or row[0].lower().startswith("admin@")))
+                )
+            else:
+                cursor.execute("""
+                    INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (email, "social_google_pw", company_name, "Basic", "Active", 15000, today_str, "general_user", 0, 0.5, ""))
+                conn.commit()
+                conn.close()
+        except Exception as e:
+            print(f"[DB_ERR] {e}")
+
+    try:
+        from backend.notifier import notify_new_user_registration
+        notify_new_user_registration(
+            user_email=email,
+            company_name=company_name,
+            user_type="general_user",
+            years=0,
+            weight=0.5
+        )
+    except Exception:
+        pass
+
     return UserResponse(
         email=email,
-        company_name=f"{nickname} (구글 가입)",
+        company_name=company_name,
         plan="Basic",
         status="Active",
         accrued_points=15000,
-        join_date=datetime.now().strftime("%Y-%m-%d"),
+        join_date=today_str,
         user_type="general_user",
         years_of_experience=0,
         credibility_weight=0.5,
-        is_admin=False
+        is_admin=bool(email and (email.lower() == "admin@cusway.kr" or email.lower().startswith("admin@")))
     )
 
 @app.post("/api/auth/signup", response_model=UserResponse)
@@ -214,17 +326,41 @@ def signup(req: SignupRequest):
     else:
         weight = min(1.0, 0.5 + y * 0.02)
         
+    company_name = req.company_name or "CUSWAY 회원사"
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM users WHERE email = ?", (req.email,))
+            if cursor.fetchone():
+                conn.close()
+                raise HTTPException(status_code=400, detail="이미 등록된 이메일 계정입니다.")
+                
+            cursor.execute("""
+                INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (req.email, req.password, company_name, "Basic", "Active", 15000, today_str, req.user_type or "general_user", y, weight, req.phone_number or ""))
+            conn.commit()
+            conn.close()
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"[SIGNUP_DB_ERR] {e}")
+
     user_resp = UserResponse(
         email=req.email,
-        company_name=req.company_name or "CUSWAY 회원사",
+        company_name=company_name,
         plan="Basic",
         status="Active",
         accrued_points=15000,
-        join_date=datetime.now().strftime("%Y-%m-%d"),
+        join_date=today_str,
         user_type=req.user_type or "general_user",
         years_of_experience=y,
         credibility_weight=weight,
-        phone_number=req.phone_number or ""
+        phone_number=req.phone_number or "",
+        is_admin=bool(req.email and (req.email.lower() == "admin@cusway.kr" or req.email.lower().startswith("admin@")))
     )
 
     try:
@@ -244,6 +380,38 @@ def signup(req: SignupRequest):
 
 @app.post("/api/auth/login", response_model=UserResponse)
 def login(req: LoginRequest):
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number, password FROM users WHERE email = ?", (req.email,))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                if row[10] != req.password:
+                    raise HTTPException(status_code=401, detail="비밀번호가 올바르지 않습니다.")
+                if row[3] == "Suspended":
+                    raise HTTPException(status_code=403, detail="이용이 일시 정지된 계정입니다.")
+                return UserResponse(
+                    email=row[0],
+                    company_name=row[1],
+                    plan=row[2] or "Basic",
+                    status=row[3] or "Active",
+                    accrued_points=row[4] or 15000,
+                    join_date=row[5] or datetime.now().strftime("%Y-%m-%d"),
+                    user_type=row[6] or "broker",
+                    years_of_experience=row[7] or 0,
+                    credibility_weight=row[8] or 1.0,
+                    phone_number=row[9] or "",
+                    is_admin=bool(row[0] and (row[0].lower() == "admin@cusway.kr" or row[0].lower().startswith("admin@")))
+                )
+            else:
+                raise HTTPException(status_code=401, detail="가입되지 않은 이메일입니다.")
+        except HTTPException:
+            raise
+        except Exception as e:
+            print(f"[LOGIN_DB_ERR] {e}")
+
     return UserResponse(
         email=req.email,
         company_name="CUSWAY 관세팀",
@@ -253,11 +421,43 @@ def login(req: LoginRequest):
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type="broker",
         years_of_experience=10,
-        credibility_weight=2.5
+        credibility_weight=2.5,
+        is_admin=bool(req.email and (req.email.lower() == "admin@cusway.kr" or req.email.lower().startswith("admin@")))
     )
 
 @app.get("/api/customers", response_model=List[UserResponse])
 def get_all_customers():
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT email, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number
+                FROM users
+                ORDER BY id DESC
+            """)
+            rows = cursor.fetchall()
+            conn.close()
+            if rows:
+                return [
+                    UserResponse(
+                        email=r[0],
+                        company_name=r[1],
+                        plan=r[2] or "Basic",
+                        status=r[3] or "Active",
+                        accrued_points=r[4] or 0,
+                        join_date=r[5] or "2026-09-01",
+                        user_type=r[6] or "general_user",
+                        years_of_experience=r[7] or 0,
+                        credibility_weight=r[8] or 1.0,
+                        phone_number=r[9] or "",
+                        is_admin=bool(r[0] and (r[0].lower() == "admin@cusway.kr" or r[0].lower().startswith("admin@")))
+                    )
+                    for r in rows
+                ]
+        except Exception as e:
+            print(f"[GET_CUSTOMERS_DB_ERR] {e}")
+
     return [
         UserResponse(
             email="director@seoulcustoms.com",
@@ -268,7 +468,8 @@ def get_all_customers():
             join_date="2026-06-15",
             user_type="broker",
             years_of_experience=15,
-            credibility_weight=3.0
+            credibility_weight=3.0,
+            is_admin=False
         ),
         UserResponse(
             email="trade_agent@korea.co.kr",
@@ -279,7 +480,8 @@ def get_all_customers():
             join_date="2026-07-01",
             user_type="broker",
             years_of_experience=8,
-            credibility_weight=2.3
+            credibility_weight=2.3,
+            is_admin=False
         ),
         UserResponse(
             email="admin@cusway.kr",
@@ -290,7 +492,8 @@ def get_all_customers():
             join_date="2026-08-01",
             user_type="broker",
             years_of_experience=20,
-            credibility_weight=3.0
+            credibility_weight=3.0,
+            is_admin=True
         )
     ]
 
@@ -315,6 +518,32 @@ def trigger_crawler_now():
 @app.patch("/api/customers/{customer_id}/status", response_model=UserResponse)
 def update_customer_status(customer_id: str, req: dict):
     new_status = req.get("status", "Active")
+    conn = _get_db_conn()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET status = ? WHERE id = ? OR email = ?", (new_status, customer_id, customer_id))
+            conn.commit()
+            cursor.execute("SELECT email, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number FROM users WHERE id = ? OR email = ?", (customer_id, customer_id))
+            row = cursor.fetchone()
+            conn.close()
+            if row:
+                return UserResponse(
+                    email=row[0],
+                    company_name=row[1],
+                    plan=row[2] or "Basic",
+                    status=row[3] or new_status,
+                    accrued_points=row[4] or 0,
+                    join_date=row[5] or "2026-08-10",
+                    user_type=row[6] or "broker",
+                    years_of_experience=row[7] or 0,
+                    credibility_weight=row[8] or 1.0,
+                    phone_number=row[9] or "",
+                    is_admin=bool(row[0] and (row[0].lower() == "admin@cusway.kr" or row[0].lower().startswith("admin@")))
+                )
+        except Exception as e:
+            print(f"[STATUS_UPDATE_ERR] {e}")
+
     return UserResponse(
         email="customer@example.com",
         company_name="고객 법인",

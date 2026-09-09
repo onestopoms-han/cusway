@@ -262,6 +262,9 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
     status: "Active (정상 가동중)"
   });
   const [isCrawling, setIsCrawling] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<string>('');
+  const [newlyJoinedAlert, setNewlyJoinedAlert] = useState<string | null>(null);
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = useState('');
@@ -303,79 +306,57 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
     notes: ''
   });
 
-  // Load Admin Data with localStorage Fallback
-  const fetchAdminData = async () => {
+  // Load Admin Data with real-time SQLite DB priority & fallback
+  const fetchAdminData = async (isManual = false) => {
+    if (isManual) setIsSyncing(true);
     try {
       const resCust = await fetch('/api/customers');
       let loadedCustomers: Customer[] = [];
       if (resCust.ok) {
         const data = await resCust.json();
-        loadedCustomers = data.map((c: any) => ({
-          id: String(c.id || c.email),
-          email: c.email,
-          companyName: c.company_name,
-          contactName: c.contact_name || c.company_name?.slice(0, 4) + ' 담당자',
-          plan: (c.plan || 'Basic') as any,
-          status: (c.status || 'Active') as any,
-          joinDate: c.join_date || '2026-06-15',
-          accruedPoints: c.accrued_points || 0,
-          phoneNumber: c.phone_number || c.phoneNumber || '010-0000-0000',
-          tags: c.tags || ['#관세법인', '#HS분류'],
-          notes: c.notes || '시스템 기본 등록 고객'
-        }));
-      }
-
-      const savedLocal = localStorage.getItem('cusway_admin_customers_v5');
-      if (savedLocal) {
-        try {
-          const parsed = JSON.parse(savedLocal);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            const existingIds = new Set(loadedCustomers.map(x => x.id));
-            const merged = [...loadedCustomers];
-            parsed.forEach((p: Customer) => {
-              const idx = merged.findIndex(x => x.id === p.id || x.email === p.email);
-              if (idx >= 0) {
-                merged[idx] = { ...merged[idx], ...p };
-              } else if (!existingIds.has(p.id)) {
-                merged.push(p);
-              }
-            });
-            loadedCustomers = merged;
-          }
-        } catch (e) {
-          console.warn('localStorage parse error', e);
+        if (Array.isArray(data) && data.length > 0) {
+          loadedCustomers = data.map((c: any) => ({
+            id: String(c.id || c.email),
+            email: c.email,
+            companyName: c.company_name || `${c.email.split('@')[0]} (신규회원)`,
+            contactName: c.contact_name || (c.company_name ? `${c.company_name.slice(0, 4)} 담당자` : '고객 담당자'),
+            plan: (c.plan || 'Basic') as any,
+            status: (c.status || 'Active') as any,
+            joinDate: c.join_date || new Date().toISOString().split('T')[0],
+            accruedPoints: c.accrued_points !== undefined ? c.accrued_points : 15000,
+            phoneNumber: c.phone_number || c.phoneNumber || '010-0000-0000',
+            tags: c.tags || ['#신규가입', c.user_type === 'broker' ? '#관세사' : '#회원사'],
+            notes: c.notes || '시스템 연동 고객'
+          }));
         }
       }
 
-      // Check newly registered users in browser session
+      // Merge newly registered users in browser session if any
       const localUsersRaw = localStorage.getItem('cusway_local_users');
       if (localUsersRaw) {
         try {
           const parsedUsers = JSON.parse(localUsersRaw);
           if (Array.isArray(parsedUsers)) {
-            const merged = [...loadedCustomers];
+            const existingEmails = new Set(loadedCustomers.map(x => x.email.toLowerCase()));
             parsedUsers.forEach((u: any) => {
               const prof = u.profile || u;
-              if (prof && prof.email) {
-                const idx = merged.findIndex(x => x.email.toLowerCase() === prof.email.toLowerCase());
-                if (idx < 0) {
-                  merged.unshift({
-                    id: String(prof.id || prof.email),
-                    email: prof.email,
-                    companyName: prof.company_name || `${prof.email.split('@')[0]} (신규회원)`,
-                    contactName: prof.contact_name || `${prof.company_name?.slice(0, 4) || '신규'} 담당자`,
-                    plan: (prof.plan || 'Basic') as any,
-                    status: (prof.status || 'Active') as any,
-                    joinDate: prof.join_date || new Date().toISOString().split('T')[0],
-                    accruedPoints: prof.accrued_points || 15000,
-                    phoneNumber: prof.phone_number || '010-0000-0000',
-                    tags: ['#신규가입', prof.user_type === 'broker' ? '#관세사' : '#화주'],
-                    notes: '웹 회원가입을 통해 신규 가입한 고객'
-                  });
-                }
+              if (prof && prof.email && !existingEmails.has(prof.email.toLowerCase())) {
+                loadedCustomers.unshift({
+                  id: String(prof.id || prof.email),
+                  email: prof.email,
+                  companyName: prof.company_name || `${prof.email.split('@')[0]} (신규가입)`,
+                  contactName: prof.contact_name || `${prof.company_name?.slice(0, 4) || '신규'} 담당자`,
+                  plan: (prof.plan || 'Basic') as any,
+                  status: (prof.status || 'Active') as any,
+                  joinDate: prof.join_date || new Date().toISOString().split('T')[0],
+                  accruedPoints: prof.accrued_points || 15000,
+                  phoneNumber: prof.phone_number || '010-0000-0000',
+                  tags: ['#신규가입', prof.user_type === 'broker' ? '#관세사' : '#화주'],
+                  notes: '웹 회원가입을 통해 신규 가입한 고객'
+                });
+                existingEmails.add(prof.email.toLowerCase());
               }
             });
-            loadedCustomers = merged;
           }
         } catch (e) {
           console.warn('local users parse error', e);
@@ -383,11 +364,26 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
       }
 
       if (loadedCustomers.length === 0) {
-        loadedCustomers = INITIAL_MOCK_CUSTOMERS;
-        localStorage.setItem('cusway_admin_customers_v5', JSON.stringify(INITIAL_MOCK_CUSTOMERS));
+        const savedLocal = localStorage.getItem('cusway_admin_customers_v5');
+        if (savedLocal) {
+          loadedCustomers = JSON.parse(savedLocal);
+        } else {
+          loadedCustomers = INITIAL_MOCK_CUSTOMERS;
+        }
       }
 
-      setCustomers(loadedCustomers);
+      // Check if new customer arrived in real-time
+      setCustomers(prev => {
+        if (prev.length > 0 && loadedCustomers.length > prev.length) {
+          const newGuy = loadedCustomers[0];
+          setNewlyJoinedAlert(`🎉 [실시간 가입 알림] ${newGuy.companyName} (${newGuy.email}) 회원님이 방금 가입하셨습니다!`);
+          setTimeout(() => setNewlyJoinedAlert(null), 7000);
+        }
+        return loadedCustomers;
+      });
+
+      const now = new Date();
+      setLastSyncTime(now.toTimeString().split(' ')[0]);
 
       // Cashback requests
       const resReq = await fetch('/api/cashback/requests');
@@ -418,7 +414,10 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
         setCustomers(JSON.parse(savedLocal));
       } else {
         setCustomers(INITIAL_MOCK_CUSTOMERS);
-        localStorage.setItem('cusway_admin_customers_v5', JSON.stringify(INITIAL_MOCK_CUSTOMERS));
+      }
+    } finally {
+      if (isManual) {
+        setTimeout(() => setIsSyncing(false), 500);
       }
     }
   };
@@ -434,6 +433,11 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
   useEffect(() => {
     if (isAdmin) {
       fetchAdminData();
+      // 5초 주기 실시간 자동 동기화
+      const interval = setInterval(() => {
+        fetchAdminData();
+      }, 5000);
+      return () => clearInterval(interval);
     }
   }, [isAdmin]);
 
@@ -933,13 +937,69 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '1.05rem', color: '#000000', fontWeight: 950 }}>관리자 계정:</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #cbd5e1' }}>
+              <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#16a34a', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
+                실시간 DB 연동 중 {lastSyncTime && `(${lastSyncTime})`}
+              </span>
+            </div>
+
+            <button
+              onClick={() => fetchAdminData(true)}
+              disabled={isSyncing}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 18px',
+                borderRadius: '10px',
+                background: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                fontWeight: 900,
+                fontSize: '0.95rem',
+                cursor: isSyncing ? 'not-allowed' : 'pointer',
+                opacity: isSyncing ? 0.7 : 1,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+            >
+              <RefreshCw size={16} className={isSyncing ? 'animate-spin' : ''} style={{ animation: isSyncing ? 'spin 1s linear infinite' : 'none' }} />
+              <span>{isSyncing ? '동기화 중...' : '실시간 새로고침'}</span>
+            </button>
+
+            <span style={{ fontSize: '1.05rem', color: '#000000', fontWeight: 950, marginLeft: '8px' }}>관리자:</span>
             <span style={{ fontSize: '1.05rem', fontWeight: 950, color: '#064e3b', background: '#ccfbf1', padding: '10px 18px', borderRadius: '10px', border: '2.5px solid #0d9488' }}>
               {currentUser?.email || '인증된 관리자'}
             </span>
           </div>
         </div>
+
+        {/* Real-time Registration Toast Banner */}
+        {newlyJoinedAlert && (
+          <div style={{
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: '#ffffff',
+            padding: '14px 20px',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 6px 20px rgba(16, 185, 129, 0.25)',
+            animation: 'fadeIn 0.3s ease-in-out'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 900, fontSize: '1.02rem' }}>
+              <Sparkles size={22} color="#ffffff" />
+              <span>{newlyJoinedAlert}</span>
+            </div>
+            <button
+              onClick={() => setNewlyJoinedAlert(null)}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontWeight: 900 }}
+            >
+              닫기
+            </button>
+          </div>
+        )}
 
         {/* Large High-Visibility Sub-Tabs */}
         <div style={{
@@ -1495,6 +1555,24 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
                         }}>
                           {c.status === 'Active' ? '● 이용 활성' : '■ 이용 정지'}
                         </span>
+
+                        {/* Real-time New Registration Badge */}
+                        {((c.tags && c.tags.includes('#신규가입')) || (c.joinDate && c.joinDate >= '2026-09-01')) && (
+                          <span style={{
+                            fontSize: '0.88rem',
+                            fontWeight: 950,
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            background: '#ffedd5',
+                            color: '#c2410c',
+                            border: '2px solid #ea580c',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            ✨ 신규 가입회원
+                          </span>
+                        )}
                       </div>
 
                       {/* Action Buttons Strip */}
@@ -1787,7 +1865,14 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
 
                       {/* Company Name & Contact */}
                       <div>
-                        <div style={{ fontWeight: 950, color: '#000000', fontSize: '1.15rem' }}>{c.companyName}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 950, color: '#000000', fontSize: '1.15rem' }}>{c.companyName}</span>
+                          {((c.tags && c.tags.includes('#신규가입')) || (c.joinDate && c.joinDate >= '2026-09-01')) && (
+                            <span style={{ fontSize: '0.78rem', fontWeight: 950, background: '#ffedd5', color: '#c2410c', border: '1.5px solid #ea580c', padding: '2px 8px', borderRadius: '10px' }}>
+                              신규
+                            </span>
+                          )}
+                        </div>
                         {c.contactName && (
                           <div style={{ fontSize: '0.95rem', color: '#1e293b', marginTop: '3px', fontWeight: 900 }}>
                             {c.contactName}

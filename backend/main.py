@@ -293,7 +293,6 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
         from datetime import datetime
         today_str = datetime.now().strftime("%Y-%m-%d")
         user = User(
-            id=99999,
             email=email,
             password="social_login_secure_password_placeholder_kakao",
             company_name=f"{nickname} (카카오 가입)",
@@ -398,13 +397,12 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
         from datetime import datetime
         today_str = datetime.now().strftime("%Y-%m-%d")
         user = User(
-            id=99998,
             email=email,
             password="social_login_secure_password_placeholder_google",
             company_name=f"{nickname} (구글 가입)",
             plan="Basic",
             status="Active",
-            accrued_points=1000,
+            accrued_points=15000,
             join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
@@ -979,7 +977,7 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
 
 @app.get("/api/customers", response_model=List[UserResponse])
 def get_customers(db: Session = Depends(get_db)):
-    return db.query(User).all()
+    return db.query(User).order_by(User.id.desc()).all()
 
 @app.get("/api/admin/crawler/status")
 def get_crawler_status():
