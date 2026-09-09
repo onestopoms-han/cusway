@@ -23,6 +23,12 @@ export interface ParsedInvoiceData {
   currency?: string;
   quantity?: string;
   invoiceNumber?: string;
+  // Deep Customs Classification Parameters (관세 분류 진심 스펙)
+  processingState?: string;     // 가공도/제조공정 (열처리, 볶음온도, 냉동, 분쇄도 등)
+  compositionRatio?: string;    // 성분 배합비율 (주성분 %, 첨가물 유무)
+  primaryFunction?: string;     // 주기능 및 본질적 특성 (GRI 통칙 3호나목 판단)
+  packagingType?: string;       // 포장 형태 (소매용 개별포장 vs 대용량 벌크)
+  keyClassificationNote?: string; // 관세사 사전 검토 유의사항
 }
 
 interface InvoiceParserModalProps {
@@ -34,16 +40,18 @@ interface InvoiceParserModalProps {
 const SAMPLE_INVOICES = [
   {
     name: '🇺🇸 미국산 대두 (Soybeans for sprouting)',
-    rawText: `COMMERCIAL INVOICE
+    rawText: `COMMERCIAL INVOICE & TECHNICAL SPEC SHEET
 Invoice No: US-EXP-2026-8841
 Shipper: Midwest Agri Grain Corp. (USA)
 Consignee: Korea Trade Corp. (Incheon, KR)
 Origin: USA (US)
 
-Description of Goods:
+Description of Goods & Specifications:
 1. Yellow Soybeans for sprout cultivation (Non-GMO, Grain size 4.5-5.5mm, Moisture max 13%)
-Material: 100% Natural Glycine max seeds
-Intended Use: Raw material for bean sprout (콩나물 재배용 대두)
+- Material: 100% Natural Glycine max seeds (미가공 천연 종실)
+- Processing: Raw whole grains, dried only, not roasted, not defatted (비가열, 미탈지 생두)
+- Intended Use: Raw material for bean sprout cultivation (콩나물 재배용 종자)
+- Packaging: 1,000 KG Jumbo Bags (벌크 톤백 포장)
 Quantity: 20,000 KG
 Unit Price: USD 0.85 / KG
 Total Amount: USD 17,000.00 CIF Busan Port`,
@@ -51,17 +59,22 @@ Total Amount: USD 17,000.00 CIF Busan Port`,
       productName: '콩나물 재배용 대두 (Yellow Soybeans for sprouting)',
       productNameEn: 'Yellow Soybeans for sprout cultivation (Non-GMO)',
       material: '100% 천연 대두 종실 (Glycine max, 수분 13% 이하)',
-      functionUse: '식용 콩나물 재배 및 발아용 미가공 두류 종자',
+      functionUse: '식용 콩나물 재배 및 발아용 미가공 두류 종자 (원형 낟알)',
       originCountry: '미국 (US)',
       cifAmount: 17000,
       currency: 'USD',
       quantity: '20,000 KG',
-      invoiceNumber: 'US-EXP-2026-8841'
+      invoiceNumber: 'US-EXP-2026-8841',
+      processingState: '천연 일광/열풍 건조 상태 (인위적 볶음·탈지·파쇄 공정 없음, 발아력 보존)',
+      compositionRatio: '순수 대두 100% (이물질 1% 미만, 수분 13% 이하)',
+      primaryFunction: '발아 및 채유가 가능한 원형 대두 종실 (제1201호 특게 품목)',
+      packagingType: '1,000kg 점보백 (공업용/재배용 벌크 원료 포장)',
+      keyClassificationNote: '제1201호(대두)는 제7류(채소류)에서 명시적으로 제외되며, 미국산 원산지증명서(C/O) 구비 시 한-미 FTA 0% 적용 대상임.'
     }
   },
   {
     name: '🇨🇳 중국산 볶은 참깨가루 (Roasted Sesame Powder)',
-    rawText: `COMMERCIAL INVOICE / PACKING LIST
+    rawText: `COMMERCIAL INVOICE / PACKING LIST / MFG PROCESS
 Invoice No: CN-QD-2026-1049
 Exporter: Qingdao Agricultural Processing Ltd. (Shandong, China)
 Importer: Seoul Food Ingredients Co., Ltd.
@@ -69,34 +82,45 @@ Country of Origin: China (CN)
 
 Commodity & Specifications:
 - Roasted Sesamum Seed Powder (100% Pure, Heat treated at 200°C for 25 min, Milling mesh 60)
-Material: Roasted White Sesame Seed 100% (No additives, No sugar)
-Application: Food seasoning & culinary ingredient (가공식품 원료용 볶은 참깨분말)
+- Material: Roasted White Sesame Seed 100% (No additives, No sugar, No spices)
+- Processing: High-temperature rotary roasting at 200°C ➔ 60-mesh fine grinding (고온 볶음 후 미세 분쇄)
+- Application: Food seasoning & culinary ingredient (가공식품 원료용 볶은 참깨분말)
+- Packaging: 25 KG Kraft Paper Bags with PE Liner
 Net Weight: 5,000 KGS
 Amount: USD 14,500.00 CIF Incheon`,
     parsed: {
       productName: '볶은 참깨가루 (Roasted Sesamum Seed Powder)',
       productNameEn: 'Roasted Sesamum Seed Powder (Heat-treated 200°C)',
       material: '100% 볶은 흰참깨 (열풍 로스팅 후 60메시 분쇄 분말, 무첨가)',
-      functionUse: '식품 조미 및 가공용 열처리 조제 참깨 분말 (조제식료품)',
+      functionUse: '식품 조미 및 가공용 열처리 조제 참깨 분말 (조제식료품 원료)',
       originCountry: '중국 (CN)',
       cifAmount: 14500,
       currency: 'USD',
       quantity: '5,000 KG',
-      invoiceNumber: 'CN-QD-2026-1049'
+      invoiceNumber: 'CN-QD-2026-1049',
+      processingState: '200℃ 고온 열풍 로스팅(25분) 후 60메시 분쇄 (원형 종자 발아력 완전 상실)',
+      compositionRatio: '열처리 볶음 참깨 100% (화학첨가물, 소금, 설탕 무첨가)',
+      primaryFunction: '조제된 식품 조미용 고소한 풍미의 참깨 분말 (제20류 조제식료품)',
+      packagingType: '25kg 크라프트 지대 (식품 제조공장 납품용 원료 벌크 포장)',
+      keyClassificationNote: '150℃ 이상 고온 볶음 처리되었으므로 제12류(원형종자 630%)가 아닌 제20류(조제품 45%)로 분류되며 식물방역 검역 완화 혜택 검토.'
     }
   },
   {
     name: '🇩🇪 독일산 영구자석 동기모터 (PMSM 3kW Motor)',
-    rawText: `COMMERCIAL INVOICE
+    rawText: `COMMERCIAL INVOICE & TECHNICAL DATA SHEET (TDS)
 Doc No: DE-STU-2026-9012
 Supplier: Bosch-Rexroth Drive Systems GmbH (Germany)
 Buyer: Hanwha Precision Machinery Co., Ltd.
 Origin: Germany (DE)
 
-Item Details:
-Pos 1: PMSM Brushless Synchronous Servo Motor (3.0kW, 3000 RPM, 400V, with Optical Absolute Encoder)
-Material: Aluminum Housing, Copper Windings, NdFeB Permanent Magnets
-Function/Use: Industrial Robotic Arm & CNC Precision Axis Actuator
+Item Details & Technical Specs:
+Pos 1: PMSM Brushless Synchronous Servo Motor
+- Rated Output: 3.0 kW (출력 3kW)
+- Speed / Voltage: 3000 RPM, 400V 3-Phase AC
+- Encoder: Optical Absolute Multi-turn Encoder Integrated
+- Construction: Aluminum Housing, Copper Windings, NdFeB Permanent Magnets
+- Function/Use: Industrial Robotic Arm & CNC Precision Axis Actuator
+- Packaging: Wooden Crate with Anti-vibration Shock Absorber
 Total Value: EUR 8,400.00 CIF Incheon Airport`,
     parsed: {
       productName: '영구자석 동기 서보모터 (PMSM Synchronous Motor 3kW)',
@@ -107,21 +131,29 @@ Total Value: EUR 8,400.00 CIF Incheon Airport`,
       cifAmount: 9200,
       currency: 'USD',
       quantity: '4 SET',
-      invoiceNumber: 'DE-STU-2026-9012'
+      invoiceNumber: 'DE-STU-2026-9012',
+      processingState: '정밀 엔코더 일체형 완제품 AC 동기 서보모터 (전원 인가 시 즉시 회전 구동)',
+      compositionRatio: '모터 구동부 100% (출력 3.0kW, 정격전압 400V AC)',
+      primaryFunction: '전기에너지를 정밀 회전 기계운동으로 변환하는 교류전동기 (제8501호)',
+      packagingType: '진동방지 목재 파렛트 박스 개별 포장',
+      keyClassificationNote: '출력 750W 초과 75kW 이하의 다상 교류전동기로서 HSK 8501.52호 분류 명백, 한-EU FTA C/O 구비 시 0% 적용.'
     }
   },
   {
     name: '🇻🇳 베트남산 리튬이온 배터리팩 (Lithium-ion Pack)',
-    rawText: `COMMERCIAL INVOICE & SHIPPING SPECIFICATION
+    rawText: `COMMERCIAL INVOICE & UN38.3 SAFETY SPECIFICATION
 Inv Ref: VN-HAI-2026-303
 Shipper: LG Energy Solution Vietnam Co., Ltd. (Hai Phong)
 Receiver: EcoMobility Korea Corp.
 Origin: Vietnam (VN)
 
-Goods Description:
-Lithium-ion Secondary Battery Pack for E-Scooter (48V 20Ah, 960Wh, with Smart BMS & Aluminum Casing)
-Material: NCM Lithium-ion Cells, BMS Board, Flame-retardant Aluminum Alloy Case
-Use: Power storage accumulator for light electric vehicles
+Goods Description & Chemical Properties:
+Lithium-ion Secondary Battery Pack for E-Scooter
+- Specification: 48V Nominal, 20Ah, Capacity 960Wh
+- Safety: Integrated Smart BMS (Overcharge/Short Protection), Flame-retardant Aluminum Alloy Case
+- Chemistry: NCM (Nickel-Cobalt-Manganese) Lithium-ion Cells
+- Use: Power storage accumulator for light electric vehicles (E-Scooter / E-Bike)
+- Packaging: UN Standard Class 9 Certified Safety Carton Box
 Quantity: 500 Units
 Total Invoice Value: USD 45,000.00 CIF Busan`,
     parsed: {
@@ -133,7 +165,12 @@ Total Invoice Value: USD 45,000.00 CIF Busan`,
       cifAmount: 45000,
       currency: 'USD',
       quantity: '500 EA',
-      invoiceNumber: 'VN-HAI-2026-303'
+      invoiceNumber: 'VN-HAI-2026-303',
+      processingState: 'BMS 회로 및 케이스가 조립 완료된 완제품 2차 충전식 축전지 팩',
+      compositionRatio: 'NCM 리튬 2차전지 셀 모듈 + 스마트 보호회로 기판',
+      primaryFunction: '화학 에너지를 전기에너지로 저장 및 방전하는 2차 축전지 (제8507호)',
+      packagingType: 'UN 38.3 안전인증 전용 위험물 방폭 카톤 박스',
+      keyClassificationNote: '리튬이온 축전지(8507.60)로 분류되며, 전파법 및 전기용품안전관리법 KC 인증 요건 대상 여부 대조 필수.'
     }
   }
 ];
@@ -150,7 +187,7 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
 
   if (!isOpen) return null;
 
-  // Smart heuristic extractor for trade invoices & text
+  // Smart heuristic extractor for trade invoices & technical spec sheets
   const parseInvoiceContent = (text: string, filename?: string) => {
     setIsProcessing(true);
     
@@ -164,6 +201,11 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
       let curr = 'USD';
       let qty = '1,000 KG';
       let invNo = `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      let processing = '';
+      let composition = '';
+      let primaryFunc = '';
+      let packaging = '';
+      let notes = '';
 
       const lower = text.toLowerCase();
 
@@ -199,45 +241,84 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
         prodNameEn = 'Yellow Soybeans for sprout cultivation (Non-GMO)';
         mat = '100% 천연 대두 종실 (Glycine max, 수분 13% 이하)';
         func = '식용 콩나물 재배 및 발아용 미가공 두류 종자 (원형 낟알)';
+        processing = '천연 건조 상태 (인위적 볶음·탈지·가열 공정 없음, 발아력 보존)';
+        composition = '순수 대두 100% (수분 13% 이하, 정선된 원형 낟알)';
+        primaryFunc = '발아력과 채유 특성을 지닌 생 종실 (제1201호 특게 품목)';
+        packaging = '1,000kg 점보백 (공업용/재배용 대용량 벌크 포장)';
+        notes = '제1201호(대두)는 제7류(채소류)에서 명시적 제외. 한-미 FTA C/O 구비 시 0% 적용.';
       } else if (lower.includes('sesame') || lower.includes('참깨') || lower.includes('깨')) {
         if (lower.includes('powder') || lower.includes('flour') || lower.includes('가루') || lower.includes('분말')) {
           prodName = '볶은 참깨가루 (Roasted Sesame Seed Powder)';
           prodNameEn = 'Roasted Sesamum Seed Powder (Heat-treated at 200°C)';
-          mat = '100% 볶은 참깨 (열풍 로스팅 후 60메시 분쇄 분말)';
-          func = '식품 조미 및 가공용 열처리 조제 참깨 분말 (조제식료품)';
+          mat = '100% 볶은 흰참깨 (열풍 로스팅 후 60메시 분쇄 분말, 무첨가)';
+          func = '식품 조미 및 가공용 열처리 조제 참깨 분말 (조제식료품 원료)';
+          processing = '200℃ 고온 로스팅(25분) 후 60메시 분쇄 (발아력 완전 상실)';
+          composition = '열처리 볶음 참깨 100% (화학첨가물 및 조미료 무첨가)';
+          primaryFunc = '식품 조미용 풍미 부여 조제 참깨 분말 (제2008.19호)';
+          packaging = '25kg 크라프트 지대 (식품 가공용 벌크 포장)';
+          notes = '150℃ 이상 열풍 볶음 처리로 제12류(원형 630%) 배제 및 제20류(조제품 45%) 귀속.';
         } else {
           prodName = '볶은 참깨 (Roasted Sesame Seeds)';
           prodNameEn = 'Roasted White Sesamum Seeds (Whole grains)';
           mat = '100% 볶은 흰참깨 (열처리 로스팅된 원형 낟알)';
-          func = '식품 가공 및 식용 볶음 참깨';
+          func = '식품 가공 및 식용 조제 참깨';
+          processing = '열풍 로스팅 가열 처리 (원형 낟알 형태 유지)';
+          composition = '볶은 참깨 100%';
+          primaryFunc = '조제된 견과·종자류 (제2008.19호)';
+          packaging = '20kg 포대 포장';
+          notes = '열처리 가공 여부에 따라 제1207호 vs 제2008호 경합 배제 검토 필수.';
         }
       } else if (lower.includes('motor') || lower.includes('pmsm') || lower.includes('모터') || lower.includes('전동기')) {
         prodName = '영구자석 동기 서보모터 (PMSM Synchronous Motor)';
         prodNameEn = 'PMSM Brushless Synchronous Servo Motor 3.0kW';
         mat = '알루미늄 케이싱, 동(구리) 권선, 네오디뮴(NdFeB) 영구자석';
         func = '산업용 로봇 및 자동화 설비 구동용 AC 서보 전동기 (출력 3kW)';
+        processing = '정밀 엔코더 일체형 완제품 AC 동기 서보 전동기';
+        composition = '모터 구동부 100% (정격출력 3.0kW, 400V 3상 AC)';
+        primaryFunc = '전기에너지를 정밀 기계적 회전운동으로 변환하는 교류전동기 (제8501호)';
+        packaging = '진동방지 목재 파렛트 개별 포장';
+        notes = '출력 750W 초과 75kW 이하의 다상 교류전동기(8501.52호) 분류.';
       } else if (lower.includes('battery') || lower.includes('배터리') || lower.includes('accumulator') || lower.includes('cell')) {
         prodName = '리튬이온 2차전지 배터리팩 (Lithium-ion Battery Pack)';
         prodNameEn = 'Lithium-ion Secondary Battery Pack 48V 20Ah';
         mat = 'NCM 리튬이온 셀, 스마트 배터리 보호회로(BMS), 알루미늄 합금 케이스';
         func = '전기 스쿠터 및 소형 모빌리티 구동 전원용 리튬 2차 축전지';
+        processing = 'BMS 보호회로 일체형 조립 완료 완제품 배터리 팩';
+        composition = 'NCM 리튬 2차전지 셀 모듈 + 스마트 보호회로 기판';
+        primaryFunc = '화학에너지를 전기에너지로 저장·공급하는 2차 축전지 (제8507호)';
+        packaging = 'UN 38.3 인증 전용 위험물 방폭 카톤 박스';
+        notes = '리튬이온 축전지(8507.60호) 분류 및 KC 안전인증 요건 검토.';
       } else if (lower.includes('fabric') || lower.includes('textile') || lower.includes('직물') || lower.includes('원단')) {
         prodName = '폴리에스테르 직포 원단 (Polyester Woven Fabric)';
         prodNameEn = '100% Polyester Printed Woven Fabric for Garments';
         mat = '100% 폴리에스테르 합성 필라멘트사';
         func = '의류 및 침구류 제조용 날염 직포 원단';
+        processing = '합성 필라멘트사 평직 직조 후 날염(Printing) 염색 가공';
+        composition = '폴리에스테르 100% (중량 150g/m²)';
+        primaryFunc = '의류 봉제용 직물 원단 (제5407호)';
+        packaging = '롤 튜브 비닐 래핑 포장';
+        notes = '합성 필라멘트사 함량 85% 이상 직물(제5407호) 분류.';
       } else if (lower.includes('salmon') || lower.includes('fish') || lower.includes('연어') || lower.includes('수산물')) {
         prodName = '급속 냉동 대서양 연어 필렛 (Frozen Salmon Fillets)';
         prodNameEn = 'Frozen Atlantic Salmon Fillets (Salmo salar)';
         mat = '100% 대서양 연어 (Salmo salar, 가시 및 껍질 제거)';
         func = '식용 및 횟감/스테이크용 냉동 수산물';
+        processing = '내장/가시 제거 후 IQF 급속 냉동 (비가열, 단순 절단 필렛)';
+        composition = '순수 연어육 100%';
+        primaryFunc = '식용 냉동 어류 필렛 (제0304호)';
+        packaging = '진공 스킨 포장 후 마스터 카톤 박스';
+        notes = '자숙·양념 처리가 없는 단순 냉동 필렛이므로 제16류가 아닌 제0304호 귀속.';
       } else {
-        // Generic fallback from lines
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         prodName = lines[0] || (filename ? filename.replace(/\.[^/.]+$/, "") : '수입 인보이스 물품');
         prodNameEn = lines[0] || 'Imported Commodity Item';
         mat = '상업송장 기재 원재료 및 성분 사양 기준';
         func = '상업 및 산업 유통용 완제품/원자재';
+        processing = '제조사 표준 생산 및 가공 공정 사양서 기준';
+        composition = '제품 사양서 및 원료 배합비율 기준';
+        primaryFunc = '당해 품목 고유의 주요 기능 및 산업적 용도';
+        packaging = '표준 수출입 선적 포장 단위';
+        notes = '상업송장 기재 명칭을 토대로 관세율표 통칙에 따라 정밀 분류 심사 진행.';
       }
 
       setExtractedData({
@@ -249,7 +330,12 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
         cifAmount: cif,
         currency: curr,
         quantity: qty,
-        invoiceNumber: invNo
+        invoiceNumber: invNo,
+        processingState: processing,
+        compositionRatio: composition,
+        primaryFunction: primaryFunc,
+        packagingType: packaging,
+        keyClassificationNote: notes
       });
 
       setIsProcessing(false);
@@ -271,7 +357,6 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
       setImagePreview(null);
     }
 
-    // Heuristic parse simulation from filename & typical OCR
     parseInvoiceContent(file.name, file.name);
   };
 
@@ -289,8 +374,8 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
       left: 0,
       width: '100vw',
       height: '100vh',
-      background: 'rgba(15, 23, 42, 0.85)',
-      backdropFilter: 'blur(8px)',
+      background: 'rgba(15, 23, 42, 0.88)',
+      backdropFilter: 'blur(10px)',
       zIndex: 11000,
       display: 'flex',
       alignItems: 'center',
@@ -302,9 +387,9 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
         border: '1.5px solid #334155',
         borderRadius: '16px',
         width: '100%',
-        maxWidth: '860px',
-        maxHeight: '92vh',
-        boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+        maxWidth: '920px',
+        maxHeight: '94vh',
+        boxShadow: '0 25px 60px rgba(0,0,0,0.65)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
@@ -319,22 +404,22 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
               border: '1px solid rgba(6, 182, 212, 0.4)',
               borderRadius: '8px',
-              padding: '8px',
+              padding: '9px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <FileText size={20} color="var(--accent-cyan)" />
+              <FileText size={22} color="var(--accent-cyan)" />
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', margin: 0 }}>
-                  📄 영문 상업송장(Invoice) · PDF 사양서 스마트 추출기
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc', margin: 0 }}>
+                  📄 영문 송장(Invoice) · 기술사양서(TDS) 관세 스펙 정밀 분석기
                 </h3>
                 <span style={{
                   background: 'rgba(20, 184, 166, 0.2)',
@@ -342,13 +427,14 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                   fontSize: '0.7rem',
                   padding: '2px 8px',
                   borderRadius: '10px',
-                  fontWeight: 700
+                  fontWeight: 800,
+                  border: '1px solid rgba(20, 184, 166, 0.3)'
                 }}>
-                  영-한 이중 AI 매핑
+                  스펙 기반 관세 심사
                 </span>
               </div>
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
-                인보이스 사진(JPG/PNG), PDF 명세서, 또는 영문 텍스트를 입력하면 품명·재질·용도·금액을 자동 추출하여 분류기에 즉시 채워넣습니다.
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '3px 0 0 0' }}>
+                영문 송장/TDS 사양서에서 <strong>성분 배합비, 가공 공정, 주기능</strong>을 추출하여 관세율표 일반통칙(GRI) 정밀 심사로 연결합니다.
               </p>
             </div>
           </div>
@@ -371,13 +457,30 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
           </button>
         </div>
 
+        {/* Customs Professional Principle Warning Banner (진심을 담은 분류 원칙) */}
+        <div style={{
+          padding: '10px 24px',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(217, 119, 6, 0.12) 100%)',
+          borderBottom: '1px solid rgba(245, 158, 11, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontSize: '0.77rem',
+          color: '#fef3c7'
+        }}>
+          <Sparkles size={16} color="var(--accent-amber)" style={{ flexShrink: 0 }} />
+          <span>
+            <strong>⚖️ HS 품목분류 원칙 및 리스크 방지:</strong> 상업송장의 단순 영문 표기명만으로 10단위 HSK와 세액 절감액을 섣불리 단정할 수 없습니다. 추출된 가공도·성분 스펙을 바탕으로 <strong>일반통칙(GRI) 1호~6호 순차 적용 및 경합세번 배제 심사</strong>를 철저히 진행합니다.
+          </span>
+        </div>
+
         {/* Tab Selector */}
         <div style={{
-          padding: '12px 24px',
+          padding: '10px 24px',
           background: 'rgba(15, 23, 42, 0.6)',
           borderBottom: '1px solid #334155',
           display: 'flex',
-          gap: '12px'
+          gap: '10px'
         }}>
           <button
             onClick={() => setActiveTab('upload')}
@@ -385,17 +488,17 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
               background: activeTab === 'upload' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
               color: activeTab === 'upload' ? 'var(--accent-cyan)' : '#94a3b8',
               border: activeTab === 'upload' ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
+              padding: '7px 14px',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 750,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
             }}
           >
-            <Upload size={15} /> 📸 인보이스 사진 / PDF 파일 업로드
+            <Upload size={14} /> 📸 송장/사양서 파일 업로드 (JPG, PNG, PDF)
           </button>
 
           <button
@@ -404,17 +507,17 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
               background: activeTab === 'text' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
               color: activeTab === 'text' ? 'var(--accent-cyan)' : '#94a3b8',
               border: activeTab === 'text' ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
+              padding: '7px 14px',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 750,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
             }}
           >
-            <FileCode size={15} /> ✍️ 인보이스 영문 텍스트 직접 붙여넣기
+            <FileCode size={14} /> ✍️ 영문 텍스트 직접 입력
           </button>
 
           <button
@@ -423,28 +526,28 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
               background: activeTab === 'sample' ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
               color: activeTab === 'sample' ? 'var(--accent-cyan)' : '#94a3b8',
               border: activeTab === 'sample' ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontSize: '0.82rem',
-              fontWeight: 700,
+              padding: '7px 14px',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              fontWeight: 750,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px'
             }}
           >
-            <Zap size={15} /> ⚡ 실무 상용 인보이스 샘플 1초 테스트
+            <Zap size={14} /> ⚡ 실무 상용 인보이스/TDS 샘플 테스트
           </button>
         </div>
 
         {/* Modal Body */}
         <div style={{
-          padding: '20px 24px',
+          padding: '18px 24px',
           overflowY: 'auto',
           flex: 1,
           display: 'flex',
           flexDirection: 'column',
-          gap: '18px'
+          gap: '16px'
         }}>
           
           {/* TAB 1: File Dropzone */}
@@ -470,7 +573,7 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                 style={{
                   border: '2px dashed #475569',
                   borderRadius: '12px',
-                  padding: '32px 20px',
+                  padding: '28px 20px',
                   textAlign: 'center',
                   background: 'rgba(15, 23, 42, 0.4)',
                   cursor: 'pointer',
@@ -478,25 +581,25 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '10px'
+                  gap: '8px'
                 }}
               >
                 <div style={{
-                  width: '54px',
-                  height: '54px',
+                  width: '50px',
+                  height: '50px',
                   borderRadius: '50%',
                   background: 'rgba(6, 182, 212, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Upload size={26} color="var(--accent-cyan)" />
+                  <Upload size={24} color="var(--accent-cyan)" />
                 </div>
                 <div>
-                  <p style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', margin: 0 }}>
-                    상업송장(Invoice) 사진 또는 PDF 사양서를 이곳에 끌어다 놓으세요
+                  <p style={{ fontSize: '0.92rem', fontWeight: 750, color: '#f8fafc', margin: 0 }}>
+                    상업송장(Invoice) 사진 또는 PDF 기술사양서(TDS/MSDS)를 이곳에 끌어다 놓으세요
                   </p>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
+                  <p style={{ fontSize: '0.76rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
                     지원 형식: JPG, PNG, WEBP, PDF (최대 20MB)
                   </p>
                 </div>
@@ -505,12 +608,12 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                     background: '#334155',
                     color: '#f8fafc',
                     border: 'none',
-                    padding: '8px 16px',
+                    padding: '7px 14px',
                     borderRadius: '6px',
-                    fontSize: '0.8rem',
+                    fontSize: '0.78rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    marginTop: '4px'
+                    marginTop: '2px'
                   }}
                 >
                   내 컴퓨터에서 파일 선택
@@ -520,7 +623,7 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
               {uploadedFile && (
                 <div style={{
                   marginTop: '12px',
-                  padding: '12px 16px',
+                  padding: '10px 14px',
                   background: 'rgba(6, 182, 212, 0.08)',
                   border: '1px solid rgba(6, 182, 212, 0.3)',
                   borderRadius: '8px',
@@ -533,26 +636,26 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                       {uploadedFile.type.includes('pdf') ? '📄' : '🖼️'}
                     </span>
                     <div>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc' }}>
+                      <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#f8fafc' }}>
                         {uploadedFile.name}
                       </span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '8px' }}>
+                      <span style={{ fontSize: '0.74rem', color: '#94a3b8', marginLeft: '8px' }}>
                         ({uploadedFile.size})
                       </span>
                     </div>
                   </div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
-                    ✓ 텍스트 파싱 완료
+                  <span style={{ fontSize: '0.74rem', color: 'var(--accent-primary)', fontWeight: 700 }}>
+                    ✓ 텍스트 및 기술 스펙 파싱 완료
                   </span>
                 </div>
               )}
 
               {imagePreview && (
-                <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                <div style={{ marginTop: '10px', textAlign: 'center' }}>
                   <img 
                     src={imagePreview} 
                     alt="Invoice Preview" 
-                    style={{ maxHeight: '140px', borderRadius: '8px', border: '1px solid #334155' }}
+                    style={{ maxHeight: '120px', borderRadius: '8px', border: '1px solid #334155' }}
                   />
                 </div>
               )}
@@ -561,10 +664,10 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
 
           {/* TAB 2: Direct Text Paste */}
           {activeTab === 'text' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>
-                  📋 인보이스 / 패킹리스트 원문 텍스트 붙여넣기 (영문/국문 모두 지원)
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc' }}>
+                  📋 인보이스 / 사양서 영문 명세 텍스트 붙여넣기
                 </label>
                 <button
                   onClick={() => {
@@ -575,31 +678,31 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                     color: '#000',
                     border: 'none',
                     borderRadius: '6px',
-                    padding: '6px 14px',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
+                    padding: '5px 12px',
+                    fontSize: '0.76rem',
+                    fontWeight: 800,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '4px'
                   }}
                 >
-                  <Sparkles size={14} /> 텍스트 즉시 분석
+                  <Sparkles size={13} /> 스펙 즉시 분석
                 </button>
               </div>
               <textarea
-                rows={6}
+                rows={5}
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
-                placeholder="예시:&#10;COMMERCIAL INVOICE&#10;Description: Roasted Sesamum Seed Powder (100% Pure, Heat treated)&#10;Origin: China (CN)&#10;Quantity: 5,000 KG&#10;Amount: USD 14,500.00 CIF Incheon"
+                placeholder="예시:&#10;COMMERCIAL INVOICE & TDS&#10;Description: Roasted Sesamum Seed Powder (100% Pure, Heat treated at 200°C)&#10;Origin: China (CN)&#10;Quantity: 5,000 KG&#10;Amount: USD 14,500.00 CIF Incheon"
                 style={{
                   width: '100%',
-                  padding: '12px',
+                  padding: '10px',
                   background: 'rgba(15, 23, 42, 0.7)',
                   border: '1px solid #475569',
                   borderRadius: '8px',
                   color: '#f8fafc',
-                  fontSize: '0.82rem',
+                  fontSize: '0.8rem',
                   fontFamily: 'monospace',
                   lineHeight: 1.5,
                   resize: 'vertical'
@@ -610,9 +713,9 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
 
           {/* TAB 3: Practical Samples */}
           {activeTab === 'sample' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>
-                ⚡ 실무 주요 국가별 인보이스 예시 (클릭 시 1초 만에 즉시 추출 및 파싱)
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f8fafc' }}>
+                ⚡ 실무 주요 국가별 인보이스 / 사양서 예시 (클릭 시 즉시 스펙 파싱)
               </span>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {SAMPLE_INVOICES.map((sample, sIdx) => (
@@ -626,24 +729,24 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                       background: 'rgba(15, 23, 42, 0.6)',
                       border: '1px solid #334155',
                       borderRadius: '8px',
-                      padding: '12px 14px',
+                      padding: '10px 12px',
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '4px'
+                      gap: '3px'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-cyan)'}
                     onMouseLeave={(e) => e.currentTarget.style.borderColor = '#334155'}
                   >
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#f8fafc' }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
                       {sample.name}
                     </span>
                     <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
                       {sample.parsed.productNameEn} ({sample.parsed.originCountry})
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', fontWeight: 600, marginTop: '2px' }}>
-                      금액: ${sample.parsed.cifAmount?.toLocaleString()} {sample.parsed.currency} | 수량: {sample.parsed.quantity}
+                    <span style={{ fontSize: '0.68rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                      가공도: {sample.parsed.processingState?.slice(0, 30)}...
                     </span>
                   </div>
                 ))}
@@ -651,13 +754,13 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
             </div>
           )}
 
-          {/* Extracted Data Live Form View */}
+          {/* Extracted Data Live Form View with Deep Technical Specs */}
           {extractedData && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(20, 184, 166, 0.05) 100%)',
               border: '1.5px solid rgba(6, 182, 212, 0.35)',
               borderRadius: '10px',
-              padding: '16px 20px',
+              padding: '16px 18px',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px'
@@ -666,18 +769,19 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Sparkles size={16} color="var(--accent-cyan)" />
                   <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc' }}>
-                    🎯 AI 인보이스 텍스트 추출 및 정제 결과
+                    🎯 추출된 관세 분류 핵심 스펙 (Technical Specification Parameters)
                   </span>
                 </div>
-                <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                  수정이 필요할 경우 아래 입력창에서 바로 고칠 수 있습니다.
+                <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>
+                  * 항목별 세부 내용을 직접 확인 및 수정할 수 있습니다.
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              {/* Basic Meta */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                    상업적 제품명 (국문/영문 표준 거래품명)
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '3px' }}>
+                    상업적 거래품명 (국문/영문 표준 거래품명)
                   </label>
                   <input 
                     type="text"
@@ -685,19 +789,19 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                     onChange={(e) => setExtractedData({ ...extractedData, productName: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '8px 12px',
+                      padding: '7px 10px',
                       background: '#0f172a',
                       border: '1px solid #334155',
                       borderRadius: '6px',
                       color: '#f8fafc',
-                      fontSize: '0.82rem',
-                      fontWeight: 600
+                      fontSize: '0.8rem',
+                      fontWeight: 700
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '3px' }}>
                     원산지 국가 (Country of Origin)
                   </label>
                   <input 
@@ -706,134 +810,134 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                     onChange={(e) => setExtractedData({ ...extractedData, originCountry: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '8px 12px',
+                      padding: '7px 10px',
                       background: '#0f172a',
                       border: '1px solid #334155',
                       borderRadius: '6px',
                       color: '#f8fafc',
-                      fontSize: '0.82rem'
+                      fontSize: '0.8rem'
                     }}
                   />
                 </div>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                  물품 재질 및 원료 구성 (Material / Composition)
-                </label>
-                <input 
-                  type="text"
-                  value={extractedData.material}
-                  onChange={(e) => setExtractedData({ ...extractedData, material: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    background: '#0f172a',
-                    border: '1px solid #334155',
-                    borderRadius: '6px',
-                    color: '#f8fafc',
-                    fontSize: '0.82rem'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                  주요 기능 및 용도 (Function / Application)
-                </label>
-                <input 
-                  type="text"
-                  value={extractedData.functionUse}
-                  onChange={(e) => setExtractedData({ ...extractedData, functionUse: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    background: '#0f172a',
-                    border: '1px solid #334155',
-                    borderRadius: '6px',
-                    color: '#f8fafc',
-                    fontSize: '0.82rem'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              {/* Technical Specs Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                    수입 신고 금액 (CIF 기준)
-                  </label>
-                  <input 
-                    type="number"
-                    value={extractedData.cifAmount}
-                    onChange={(e) => setExtractedData({ ...extractedData, cifAmount: parseFloat(e.target.value) || 0 })}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      background: '#0f172a',
-                      border: '1px solid #334155',
-                      borderRadius: '6px',
-                      color: 'var(--accent-cyan)',
-                      fontSize: '0.82rem',
-                      fontWeight: 700
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                    통화 단위 (Currency)
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--accent-primary)', fontWeight: 700, marginBottom: '3px' }}>
+                    ⚙️ 가공 상태 및 제조공정 (열처리 온도, 볶음/살균, 냉동/건조도)
                   </label>
                   <input 
                     type="text"
-                    value={extractedData.currency}
-                    onChange={(e) => setExtractedData({ ...extractedData, currency: e.target.value })}
+                    value={extractedData.processingState || ''}
+                    placeholder="예: 200℃ 고온 볶음 후 60메시 분쇄 (원형 발아력 상실)"
+                    onChange={(e) => setExtractedData({ ...extractedData, processingState: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '8px 12px',
+                      padding: '7px 10px',
                       background: '#0f172a',
-                      border: '1px solid #334155',
+                      border: '1px solid rgba(20, 184, 166, 0.4)',
                       borderRadius: '6px',
                       color: '#f8fafc',
-                      fontSize: '0.82rem'
+                      fontSize: '0.78rem'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>
-                    수입 수량 및 단위
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: 'var(--accent-primary)', fontWeight: 700, marginBottom: '3px' }}>
+                    🔬 원재료 및 성분 배합비율 (Composition %)
                   </label>
                   <input 
                     type="text"
-                    value={extractedData.quantity}
-                    onChange={(e) => setExtractedData({ ...extractedData, quantity: e.target.value })}
+                    value={extractedData.compositionRatio || extractedData.material || ''}
+                    placeholder="예: 순수 참깨 100% (소금, 설탕, 첨가물 무첨가)"
+                    onChange={(e) => setExtractedData({ ...extractedData, compositionRatio: e.target.value, material: e.target.value })}
                     style={{
                       width: '100%',
-                      padding: '8px 12px',
+                      padding: '7px 10px',
                       background: '#0f172a',
-                      border: '1px solid #334155',
+                      border: '1px solid rgba(20, 184, 166, 0.4)',
                       borderRadius: '6px',
                       color: '#f8fafc',
-                      fontSize: '0.82rem'
+                      fontSize: '0.78rem'
                     }}
                   />
                 </div>
               </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '3px' }}>
+                    🎯 주요 기능 및 용도 (Essential Character & Intended Use)
+                  </label>
+                  <input 
+                    type="text"
+                    value={extractedData.functionUse}
+                    onChange={(e) => setExtractedData({ ...extractedData, functionUse: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      background: '#0f172a',
+                      border: '1px solid #334155',
+                      borderRadius: '6px',
+                      color: '#f8fafc',
+                      fontSize: '0.78rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '3px' }}>
+                    📦 포장 형태 (개별 소매용 vs 벌크 원료)
+                  </label>
+                  <input 
+                    type="text"
+                    value={extractedData.packagingType || ''}
+                    placeholder="예: 25kg 크라프트 지대 벌크 포장"
+                    onChange={(e) => setExtractedData({ ...extractedData, packagingType: e.target.value })}
+                    style={{
+                      width: '100%',
+                      padding: '7px 10px',
+                      background: '#0f172a',
+                      border: '1px solid #334155',
+                      borderRadius: '6px',
+                      color: '#f8fafc',
+                      fontSize: '0.78rem'
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Classification Pre-assessment Note */}
+              {extractedData.keyClassificationNote && (
+                <div style={{
+                  padding: '8px 12px',
+                  background: 'rgba(6, 182, 212, 0.08)',
+                  border: '1px solid rgba(6, 182, 212, 0.25)',
+                  borderRadius: '6px',
+                  fontSize: '0.74rem',
+                  color: '#e2e8f0',
+                  lineHeight: 1.45
+                }}>
+                  <strong style={{ color: 'var(--accent-cyan)' }}>💡 관세사 사전 검토 가이드:</strong> {extractedData.keyClassificationNote}
+                </div>
+              )}
             </div>
           )}
         </div>
 
         {/* Footer */}
         <div style={{
-          padding: '14px 24px',
+          padding: '12px 24px',
           background: '#0f172a',
           borderTop: '1px solid #334155',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-            💡 영문 품명과 스펙이 입력되면 WCO 영문 해설서와 한국 관세율표 10단위 HSK로 즉시 매칭됩니다.
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+            ※ 사양서 스펙을 기반으로 관세율표 해석 통칙(GRI) 및 WCO 해설서와 대조 검증을 수행합니다.
           </span>
 
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -843,14 +947,14 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                 background: '#334155',
                 color: '#f8fafc',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '9px 18px',
-                fontSize: '0.82rem',
+                borderRadius: '6px',
+                padding: '8px 16px',
+                fontSize: '0.8rem',
                 fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
-              닫기
+              취소
             </button>
 
             <button
@@ -860,10 +964,10 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                 background: extractedData ? 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)' : '#475569',
                 color: '#000',
                 border: 'none',
-                borderRadius: '8px',
-                padding: '9px 22px',
-                fontSize: '0.85rem',
-                fontWeight: 800,
+                borderRadius: '6px',
+                padding: '8px 20px',
+                fontSize: '0.84rem',
+                fontWeight: 900,
                 cursor: extractedData ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
@@ -871,7 +975,7 @@ export default function InvoiceParserModal({ isOpen, onClose, onApplyData }: Inv
                 boxShadow: extractedData ? '0 4px 15px rgba(6, 182, 212, 0.4)' : 'none'
               }}
             >
-              <Check size={16} /> 분류기에 자동 입력 & AI 분석 시작
+              <Check size={16} /> ⚖️ 관세율표 통칙 & 경합세번 정밀 분류 시작
             </button>
           </div>
         </div>

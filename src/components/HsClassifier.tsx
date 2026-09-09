@@ -172,14 +172,29 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
 
   const handleApplyInvoiceData = (data: ParsedInvoiceData) => {
     setProductName(data.productName);
-    setMaterial(data.material);
-    setFunctionUse(data.functionUse);
+    
+    // Synthesize rich customs specification string
+    let richMaterial = data.material;
+    if (data.compositionRatio && !richMaterial.includes(data.compositionRatio)) {
+      richMaterial = `${richMaterial} (성분비: ${data.compositionRatio})`;
+    }
+    if (data.processingState && !richMaterial.includes(data.processingState)) {
+      richMaterial = `${richMaterial} [가공공정: ${data.processingState}]`;
+    }
+    setMaterial(richMaterial);
+
+    let richFunction = data.functionUse;
+    if (data.primaryFunction && !richFunction.includes(data.primaryFunction)) {
+      richFunction = `${richFunction} [주기능/본질적특성: ${data.primaryFunction}]`;
+    }
+    setFunctionUse(richFunction);
+
     if (data.cifAmount) setCifAmountState(data.cifAmount);
     if (data.currency) setCurrencyState(data.currency);
     if (data.originCountry) setOriginCountryState(data.originCountry);
     
     setTimeout(() => {
-      handleStartAnalysis(data.productName, data.material, data.functionUse);
+      handleStartAnalysis(data.productName, richMaterial, richFunction);
     }, 150);
   };
 

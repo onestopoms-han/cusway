@@ -117,7 +117,7 @@ export default function DutySavingsCalculator({
       padding: '20px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '16px',
+      gap: '14px',
       boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)'
     }}>
       {/* Header */}
@@ -136,10 +136,10 @@ export default function DutySavingsCalculator({
           </div>
           <div>
             <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              ⚡ 실시간 관세 절감액 & 예상 납부 세액 1초 계산기
+              📊 관세 절감액 & 예상 납부 세액 시뮬레이터
             </h4>
             <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-              HSK <b>{hsCode}</b> ({productName || '대상 물품'})
+              확정 세번 HSK <b>{hsCode}</b> ({productName || '대상 물품'})
             </span>
           </div>
         </div>
@@ -152,8 +152,21 @@ export default function DutySavingsCalculator({
           borderRadius: '12px',
           fontWeight: 700
         }}>
-          {savedDuty > 0 ? `🎉 관세 ${savedDuty.toLocaleString()}원 절감 가능` : '세율 정밀 검토 요망'}
+          {savedDuty > 0 ? `🎉 C/O 구비 시 최대 ${savedDuty.toLocaleString()}원 절감 가능` : '세율 정밀 검토 요망'}
         </span>
+      </div>
+
+      {/* Customs Integrity & Compliance Banner */}
+      <div style={{
+        padding: '8px 12px',
+        background: 'rgba(15, 23, 42, 0.6)',
+        border: '1px solid rgba(6, 182, 212, 0.25)',
+        borderRadius: '6px',
+        fontSize: '0.73rem',
+        color: '#94a3b8',
+        lineHeight: 1.45
+      }}>
+        <span style={{ color: 'var(--accent-cyan)', fontWeight: 700 }}>💡 관세 실무 적용 원칙:</span> 본 세액 계산은 HSK 10단위가 최종 확정되고, 협정별 원산지결정기준(CTH/PSR)을 충족하는 적법한 원산지증명서(C/O)를 수입신고 시 세관에 제출할 때 적용되는 조건부 시뮬레이션입니다.
       </div>
 
       {/* Input Parameters Grid */}
