@@ -1057,29 +1057,53 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
     except Exception as e:
         match_count = 2
 
-    base_points = 10000
-    confidential_bonus = 20000 if req.is_confidential else 5000
-    decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
-    
-    if match_count == 0:
-        scarcity_rate = 98.5
-        scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
-        scarcity_bonus = 10000
-    elif match_count <= 3:
-        scarcity_rate = 91.5
-        scarcity_grade = "우수 (고난이도 희귀 쟁점)"
-        scarcity_bonus = 5000
-    else:
-        scarcity_rate = 78.0
-        scarcity_grade = "양호 (실무 검증 가치 높음)"
-        scarcity_bonus = 0
+    # [실무 가치 산정 체계 차등 적용]
+    if req.doc_type == 'hs':
+        # HS 품목분류 사전심사: 정형화된 일상 세번 매핑 데이터 (소액 500P ~ 3,000P 산정)
+        base_points = 500
+        confidential_bonus = 1000 if req.is_confidential else 300
+        decision_bonus = 1000 if req.decision_type in ["overturned", "승소", "인용"] else 500
+        
+        if match_count == 0:
+            scarcity_rate = 95.0
+            scarcity_grade = "신규 세번 (DB 미등재 신제품 규격)"
+            scarcity_bonus = 500
+        elif match_count <= 3:
+            scarcity_rate = 85.0
+            scarcity_grade = "일반 세번 (유사 품목 존재)"
+            scarcity_bonus = 200
+        else:
+            scarcity_rate = 70.0
+            scarcity_grade = "기본 세번 (다수 공개 규격)"
+            scarcity_bonus = 0
 
-    total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
-    
-    doc_type_ko = "품목분류 사전심사회시서" if req.doc_type == 'hs' else "조세심판원 심판결정문"
-    conf_txt = "비공개(미공개) " if req.is_confidential else "공식 "
-    
-    snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
+        total_points = min(3000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        doc_type_ko = "품목분류 사전심사 회시서"
+        conf_txt = "비공개 " if req.is_confidential else "공식 "
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 품목분류 DB 대조 결과 유사 매칭 {match_count}건(독창성 {scarcity_rate}%)으로 판정되었습니다. HS 품목분류는 표준 정형 세번 매핑 데이터로서 건당 ₩{total_points:,}P의 AI 학습 보조 마일리지가 합리적으로 산정되었습니다."
+    else:
+        # 조세심판원/관세평가 결정문: 고난도 과세처분 취소 법리 데이터 (고액 15,000P ~ 50,000P 산정)
+        base_points = 10000
+        confidential_bonus = 20000 if req.is_confidential else 5000
+        decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
+        
+        if match_count == 0:
+            scarcity_rate = 98.5
+            scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
+            scarcity_bonus = 10000
+        elif match_count <= 3:
+            scarcity_rate = 91.5
+            scarcity_grade = "우수 (고난이도 희귀 쟁점)"
+            scarcity_bonus = 5000
+        else:
+            scarcity_rate = 78.0
+            scarcity_grade = "양호 (실무 검증 가치 높음)"
+            scarcity_bonus = 0
+
+        total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        doc_type_ko = "조세심판원 심판결정문"
+        conf_txt = "비공개 " if req.is_confidential else "공식 "
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
 
     return {
         "appraised_points": total_points,
@@ -2499,29 +2523,50 @@ def appraise_precedent_api(req: AppraisalApiRequest):
     except Exception as e:
         match_count = 2
 
-    base_points = 10000
-    confidential_bonus = 20000 if req.is_confidential else 5000
-    decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
-    
-    if match_count == 0:
-        scarcity_rate = 98.5
-        scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
-        scarcity_bonus = 10000
-    elif match_count <= 3:
-        scarcity_rate = 91.5
-        scarcity_grade = "우수 (고난이도 희귀 쟁점)"
-        scarcity_bonus = 5000
-    else:
-        scarcity_rate = 78.0
-        scarcity_grade = "양호 (실무 검증 가치 높음)"
-        scarcity_bonus = 0
+    if req.doc_type == 'hs':
+        base_points = 500
+        confidential_bonus = 1000 if req.is_confidential else 300
+        decision_bonus = 1000 if req.decision_type in ["overturned", "승소", "인용"] else 500
+        
+        if match_count == 0:
+            scarcity_rate = 95.0
+            scarcity_grade = "신규 세번 (DB 미등재 신제품 규격)"
+            scarcity_bonus = 500
+        elif match_count <= 3:
+            scarcity_rate = 85.0
+            scarcity_grade = "일반 세번 (유사 품목 존재)"
+            scarcity_bonus = 200
+        else:
+            scarcity_rate = 70.0
+            scarcity_grade = "기본 세번 (다수 공개 규격)"
+            scarcity_bonus = 0
 
-    total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
-    
-    doc_type_ko = "품목분류 사전심사회시서" if req.doc_type == 'hs' else "조세심판원 심판결정문"
-    conf_txt = "비공개(미공개) " if req.is_confidential else "공식 "
-    
-    snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
+        total_points = min(3000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        doc_type_ko = "품목분류 사전심사 회시서"
+        conf_txt = "비공개 " if req.is_confidential else "공식 "
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 품목분류 DB 대조 결과 유사 매칭 {match_count}건(독창성 {scarcity_rate}%)으로 판정되었습니다. HS 품목분류는 표준 정형 세번 매핑 데이터로서 건당 ₩{total_points:,}P의 AI 학습 보조 마일리지가 합리적으로 산정되었습니다."
+    else:
+        base_points = 10000
+        confidential_bonus = 20000 if req.is_confidential else 5000
+        decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
+        
+        if match_count == 0:
+            scarcity_rate = 98.5
+            scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
+            scarcity_bonus = 10000
+        elif match_count <= 3:
+            scarcity_rate = 91.5
+            scarcity_grade = "우수 (고난이도 희귀 쟁점)"
+            scarcity_bonus = 5000
+        else:
+            scarcity_rate = 78.0
+            scarcity_grade = "양호 (실무 검증 가치 높음)"
+            scarcity_bonus = 0
+
+        total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        doc_type_ko = "조세심판원 심판결정문"
+        conf_txt = "비공개 " if req.is_confidential else "공식 "
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
 
     return {
         "appraised_points": total_points,

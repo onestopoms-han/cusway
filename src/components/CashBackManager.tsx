@@ -138,23 +138,42 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         throw new Error('Fallback to local calculation');
       }
     } catch (e) {
-      // Local fallback calculation logic
-      const basePts = 10000;
-      const confBonus = isConfidential ? 20000 : 5000;
-      const decBonus = decisionType === 'overturned' ? 15000 : 5000;
-      const total = Math.min(50000, basePts + confBonus + decBonus);
+      // Local fallback calculation logic with strict domain distinction
+      if (currentShareType === 'hs') {
+        const basePts = 500;
+        const confBonus = isConfidential ? 1000 : 300;
+        const decBonus = decisionType === 'overturned' ? 1000 : 500;
+        const total = Math.min(3000, basePts + confBonus + decBonus);
 
-      setAnalysisResult({
-        appraisedPoints: total,
-        scarcityGrade: isConfidential ? '최상급 (국내 유일 미공개 독점 판례)' : '우수 (실무 검증 가치 높음)',
-        scarcityRate: isConfidential ? 97.5 : 82.0,
-        matchedPublicCount: isConfidential ? 1 : 4,
-        basePoints: basePts,
-        confidentialBonus: confBonus,
-        decisionBonus: decBonus,
-        scarcityBonus: 0,
-        appraisalSnippet: `본 비공개 문서는 CUSWAY 9,450건 마스터 DB 대조 결과 독창성 ${isConfidential ? '97.5%' : '82.0%'}로 산정되어, 최대 ₩${total.toLocaleString()}P의 고가치 캐시백이 책정되었습니다.`
-      });
+        setAnalysisResult({
+          appraisedPoints: total,
+          scarcityGrade: isConfidential ? '신규 세번 (DB 미등재 신제품)' : '일반 세번 (표준 분류 규격)',
+          scarcityRate: isConfidential ? 92.0 : 75.0,
+          matchedPublicCount: isConfidential ? 1 : 6,
+          basePoints: basePts,
+          confidentialBonus: confBonus,
+          decisionBonus: decBonus,
+          scarcityBonus: 0,
+          appraisalSnippet: `HS 품목분류 사전심사 회시서는 표준 정형화된 세번 매핑 데이터로서, AI 학습 기여도에 맞춰 건당 ₩${total.toLocaleString()}P의 소액 실비 마일리지가 합리적으로 산정되었습니다.`
+        });
+      } else {
+        const basePts = 10000;
+        const confBonus = isConfidential ? 20000 : 5000;
+        const decBonus = decisionType === 'overturned' ? 15000 : 5000;
+        const total = Math.min(50000, basePts + confBonus + decBonus);
+
+        setAnalysisResult({
+          appraisedPoints: total,
+          scarcityGrade: isConfidential ? '최상급 (국내 유일 미공개 독점 판례)' : '우수 (실무 검증 가치 높음)',
+          scarcityRate: isConfidential ? 97.5 : 82.0,
+          matchedPublicCount: isConfidential ? 1 : 4,
+          basePoints: basePts,
+          confidentialBonus: confBonus,
+          decisionBonus: decBonus,
+          scarcityBonus: 0,
+          appraisalSnippet: `본 조세심판원/관세평가 결정문은 CUSWAY 9,450건 마스터 DB 대조 결과 독창성 ${isConfidential ? '97.5%' : '82.0%'}로 산정되어, 최대 ₩${total.toLocaleString()}P의 고가치 캐시백이 책정되었습니다.`
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -196,13 +215,13 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         setShareType('valuation');
         finalIssue = cleanName;
         setValuationIssue(cleanName);
-        setParseSuccessMsg(`⚖️ 관세평가/심판 결정문이 감지되어 사건명 "${cleanName}"이(가) 자동 입력되었습니다.`);
+        setParseSuccessMsg(`⚖️ 조세심판원/관세평가 결정문 감지: 고가치 법리 자산 (최대 50,000P 캐시백 대상)`);
       } else if (detectedHs) {
         determinedType = 'hs';
         setShareType('hs');
         finalHs = detectedHs;
         setHsCode(detectedHs);
-        setParseSuccessMsg(`📦 품목분류 결정서에서 세번 "${detectedHs}" 및 품명 "${cleanName}"이(가) 자동 추출되었습니다.`);
+        setParseSuccessMsg(`📦 품목분류 사전심사 회시서 감지: 표준 세번 매핑 (소액 실비 마일리지 대상)`);
       } else {
         if (shareType === 'hs' && !hsCode) {
           finalHs = '8517.62-6000';
@@ -211,7 +230,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           finalIssue = cleanName;
           setValuationIssue(cleanName);
         }
-        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! AI 실시간 가치 감정을 시작합니다.`);
+        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! 가치 감정을 시작합니다.`);
       }
 
       if (!itemName) {
@@ -363,12 +382,12 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 borderRadius: '20px', 
                 fontWeight: 800 
               }}>
-                업계 최초 AI Appraisal
+                실무 가치 차등 산정 모델
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>
-              관세사 및 수출입 기업이 보관 중인 <strong>비공개(미공개) 품목분류 사전심사 회시서</strong>와 <strong>조세심판원 심판결정문</strong>을 CUSWAY 9,450건 DB와 실시간 대조합니다. <br/>
-              자료의 <strong>희소성·승소 파급력·독창성</strong>에 따라 <strong>건당 최대 ₩50,000P의 현금성 캐시백</strong>을 즉시 지급해 드립니다.
+              📦 <strong>HS 품목분류 회시서</strong>: 표준 세번 매핑 정형 데이터로 <strong>건당 ₩1,000P ~ ₩3,000P</strong>의 AI 사전학습 실비 마일리지 지급 <br/>
+              ⚖️ <strong>조세심판원/관세평가 결정문</strong>: 과세처분 취소 및 경정청구 소명 논리가 담긴 초고가치 법리 자산으로 <strong>건당 최대 ₩50,000P</strong>의 프리미엄 캐시백 지급
             </p>
           </div>
 
@@ -406,6 +425,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               onClick={() => {
                 setShareType('hs');
                 setAnalysisResult(null);
+                setParseSuccessMsg(null);
               }}
               style={{
                 flex: 1,
@@ -424,13 +444,14 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 transition: 'all 0.2s ease'
               }}
             >
-              <Layers size={16} /> 📦 [품목분류] 비공개 사전심사 회시서
+              <Layers size={16} /> 📦 [품목분류] 사전심사 회시서 (1천~3천P)
             </button>
             <button
               type="button"
               onClick={() => {
                 setShareType('valuation');
                 setAnalysisResult(null);
+                setParseSuccessMsg(null);
               }}
               style={{
                 flex: 1,
@@ -449,7 +470,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 transition: 'all 0.2s ease'
               }}
             >
-              <Scale size={16} /> ⚖️ [관세평가/심판청구] 비공개 결정문
+              <Scale size={16} /> ⚖️ [조세심판/평가] 비공개 결정문 (최대 5만P)
             </button>
           </div>
 
@@ -548,21 +569,21 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               />
             </div>
 
-            {/* Confidential Check & Decision Outcome Badges */}
+            {/* Confidential Check & Decision Outcome Badges (Differentiated by shareType) */}
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
               gap: '12px',
               padding: '14px',
-              background: 'rgba(245, 158, 11, 0.04)',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
+              background: shareType === 'hs' ? 'rgba(6, 182, 212, 0.05)' : 'rgba(245, 158, 11, 0.04)',
+              border: shareType === 'hs' ? '1px solid rgba(6, 182, 212, 0.25)' : '1px solid rgba(245, 158, 11, 0.2)',
               borderRadius: '10px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Lock size={16} color="var(--accent-amber)" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
-                    비공개 결정서 프리미엄 가산 (+₩20,000P)
+                  <Lock size={16} color={shareType === 'hs' ? 'var(--accent-cyan)' : 'var(--accent-amber)'} />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: shareType === 'hs' ? 'var(--accent-cyan)' : 'var(--accent-amber)' }}>
+                    {shareType === 'hs' ? '미공개 신제품 회시서 가산 (+₩1,000P)' : '비공개 결정서 프리미엄 가산 (+₩20,000P)'}
                   </span>
                 </div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
@@ -573,7 +594,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                       setIsConfidential(e.target.checked);
                       if (fileName) triggerAppraisal();
                     }}
-                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent-amber)', cursor: 'pointer' }}
+                    style={{ width: '18px', height: '18px', accentColor: shareType === 'hs' ? 'var(--accent-cyan)' : 'var(--accent-amber)', cursor: 'pointer' }}
                   />
                   <span style={{ fontSize: '0.78rem', color: '#fff', fontWeight: 700 }}>비공개 요청 문서임</span>
                 </label>
@@ -581,14 +602,18 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
               <div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
-                  결정 결과 유형 (승소/처분취소 여부에 따른 추가 보상)
+                  결정 결과 유형 ({shareType === 'hs' ? '사전심사 적격/인용 여부' : '승소/처분취소 여부에 따른 추가 보상'})
                 </span>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-                  {[
+                  {(shareType === 'hs' ? [
+                    { id: 'approved', label: '📋 사전심사 적격 회시', bonus: '+500P' },
+                    { id: 'overturned', label: '🏆 재분류/이의신청 인용', bonus: '+1,000P' },
+                    { id: 'rejected', label: '🛡️ 보완/반려 회시', bonus: '+0P' }
+                  ] : [
                     { id: 'overturned', label: '🏆 승소 / 인용 결정', bonus: '+15,000P' },
                     { id: 'approved', label: '📋 사전심사 적격 회시', bonus: '+10,000P' },
                     { id: 'rejected', label: '🛡️ 기각 / 방어 소명서', bonus: '+5,000P' }
-                  ].map(opt => (
+                  ]).map(opt => (
                     <button
                       key={opt.id}
                       type="button"
@@ -599,9 +624,15 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                       style={{
                         padding: '8px',
                         borderRadius: '8px',
-                        border: decisionType === opt.id ? '1.5px solid var(--accent-amber)' : '1px solid var(--border-color)',
-                        background: decisionType === opt.id ? 'rgba(245, 158, 11, 0.2)' : 'rgba(0,0,0,0.3)',
-                        color: decisionType === opt.id ? 'var(--accent-amber)' : 'var(--text-muted)',
+                        border: decisionType === opt.id 
+                          ? (shareType === 'hs' ? '1.5px solid var(--accent-cyan)' : '1.5px solid var(--accent-amber)') 
+                          : '1px solid var(--border-color)',
+                        background: decisionType === opt.id 
+                          ? (shareType === 'hs' ? 'rgba(6, 182, 212, 0.2)' : 'rgba(245, 158, 11, 0.2)') 
+                          : 'rgba(0,0,0,0.3)',
+                        color: decisionType === opt.id 
+                          ? (shareType === 'hs' ? 'var(--accent-cyan)' : 'var(--accent-amber)') 
+                          : 'var(--text-muted)',
                         fontSize: '0.72rem',
                         fontWeight: 700,
                         cursor: 'pointer'
@@ -897,14 +928,18 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               style={{
                 width: '100%',
                 padding: '15px',
-                background: 'linear-gradient(135deg, var(--accent-amber) 0%, #d946ef 100%)',
+                background: shareType === 'hs' 
+                  ? 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' 
+                  : 'linear-gradient(135deg, var(--accent-amber) 0%, #d946ef 100%)',
                 border: 'none',
                 borderRadius: '10px',
-                color: '#000',
+                color: shareType === 'hs' ? '#ffffff' : '#000000',
                 fontWeight: 900,
                 cursor: 'pointer',
                 fontSize: '0.95rem',
-                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.35)',
+                boxShadow: shareType === 'hs' 
+                  ? '0 4px 15px rgba(6, 182, 212, 0.35)' 
+                  : '0 4px 15px rgba(245, 158, 11, 0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -915,7 +950,9 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               <Award size={20} />
               {analysisResult 
                 ? `감정가 ₩${analysisResult.appraisedPoints.toLocaleString()}P로 즉시 캐시백 신청 및 적립`
-                : (fileName ? `첨부된 문서 (${fileName}) 즉시 캐시백 등록 (+₩35,000P)` : `비공개 결정서 감정 신청 (건당 최대 ₩50,000P 지급)`)}
+                : (fileName 
+                    ? `첨부된 문서 (${fileName}) 즉시 캐시백 등록 (+₩${shareType === 'hs' ? '2,000' : '35,000'}P)` 
+                    : `${shareType === 'hs' ? '[품목분류] 사전심사 회시서 마일리지 신청 (최대 3,000P)' : '[조세심판/평가] 비공개 결정문 캐시백 신청 (최대 50,000P)'}`)}
             </button>
           </form>
 
@@ -962,7 +999,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 <Coins size={36} style={{ color: 'rgba(255,255,255,0.2)', marginBottom: '10px' }} />
                 <p style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 700 }}>아직 등록된 비공개 결정례가 없습니다.</p>
                 <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                  서랍 속 비공개 결정서를 등록하고 최대 50,000P 캐시백을 받아보세요!
+                  서랍 속 비공개 결정서를 등록하고 캐시백 포인트를 받아보세요!
                 </span>
               </div>
             ) : (
@@ -1043,7 +1080,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                         소명/재심사 요청
                       </button>
                     )}
-                    <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fbbf24', letterSpacing: '-0.02em' }}>
+                    <span style={{ fontSize: '1.15rem', fontWeight: 900, color: item.type === 'hs' ? '#38bdf8' : '#fbbf24', letterSpacing: '-0.02em' }}>
                       +{item.points.toLocaleString()} P
                     </span>
                   </div>
@@ -1052,21 +1089,37 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
             )}
           </div>
 
-          {/* Value Mechanism Footer Box */}
+          {/* Value Mechanism Footer Box: Detailed Legal/Practical Justification */}
           <div style={{
-            background: 'rgba(15, 23, 42, 0.75)',
+            background: 'rgba(15, 23, 42, 0.85)',
             border: '1.5px solid rgba(245, 158, 11, 0.35)',
             borderRadius: '12px',
-            padding: '16px',
+            padding: '18px',
             fontSize: '0.82rem',
             color: '#f8fafc',
             lineHeight: 1.6
           }}>
-            <div style={{ color: 'var(--accent-amber)', fontWeight: 800, marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              💡 비공개 자료 가치 책정 기준 안내
+            <div style={{ color: 'var(--accent-amber)', fontWeight: 800, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              💡 왜 HS분류 회시서와 심판결정문의 캐시백 금액이 다른가요? (산정 근거)
             </div>
-            <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.8rem', lineHeight: 1.5 }}>
-              CUSWAY AI는 관세청 공개 포털(CLIP)에 등재되지 않은 <strong>미공개 희귀 결정문 및 승소(처분 취소) 판결을 최상위 가치</strong>로 감정합니다. 적립된 캐시백 포인트는 차월 솔루션 이용료 결제 시 <strong>100% 전액 자동 차감</strong>됩니다.
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '10px' }}>
+              <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '10px', borderRadius: '8px' }}>
+                <strong style={{ color: '#38bdf8', display: 'block', marginBottom: '4px' }}>📦 HS 품목분류 회시서 (1천~3천P)</strong>
+                <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
+                  일반적 상품 규격 매핑 데이터로 대량 공개되므로, AI 사전학습 기여에 따른 <strong>소액 실비 마일리지(₩1,000~3,000P)</strong>로 산정됩니다.
+                </span>
+              </div>
+              <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '10px', borderRadius: '8px' }}>
+                <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '4px' }}>⚖️ 조세심판원/평가 결정문 (최대 5만P)</strong>
+                <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
+                  수억~수백억 대의 과세처분 취소·경정청구 소명 논리가 담긴 비공개 독점 자산으로 <strong>건당 최대 ₩50,000P</strong>의 프리미엄이 책정됩니다.
+                </span>
+              </div>
+            </div>
+
+            <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.75rem', lineHeight: 1.5 }}>
+              * 적립된 모든 캐시백 포인트는 CUSWAY 차월 솔루션 이용료 결제 시 <strong>100% 전액 자동 차감</strong>되어 현금과 동일한 혜택을 제공합니다.
             </p>
           </div>
         </div>
