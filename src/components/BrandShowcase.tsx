@@ -73,11 +73,11 @@ export default function BrandShowcase({
   const [showBasisDetail, setShowBasisDetail] = useState<boolean>(true);
 
   // Calculate cashback simulation
-  const calcBase = 10000;
-  const calcConf = simDocType === 'confidential' ? 20000 : 5000;
-  const calcDec = simDecision === 'overturned' ? 15000 : 5000;
-  const calcScarcity = simDocType === 'confidential' ? 5000 : 0;
-  const totalCashback = Math.min(50000, calcBase + calcConf + calcDec + calcScarcity);
+  const calcBase = 1500;
+  const calcConf = simDocType === 'confidential' ? 1500 : 500;
+  const calcDec = simDecision === 'overturned' ? 1000 : 500;
+  const calcScarcity = simDocType === 'confidential' ? 1000 : 0;
+  const totalCashback = Math.min(5000, calcBase + calcConf + calcDec + calcScarcity);
 
   // Realistic Customs Office ROI Calculation Model (대한민국 관세 실무 벤치마크)
   // 1. 1인당 월간 리서치 절감 시간: 8시간 (영업일 기준 일 24분 단축, 주 2시간)
@@ -294,8 +294,8 @@ export default function BrandShowcase({
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>선착순 튕김 없는 팀 협업 환경</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>최대 50,000P</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>비공개 판례 캐시백 (구독료 0원화)</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>최대 5,000P</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>비공개 판례 캐시백 (구독료 차감)</div>
             </div>
           </div>
 
@@ -717,7 +717,7 @@ export default function BrandShowcase({
                   <span style={{ color: 'var(--accent-amber)' }}>Pro 구독료(월 4.4만)를 100% 무료화</span>하세요.
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-                  CUSWAY AI 가치 감정 엔진은 관세청 공개 포털(CLIP)에 없는 미공개 희귀 결정서와 승소 판결문을 최상위 가치로 감정하여 <strong>건당 최대 ₩50,000P</strong>를 즉시 캐시백해 드립니다.
+                  CUSWAY AI 가치 감정 엔진은 관세청 공개 포털(CLIP)에 없는 미공개 결정서와 회시서를 실무 가치로 감정하여 <strong>건당 500P ~ 최대 ₩5,000P</strong>를 즉시 캐시백해 드립니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

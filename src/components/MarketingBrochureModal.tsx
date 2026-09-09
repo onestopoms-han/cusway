@@ -267,11 +267,11 @@ export default function MarketingBrochureModal({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                     <Coins size={18} color="#b45309" />
                     <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0f172a' }}>
-                      2. 비공개 판례 5만P 캐시백 거래소
+                      2. 비공개 결정례 정밀 캐시백 거래소
                     </span>
                   </div>
                   <p style={{ fontSize: '0.74rem', color: '#475569', lineHeight: 1.45, margin: 0 }}>
-                    • 서랍 속 미공개 결정서 1건 공유 시 최대 ₩50,000P 실시간 감정 지급<br />
+                    • 서랍 속 미공개 결정서 1건 공유 시 건당 500P ~ 최대 ₩5,000P 실시간 감정 지급<br />
                     • 적립 포인트로 Pro 플랜(월 4.4만 원) 100% 무료 전액 차감 이용
                   </p>
                 </div>

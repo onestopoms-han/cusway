@@ -1063,62 +1063,62 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
 
     # [실무 가치 산정 체계 차등 적용]
     if req.doc_type == 'hs':
-        # HS 품목분류 사전심사: FTA 원산지 민감도 & GRI 법리 심도 정밀 매트릭스 적용
+        # HS 품목분류 사전심사 및 비공개 회시서: 실무 마일리지 (500P ~ 2,000P, 최대 3,000P 캡)
         base_points = 500
-        confidential_bonus = 1000 if req.is_confidential else 300
-        decision_bonus = 1000 if req.decision_type in ["overturned", "승소", "인용"] else 500
+        confidential_bonus = 500 if req.is_confidential else 100
+        decision_bonus = 300 if req.decision_type in ["overturned", "승소", "인용"] else 100
         
         # FTA PSR 민감도 가산
         psr_bonus = 0
         psr_name = "일반 분류"
         if req.psr_sensitivity == "cth_sensitive":
-            psr_bonus = 2000
+            psr_bonus = 500
             psr_name = "FTA 세번변경기준(CTH/CTSH) 경합 쟁점"
         elif req.psr_sensitivity == "rvc_sensitive":
-            psr_bonus = 2500
+            psr_bonus = 700
             psr_name = "FTA 부가가치(RVC)/미소기준 연계 쟁점"
         elif req.psr_sensitivity == "origin_dispute":
-            psr_bonus = 3500
+            psr_bonus = 1000
             psr_name = "FTA 원산지 사후검증(Verification) 방어 쟁점"
 
         # GRI 통칙 및 법리 심도 가산
         gri_bonus = 0
         gri_name = "통칙 1호 표준"
         if req.gri_complexity == "gri_2":
-            gri_bonus = 1500
+            gri_bonus = 300
             gri_name = "통칙 2호 (미완성품/혼합물)"
         elif req.gri_complexity == "gri_3":
-            gri_bonus = 2500
+            gri_bonus = 500
             gri_name = "통칙 3호 (본질적 특성/세트)"
         elif req.gri_complexity == "chapter_note":
-            gri_bonus = 2000
+            gri_bonus = 400
             gri_name = "부·류 주규정 배제 조항"
 
-        # 증빙자료 패키지 가산
-        evidence_bonus = 1500 if req.has_evidence_package else 0
+        # 증빙자료 패키지 가산 (BOM/공정도)
+        evidence_bonus = 200 if req.has_evidence_package else 0
 
         # 희소성 등급
         if match_count == 0:
             scarcity_rate = 96.0
             scarcity_grade = "신규 세번 (DB 미등재 신제품/신소재)"
-            scarcity_bonus = 500
+            scarcity_bonus = 200
         elif match_count <= 3:
             scarcity_rate = 88.0
             scarcity_grade = "정밀 세번 (FTA/통칙 경합 소수 사례)"
-            scarcity_bonus = 300
+            scarcity_bonus = 100
         else:
             scarcity_rate = 72.0
             scarcity_grade = "일반 세번 (공개 포털 기등재 규격)"
             scarcity_bonus = 0
 
-        # 단순 회시는 1천~2천P, 고난도 FTA/GRI 회시는 최대 10,000P까지 정밀 차등 산정
-        total_points = min(10000, base_points + confidential_bonus + decision_bonus + psr_bonus + gri_bonus + evidence_bonus + scarcity_bonus)
+        # 합산 후 최대 3,000P 상한 캡 적용
+        total_points = min(3000, base_points + confidential_bonus + decision_bonus + psr_bonus + gri_bonus + evidence_bonus + scarcity_bonus)
         
-        doc_type_ko = "품목분류 사전심사 회시서"
+        doc_type_ko = "품목분류 사전심사 회시서/결정문"
         conf_txt = "비공개 " if req.is_confidential else "공식 "
         
         snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 정밀 심사 결과 [{psr_name} + {gri_name}{' + 원산지소명패키지' if req.has_evidence_package else ''}]로 판정되었습니다. " \
-                  f"단순 일괄 회시가 아닌 FTA 원산지결정기준(PSR) 및 GRI 통칙 법리 기여도에 따라 ₩{total_points:,}P의 정밀 캐시백이 산정되었습니다."
+                  f"FTA 원산지결정기준(PSR) 및 GRI 통칙 법리 기여도에 따라 실무 마일리지 ₩{total_points:,}P가 산정되었습니다."
         
         return {
             "appraised_points": total_points,
@@ -1132,28 +1132,28 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
             "appraisal_snippet": snippet
         }
     else:
-        # 조세심판원/관세평가 결정문: 고난도 과세처분 취소 법리 데이터 (고액 15,000P ~ 50,000P 산정)
-        base_points = 10000
-        confidential_bonus = 20000 if req.is_confidential else 5000
-        decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
+        # 조세심판원/관세평가 결정문: 고난도 과세처분 취소 법리 데이터 (현실화: 1,500P ~ 5,000P 캡)
+        base_points = 1500
+        confidential_bonus = 1500 if req.is_confidential else 500
+        decision_bonus = 1000 if req.decision_type in ["overturned", "승소", "인용"] else 500
         
         if match_count == 0:
             scarcity_rate = 98.5
             scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
-            scarcity_bonus = 10000
+            scarcity_bonus = 1000
         elif match_count <= 3:
             scarcity_rate = 91.5
             scarcity_grade = "우수 (고난이도 희귀 쟁점)"
-            scarcity_bonus = 5000
+            scarcity_bonus = 500
         else:
             scarcity_rate = 78.0
             scarcity_grade = "양호 (실무 검증 가치 높음)"
             scarcity_bonus = 0
 
-        total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        total_points = min(5000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
         doc_type_ko = "조세심판원 심판결정문"
         conf_txt = "비공개 " if req.is_confidential else "공식 "
-        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 지식 기여에 따라 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
 
         return {
             "appraised_points": total_points,
@@ -2546,133 +2546,6 @@ def get_precedents_count(db: Session = Depends(get_db)):
             "total_precedents_count": 9450
         }
 
-# --- AI Non-Public Ruling Appraisal & Cashback Exchange API ---
-class AppraisalApiRequest(BaseModel):
-    doc_type: str  # 'hs' or 'valuation'
-    item_name: str
-    identifier: str  # hs_code or issue
-    is_confidential: bool = True
-    decision_type: Optional[str] = "overturned"  # overturned (인용/승소), approved (적격), rejected (기각)
-    fta_agreement: Optional[str] = "none"
-    psr_sensitivity: Optional[str] = "standard"
-    gri_complexity: Optional[str] = "gri_1"
-    has_evidence_package: Optional[bool] = False
-
-@app.post("/api/cashback/appraise")
-def appraise_precedent_api(req: AppraisalApiRequest):
-    import sqlite3
-    target_db = "cusway.db"
-    match_count = 0
-    term = f"%{req.identifier.strip()}%"
-    try:
-        conn = sqlite3.connect(target_db)
-        cur = conn.cursor()
-        if req.doc_type == 'hs':
-            cur.execute("SELECT count(*) FROM customs_precedents WHERE hs_code LIKE ? OR product_name LIKE ?", (term, term))
-            match_count = cur.fetchone()[0]
-        else:
-            cur.execute("SELECT count(*) FROM precedents WHERE key_issue LIKE ? OR title LIKE ? OR category LIKE ?", (term, term, term))
-            match_count = cur.fetchone()[0]
-        conn.close()
-    except Exception as e:
-        match_count = 2
-
-    if req.doc_type == 'hs':
-        base_points = 500
-        confidential_bonus = 1000 if req.is_confidential else 300
-        decision_bonus = 1000 if req.decision_type in ["overturned", "승소", "인용"] else 500
-        
-        psr_bonus = 0
-        psr_name = "일반 분류"
-        if req.psr_sensitivity == "cth_sensitive":
-            psr_bonus = 2000
-            psr_name = "FTA 세번변경기준(CTH/CTSH) 경합 쟁점"
-        elif req.psr_sensitivity == "rvc_sensitive":
-            psr_bonus = 2500
-            psr_name = "FTA 부가가치(RVC)/미소기준 연계 쟁점"
-        elif req.psr_sensitivity == "origin_dispute":
-            psr_bonus = 3500
-            psr_name = "FTA 원산지 사후검증(Verification) 방어 쟁점"
-
-        gri_bonus = 0
-        gri_name = "통칙 1호 표준"
-        if req.gri_complexity == "gri_2":
-            gri_bonus = 1500
-            gri_name = "통칙 2호 (미완성품/혼합물)"
-        elif req.gri_complexity == "gri_3":
-            gri_bonus = 2500
-            gri_name = "통칙 3호 (본질적 특성/세트)"
-        elif req.gri_complexity == "chapter_note":
-            gri_bonus = 2000
-            gri_name = "부·류 주규정 배제 조항"
-
-        evidence_bonus = 1500 if req.has_evidence_package else 0
-
-        if match_count == 0:
-            scarcity_rate = 96.0
-            scarcity_grade = "신규 세번 (DB 미등재 신제품/신소재)"
-            scarcity_bonus = 500
-        elif match_count <= 3:
-            scarcity_rate = 88.0
-            scarcity_grade = "정밀 세번 (FTA/통칙 경합 소수 사례)"
-            scarcity_bonus = 300
-        else:
-            scarcity_rate = 72.0
-            scarcity_grade = "일반 세번 (공개 포털 기등재 규격)"
-            scarcity_bonus = 0
-
-        total_points = min(10000, base_points + confidential_bonus + decision_bonus + psr_bonus + gri_bonus + evidence_bonus + scarcity_bonus)
-        doc_type_ko = "품목분류 사전심사 회시서"
-        conf_txt = "비공개 " if req.is_confidential else "공식 "
-        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 정밀 심사 결과 [{psr_name} + {gri_name}{' + 원산지소명패키지' if req.has_evidence_package else ''}]로 판정되었습니다. " \
-                  f"단순 일괄 회시가 아닌 FTA 원산지결정기준(PSR) 및 GRI 통칙 법리 기여도에 따라 ₩{total_points:,}P의 정밀 캐시백이 산정되었습니다."
-
-        return {
-            "appraised_points": total_points,
-            "scarcity_grade": scarcity_grade,
-            "scarcity_rate": scarcity_rate,
-            "matched_public_count": match_count,
-            "base_points": base_points,
-            "confidential_bonus": confidential_bonus,
-            "decision_bonus": decision_bonus + psr_bonus + gri_bonus + evidence_bonus,
-            "scarcity_bonus": scarcity_bonus,
-            "appraisal_snippet": snippet
-        }
-    else:
-        base_points = 10000
-        confidential_bonus = 20000 if req.is_confidential else 5000
-        decision_bonus = 15000 if req.decision_type in ["overturned", "승소", "인용"] else 5000
-        
-        if match_count == 0:
-            scarcity_rate = 98.5
-            scarcity_grade = "최상급 (국내 유일 미공개 독점 판례)"
-            scarcity_bonus = 10000
-        elif match_count <= 3:
-            scarcity_rate = 91.5
-            scarcity_grade = "우수 (고난이도 희귀 쟁점)"
-            scarcity_bonus = 5000
-        else:
-            scarcity_rate = 78.0
-            scarcity_grade = "양호 (실무 검증 가치 높음)"
-            scarcity_bonus = 0
-
-        total_points = min(50000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
-        doc_type_ko = "조세심판원 심판결정문"
-        conf_txt = "비공개 " if req.is_confidential else "공식 "
-        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 9,450건 마스터 DB 대조 결과 유사 매칭 {match_count}건으로 독창성 {scarcity_rate}%의 최상위 실무 소명 가치를 지닙니다. 경정청구 및 세관 처분 방어 RAG 데이터로 감정가 ₩{total_points:,}P의 캐시백이 산정되었습니다."
-
-        return {
-            "appraised_points": total_points,
-            "scarcity_grade": scarcity_grade,
-            "scarcity_rate": scarcity_rate,
-            "matched_public_count": match_count,
-            "base_points": base_points,
-            "confidential_bonus": confidential_bonus,
-            "decision_bonus": decision_bonus,
-            "scarcity_bonus": scarcity_bonus,
-            "appraisal_snippet": snippet
-        }
-
 class CashbackCreateRequest(BaseModel):
     email: str
     type: str
@@ -2680,7 +2553,7 @@ class CashbackCreateRequest(BaseModel):
     hs_code_or_issue: str
     item_name: str
     file_name: str
-    points: int = 10000
+    points: int = 1000
 
 @app.post("/api/cashback/upload")
 def upload_cashback_request(req: CashbackCreateRequest):

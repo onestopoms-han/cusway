@@ -87,7 +87,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           hsCodeOrIssue: item.hs_code_or_issue || '',
           itemName: item.item_name || '',
           fileName: item.file_name || '',
-          points: item.points || 10000,
+          points: item.points || 1500,
           status: item.status || '승인 완료',
           date: item.date || new Date().toISOString().split('T')[0]
         }));
@@ -104,7 +104,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
   const totalPoints = history
     .filter(item => item.status === '승인 완료')
-    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 15000)) + localAddedPoints;
+    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 3500)) + localAddedPoints;
 
   // AI 실시간 가치 감정 실행 함수
   const triggerAppraisal = async (
@@ -160,54 +160,54 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         throw new Error('Fallback to local calculation');
       }
     } catch (e) {
-      // Local fallback calculation logic with strict domain distinction
+      // Local fallback calculation logic with strict realistic pricing (HS: 500P~2,000P max 3,000P)
       if (currentShareType === 'hs') {
         const basePts = 500;
-        const confBonus = isConfidential ? 1000 : 300;
-        const decBonus = decisionType === 'overturned' ? 1000 : 500;
+        const confBonus = isConfidential ? 500 : 100;
+        const decBonus = decisionType === 'overturned' ? 300 : 100;
         
         let psrBonus = 0;
         let psrLabel = '일반 분류';
-        if (activePsr === 'cth_sensitive') { psrBonus = 2000; psrLabel = 'FTA 세번변경(CTH/CTSH) 경합'; }
-        else if (activePsr === 'rvc_sensitive') { psrBonus = 2500; psrLabel = '부가가치기준(RVC) 쟁점'; }
-        else if (activePsr === 'origin_dispute') { psrBonus = 3500; psrLabel = 'FTA 원산지검증 방어 소명'; }
+        if (activePsr === 'cth_sensitive') { psrBonus = 500; psrLabel = 'FTA 세번변경(CTH/CTSH) 경합'; }
+        else if (activePsr === 'rvc_sensitive') { psrBonus = 700; psrLabel = '부가가치기준(RVC) 쟁점'; }
+        else if (activePsr === 'origin_dispute') { psrBonus = 1000; psrLabel = 'FTA 원산지검증 방어 소명'; }
 
         let griBonus = 0;
         let griLabel = '통칙 1호 표준';
-        if (activeGri === 'gri_2') { griBonus = 1500; griLabel = '통칙 2호 (미완성/혼합물)'; }
-        else if (activeGri === 'gri_3') { griBonus = 2500; griLabel = '통칙 3호 (본질적 특성)'; }
-        else if (activeGri === 'chapter_note') { griBonus = 2000; griLabel = '부·류 주규정 배제'; }
+        if (activeGri === 'gri_2') { griBonus = 300; griLabel = '통칙 2호 (미완성/혼합물)'; }
+        else if (activeGri === 'gri_3') { griBonus = 500; griLabel = '통칙 3호 (본질적 특성)'; }
+        else if (activeGri === 'chapter_note') { griBonus = 400; griLabel = '부·류 주규정 배제'; }
 
-        const evidenceBonus = activeEvidence ? 1500 : 0;
-        const total = Math.min(10000, basePts + confBonus + decBonus + psrBonus + griBonus + evidenceBonus);
+        const evidenceBonus = activeEvidence ? 200 : 0;
+        const total = Math.min(3000, basePts + confBonus + decBonus + psrBonus + griBonus + evidenceBonus);
 
         setAnalysisResult({
           appraisedPoints: total,
-          scarcityGrade: activePsr !== 'standard' || activeGri !== 'gri_1' ? '고난도 FTA 법리 회시 (Level 3~4)' : (isConfidential ? '신규 세번 (DB 미등재 신제품)' : '일반 세번 (표준 분류 규격)'),
-          scarcityRate: activePsr !== 'standard' ? 95.0 : (isConfidential ? 92.0 : 75.0),
+          scarcityGrade: activePsr !== 'standard' || activeGri !== 'gri_1' ? '정밀 FTA 법리 회시 (Level 2~3)' : (isConfidential ? '신규 세번 (DB 미등재 신제품)' : '일반 세번 (표준 분류 규격)'),
+          scarcityRate: activePsr !== 'standard' ? 92.0 : (isConfidential ? 88.0 : 72.0),
           matchedPublicCount: isConfidential ? 1 : 4,
           basePoints: basePts,
           confidentialBonus: confBonus,
           decisionBonus: decBonus + psrBonus + griBonus + evidenceBonus,
           scarcityBonus: 0,
-          appraisalSnippet: `본 품목분류 회시서는 CUSWAY FTA 정밀 심사 결과 [${psrLabel} + ${griLabel}${activeEvidence ? ' + 원산지증빙 완비' : ''}]로 판정되어, 정밀 가치 평가에 따라 ₩${total.toLocaleString()}P의 캐시백이 산정되었습니다.`
+          appraisalSnippet: `본 품목분류 회시/결정문은 CUSWAY 정밀 심사 결과 [${psrLabel} + ${griLabel}${activeEvidence ? ' + 원산지소명패키지' : ''}]로 판정되어, 정밀 가치 평가에 따라 ₩${total.toLocaleString()}P의 실무 마일리지가 산정되었습니다.`
         });
       } else {
-        const basePts = 10000;
-        const confBonus = isConfidential ? 20000 : 5000;
-        const decBonus = decisionType === 'overturned' ? 15000 : 5000;
-        const total = Math.min(50000, basePts + confBonus + decBonus);
+        const basePts = 1500;
+        const confBonus = isConfidential ? 1500 : 500;
+        const decBonus = decisionType === 'overturned' ? 1000 : 500;
+        const total = Math.min(5000, basePts + confBonus + decBonus);
 
         setAnalysisResult({
           appraisedPoints: total,
-          scarcityGrade: isConfidential ? '최상급 (국내 유일 미공개 독점 판례)' : '우수 (실무 검증 가치 높음)',
-          scarcityRate: isConfidential ? 97.5 : 82.0,
+          scarcityGrade: isConfidential ? '상급 (미공개 독점 판례)' : '우수 (실무 검증 가치 높음)',
+          scarcityRate: isConfidential ? 95.5 : 80.0,
           matchedPublicCount: isConfidential ? 1 : 4,
           basePoints: basePts,
           confidentialBonus: confBonus,
           decisionBonus: decBonus,
           scarcityBonus: 0,
-          appraisalSnippet: `본 조세심판원/관세평가 결정문은 CUSWAY 9,450건 마스터 DB 대조 결과 독창성 ${isConfidential ? '97.5%' : '82.0%'}로 산정되어, 최대 ₩${total.toLocaleString()}P의 고가치 캐시백이 책정되었습니다.`
+          appraisalSnippet: `본 조세심판원/관세평가 결정문은 CUSWAY 9,450건 마스터 DB 대조 결과 독창성 ${isConfidential ? '95.5%' : '80.0%'}로 산정되어, 최대 ₩${total.toLocaleString()}P의 캐시백이 책정되었습니다.`
         });
       }
     } finally {
@@ -238,10 +238,13 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         }
       }
 
-      // 2. 심판/평가 키워드 감지 (조심, 국심, 이전가격, 로열티, 특수관계, 과세가격 등)
-      const isValuationDoc = /조심|국심|심판|평가|로열티|이전가격|특수관계|가산세|생산지원/i.test(file.name);
+      // 2. HS 품목분류 키워드 감지 (품목분류, 사전심사, 회시, 세번, HSK, 관세율, 분류결정, 규격, 성분, FTA, PSR, CTH 등)
+      const isHsDoc = /품목분류|사전심사|회시|세번|hsk?|관세율|분류결정|성분|규격|fta|psr|cth|품목/i.test(file.name);
+
+      // 3. 조세심판/관세평가 키워드 감지 (품목분류가 아닌 순수 조세불복/과세평가)
+      const isValuationDoc = !isHsDoc && /조세심판|국세심판|관세평가|이전가격|로열티|특수관계|과세가격|가산세|생산지원|처분취소/i.test(file.name);
       
-      // 3. FTA PSR 및 고난도 법리 키워드 감지
+      // 4. FTA PSR 및 고난도 법리 키워드 감지
       const isFtaCth = /fta|원산지|cth|ctsh|psr|세번변경|부가가치|rvc/i.test(file.name);
       const isGriComplex = /통칙|본질|세트|주규정|혼합|가공/i.test(file.name);
       const isEvidence = /bom|소명|의견서|공정도|사양/i.test(file.name);
@@ -260,8 +263,8 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         setShareType('valuation');
         finalIssue = cleanName;
         setValuationIssue(cleanName);
-        setParseSuccessMsg(`⚖️ 조세심판원/관세평가 결정문 감지: 고가치 법리 자산 (최대 50,000P 대상)`);
-      } else if (detectedHs || isFtaCth) {
+        setParseSuccessMsg(`⚖️ 조세심판원/관세평가 결정문 감지: 법리 지식 자산 (최대 5,000P 대상)`);
+      } else if (isHsDoc || detectedHs || isFtaCth) {
         determinedType = 'hs';
         setShareType('hs');
         if (detectedHs) {
@@ -280,7 +283,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           detectedEvidence = true;
           setHasEvidencePackage(true);
         }
-        setParseSuccessMsg(`📦 FTA 품목분류 회시서 감지: ${isFtaCth ? 'FTA 세번변경(CTH) 경합' : '정형 세번'} 정밀 심사 가동`);
+        setParseSuccessMsg(`📦 품목분류 회시/결정서 감지: ${isFtaCth ? 'FTA 세번변경(CTH) 경합' : '정형 세번'} 정밀 심사 가동 (500P~2,000P)`);
       } else {
         if (shareType === 'hs' && !hsCode) {
           finalHs = '8517.62-6000';
@@ -289,7 +292,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
           finalIssue = cleanName;
           setValuationIssue(cleanName);
         }
-        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! FTA 정밀 가치 감정을 시작합니다.`);
+        setParseSuccessMsg(`📄 문서 파일 "${file.name}" 분석 완료! 정밀 가치 감정을 시작합니다.`);
       }
 
       if (!itemName) {
@@ -445,8 +448,8 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6 }}>
-              📦 <strong>HS 품목분류 회시서</strong>: 표준 세번 매핑 정형 데이터로 <strong>건당 ₩1,000P ~ ₩3,000P</strong>의 AI 사전학습 실비 마일리지 지급 <br/>
-              ⚖️ <strong>조세심판원/관세평가 결정문</strong>: 과세처분 취소 및 경정청구 소명 논리가 담긴 초고가치 법리 자산으로 <strong>건당 최대 ₩50,000P</strong>의 프리미엄 캐시백 지급
+              📦 <strong>HS 품목분류 회시·사전심사서</strong>: 표준 세번 매핑 정형 데이터로 <strong>건당 ₩500P ~ ₩2,000P (최대 ₩3,000P)</strong>의 실무 마일리지 지급 <br/>
+              ⚖️ <strong>조세심판원/관세평가 심판결정문</strong>: 과세처분 취소 소명 논리가 담긴 법리 자산으로 <strong>건당 ₩2,000P ~ ₩5,000P (최대 ₩5,000P)</strong>의 캐시백 지급
             </p>
           </div>
 
@@ -503,7 +506,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 transition: 'all 0.2s ease'
               }}
             >
-              <Layers size={16} /> 📦 [품목분류] 사전심사 회시서 (1천~3천P)
+              <Layers size={16} /> 📦 [품목분류] 사전심사·회시서 (500~2,000P)
             </button>
             <button
               type="button"
@@ -529,7 +532,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                 transition: 'all 0.2s ease'
               }}
             >
-              <Scale size={16} /> ⚖️ [조세심판/평가] 비공개 결정문 (최대 5만P)
+              <Scale size={16} /> ⚖️ [조세심판/평가] 비공개 심판문 (최대 5,000P)
             </button>
           </div>
 
@@ -1186,8 +1189,8 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               {analysisResult 
                 ? `감정가 ₩${analysisResult.appraisedPoints.toLocaleString()}P로 즉시 캐시백 신청 및 적립`
                 : (fileName 
-                    ? `첨부된 문서 (${fileName}) 즉시 캐시백 등록 (+₩${shareType === 'hs' ? '2,000' : '35,000'}P)` 
-                    : `${shareType === 'hs' ? '[품목분류] 사전심사 회시서 마일리지 신청 (최대 3,000P)' : '[조세심판/평가] 비공개 결정문 캐시백 신청 (최대 50,000P)'}`)}
+                    ? `첨부된 문서 (${fileName}) 즉시 등록 (+₩${shareType === 'hs' ? '1,500' : '3,500'}P)` 
+                    : `${shareType === 'hs' ? '[품목분류] 사전심사·회시서 마일리지 신청 (최대 3,000P)' : '[조세심판/평가] 비공개 심판문 캐시백 신청 (최대 5,000P)'}`)}
             </button>
           </form>
 
@@ -1340,15 +1343,15 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '10px' }}>
               <div style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '10px', borderRadius: '8px' }}>
-                <strong style={{ color: '#38bdf8', display: 'block', marginBottom: '4px' }}>📦 HS 품목분류 회시서 (1천~3천P)</strong>
+                <strong style={{ color: '#38bdf8', display: 'block', marginBottom: '4px' }}>📦 HS 품목분류 회시·결정서 (500~2,000P)</strong>
                 <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
-                  일반적 상품 규격 매핑 데이터로 대량 공개되므로, AI 사전학습 기여에 따른 <strong>소액 실비 마일리지(₩1,000~3,000P)</strong>로 산정됩니다.
+                  일반적 상품 규격 매핑 데이터로 대량 생성되므로, AI 사전학습 기여에 따른 <strong>실무 마일리지(₩500~2,000P, 최대 3,000P)</strong>로 산정됩니다.
                 </span>
               </div>
               <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '10px', borderRadius: '8px' }}>
-                <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '4px' }}>⚖️ 조세심판원/평가 결정문 (최대 5만P)</strong>
+                <strong style={{ color: '#fbbf24', display: 'block', marginBottom: '4px' }}>⚖️ 조세심판원/평가 결정문 (2,000~5,000P)</strong>
                 <span style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
-                  수억~수백억 대의 과세처분 취소·경정청구 소명 논리가 담긴 비공개 독점 자산으로 <strong>건당 최대 ₩50,000P</strong>의 프리미엄이 책정됩니다.
+                  과세처분 취소 및 경정청구 소명 논리가 담긴 비공개 판례 자산으로 <strong>건당 최대 ₩5,000P</strong>의 캐시백이 책정됩니다.
                 </span>
               </div>
             </div>
