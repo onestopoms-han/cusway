@@ -17,7 +17,8 @@ import {
   RefreshCw,
   ExternalLink,
   Share2,
-  Settings
+  Settings,
+  Printer
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
 import CustomsReportModal from './CustomsReportModal';
@@ -490,14 +491,53 @@ export default function ClearanceWizard({
               품목 분류부터 타법령 행정절차까지 유기적으로 흐르는 4단계 원스톱 심사 가이드
             </p>
           </div>
-          {confirmedData && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '6px 12px', borderRadius: '6px' }}>
-              <ShieldCheck size={16} color="#10b981" />
-              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981' }}>
-                {confirmedData.confirmation_id}
-              </span>
-            </div>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {confirmedData && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '6px 12px', borderRadius: '6px' }}>
+                <ShieldCheck size={16} color="#10b981" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#10b981' }}>
+                  {confirmedData.confirmation_id}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={() => setShowOfficeBrandingModal(true)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: '1px solid #475569',
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: '#e2e8f0',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              <Settings size={13} /> 직인/레터헤드
+            </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+                color: '#000',
+                fontSize: '0.78rem',
+                fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(6, 182, 212, 0.3)'
+              }}
+            >
+              <FileText size={14} /> 📑 정식 공문서(소명의견서) 발급
+            </button>
+          </div>
         </div>
 
         {/* Custom Stepper */}
@@ -1515,50 +1555,54 @@ export default function ClearanceWizard({
                 />
 
                 {/* Final PDF Report Download Section */}
-                {confirmedData && (
-                  <div style={{ 
-                    marginTop: '20px', 
-                    padding: '16px', 
-                    background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%)',
-                    border: '1px solid rgba(6, 182, 212, 0.3)',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    justifyContent: 'space-between',
-                    alignItems: isMobile ? 'stretch' : 'center',
-                    gap: '12px'
-                  }}>
-                    <div>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-primary)' }}>
-                        수입통관 종합 보고서 (Customs Clearance Analysis Report)
+                <div style={{ 
+                  marginTop: '20px', 
+                  padding: '20px', 
+                  background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(59, 130, 246, 0.08) 100%)',
+                  border: '1.5px solid rgba(6, 182, 212, 0.4)',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  justifyContent: 'space-between',
+                  alignItems: isMobile ? 'stretch' : 'center',
+                  gap: '16px'
+                }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <FileText size={18} color="var(--accent-cyan)" />
+                      <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc' }}>
+                        관세법인 정식 공문서(수입통관 심사 종합검토의견서) 발급
                       </span>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        1~4단계 확정 정보 및 소관 법령 구비 서류 가이드를 포함하는 공식 검토서
-                      </p>
                     </div>
+                    <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '4px', lineHeight: 1.5 }}>
+                      1~4단계 품목분류·협정세율·세관장확인요건·원산지표시 지침 및 관세사 직인이 날인된 정식 A4 공문 양식
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <button 
-                      onClick={handlePdfPrint}
+                      onClick={() => setShowReportModal(true)}
                       style={{ 
                         display: 'inline-flex', 
                         alignItems: 'center', 
                         justifyContent: 'center',
                         gap: '6px', 
-                        padding: '10px 16px', 
-                        background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)', 
+                        padding: '11px 18px', 
+                        background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)', 
                         borderRadius: '6px', 
                         color: '#000', 
-                        fontWeight: 700, 
+                        fontWeight: 900, 
                         border: 'none',
                         cursor: 'pointer',
-                        fontSize: '0.85rem'
+                        fontSize: '0.85rem',
+                        boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)'
                       }}
                     >
-                      <FileDown size={16} /> 분석서 PDF 저장/출력
+                      <Printer size={16} /> 📑 정식 공문서(소명의견서) 인쇄 / PDF 발급
                     </button>
                     <button
                       onClick={() => setShowShareModal(true)}
                       style={{
-                        padding: '8px 16px',
+                        padding: '10px 16px',
                         borderRadius: '6px',
                         border: 'none',
                         background: '#FEE500',
@@ -1571,35 +1615,36 @@ export default function ClearanceWizard({
                         fontSize: '0.85rem'
                       }}
                     >
-                      <Share2 size={16} /> 카톡/이메일 전송
+                      <Share2 size={16} /> 카톡 전송
                     </button>
                   </div>
-                )}
+                </div>
 
                 <div className="no-print" style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                   <button 
-                    onClick={() => setCurrentStep(2)}
+                    onClick={() => setCurrentStep(3)}
                     className="btn-secondary"
-                    style={{ flex: 1, padding: '10px', fontSize: '0.85rem' }}
+                    style={{ flex: 1, padding: '12px', fontSize: '0.85rem' }}
                   >
-                    이전 단계 (세율 변경)
+                    이전 단계 (3단계 통합공고)
                   </button>
                   <button 
                     onClick={() => {
-                      alert('종합 분석이 확정 완료되었습니다. 수입 신고서 초안 작성을 시작할 수 있습니다.');
+                      setShowReportModal(true);
                     }}
                     className="btn-primary"
                     style={{ 
                       flex: 1, 
-                      padding: '10px', 
-                      fontSize: '0.85rem',
+                      padding: '12px', 
+                      fontSize: '0.88rem',
                       background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
                       border: 'none',
                       color: '#000',
-                      fontWeight: 700
+                      fontWeight: 900,
+                      boxShadow: '0 4px 12px rgba(20, 184, 166, 0.3)'
                     }}
                   >
-                    종합 검토서 완료 승인
+                    🏛️ 통관 파이프라인 심사 완료 승인 & 공문서 발급
                   </button>
                 </div>
               </div>
@@ -1789,47 +1834,53 @@ export default function ClearanceWizard({
         )}
 
         {/* Customs Official Report Modal */}
-        {showReportModal && (
-          <CustomsReportModal
-            isOpen={showReportModal}
-            onClose={() => setShowReportModal(false)}
-            currentUser={currentUser}
-            onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
-            reportData={{
-              type: 'clearance-pipeline',
-              title: `[수입통관 심사 파이프라인 종합검토서] ${keyword || initialKeyword || '수입 대상 품목'}`,
-              targetItem: {
-                productName: keyword || initialKeyword || '수입 대상 품목',
-                hsCode: confirmedData?.confirmed_code || hsCode || '0000.00-0000',
-                material: confirmedData?.master_info?.korean_name || confirmedData?.korean_name || initialMaterial || '규격 및 성분 배합비 기준',
-                functionUse: initialFunction || '수입신고 용도',
-                originCountry: originCountry || '수입 거래 체약국'
-              },
-              rates: {
-                baseRate: ratesData?.rates?.base_rate !== undefined ? `${ratesData.rates.base_rate}%` : '8.0%',
-                recommendedRate: ratesData?.rates?.recommended_rate !== undefined ? `${ratesData.rates.recommended_rate}%` : '0.0%',
-                ftaName: ratesData?.rates?.fta_name || 'FTA 특혜'
-              },
-              requirements: guideData?.requirements?.map((req: any) => `[${req.law_name || req.law || '통합공고'}] ${req.agency_name || req.agency || '관할기관'}: ${req.description || req.procedure || req.condition || '요건확인필'}`) || [
-                '[수입식품안전관리 특별법] 식품의약품안전처: 수입식품등의 수입신고확인증 구비',
-                '[관세법 제226조] 관세청 세관장확인품목 고시: 수입신고 시 구비서류 일체 대조'
-              ],
-              legalBasis: {
-                generalRule: '관세법 제226조 세관장확인고시 및 FTA 원산지관리 규정',
-                rationaleSummary: `원산지 결정기준: ${ratesData?.rates?.origin_criteria || '완제품 세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)'}\n\n[통관 심사 요건] 통합공고 및 세관장확인 대상 법령에 의거 수입신고 전 주무관청 요건 승인 절차를 완료해야 합니다.`,
-                wcoNoteSnippet: '통관 전 수입요건 구비 및 필수 선적서류(Commercial Invoice, Packing List, B/L, C/O, 요건승인서) 일괄 대조 심사 완료'
-              },
-              customMemo: `■ 필수 선적/통관 구비서류:\n${(guideData?.requirements?.flatMap((r: any) => r.guide?.documents || [])?.length > 0
-                ? Array.from(new Set(guideData.requirements.flatMap((r: any) => r.guide?.documents || [])))
-                : [
-                  '1. Commercial Invoice (상업송장) & Packing List (포장명세서)',
-                  '2. B/L (선하증권) 또는 AWB (항공화물운송장)',
-                  '3. 원산지증명서 (C/O) - 협정관세 특혜세율 적용 신청용',
-                  '4. 세관장확인 대상 수입요건 구비 확인서 및 검사합격증명서'
-                ]).join('\n')}`
-            }}
-          />
-        )}
+        {showReportModal && (() => {
+          const sim = computeSimulation();
+          const cleanHsCode = confirmedData?.confirmed_code || hsCode || '0000.00-0000';
+          const originInfo = originCountries.find(c => c.code === originCountry)?.name || originCountry;
+          
+          return (
+            <CustomsReportModal
+              isOpen={showReportModal}
+              onClose={() => setShowReportModal(false)}
+              currentUser={currentUser}
+              onOpenBrandingSettings={() => setShowOfficeBrandingModal(true)}
+              reportData={{
+                type: 'clearance-pipeline',
+                title: `[수입통관 심사 파이프라인 종합검토서] ${keyword || initialKeyword || '수입 대상 품목'}`,
+                targetItem: {
+                  productName: keyword || initialKeyword || '수입 대상 품목',
+                  hsCode: cleanHsCode,
+                  material: confirmedData?.master_info?.korean_name || confirmedData?.korean_name || initialMaterial || '규격 및 성분 배합비 기준',
+                  functionUse: initialFunction || '수입신고 용도',
+                  originCountry: originInfo
+                },
+                rates: {
+                  baseRate: ratesData?.rates?.base_rate !== undefined ? `${ratesData.rates.base_rate}%` : '8.0%',
+                  recommendedRate: sim?.appliedRate !== undefined ? `${sim.appliedRate}%` : (ratesData?.rates?.recommended_rate !== undefined ? `${ratesData.rates.recommended_rate}%` : '0.0%'),
+                  ftaName: sim?.appliedBasis || ratesData?.rates?.fta_name || 'FTA 특혜'
+                },
+                requirements: guideData?.requirements?.map((req: any) => `[${req.law_name || req.law || '통합공고'}] ${req.agency_name || req.agency || '관할기관'}: ${req.description || req.procedure || req.condition || '요건확인필'}`) || [
+                  '[수입식품안전관리 특별법] 식품의약품안전처: 수입식품등의 수입신고확인증 구비',
+                  '[관세법 제226조] 관세청 세관장확인품목 고시: 수입신고 시 구비서류 일체 대조'
+                ],
+                legalBasis: {
+                  generalRule: '관세율표 해석에 관한 일반통칙 제1호 및 제6호 (HSK 10단위 세번확정)',
+                  rationaleSummary: `■ 품목분류 및 세율 적용 근거:\n1. 본 물품은 수입통관 1단계 심사에 의거 HSK ${cleanHsCode}호로 최종 확정 승인되었습니다.\n2. 적용 세율: ${sim?.appliedBasis || '기본세율'} ${sim?.appliedRate || 8}%\n3. 예상 세액: 관세 ${sim ? sim.finalDuty.toLocaleString() : '0'}원 + 부가세 ${sim ? sim.vatEstimated.toLocaleString() : '0'}원 = 총 세액 ${sim ? sim.totalTaxEstimated.toLocaleString() : '0'}원 (과세가격 ${sim ? simCifPrice.toLocaleString() : '0'}원 기준)\n4. 원산지 결정기준: ${ratesData?.rates?.origin_criteria || '세번변경기준(CTH) 충족 요망 (원산지증명서 구비 필수)'}`,
+                  wcoNoteSnippet: '통관 전 수입요건 구비 및 필수 선적서류(Commercial Invoice, Packing List, B/L, C/O, 요건승인서) 일괄 대조 심사 완료'
+                },
+                customMemo: `■ 관세사 종합 검토의견:\n본 물품(HSK ${cleanHsCode})은 관세법 제226조 세관장확인 및 대외무역법 통합공고 요건 심사를 완료하였으며, 적법한 원산지증명서(C/O) 및 한글표시사항을 구비하여 수입신고를 진행하시기 바랍니다.\n\n📋 필수 선적/통관 구비서류:\n${(guideData?.requirements?.flatMap((r: any) => r.guide?.documents || [])?.length > 0
+                  ? Array.from(new Set(guideData.requirements.flatMap((r: any) => r.guide?.documents || [])))
+                  : [
+                    '1. Commercial Invoice (상업송장) & Packing List (포장명세서)',
+                    '2. B/L (선하증권) 또는 AWB (항공화물운송장)',
+                    '3. 원산지증명서 (C/O) - 협정관세 특혜세율 적용 신청용',
+                    '4. 세관장확인 대상 수입요건 구비 확인서 및 검사합격증명서'
+                  ]).join('\n')}`
+              }}
+            />
+          );
+        })()}
 
         {/* Office Letterhead & Stamp Branding Settings Modal */}
         {showOfficeBrandingModal && (
