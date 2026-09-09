@@ -878,8 +878,52 @@ export default function CustomsReportModal({
                   <div style={{ fontWeight: 900, color: '#0369a1', fontSize: '0.84rem', marginBottom: '3px' }}>
                     공식 품목분류 소명의견서 [종합 요약본]
                   </div>
-                  <div>문서번호: <strong style={{ color: '#0f172a' }}>{docNumber}</strong></div>
-                  <div>발행일자: <strong style={{ color: '#0f172a' }}>{issueDate}</strong></div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', margin: '2px 0' }}>
+                    <span>문서번호:</span>
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={docNumber}
+                        onChange={(e) => setDocNumber(e.target.value)}
+                        placeholder="예: DOC-2026-1049"
+                        style={{
+                          width: '150px',
+                          padding: '1px 6px',
+                          border: '1px solid #0284c7',
+                          borderRadius: '3px',
+                          fontSize: '0.72rem',
+                          fontWeight: 800,
+                          color: '#0f172a',
+                          textAlign: 'right'
+                        }}
+                      />
+                    ) : (
+                      <strong style={{ color: '#0f172a' }}>{docNumber}</strong>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', margin: '2px 0' }}>
+                    <span>발행일자:</span>
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={issueDate}
+                        onChange={(e) => setIssueDate(e.target.value)}
+                        placeholder="2026. 09. 09."
+                        style={{
+                          width: '110px',
+                          padding: '1px 6px',
+                          border: '1px solid #0284c7',
+                          borderRadius: '3px',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          textAlign: 'right'
+                        }}
+                      />
+                    ) : (
+                      <strong style={{ color: '#0f172a' }}>{issueDate}</strong>
+                    )}
+                  </div>
                 </div>
               </div>
 
