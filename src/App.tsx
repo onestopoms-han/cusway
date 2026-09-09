@@ -260,12 +260,41 @@ export default function App() {
     e.preventDefault();
     setLoginError('');
 
-    // 1. 브라우저 로컬 저장소 우선 확인 (서버리스 인스턴스 초기화 대비 세이프 가드)
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    // 1. 관리자 마스터 비밀번호 세트 사전 체크
+    const ADMIN_PASSWORDS = ["pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"];
+    if (cleanEmail === 'admin@cusway.kr' || cleanEmail === 'admin@pjhcustoms.com') {
+      if (ADMIN_PASSWORDS.includes(cleanPassword)) {
+        const adminProfile = {
+          email: 'admin@cusway.kr',
+          company_name: 'CUSWAY 총괄 관리자',
+          plan: 'Business',
+          status: 'Active',
+          accrued_points: 50000,
+          join_date: '2026-08-01',
+          user_type: 'broker',
+          years_of_experience: 20,
+          credibility_weight: 3.0,
+          phone_number: '010-0000-0000',
+          is_admin: true
+        };
+        setCurrentUser(adminProfile);
+        setIsLoggedIn(true);
+        localStorage.setItem('cusway_current_user', JSON.stringify(adminProfile));
+        console.log('총괄 관리자 로그인 성공 (Master Pass Verified)');
+        return;
+      }
+    }
+
+    // 2. 브라우저 로컬 저장소 확인
     const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
-    const matchedLocal = localUsers.find((u: any) => u.email === email && u.password === password);
+    const matchedLocal = localUsers.find((u: any) => u.email.toLowerCase() === cleanEmail && u.password === cleanPassword);
     if (matchedLocal) {
       setCurrentUser(matchedLocal.profile);
       setIsLoggedIn(true);
+      localStorage.setItem('cusway_current_user', JSON.stringify(matchedLocal.profile));
       console.log('로컬 저장소 매칭 로그인 성공:', matchedLocal.profile);
       return;
     }
@@ -276,13 +305,14 @@ export default function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email: cleanEmail, password: cleanPassword })
       });
 
       if (response.ok) {
         const data = await response.json();
         setCurrentUser(data);
         setIsLoggedIn(true);
+        localStorage.setItem('cusway_current_user', JSON.stringify(data));
         console.log('API 로그인 성공:', data);
       } else {
         const errData = await response.json();
@@ -892,6 +922,33 @@ export default function App() {
                   >
                     로그인
                   </button>
+
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2px' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('admin@cusway.kr');
+                        setPassword('pjhcustoms2026!');
+                        setLoginError('');
+                      }}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        color: 'var(--accent-primary)',
+                        fontSize: '0.78rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      👑 총괄 관리자 계정 자동 입력
+                    </button>
+                  </div>
                 </form>
 
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
