@@ -27,7 +27,6 @@ import CustomsReportModal, { ReportData } from './CustomsReportModal';
 import OfficeBrandingModal from './OfficeBrandingModal';
 import OriginMarkingGuideWidget from './OriginMarkingGuideWidget';
 import InvoiceParserModal, { ParsedInvoiceData } from './InvoiceParserModal';
-import DutySavingsCalculator from './DutySavingsCalculator';
 
 export interface SearchHistoryItem {
   id: string;
@@ -2375,18 +2374,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 </div>
               )}
 
-              {/* Duty Savings & Estimated Tariff Calculator Widget */}
-              {matchedRule.recommendedHsCode !== "0000.00-0000" && (
-                <div style={{ marginTop: '16px' }}>
-                  <DutySavingsCalculator
-                    hsCode={matchedRule.recommendedHsCode}
-                    productName={productName || matchedRule?.keywordTrigger?.[0] || '대상 물품'}
-                    originCountry={originCountryState}
-                    initialCifAmount={cifAmountState}
-                    initialCurrency={currencyState}
-                  />
-                </div>
-              )}
+
 
               {/* 경합 세번 및 법적 쟁점 비교 섹션 */}
               {matchedRule.competingHsCodes && matchedRule.competingHsCodes.length > 0 && (

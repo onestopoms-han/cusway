@@ -325,7 +325,7 @@ export default function BrandShowcase({
           flexWrap: 'wrap'
         }}>
           {[
-            { id: 'invoice-calc', label: '📄 영문 인보이스/PDF 스마트 추출 & 1초 관세 계산기', badge: '신규 탑재 🚀' },
+            { id: 'invoice-calc', label: '📦 WCO 해설서 기반 AI 품목분류 & 법리 소명', badge: '핵심 엔진 🚀' },
             { id: 'branding', label: '🖨️ 관세사 맞춤 A4 의견서 & Co-Branding', badge: '화주 바이럴 1위' },
             { id: 'cashback', label: '💰 비공개 결정례 AI 가치 감정 & 캐시백', badge: '구독료 0원화' },
             { id: 'pipeline', label: '⚡ 4단계 원스톱 수입통관 파이프라인', badge: '요건/FTA 일괄' },
@@ -374,32 +374,32 @@ export default function BrandShowcase({
           boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)'
         }}>
 
-          {/* TAB 0: Commercial Invoice / PDF Smart Extractor & Duty Savings Calculator */}
+          {/* TAB 0: AI HS Code Classification & Legal Evidence Matching */}
           {activeTab === 'invoice-calc' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Zap size={18} color="var(--accent-cyan)" />
                   <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
-                    COMMERCIAL INVOICE PARSER & TARIFF SAVINGS CALCULATOR
+                    AI HS CODE CLASSIFICATION & LEGAL EVIDENCE MATCHING
                   </span>
                 </div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
-                  영문 송장 사진과 PDF 사양서를 올리면<br />
-                  <span style={{ color: 'var(--accent-cyan)' }}>10단위 HSK 매핑과 관세 절감액</span>이 즉시 나옵니다.
+                  물품의 규격·용도·성분을 입력하면<br />
+                  <span style={{ color: 'var(--accent-cyan)' }}>WCO 해설서 기반 10단위 HSK 매핑과 법리 근거</span>가 즉시 도출됩니다.
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-                  실무에서 수취하는 <strong>상업송장(Commercial Invoice) 사진(JPG/PNG), PDF 기술사양서, 또는 영문 텍스트</strong>를 입력하면, AI가 WCO 영문 해설서와 한국 관세청 10단위 HSK 마스터를 1:1 이중 앵커링하여 정확한 세번과 실시간 절감 세액을 1초 만에 도출합니다.
+                  수입신고 대상 물품의 <strong>품명, 가공상태, 용도 및 재질 규격</strong>을 입력하면, AI가 WCO 관세율표 해설서와 한국 관세청 10단위 HSK 마스터 DB를 1:1 정밀 대조하여 통칙(GRI)과 주규정에 입각한 가장 정확한 품목분류 및 소명 리포트를 즉시 도출합니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>영문 인보이스 1초 스마트 파싱:</strong> 거래품명(Description), 원재료, 규격, CIF 금액 자동 추출</span>
+                    <span><strong>10단위 HSK 정밀 분류:</strong> 관세율표 통칙 1~6호 및 부·류 주규정 기반 최적 세번 추천</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>실시간 관세 절감액(Duty Savings) 계산:</strong> 기본세율 vs 최적 FTA/TRQ 세액 및 절감액 1초 비교</span>
+                    <span><strong>WCO 해설서 & 법령 근거 1:1 매칭:</strong> 소호 해설 및 관세청 기분류 결정례 실시간 연동</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
@@ -407,7 +407,7 @@ export default function BrandShowcase({
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>전문가 소명 팔레트:</strong> 통칙 1호, 본질적 특성, C/O 구비 요건 문구 1클릭 삽입</span>
+                    <span><strong>전문가 소명 팔레트:</strong> 통칙 1호, 본질적 특성, 소명 법리 문구 1클릭 삽입</span>
                   </div>
                 </div>
 
@@ -429,12 +429,12 @@ export default function BrandShowcase({
                       boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)'
                     }}
                   >
-                    <Sparkles size={15} /> 인보이스 추출기 & HS 분류기 체험하기
+                    <Sparkles size={15} /> AI 품목분류 & 법리 소명 체험하기
                   </button>
                 </div>
               </div>
 
-              {/* Interactive Invoice & Tariff Savings Mockup */}
+              {/* Interactive HS Classification & Legal Note Mockup */}
               <div style={{
                 background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.02) 0%, rgba(6, 182, 212, 0.06) 100%)',
                 border: '1.5px solid rgba(6, 182, 212, 0.3)',
@@ -447,49 +447,54 @@ export default function BrandShowcase({
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
                   <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                    📄 인보이스 영문 파싱 ➔ HSK 10단위 & 관세 절감 실시간 연동
+                    📦 AI 품목분류 판정 ➔ WCO 해설서 & 법리 근거 대조
                   </span>
                   <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>
                     AI Live Demo
                   </span>
                 </div>
 
-                {/* Simulated Invoice Card */}
+                {/* Simulated Input Spec Card */}
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.75rem' }}>
-                  <div style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>INVOICE COMMODITY (영문 송장 원문)</div>
+                  <div style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>INPUT SPECIFICATION (수입물품 규격 및 용도)</div>
                   <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
-                    PMSM Brushless Synchronous Servo Motor 3.0kW (400V, 3000 RPM)
+                    산업용 로봇 관절 구동용 영구자석 동기모터 (PMSM 3.0kW, 400V, 3000 RPM)
                   </div>
                   <div style={{ color: '#64748b', fontSize: '0.7rem', marginTop: '2px' }}>
-                    Origin: Germany (DE) | Amount: USD 9,200.00 CIF
+                    재질: 알루미늄 하우징, 동 권선, 네오디뮴 영구자석 | 기능: 정밀 각도 제어
                   </div>
                 </div>
 
-                {/* Resulting HSK & Tariff Breakdown */}
+                {/* Resulting HSK & Legal Evidence Breakdown */}
                 <div style={{ background: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>매핑 확정 세번:</span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 900, color: '#0284c7' }}>HSK 8501.52-9000</span>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>최종 확정 10단위 세번:</span>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0284c7' }}>HSK 8501.52-9000</span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', background: '#f8fafc', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: '#f8fafc', padding: '8px', borderRadius: '6px' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>기본세율 (8%)</div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#dc2626' }}>₩993,600</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>4단위 호의 용어 (Heading)</div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>8501 (전동기와 발전기)</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>한-EU FTA (0%)</div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669' }}>₩0</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>6단위 소호 (Subheading)</div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>8501.52 (출력 750W초과 75kW이하)</div>
                     </div>
-                    <div style={{ background: 'rgba(5, 150, 105, 0.1)', borderRadius: '4px', padding: '2px' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#059669', fontWeight: 700 }}>순 절감 관세</div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 900, color: '#059669' }}>₩993,600</div>
+                  </div>
+
+                  <div style={{ background: 'rgba(6, 182, 212, 0.08)', borderRadius: '6px', padding: '8px', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0891b2', marginBottom: '2px' }}>
+                      ⚖️ WCO 해설서 및 통칙(GRI 1호) 법리 소명
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#334155', lineHeight: 1.4 }}>
+                      관세율표 해석에 관한 통칙 제1호에 의거, 호의 용어(출력 3kW 다상교류전동기) 및 제16부 주규정에 따라 제8501.52-9000호로 최종 분류함.
                     </div>
                   </div>
                 </div>
 
-                <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, textAlign: 'right' }}>
-                  * 원산지증명서(C/O) 구비 시 100% 관세 전액 면제 혜택
+                <div style={{ fontSize: '0.72rem', color: '#0891b2', fontWeight: 700, textAlign: 'right' }}>
+                  ✓ WCO 해설서 원문 인용 및 관세청 기분류 결정례 1:1 매칭 완료
                 </div>
               </div>
             </div>
