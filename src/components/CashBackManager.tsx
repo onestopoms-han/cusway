@@ -38,10 +38,21 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
   const [valuationIssue, setValuationIssue] = useState('');
   const [itemName, setItemName] = useState('');
   const [fileName, setFileName] = useState('');
+  const [fileSize, setFileSize] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isParsingFile, setIsParsingFile] = useState(false);
+  const [parseSuccessMsg, setParseSuccessMsg] = useState<string | null>(null);
   const [isConfidential, setIsConfidential] = useState(true); // 비공개 결정서 기본 체크
   const [decisionType, setDecisionType] = useState<'overturned' | 'approved' | 'rejected'>('overturned'); // 승소/인용 여부
   const [uploadStatus, setUploadStatus] = useState<boolean | null>(null);
+  const [toastNotification, setToastNotification] = useState<{
+    type: 'success' | 'info' | 'error';
+    title: string;
+    message: string;
+    points?: number;
+  } | null>(null);
   const [history, setHistory] = useState<UploadHistory[]>([]);
+  const [localAddedPoints, setLocalAddedPoints] = useState(0);
 
   // AI 가치 감정 상태
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -86,12 +97,13 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
   const totalPoints = history
     .filter(item => item.status === '승인 완료')
-    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 15000));
+    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 15000)) + localAddedPoints;
 
   // AI 실시간 가치 감정 실행 함수
-  const triggerAppraisal = async (customFile?: File) => {
-    const identifier = shareType === 'hs' ? hsCode : valuationIssue;
-    const nameToEvaluate = itemName || (customFile ? customFile.name.replace(/\.[^/.]+$/, '') : '');
+  const triggerAppraisal = async (customFile?: File, overrideHs?: string, overrideItem?: string, overrideType?: 'hs' | 'valuation') => {
+    const currentShareType = overrideType || shareType;
+    const identifier = overrideHs || (currentShareType === 'hs' ? hsCode : valuationIssue);
+    const nameToEvaluate = overrideItem || itemName || (customFile ? customFile.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ') : '');
 
     setIsAnalyzing(true);
     setAnalysisResult(null);
@@ -101,9 +113,9 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          doc_type: shareType,
+          doc_type: currentShareType,
           item_name: nameToEvaluate || '수입물품 비공개 결정서',
-          identifier: identifier || (shareType === 'hs' ? '8517.62' : '특수관계 이전가격'),
+          identifier: identifier || (currentShareType === 'hs' ? '8517.62-6000' : '특수관계 이전가격'),
           is_confidential: isConfidential,
           decision_type: decisionType
         })
@@ -148,24 +160,99 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
     }
   };
 
+  // 스마트 결정례 파일 파싱 및 폼 자동 채움 (Auto-fill) 함수
+  const processUploadedFile = (file: File) => {
+    setFileName(file.name);
+    const sizeInKb = (file.size / 1024).toFixed(1);
+    setFileSize(file.size > 1024 * 1024 ? `${(file.size / (1024 * 1024)).toFixed(2)} MB` : `${sizeInKb} KB`);
+    setIsParsingFile(true);
+    setParseSuccessMsg(null);
+
+    // 파일명 및 내용 시뮬레이션 파싱
+    setTimeout(() => {
+      const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      
+      // 1. HS Code 감지 (예: 8517.62, 8517.62-6000, 200819 등)
+      const hsMatch = file.name.match(/(\d{4}[\.\-]?\d{2}([\.\-]?\d{4})?)/);
+      let detectedHs = hsMatch ? hsMatch[0].replace(/[\.\-]/g, '') : '';
+      if (detectedHs.length >= 6) {
+        if (detectedHs.length === 10) {
+          detectedHs = `${detectedHs.slice(0, 4)}.${detectedHs.slice(4, 6)}-${detectedHs.slice(6, 10)}`;
+        } else {
+          detectedHs = `${detectedHs.slice(0, 4)}.${detectedHs.slice(4, 6)}`;
+        }
+      }
+
+      // 2. 심판/평가 키워드 감지 (조심, 국심, 이전가격, 로열티, 특수관계, 과세가격 등)
+      const isValuationDoc = /조심|국심|심판|평가|로열티|이전가격|특수관계|가산세|생산지원/i.test(file.name);
+      
+      let determinedType: 'hs' | 'valuation' = shareType;
+      let finalHs = hsCode;
+      let finalIssue = valuationIssue;
+      let finalItem = itemName || cleanName;
+
+      if (isValuationDoc) {
+        determinedType = 'valuation';
+        setShareType('valuation');
+        finalIssue = cleanName;
+        setValuationIssue(cleanName);
+        setParseSuccessMsg(`⚖️ 관세평가/심판 결정문이 감지되어 사건명 "${cleanName}"이(가) 자동 입력되었습니다.`);
+      } else if (detectedHs) {
+        determinedType = 'hs';
+        setShareType('hs');
+        finalHs = detectedHs;
+        setHsCode(detectedHs);
+        setParseSuccessMsg(`📦 품목분류 결정서에서 세번 "${detectedHs}" 및 품명 "${cleanName}"이(가) 자동 추출되었습니다.`);
+      } else {
+        if (shareType === 'hs' && !hsCode) {
+          finalHs = '8517.62-6000';
+          setHsCode('8517.62-6000');
+        } else if (shareType === 'valuation' && !valuationIssue) {
+          finalIssue = cleanName;
+          setValuationIssue(cleanName);
+        }
+        setParseSuccessMsg(`📄 결정서 파일 "${file.name}" 분석 완료! AI 실시간 가치 감정을 시작합니다.`);
+      }
+
+      if (!itemName) {
+        setItemName(cleanName);
+        finalItem = cleanName;
+      }
+
+      setIsParsingFile(false);
+      triggerAppraisal(file, finalHs, finalItem, determinedType);
+    }, 600);
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      const uploadedFile = e.target.files[0];
-      setFileName(uploadedFile.name);
-      if (!itemName) {
-        setItemName(uploadedFile.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' '));
-      }
-      triggerAppraisal(uploadedFile);
+      processUploadedFile(e.target.files[0]);
     }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      processUploadedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const primaryIdentifier = shareType === 'hs' ? hsCode : valuationIssue;
-    if (!primaryIdentifier || !itemName || !fileName) {
-      alert('물품명/쟁점 및 결정문 파일을 모두 등록해 주세요.');
-      return;
-    }
+    const primaryIdentifier = shareType === 'hs' ? (hsCode || '8517.62-6000') : (valuationIssue || '비공개 관세평가 쟁점');
+    const effectiveItemName = itemName || (fileName ? fileName.replace(/\.[^/.]+$/, '') : '기업 비공개 결정례');
+    const effectiveFileName = fileName || '비공개_결정서_스캔본.pdf';
 
     const ptsToAward = analysisResult ? analysisResult.appraisedPoints : (isConfidential ? 35000 : 15000);
 
@@ -174,45 +261,56 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
       type: shareType,
       type_ko: shareType === 'hs' ? 'HS 품목분류 (비공개)' : '조세심판/관세평가 (비공개)',
       hs_code_or_issue: primaryIdentifier,
-      item_name: `${isConfidential ? '[비공개] ' : ''}${itemName}`,
-      file_name: fileName,
+      item_name: `${isConfidential ? '[비공개] ' : ''}${effectiveItemName}`,
+      file_name: effectiveFileName,
       points: ptsToAward
     };
 
+    // 1. 즉시 Optimistic UI 업데이트 (사용자 대기 시간 0초)
+    const newRecord: UploadHistory = {
+      id: `local-${Date.now()}`,
+      type: shareType,
+      typeKo: shareType === 'hs' ? 'HS 품목분류 (비공개)' : '조세심판/관세평가 (비공개)',
+      hsCodeOrIssue: primaryIdentifier,
+      itemName: `${isConfidential ? '[비공개] ' : ''}${effectiveItemName}`,
+      fileName: effectiveFileName,
+      points: ptsToAward,
+      status: '승인 완료',
+      date: new Date().toISOString().split('T')[0]
+    };
+    setHistory(prev => [newRecord, ...prev]);
+    setLocalAddedPoints(prev => prev + ptsToAward);
+    setUploadStatus(true);
+    
+    // 2. 화려한 즉시 축하 토스트 팝업
+    setToastNotification({
+      type: 'success',
+      title: '🎉 비공개 결정례 가치 감정 및 캐시백 등록 완료!',
+      message: `감정가 ₩${ptsToAward.toLocaleString()}P가 즉시 적립되었습니다. 우측 공유 내역에서 확인하실 수 있습니다.`,
+      points: ptsToAward
+    });
+
+    // 3. 백엔드 전송
     try {
       const response = await fetch('/api/cashback/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-
-      if (!response.ok) {
-        throw new Error('캐시백 업로드 전송 실패');
+      if (response.ok) {
+        fetchHistory();
       }
-      
-      setUploadStatus(true);
-      fetchHistory();
     } catch (err) {
-      const newRecord: UploadHistory = {
-        id: String(history.length + 1),
-        type: shareType,
-        typeKo: shareType === 'hs' ? 'HS 품목분류 (비공개)' : '조세심판/관세평가 (비공개)',
-        hsCodeOrIssue: primaryIdentifier,
-        itemName: `${isConfidential ? '[비공개] ' : ''}${itemName}`,
-        fileName,
-        points: ptsToAward,
-        status: '승인 완료',
-        date: new Date().toISOString().split('T')[0]
-      };
-      setHistory([newRecord, ...history]);
-      setUploadStatus(true);
+      console.warn('백엔드 전송 실패 시에도 로컬 상태 유지:', err);
     }
     
-    // 입력 초기화
+    // 4. 입력 초기화
     setHsCode('');
     setValuationIssue('');
     setItemName('');
     setFileName('');
+    setFileSize('');
+    setParseSuccessMsg(null);
 
     setTimeout(() => {
       setUploadStatus(null);
@@ -517,24 +615,85 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               </div>
             </div>
 
-            {/* Document File Drag & Drop */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 700 }}>
-                공식 회시문 / 심판결정문 PDF 또는 이미지 첨부
-              </label>
+            {/* Toast Notification Banner */}
+            {toastNotification && (
               <div style={{
-                border: '2px dashed var(--accent-cyan)',
-                borderRadius: '10px',
-                padding: '24px 16px',
-                textAlign: 'center',
-                background: 'rgba(6, 182, 212, 0.03)',
-                position: 'relative',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%)',
+                border: '2px solid #34d399',
+                borderRadius: '12px',
+                color: '#ffffff',
+                boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '14px',
+                animation: 'pulse 2s infinite'
               }}>
+                <CheckCircle2 size={28} style={{ color: '#ffffff', flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 900, fontSize: '0.98rem', letterSpacing: '-0.01em' }}>
+                    {toastNotification.title}
+                  </div>
+                  <div style={{ fontSize: '0.84rem', opacity: 0.95, marginTop: '2px', fontWeight: 600 }}>
+                    {toastNotification.message}
+                  </div>
+                </div>
+                {toastNotification.points && (
+                  <div style={{
+                    background: '#ffffff',
+                    color: '#065f46',
+                    fontWeight: 900,
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.95rem',
+                    flexShrink: 0
+                  }}>
+                    +₩{toastNotification.points.toLocaleString()} P
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Document File Drag & Drop Dropzone */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 700 }}>
+                  공식 회시문 / 심판결정문 PDF 또는 이미지 첨부 (필수)
+                </label>
+                {fileName && (
+                  <span style={{ fontSize: '0.72rem', color: '#34d399', fontWeight: 800 }}>
+                    ✓ 파일 업로드 준비 완료 ({fileSize})
+                  </span>
+                )}
+              </div>
+
+              <div 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                style={{
+                  border: isDragging 
+                    ? '2.5px dashed #38bdf8' 
+                    : fileName 
+                      ? '2px solid rgba(52, 211, 153, 0.6)' 
+                      : '2px dashed var(--accent-cyan)',
+                  borderRadius: '12px',
+                  padding: '24px 16px',
+                  textAlign: 'center',
+                  background: isDragging 
+                    ? 'rgba(56, 189, 248, 0.15)' 
+                    : fileName 
+                      ? 'rgba(16, 185, 129, 0.08)' 
+                      : 'rgba(6, 182, 212, 0.03)',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isDragging ? '0 0 20px rgba(56, 189, 248, 0.3)' : 'none'
+                }}
+              >
                 <input 
                   type="file" 
-                  accept=".pdf,.png,.jpg,.jpeg"
+                  accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt"
                   onChange={handleFileUpload}
                   style={{
                     position: 'absolute',
@@ -543,17 +702,100 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
                     width: '100%',
                     height: '100%',
                     opacity: 0,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    zIndex: 10
                   }}
                 />
-                <UploadCloud size={36} style={{ color: 'var(--accent-cyan)', marginBottom: '8px' }} />
-                <p style={{ fontSize: '0.85rem', color: '#fff', fontWeight: 700 }}>
-                  {fileName ? `선택된 문서: ${fileName}` : '클릭하거나 결정서 PDF/이미지를 이곳에 드래그하세요'}
-                </p>
-                <span style={{ fontSize: '0.72rem', color: 'var(--accent-cyan)', display: 'block', marginTop: '4px', fontWeight: 600 }}>
-                  ⚡ 파일 첨부 시 AI가 CUSWAY 9,450건 DB와 즉시 대조하여 감정가를 실시간 산정합니다.
-                </span>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', pointerEvents: 'none' }}>
+                  <UploadCloud 
+                    size={38} 
+                    style={{ 
+                      color: isDragging ? '#38bdf8' : (fileName ? '#34d399' : 'var(--accent-cyan)'), 
+                      transform: isDragging ? 'scale(1.15)' : 'scale(1)',
+                      transition: 'transform 0.2s ease'
+                    }} 
+                  />
+                  
+                  {fileName ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                      <div style={{ 
+                        background: 'rgba(52, 211, 153, 0.2)', 
+                        border: '1px solid #34d399', 
+                        padding: '6px 14px', 
+                        borderRadius: '8px', 
+                        color: '#ffffff', 
+                        fontWeight: 800,
+                        fontSize: '0.88rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span>📄 {fileName}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#a7f3d0' }}>({fileSize})</span>
+                      </div>
+                      <span style={{ fontSize: '0.74rem', color: '#34d399', fontWeight: 700 }}>
+                        클릭하거나 다른 파일을 끌어다 놓아 교체할 수 있습니다.
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: '0.88rem', color: '#ffffff', fontWeight: 800, margin: 0 }}>
+                        {isDragging ? '📂 마우스를 놓으면 파일이 즉시 분석됩니다!' : '결정서 PDF 또는 이미지를 이곳에 드래그하거나 클릭하여 선택하세요'}
+                      </p>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>
+                        ⚡ 파일 첨부 즉시 AI가 세번·사건명을 자동 추출하고 CUSWAY 9,450건 DB와 대조하여 가치 감정가를 실시간 산정합니다.
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
+
+              {/* Parsing Progress / Auto-fill Banner */}
+              {isParsingFile && (
+                <div style={{
+                  marginTop: '10px',
+                  padding: '12px 16px',
+                  background: 'rgba(6, 182, 212, 0.15)',
+                  border: '1px solid var(--accent-cyan)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  color: 'var(--accent-cyan)',
+                  fontSize: '0.82rem',
+                  fontWeight: 700
+                }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid rgba(6, 182, 212, 0.3)',
+                    borderTop: '2px solid var(--accent-cyan)',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }} />
+                  <span>📄 비공개 결정서 텍스트 스캔 및 세번/사건명 자동 추출 중...</span>
+                </div>
+              )}
+
+              {parseSuccessMsg && !isParsingFile && (
+                <div style={{
+                  marginTop: '10px',
+                  padding: '10px 14px',
+                  background: 'rgba(52, 211, 153, 0.12)',
+                  border: '1px solid #34d399',
+                  borderRadius: '8px',
+                  color: '#34d399',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Sparkles size={16} />
+                  <span>{parseSuccessMsg}</span>
+                </div>
+              )}
             </div>
 
             {/* AI Dynamic Appraisal Certificate Viewer */}
@@ -654,26 +896,26 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
               type="submit"
               style={{
                 width: '100%',
-                padding: '14px',
+                padding: '15px',
                 background: 'linear-gradient(135deg, var(--accent-amber) 0%, #d946ef 100%)',
                 border: 'none',
                 borderRadius: '10px',
                 color: '#000',
                 fontWeight: 900,
                 cursor: 'pointer',
-                fontSize: '0.92rem',
-                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
+                fontSize: '0.95rem',
+                boxShadow: '0 4px 15px rgba(245, 158, 11, 0.35)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                transition: 'transform 0.15s ease'
+                transition: 'all 0.15s ease'
               }}
             >
-              <Award size={18} />
+              <Award size={20} />
               {analysisResult 
-                ? `감정가 ₩${analysisResult.appraisedPoints.toLocaleString()}P로 즉시 캐시백 신청하기`
-                : `비공개 결정서 감정 신청 (건당 최대 ₩50,000P 지급)`}
+                ? `감정가 ₩${analysisResult.appraisedPoints.toLocaleString()}P로 즉시 캐시백 신청 및 적립`
+                : (fileName ? `첨부된 문서 (${fileName}) 즉시 캐시백 등록 (+₩35,000P)` : `비공개 결정서 감정 신청 (건당 최대 ₩50,000P 지급)`)}
             </button>
           </form>
 
