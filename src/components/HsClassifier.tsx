@@ -1619,32 +1619,11 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
         
         {/* Left Panel: Input Specs */}
         <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-color)', paddingBottom: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <FileText size={18} color="var(--accent-primary)" />
               <h3 style={{ fontSize: '1.05rem', fontWeight: 600 }}>수입신고 대상 품목 정보</h3>
             </div>
-
-            <button
-              type="button"
-              onClick={() => setShowInvoiceParserModal(true)}
-              style={{
-                background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(20, 184, 166, 0.2) 100%)',
-                border: '1px solid rgba(6, 182, 212, 0.45)',
-                borderRadius: '6px',
-                padding: '5px 11px',
-                color: 'var(--accent-cyan)',
-                fontSize: '0.74rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 2px 8px rgba(6, 182, 212, 0.15)'
-              }}
-            >
-              <FileCheck size={13} /> 📄 인보이스/PDF 추출기
-            </button>
           </div>
 
           <div>
@@ -2928,15 +2907,6 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
         onClose={() => setShowOfficeBrandingModal(false)}
         currentUser={currentUser}
       />
-
-      {/* Commercial Invoice Image / PDF Smart Extractor Modal */}
-      {showInvoiceParserModal && (
-        <InvoiceParserModal
-          isOpen={showInvoiceParserModal}
-          onClose={() => setShowInvoiceParserModal(false)}
-          onApplyData={handleApplyInvoiceData}
-        />
-      )}
     </div>
   );
 }
