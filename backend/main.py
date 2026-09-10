@@ -1949,13 +1949,25 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = 
         else:
             expert_insight = f"🇨🇳 [한-중 FTA 양허제외] 본 품목은 한-중 FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
     elif origin_upper in EU_COUNTRIES:
-        expert_insight = f"🇪🇺 [한-EU FTA {matched_fta_rate or 0.0}%] EU 회원국({origin_upper})산 물품은 한-EU FTA에 따라 {matched_fta_rate or 0.0}% 무관세/특혜세율이 적용됩니다. (6,000유로 초과 시 인증수출자 번호 필수)"
+        if matched_fta_rate is not None:
+            expert_insight = f"🇪🇺 [한-EU FTA {matched_fta_rate}%] EU 회원국({origin_upper})산 물품은 한-EU FTA에 따라 {matched_fta_rate}% 무관세/특혜세율이 적용됩니다. (6,000유로 초과 시 인증수출자 번호 필수)"
+        else:
+            expert_insight = f"🇪🇺 [한-EU FTA 양허제외] 본 품목은 한-EU FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
     elif origin_upper == "US":
-        expert_insight = f"🇺🇸 [한-미 FTA {matched_fta_rate or 0.0}%] 미국산 물품은 한-미 FTA에 따라 {matched_fta_rate or 0.0}% 특혜세율이 적용됩니다. (수출자/생산자/수입자 자율 원산지증명서 구비)"
+        if matched_fta_rate is not None:
+            expert_insight = f"🇺🇸 [한-미 FTA {matched_fta_rate}%] 미국산 물품은 한-미 FTA에 따라 {matched_fta_rate}% 특혜세율이 적용됩니다. (수출자/생산자/수입자 자율 원산지증명서 구비)"
+        else:
+            expert_insight = f"🇺🇸 [한-미 FTA 양허제외] 본 품목은 한-미 FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
     elif origin_upper == "JP":
-        expert_insight = f"🇯🇵 [RCEP(한-일) {matched_fta_rate or 4.0}%] 일본산 물품은 2022년 발효된 RCEP 협정에 따라 {matched_fta_rate or 4.0}% 협정세율이 적용됩니다."
+        if matched_fta_rate is not None:
+            expert_insight = f"🇯🇵 [RCEP(한-일) {matched_fta_rate}%] 일본산 물품은 2022년 발효된 RCEP 협정에 따라 {matched_fta_rate}% 협정세율이 적용됩니다."
+        else:
+            expert_insight = f"🇯🇵 [RCEP(한-일) 양허제외] 본 품목은 RCEP(한-일) 협정에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
     else:
-        expert_insight = f"본 품목은 최적 추천세율 {recommended_rate}%가 적용됩니다. 원산지 국가({origin_upper})와의 {fta_name} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오."
+        if matched_fta_rate is not None:
+            expert_insight = f"본 품목은 {fta_name} {matched_fta_rate}% 특혜세율이 적용됩니다. 원산지 국가({origin_upper})와의 {fta_name} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오."
+        else:
+            expert_insight = f"원산지 국가({origin_upper})는 본 품목에 대해 양허제외 또는 미체결 상태이므로 기본세율({actual_base_rate}%)이 적용됩니다."
         
     notice = ""
     if has_quota and quota_w1_rate is not None:
