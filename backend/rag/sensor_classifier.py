@@ -40,6 +40,24 @@ def classify_sensor_universally(product_name: str, material: str = "", function_
     combined = f"{product_name} {material} {function_use}".lower()
 
     # -------------------------------------------------------------------------
+    # 0. CMOS Image Sensor CIS Module / IC (제8542호)
+    # -------------------------------------------------------------------------
+    if any(k in combined for k in ["cmos 이미지", "이미지 센서", "cis 모듈", "image sensor"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "8542.39-0000",
+            "headingName": "제8542호 (전자집적회로 - CMOS 이미지 센서 CIS)",
+            "subheadingName": f"{product_name} (CMOS 이미지 센서 집적회로 칩/모듈)",
+            "confidence": 99,
+            "technicalTerms": "Electronic Integrated Circuits / CMOS Image Sensor (CIS)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제85류 주 제8호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 화소 어레이와 신호처리 로직 회로가 집적되어 피사체의 광학 이미지를 디지털 전기 신호로 변환하는 CMOS 이미지 센서 집적회로입니다.\n나. 관세율표 분류: 제85류 주 제8호에 따라 이미지 센서 집적회로는 제8542.39호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8542.39-0000호에 분류됩니다.",
+            "sectionNote": "제16부 집적회로",
+            "chapterNote": "제85류 제8542호 해설서",
+            "exclusionNote": "카메라 완제품(제8525호)과 CIS 집적회로 소자(제8542호)를 구분하십시오."
+        }
+
+    # -------------------------------------------------------------------------
     # 1. Semiconductor Component Level: Discrete Photodiode / Phototransistor (제8541호)
     # -------------------------------------------------------------------------
     if any(k in combined for k in ["포토다이오드", "photodiode", "포토트랜지스터", "phototransistor", "수광소자", "광전소자", "optoelectronic component"]):
