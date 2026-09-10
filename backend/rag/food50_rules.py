@@ -1892,11 +1892,12 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     if "튀김가루" in query or "부침가루" in query or "튀김 가루" in query or "부침 가루" in query or "batter mix" in query:
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 26)
 
-    # 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409)
-    if "사양" in query or "설탕급여" in query or "sugar-fed" in query:
-        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 44)
-    if "천연 벌꿀" in query or "천연벌꿀" in query or "아카시아꿀" in query or "벌꿀" in query or "꿀" in query:
-        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 43)
+    # 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409) - 캔디/사탕/과자류는 제1704호로 배제
+    if not any(ex in query for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
+        if "사양" in query or "설탕급여" in query or "sugar-fed" in query:
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 44)
+        if "천연 벌꿀" in query or "천연벌꿀" in query or "아카시아꿀" in query or "벌꿀" in query or "꿀" in query:
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 43)
 
     # 1-3. 땅콩버터 (2008.11-1000) vs 볶은땅콩 vs 생땅콩
     if "땅콩버터" in query or "땅콩 버터" in query or "피넛버터" in query or "peanut butter" in query:

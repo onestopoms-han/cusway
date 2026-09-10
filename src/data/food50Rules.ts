@@ -2029,12 +2029,14 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
     return FOOD_50_RULES.find(r => r.id === 26) || null;
   }
 
-  // 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409)
-  if (query.includes('사양') || query.includes('설탕급여') || query.includes('sugar-fed')) {
-    return FOOD_50_RULES.find(r => r.id === 44) || null;
-  }
-  if (query.includes('천연 벌꿀') || query.includes('천연벌꿀') || query.includes('아카시아꿀') || query.includes('벌꿀') || query.includes('꿀')) {
-    return FOOD_50_RULES.find(r => r.id === 43) || null;
+  // 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409) - 캔디/사탕/과자류는 제1704호로 배제
+  if (!query.includes('캔디') && !query.includes('사탕') && !query.includes('candy') && !query.includes('과자') && !query.includes('젤리') && !query.includes('캐러멜') && !query.includes('카라멜')) {
+    if (query.includes('사양') || query.includes('설탕급여') || query.includes('sugar-fed')) {
+      return FOOD_50_RULES.find(r => r.id === 44) || null;
+    }
+    if (query.includes('천연 벌꿀') || query.includes('천연벌꿀') || query.includes('아카시아꿀') || query.includes('벌꿀') || query.includes('꿀')) {
+      return FOOD_50_RULES.find(r => r.id === 43) || null;
+    }
   }
 
   // 1-3. 땅콩버터 (2008.11-1000) vs 볶은땅콩 vs 생땅콩

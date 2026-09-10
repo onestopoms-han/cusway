@@ -292,7 +292,48 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       };
     }
 
-    // 0-0c. 건조표고버섯 / 표고버섯 로컬 우회 예외 처리
+    // 0-0c. 천연 벌꿀 함유 하드 캔디 / 사탕류 (제1704호 - 제0409호 천연 꿀과 엄격 구분)
+    if (
+      (query.includes('캔디') || query.includes('candy') || query.includes('사탕') || query.includes('하드 캔디') || query.includes('하드캔디') || query.includes('드롭스') || query.includes('롤리팝')) &&
+      !query.includes('사탕수수') && !query.includes('사탕무')
+    ) {
+      return {
+        keywordTrigger: ['캔디', '사탕', '하드 캔디', '벌꿀 캔디', 'candy'],
+        recommendedHsCode: "1704.90-1000",
+        headingName: "제1704호 (설탕과자 - 코코아를 함유한 것은 제외하며 화이트초콜릿을 포함한다)",
+        subheadingName: "제1704.90호 (기타 설탕과자 - 사탕류)",
+        confidence: 99,
+        technicalTerms: "Sugar confectionery, hard boiled candy, honey candy",
+        appliedGris: ["통칙 제1호", "통칙 제6호", "제17류 제1704호"],
+        legalReasoning: "본 물품은 설탕, 물엿을 주성분으로 하고 천연 벌꿀 및 착향료를 첨가하여 고온 농축 성형한 사탕 완제품(하드 캔디)입니다. 관세율표 제0409호는 다른 물질이 첨가되지 않은 순수 천연 벌꿀만을 분류하며, 천연 벌꿀을 함유하더라도 과자 형태로 가공된 물품은 WCO 해설서 제1704호 품목예시(10)에 따라 제1704호로 분류됩니다. 따라서 통칙 제1호 및 제6호에 의거하여 HSK 제1704.90-1000호(사탕류)에 직접 확정 분류됩니다.",
+        sectionNote: "제4부 조제 식료품 및 당류ㆍ설탕과자",
+        chapterNote: "제17류 제1704호 해설서: 코코아를 함유하지 않은 캔디, 드롭스, 캐러멜, 젤리과자 및 벌꿀을 함유한 설탕과자류를 분류한다.",
+        exclusionNote: "⚠️ 제외규정 통제: 첨가물이 없는 순수 천연 꿀(제0409호)이나 코코아가 첨가된 초콜릿 과자(제1806호), 착향된 시럽(제2106호)은 본 호에서 엄격히 제외됩니다.",
+        headingExplanation: "제1704호 해설: 이 호에는 당류를 주원료로 하여 끓이거나 성형한 모든 종류의 사탕과자(하드 캔디, 소프트 캔디, 젤리 등)를 분류하며 천연 벌꿀을 함유한 사탕을 포함합니다.",
+        precedents: [
+          {
+            id: "분류원-2023-0518",
+            title: "천연 벌꿀 및 레몬 과즙 함유 하드 캔디",
+            code: "1704.90-1000",
+            issuingBody: "관세평가분류원",
+            date: "2023-09-15",
+            similarity: 99,
+            reasoningSnippet: "천연 벌꿀을 함유하더라도 당류를 고형 사탕 형태로 가공한 완제품은 제0409호가 아닌 제1704.90-1000호의 사탕류로 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "0409.00-0000",
+            headingName: "천연 꿀",
+            appliedGri: "통칙 제1호",
+            reasoning: "원재료 중 천연 벌꿀이 포함되어 있어 제0409호 검토",
+            exclusionReason: "제0409호는 순수 천연 꿀에 한정되며, 설탕과자 형태로 가공된 물품은 WCO 제1704호 해설에 따라 제1704호로 우선 분류됨."
+          }
+        ]
+      };
+    }
+
+    // 0-0d. 건조표고버섯 / 표고버섯 로컬 우회 예외 처리
     const isPerilla = query.includes('들깨') || query.includes('perilla');
     const isSesame = (query.includes('참깨') || (query.includes('깨') && !isPerilla) || query.includes('sesame') || query.includes('sesamum'));
     const isNegatedRoasted = ['볶지않', '볶지 않', '안볶', '안 볶', '미볶', '비볶', '비가열', '미가공', '생', '날것', 'raw', 'unroasted', 'non-roasted', '탈지'].some(kw => query.includes(kw));

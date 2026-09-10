@@ -1051,7 +1051,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 17. 제04류: 낙농품, 꿀, 로열젤리, 유청단백질
-    if any(k in combined for k in ["벌꿀", "천연 벌꿀", "천연벌꿀", "natural honey"]):
+    if any(k in combined for k in ["벌꿀", "천연 벌꿀", "천연벌꿀", "natural honey"]) and not any(ex in combined for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
         return {
             "is_food": True,
             "recommendedHsCode": "0409.00-0000",
@@ -1495,7 +1495,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 34. 제04류: 벌꿀
-    if any(k in combined for k in ["벌꿀", "아카시아 벌꿀", "천연 꿀", "honey"]):
+    if any(k in combined for k in ["벌꿀", "아카시아 벌꿀", "천연 꿀", "honey"]) and not any(ex in combined for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
         return {
             "is_food": True,
             "recommendedHsCode": "0409.00-0000",
