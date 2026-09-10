@@ -471,9 +471,22 @@ export default function CustomsReportModal({
 
   const handlePrint = () => {
     setIsEditMode(false);
+    document.body.classList.add('printing-customs-report');
+
+    const handleAfterPrint = () => {
+      document.body.classList.remove('printing-customs-report');
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+    window.addEventListener('afterprint', handleAfterPrint);
+
     setTimeout(() => {
       window.print();
-    }, 100);
+      // Fallback cleanup in case browser doesn't dispatch afterprint
+      setTimeout(() => {
+        document.body.classList.remove('printing-customs-report');
+        window.removeEventListener('afterprint', handleAfterPrint);
+      }, 2000);
+    }, 150);
   };
 
   const handleAddPrecedent = () => {

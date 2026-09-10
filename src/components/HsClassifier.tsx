@@ -1425,8 +1425,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {isBackendOffline && (
+    <div className="hs-classifier-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+        {isBackendOffline && (
         <div style={{
           padding: '14px 20px',
           background: 'rgba(245, 158, 11, 0.12)',
@@ -2856,6 +2857,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
             </div>
           )}
         </div>
+      </div>
       </div>
 
       {/* Customs Official White-Label & Co-Branded Report Modal */}

@@ -491,8 +491,11 @@ ${matched.implicationKo}
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
-      {/* Disclaimer Banner */}
-      <div style={{
+      {/* Interactive Valuation Precedents Flow (Hidden during print) */}
+      <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+
+        {/* Disclaimer Banner */}
+        <div style={{
         padding: '16px 20px',
         background: '#7f1d1d', // Dark red background for high contrast
         border: '1px solid #f87171',
@@ -1386,6 +1389,7 @@ ${fallback.implicationKo}
         </div>
       ) : null}
 
+      </div>
       </div>
 
       {/* Customs Official Report Modal */}

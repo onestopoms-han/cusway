@@ -95,9 +95,12 @@ export default function BrandShowcase({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '36px', paddingBottom: '60px' }}>
+      
+      {/* Interactive Showcase Flow (Hidden during print) */}
+      <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
 
-      {/* 1. Hero Section: Powerful Value Proposition */}
-      <section style={{
+        {/* 1. Hero Section: Powerful Value Proposition */}
+        <section style={{
         position: 'relative',
         borderRadius: '20px',
         padding: '48px 36px',
@@ -1471,6 +1474,7 @@ export default function BrandShowcase({
           </button>
         </div>
       </section>
+      </div>
 
       {/* Marketing Brochure Printable Modal */}
       <MarketingBrochureModal

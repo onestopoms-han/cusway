@@ -392,10 +392,13 @@ export default function ClearanceWizard({
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', color: 'var(--text-main)' }}>
+    <div className="clearance-wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', color: 'var(--text-main)' }}>
       
-      {/* Header and Stepper */}
-      <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Interactive Wizard Flow (Hidden during official document print) */}
+      <div className="wizard-interactive-content no-print" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+        
+        {/* Header and Stepper */}
+        <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-main)' }}>CUSWAY 수입 통관 연동 파이프라인</h2>
@@ -1485,9 +1488,11 @@ export default function ClearanceWizard({
             )}
           </div>
         )}
+      </div>
+      </div>
 
-        {/* Share Modal */}
-        {showShareModal && (
+      {/* Share Modal */}
+      {showShareModal && (
           <ResultShareModal
             isOpen={showShareModal}
             onClose={() => setShowShareModal(false)}
@@ -1835,7 +1840,6 @@ export default function ClearanceWizard({
           />
         )}
 
-      </div>
     </div>
   );
 }

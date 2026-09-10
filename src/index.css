@@ -147,7 +147,7 @@ body {
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 12mm 8mm 12mm;
+    margin: 8mm 10mm 8mm 10mm;
   }
 
   html, body {
@@ -180,15 +180,41 @@ body {
   footer,
   .hs-grid-layout,
   .valuation-grid-layout,
-  .login-input {
+  .login-input,
+  .glass-panel,
+  .wizard-interactive-content,
+  .clearance-wizard-container > .no-print,
+  .hs-classifier-container > .no-print {
     display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* When printing active customs report modal, isolate only the document papers */
+  body.printing-customs-report * {
+    visibility: hidden;
+  }
+
+  body.printing-customs-report .customs-report-modal-overlay,
+  body.printing-customs-report .customs-report-modal-wrapper,
+  body.printing-customs-report .customs-report-modal-scroll,
+  body.printing-customs-report .customs-official-paper,
+  body.printing-customs-report .customs-official-paper * {
+    visibility: visible !important;
+  }
+
+  body.printing-customs-report .no-print,
+  body.printing-customs-report .no-print * {
+    display: none !important;
+    visibility: hidden !important;
   }
 
   /* Reset app container and main so they do NOT create background blocks or margins */
   .app-container,
   .app-main,
   #root,
-  main {
+  main,
+  .clearance-wizard-container,
+  .hs-classifier-container {
     display: block !important;
     background: transparent !important;
     padding: 0 !important;
@@ -212,6 +238,8 @@ body {
     backdrop-filter: none !important;
     display: block !important;
     overflow: visible !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .customs-report-modal-wrapper,
@@ -236,6 +264,7 @@ body {
     padding: 0 !important;
     background: #ffffff !important;
     overflow: visible !important;
+    border: none !important;
   }
 
   .customs-official-paper,
@@ -245,9 +274,9 @@ body {
     justify-content: space-between !important;
     width: 100% !important;
     max-width: 100% !important;
-    min-height: 270mm !important;
-    margin: 0 !important;
-    padding: 16mm 14mm 12mm 14mm !important;
+    min-height: 260mm !important;
+    margin: 0 auto !important;
+    padding: 10mm 12mm 10mm 12mm !important;
     background: #ffffff !important;
     color: #0f172a !important;
     border: none !important;
@@ -260,12 +289,16 @@ body {
   .customs-page-1 {
     page-break-after: always !important;
     break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
     margin-bottom: 0 !important;
   }
 
   .customs-page-2 {
     page-break-before: always !important;
     break-before: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .page-separator {
