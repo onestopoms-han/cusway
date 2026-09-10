@@ -96,6 +96,7 @@ export default function ClearanceWizard({
   const [originCountry, setOriginCountry] = useState('IT'); // Default IT (Italy)
   const [loadingRates, setLoadingRates] = useState(false);
   const [ratesData, setRatesData] = useState<any>(null);
+  const [showAllFtaTable, setShowAllFtaTable] = useState(false);
   
 
   // Step 3 & 4 states
@@ -787,31 +788,52 @@ export default function ClearanceWizard({
                 
                 {/* Rates comparison cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+                  {/* Card 1: Base Rate (A) */}
                   <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                     <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 700, display: 'block' }}>기본 관세율 (A)</span>
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>{ratesData.rates.base_rate}%</h4>
                     <span style={{ fontSize: '0.74rem', color: '#64748b', display: 'block', marginTop: '4px' }}>일반 수입 기준 세율</span>
                   </div>
 
+                  {/* Card 2: WTO Bound Concession Rate (C) */}
                   <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                       <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
-                      {ratesData.rates.is_trq_item && (
-                        <span style={{ fontSize: '0.72rem', padding: '2px 6px', background: 'rgba(245,158,11,0.15)', color: '#b45309', borderRadius: '4px', fontWeight: 800 }}>
-                          TRQ
+                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate && (
+                        <span style={{ fontSize: '0.7rem', padding: '1px 5px', background: 'rgba(234, 88, 12, 0.12)', color: '#c2410c', borderRadius: '4px', fontWeight: 800 }}>
+                          양허상한
                         </span>
                       )}
                     </div>
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>
-                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate !== undefined ? `${ratesData.rates.wto_rate}%` : (ratesData.rates.trq_in_rate !== null && ratesData.rates.trq_in_rate !== undefined ? `${ratesData.rates.trq_in_rate}%` : 'N/A')}
+                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate !== undefined ? `${ratesData.rates.wto_rate}%` : '해당없음'}
                     </h4>
                     <span style={{ fontSize: '0.74rem', color: ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate ? '#ea580c' : '#64748b', display: 'block', marginTop: '4px', fontWeight: 600 }}>
                       {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate 
-                        ? `기본세율(${ratesData.rates.base_rate}%) 우선적용` 
-                        : (ratesData.rates.is_trq_item ? '양허추천 대상' : '다자간 양허세율')}
+                        ? `기본세율(${ratesData.rates.base_rate}%) 우선적용 (관세법 제50조)` 
+                        : (ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate < ratesData.rates.base_rate ? 'WTO 우선적용' : '다자간 양허세율')}
                     </span>
                   </div>
 
+                  {/* Card 3: Quota Tariff (W1/W2) if present */}
+                  {ratesData.rates.has_quota && (
+                    <div style={{ background: '#fffbeb', border: '1.5px solid #f59e0b', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(245,158,11,0.08)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '0.85rem', color: '#92400e', fontWeight: 800 }}>할당관세 (W1/W2)</span>
+                        <span style={{ fontSize: '0.7rem', padding: '1px 5px', background: 'rgba(245,158,11,0.2)', color: '#b45309', borderRadius: '4px', fontWeight: 800 }}>
+                          추천감면
+                        </span>
+                      </div>
+                      <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#d97706' }}>
+                        {ratesData.rates.quota_w1 !== null ? `${ratesData.rates.quota_w1}%` : '대상'}
+                      </h4>
+                      <span style={{ fontSize: '0.74rem', color: '#92400e', display: 'block', marginTop: '4px', fontWeight: 700 }}>
+                        {ratesData.rates.quota_w2 !== null ? `미추천 시 ${ratesData.rates.quota_w2}%` : '수입추천서 구비 시 적용'}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Card 4: FTA Rate (F) */}
                   <div style={{ 
                     background: ratesData.rates.fta_rate !== null ? '#f0fdf4' : '#ffffff', 
                     border: ratesData.rates.fta_rate !== null ? '1.5px solid #10b981' : '1.5px solid var(--border-color)', 
@@ -833,6 +855,73 @@ export default function ClearanceWizard({
                       {ratesData.rates.fta_rate !== null ? 'C/O 구비 시 최우선 적용' : '양허제외/미체결'}
                     </span>
                   </div>
+                </div>
+
+                {/* 21 FTAs Interactive Live Comparison Matrix Toggle Button & Accordion */}
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllFtaTable(!showAllFtaTable)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--text-main)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                      fontSize: '0.88rem',
+                      fontWeight: 700
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Globe size={18} color="var(--accent-primary)" />
+                      <span>🌍 2026년 공식 관세율표 전체 21개 FTA 협정세율 실시간 전수 비교</span>
+                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)', borderRadius: '12px', fontWeight: 800 }}>
+                        {ratesData.rates.all_fta_rates?.length || 21}개 협정 부호 전수 연동
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      {showAllFtaTable ? '▲ 접기' : '▼ 펼쳐보기'}
+                    </span>
+                  </button>
+
+                  {showAllFtaTable && (
+                    <div style={{ padding: '14px', borderTop: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '8px' }}>
+                        {ratesData.rates.all_fta_rates?.map((item: any) => (
+                          <div 
+                            key={item.code}
+                            style={{
+                              padding: '10px 12px',
+                              background: item.is_applicable_to_origin ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255,255,255,0.03)',
+                              border: item.is_applicable_to_origin ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.08)',
+                              borderRadius: '6px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: item.is_applicable_to_origin ? '#10b981' : '#e2e8f0' }}>
+                                {item.name}
+                              </div>
+                              <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                                부호: {item.code} {item.is_applicable_to_origin ? '⭐ (선택국가)' : ''}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: item.rate === 0 ? '#10b981' : (item.rate !== null ? '#38bdf8' : '#64748b') }}>
+                                {item.rate !== null ? `${item.rate}%` : '양허제외'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* TRQ (시장접근물량) In-Quota vs Out-of-Quota 비교 분석 카드 */}

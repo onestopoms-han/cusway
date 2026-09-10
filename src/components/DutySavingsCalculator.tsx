@@ -48,6 +48,10 @@ export default function DutySavingsCalculator({
     );
   })();
 
+  const [rawRatesData, setRawRatesData] = useState<any>(null);
+  const [showFtaMatrix, setShowFtaMatrix] = useState(false);
+  const [useQuotaRate, setUseQuotaRate] = useState(false);
+
   // Update rates by fetching directly from backend database API
   useEffect(() => {
     let isMounted = true;
@@ -60,6 +64,7 @@ export default function DutySavingsCalculator({
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data?.rates) {
+            setRawRatesData(data);
             setCustomBaseRate(data.rates.base_rate ?? 8);
             setCustomFtaRate(data.rates.recommended_rate ?? data.rates.fta_rate ?? 0);
             setFtaAgreement(data.rates.fta_name || '기본세율');
@@ -83,8 +88,13 @@ export default function DutySavingsCalculator({
         ? cifAmount * 9.2 
         : cifAmount;
 
+  // If quota recommendation is checked and quota_w1 is available, use quota rate for comparison
+  const effectiveFtaOrQuotaRate = useQuotaRate && rawRatesData?.rates?.quota_w1 !== undefined && rawRatesData?.rates?.quota_w1 !== null
+    ? rawRatesData.rates.quota_w1
+    : customFtaRate;
+
   const baseDuty = Math.round(cifInKrw * (customBaseRate / 100));
-  const ftaDuty = Math.round(cifInKrw * (customFtaRate / 100));
+  const ftaDuty = Math.round(cifInKrw * (effectiveFtaOrQuotaRate / 100));
   const savedDuty = Math.max(0, baseDuty - ftaDuty);
 
   const baseVat = Math.round((cifInKrw + baseDuty) * 0.1);
@@ -137,7 +147,7 @@ export default function DutySavingsCalculator({
           borderRadius: '12px',
           fontWeight: 700
         }}>
-          {savedDuty > 0 ? `🎉 C/O 구비 시 최대 ${savedDuty.toLocaleString()}원 절감 가능` : '세율 정밀 검토 요망'}
+          {savedDuty > 0 ? `🎉 ${useQuotaRate ? '추천서' : 'C/O'} 구비 시 최대 ${savedDuty.toLocaleString()}원 절감 가능` : '세율 정밀 검토 요망'}
         </span>
       </div>
 
@@ -220,7 +230,7 @@ export default function DutySavingsCalculator({
 
         <div>
           <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px' }}>
-            기본/양허세율 (A/C)
+            기본 관세율 (A)
           </label>
           <input 
             type="number" 
@@ -241,11 +251,11 @@ export default function DutySavingsCalculator({
 
         <div>
           <label style={{ display: 'block', fontSize: '0.72rem', color: '#94a3b8', marginBottom: '4px' }}>
-            FTA 특혜세율 (F/R)
+            적용 특혜/추천세율
           </label>
           <input 
             type="number" 
-            value={customFtaRate} 
+            value={effectiveFtaOrQuotaRate} 
             onChange={(e) => setCustomFtaRate(parseFloat(e.target.value) || 0)}
             style={{
               width: '100%',
@@ -259,6 +269,52 @@ export default function DutySavingsCalculator({
             }}
           />
         </div>
+      </div>
+
+      {/* WTO Bound Rate & Quota Notification Badges */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {rawRatesData?.rates?.wto_rate !== undefined && rawRatesData?.rates?.wto_rate !== null && (
+          <div style={{
+            padding: '6px 10px',
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            borderRadius: '6px',
+            fontSize: '0.73rem',
+            color: '#93c5fd',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <span>🌐 WTO 협정세율(C): <b>{rawRatesData.rates.wto_rate}%</b></span>
+            <span style={{ fontSize: '0.68rem', color: '#cbd5e1' }}>
+              ({rawRatesData.rates.wto_rule_note || '관세법 제50조 적용'})
+            </span>
+          </div>
+        )}
+
+        {rawRatesData?.rates?.has_quota && (
+          <div style={{
+            padding: '6px 10px',
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '6px',
+            fontSize: '0.73rem',
+            color: '#fde68a',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span>🌾 할당관세(W1): <b>{rawRatesData.rates.quota_w1}%</b></span>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#fbbf24', fontWeight: 700 }}>
+              <input 
+                type="checkbox" 
+                checked={useQuotaRate} 
+                onChange={(e) => setUseQuotaRate(e.target.checked)} 
+              />
+              추천서 구비 적용
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Sensitive Agriculture Alert if applicable */}
@@ -307,7 +363,7 @@ export default function DutySavingsCalculator({
         {/* Box 2: FTA Duty */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
           <span style={{ fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600 }}>
-            FTA 특혜 적용 시 ({customFtaRate}%)
+            {useQuotaRate ? `할당관세(${effectiveFtaOrQuotaRate}%)` : `FTA 특혜(${effectiveFtaOrQuotaRate}%)`}
           </span>
           <div style={{ fontSize: '1rem', fontWeight: 800, color: '#10b981' }}>
             {ftaDuty.toLocaleString()}원
@@ -337,6 +393,57 @@ export default function DutySavingsCalculator({
             {customBaseRate > 0 ? `${Math.round((savedDuty / (baseDuty || 1)) * 100)}% 관세 감면 효과` : '무세 적용'}
           </span>
         </div>
+      </div>
+
+      {/* 21 FTAs Comparison Matrix Toggle */}
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', overflow: 'hidden' }}>
+        <button
+          type="button"
+          onClick={() => setShowFtaMatrix(!showFtaMatrix)}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            background: 'none',
+            border: 'none',
+            color: '#94a3b8',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            cursor: 'pointer',
+            fontSize: '0.78rem',
+            fontWeight: 700
+          }}
+        >
+          <span>🌍 전체 21개 FTA 협정세율 비교표 보기</span>
+          <span>{showFtaMatrix ? '▲ 접기' : '▼ 펼쳐보기'}</span>
+        </button>
+
+        {showFtaMatrix && (
+          <div style={{ padding: '10px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '6px' }}>
+            {rawRatesData?.rates?.all_fta_rates?.map((fta: any) => (
+              <div 
+                key={fta.code}
+                style={{
+                  padding: '6px 8px',
+                  background: fta.is_applicable_to_origin ? 'rgba(16, 185, 129, 0.15)' : 'rgba(0,0,0,0.3)',
+                  border: fta.is_applicable_to_origin ? '1px solid #10b981' : '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: '0.72rem'
+                }}
+              >
+                <span style={{ color: fta.is_applicable_to_origin ? '#10b981' : '#cbd5e1', fontWeight: 600 }}>
+                  {fta.name}
+                </span>
+                <span style={{ fontWeight: 800, color: fta.rate === 0 ? '#10b981' : (fta.rate !== null ? '#38bdf8' : '#64748b') }}>
+                  {fta.rate !== null ? `${fta.rate}%` : '제외'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Practical Guide Footnote */}

@@ -1636,6 +1636,37 @@ def hs_confirm_api(req: HsConfirmRequest, db: Session = Depends(get_db)):
     }
 
 # FTA 및 RCEP 공식 체결국 및 협정명 전수 매핑 사전
+# 2026년 대한민국 관세청 공식 21개 FTA 협정 정의 및 국가 코드 매핑
+OFFICIAL_FTA_DEFINITIONS = [
+    {"code": "FUS1", "name": "한-미 FTA", "countries": ["US"]},
+    {"code": "FCN1", "name": "한-중 FTA", "countries": ["CN"]},
+    {"code": "FRCJP1", "name": "RCEP (한-일)", "countries": ["JP"]},
+    {"code": "FRCCN1", "name": "RCEP (중국)", "countries": ["CN"]},
+    {"code": "FEU1", "name": "한-EU FTA", "countries": ["EU", "DE", "FR", "IT", "NL", "ES", "BE", "PL", "SE", "AT", "DK", "FI", "IE", "PT", "CZ", "HU", "RO", "BG", "HR", "SK", "SI", "LT", "LV", "EE", "CY", "LU", "MT"]},
+    {"code": "FGB1", "name": "한-영 FTA", "countries": ["GB", "UK"]},
+    {"code": "FVN1", "name": "한-베트남 FTA", "countries": ["VN"]},
+    {"code": "FAS1", "name": "한-아세안 FTA", "countries": ["VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "ASEAN"]},
+    {"code": "FAU1", "name": "한-호주 FTA", "countries": ["AU"]},
+    {"code": "FCA1", "name": "한-캐나다 FTA", "countries": ["CA"]},
+    {"code": "FNZ1", "name": "한-뉴질랜드 FTA", "countries": ["NZ"]},
+    {"code": "FCL1", "name": "한-칠레 FTA", "countries": ["CL"]},
+    {"code": "FPE1", "name": "한-페루 FTA", "countries": ["PE"]},
+    {"code": "FCO1", "name": "한-콜롬비아 FTA", "countries": ["CO"]},
+    {"code": "FTR1", "name": "한-터키 FTA", "countries": ["TR"]},
+    {"code": "FIN1", "name": "한-인도 CEPA", "countries": ["IN"]},
+    {"code": "FID1", "name": "한-인도네시아 CEPA", "countries": ["ID"]},
+    {"code": "FPH1", "name": "한-필리핀 FTA", "countries": ["PH"]},
+    {"code": "FKH1", "name": "한-캄보디아 FTA", "countries": ["KH"]},
+    {"code": "FIL1", "name": "한-이스라엘 FTA", "countries": ["IL"]},
+    {"code": "FSG1", "name": "한-싱가포르 FTA", "countries": ["SG"]},
+    {"code": "FEF1", "name": "한-EFTA FTA", "countries": ["CH", "NO", "IS", "LI", "EFTA"]},
+    {"code": "FCECR1", "name": "한-중미 FTA(코스타리카)", "countries": ["CR"]},
+    {"code": "FCEHN1", "name": "한-중미 FTA(온두라스)", "countries": ["HN"]},
+    {"code": "FCENI1", "name": "한-중미 FTA(니카라과)", "countries": ["NI"]},
+    {"code": "FCEPA1", "name": "한-중미 FTA(파나마)", "countries": ["PA"]},
+    {"code": "FCESV1", "name": "한-중미 FTA(엘살바도르)", "countries": ["SV"]}
+]
+
 COUNTRY_FTA_MAP = {
     # 한-EU FTA 27개 회원국 + EU
     "AT": ("한-EU FTA (FEU1)", "EU"), "BE": ("한-EU FTA (FEU1)", "EU"), "BG": ("한-EU FTA (FEU1)", "EU"),
@@ -1651,8 +1682,8 @@ COUNTRY_FTA_MAP = {
     # 주요 개별 및 다자 FTA 체결국
     "US": ("한-미 FTA (FUS1)", "US"),
     "CN": ("한-중 FTA (FCN1)", "CN"),
-    "JP": ("RCEP (한-일 / FRK1)", "JP"),
-    "VN": ("한-베트남 FTA (FVK1) / 한-아세안 (FAK1)", "VN"),
+    "JP": ("RCEP (한-일 / FRCJP1)", "JP"),
+    "VN": ("한-베트남 FTA (FVN1)", "VN"),
     "CL": ("한-칠레 FTA (FCL1)", "CL"),
     "AU": ("한-호주 FTA (FAU1)", "AU"),
     "NZ": ("한-뉴질랜드 FTA (FNZ1)", "NZ"),
@@ -1660,95 +1691,28 @@ COUNTRY_FTA_MAP = {
     "CA": ("한-캐나다 FTA (FCA1)", "CA"),
     "IN": ("한-인도 CEPA (FIN1)", "IN"),
     "SG": ("한-싱가포르 FTA (FSG1)", "SG"),
-    "TH": ("한-아세안 FTA (FAK1)", "TH"),
+    "TH": ("한-아세안 FTA (FAS1)", "TH"),
     "ID": ("한-인니 CEPA (FID1)", "ID"),
-    "MY": ("한-아세안 FTA (FAK1)", "MY"),
+    "MY": ("한-아세안 FTA (FAS1)", "MY"),
     "PH": ("한-필리핀 FTA (FPH1)", "PH"),
-    "CH": ("한-EFTA FTA (FEF1)", "EFTA"), "NO": ("한-EFTA FTA (FEF1)", "EFTA"),
-    "IS": ("한-EFTA FTA (FEF1)", "EFTA"), "LI": ("한-EFTA FTA (FEF1)", "EFTA"), "EFTA": ("한-EFTA FTA (FEF1)", "EFTA"),
+    "KH": ("한-캄보디아 FTA (FKH1)", "KH"),
+    "IL": ("한-이스라엘 FTA (FIL1)", "IL"),
+    "CH": ("한-EFTA FTA (FEFCH)", "EFTA"), "NO": ("한-EFTA FTA (FEFNO)", "EFTA"),
+    "IS": ("한-EFTA FTA (FEFIS)", "EFTA"), "LI": ("한-EFTA FTA (FEF1)", "EFTA"), "EFTA": ("한-EFTA FTA (FEF1)", "EFTA"),
     "PE": ("한-페루 FTA (FPE1)", "PE"), "CO": ("한-콜롬비아 FTA (FCO1)", "CO"), "TR": ("한-터키 FTA (FTR1)", "TR"),
-    "PA": ("한-중미 FTA (FCE1)", "PA"), "CR": ("한-중미 FTA (FCE1)", "CR"), "HN": ("한-중미 FTA (FCE1)", "HN")
+    "PA": ("한-중미 FTA (FCEPA1)", "PA"), "CR": ("한-중미 FTA (FCECR1)", "CR"), "HN": ("한-중미 FTA (FCEHN1)", "HN"),
+    "NI": ("한-중미 FTA (FCENI1)", "NI"), "SV": ("한-중미 FTA (FCESV1)", "SV")
 }
 
 EU_COUNTRIES = {"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK", "EU"}
 ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "ASEAN"}
 RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR", "RCEP"}
 
-# 모든 FTA 협정 공통 양허제외 초민감 품목 (쌀 등)
-ALL_FTA_EXCLUDED_PREFIXES = [
-    "100610", "1006.10", "100620", "1006.20", "100630", "1006.30", "100640", "1006.40", # 쌀(벼, 현미, 백미, 쇄미)
-    "110230", "1102.30", # 쌀가루
-    "11081910", "1108.19.10", # 쌀전분
-]
-
-# 중국 및 RCEP 협정 대상 양허제외 초민감 농축수산물 및 식품류
-CHINA_RCEP_EXCLUDED_PREFIXES = [
-    # 제02류: 육류 및 식용 설육
-    "0201", "0202", "0203", "0204", "0205", "0206", "0207", "0208", "0209", "0210",
-    # 제03류: 어류, 갑각류, 연체동물 및 기타 수생 무척추동물 (조기, 명태, 오징어, 게, 새우, 전복, 바지락 등)
-    "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0308",
-    # 제04류: 낙농품, 조란, 천연꿀
-    "0401", "0402", "0403", "0404", "0405", "0406", "0407", "0408", "0409", "0410",
-    # 제07류: 채소, 뿌리 및 덩이줄기 (마늘, 양파, 파, 고추, 감자, 고구마, 두류, 건조버섯 등)
-    "0701", "0702", "0703", "0704", "0705", "0706", "0707", "0708", "0709", "0710", "0711", "0712", "0713", "0714",
-    # 제08류: 과실 및 견과류 (사과, 배, 감귤, 오렌지, 포도, 밤, 잣, 대추, 곶감 등)
-    "0801", "0802", "0803", "0804", "0805", "0806", "0807", "0808", "0809", "0810", "0811", "0812", "0813",
-    # 제09류: 커피, 차, 향신료 (녹차, 고추, 생강 등)
-    "0902", "0904", "0910",
-    # 제10류: 곡물 (밀, 옥수수, 쌀, 수수, 메밀 등)
-    "1001", "1002", "1003", "1004", "1005", "1006", "1007", "1008",
-    # 제11류: 제분공업 생산품, 맥아, 전분
-    "1101", "1102", "1103", "1104", "1105", "1106", "1107", "1108", "1109",
-    # 제12류: 채유용 종자, 과실, 인삼 (대두, 땅콩, 참깨, 들깨, 인삼/홍삼 등)
-    "1201", "1202", "1207", "1211", "1212",
-    # 제15류: 동·식물성 유지 (참기름, 들기름 등)
-    "1515", "151550", "1515.50", "151590", "1515.90",
-    # 제16류: 육류·어류 조제품 (소시지, 햄, 캔 등)
-    "1601", "1602", "1604", "1605",
-    # 제20류: 채소·과실 조제품 (절임마늘, 조제땅콩, 김치 등)
-    "2001", "2002", "2003", "2004", "2005", "200811", "2008.11",
-    # 제21류: 각종 조제 식료품 (고추장, 된장, 혼합장/다대기 등)
-    "210390", "2103.90", "210690", "2106.90",
-]
-
-def get_representative_countries(origin: str) -> List[str]:
-    origin_upper = origin.upper().strip()
-    targets = [origin_upper]
-    
-    if origin_upper in EU_COUNTRIES:
-        targets.extend(["EU", "IT", "DE", "FR", "ES", "NL"])
-    if origin_upper in ASEAN_COUNTRIES:
-        targets.extend(["ASEAN", "VN"])
-    if origin_upper in RCEP_COUNTRIES:
-        targets.extend(["RCEP"])
-    if origin_upper in {"CH", "NO", "IS", "LI", "EFTA"}:
-        targets.extend(["EFTA", "IT", "EU"])
-    if origin_upper in {"GB", "UK"}:
-        targets.extend(["GB", "UK"])
-    if origin_upper == "CL":
-        targets.extend(["CL", "CHILE"])
-    if origin_upper == "PE":
-        targets.extend(["PE", "PERU"])
-    if origin_upper in {"CO", "PA", "CR", "HN", "SV", "NI"}:
-        targets.extend(["PE", "CL"])
-    if origin_upper in {"TR", "IL"}:
-        targets.extend(["IT", "EU"])
-        
-    return list(set(targets))
-
 @app.get("/api/hs/rates")
 def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optional[str] = None, db: Session = Depends(get_db)):
     # HSK 포맷 클렌징
     clean_code = hs_code.replace(".", "").replace("-", "").strip()
     origin_upper = origin.upper().strip()
-    
-    # 10단위 포맷으로 마스터 조회용 원본 코드 복원
-    formatted_codes = [
-        hs_code,
-        f"{clean_code[:4]}.{clean_code[4:6]}-{clean_code[6:]}" if len(clean_code) == 10 else hs_code,
-        f"{clean_code[:4]}.{clean_code[4:6]}" if len(clean_code) >= 6 else hs_code,
-        clean_code
-    ]
     
     # 신고 일자 기반 계절/시기 판정 (기본값: 오늘 날짜)
     dec_date_str = declaration_date.strip() if (declaration_date and declaration_date.strip()) else datetime.now().strftime("%Y-%m-%d")
@@ -1762,331 +1726,248 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optiona
     is_first_half = (1 <= dec_month <= 6)
     current_season_badge = f"{dec_year}년 상반기(1~6월)" if is_first_half else f"{dec_year}년 하반기(7~12월)"
     
-    # 1. 해당 품목의 공식 기본세율(A) 및 WTO 협정세율(C) 마스터 조회 (국가별 FTA 레코드 배제)
-    base_record = db.query(HSRateMaster).filter(
-        HSRateMaster.hs_code.in_(formatted_codes) & 
-        ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO") | (HSRateMaster.country_code == "BASE"))
-    ).first()
-    if not base_record and len(clean_code) >= 4:
-        prefix = clean_code[:6] if len(clean_code) >= 6 else clean_code[:4]
-        base_record = db.query(HSRateMaster).filter(
-            HSRateMaster.hs_code.like(f"{prefix}%") &
-            ((HSRateMaster.country_code == None) | (HSRateMaster.country_code == "") | (HSRateMaster.country_code == "KR") | (HSRateMaster.country_code == "WTO") | (HSRateMaster.country_code == "BASE"))
-        ).first()
-    if not base_record:
-        base_record = db.query(HSRateMaster).filter(HSRateMaster.hs_code.in_(formatted_codes)).first()
+    # 1. customs_rates_2026 전수 마스터에서 실시간 조회
+    rate_rows = []
+    try:
+        query_sql = text("""
+        SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
+        FROM customs_rates_2026
+        WHERE hs_code = :hsk
+        """)
+        rate_rows = db.execute(query_sql, {"hsk": clean_code}).fetchall()
         
-    actual_base_rate = base_record.base_rate if (base_record and base_record.base_rate is not None) else (3.0 if clean_code.startswith("1201") else (40.0 if clean_code.startswith("120740") or clean_code.startswith("120799") else (50.0 if clean_code.startswith("0703") or clean_code.startswith("0904") else (30.0 if clean_code.startswith("0701") or clean_code.startswith("0712") else 8.0))))
-    actual_wto_rate = base_record.wto_rate if base_record else None
+        # 10자리 없을 시 6단위 prefix 검색
+        if not rate_rows and len(clean_code) >= 6:
+            query_sql_prefix = text("""
+            SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
+            FROM customs_rates_2026
+            WHERE hs_code LIKE :prefix
+            LIMIT 100
+            """)
+            rate_rows = db.execute(query_sql_prefix, {"prefix": f"{clean_code[:6]}%"}).fetchall()
+    except Exception as e:
+        print(f"[RATES_DB_WARN] Query on customs_rates_2026 failed: {e}")
+        
+    rate_map = {}
+    for row in rate_rows:
+        rcode = str(row[0]).strip()
+        rval = float(row[1]) if row[1] is not None else None
+        srate = float(row[2]) if row[2] is not None else None
+        utype = str(row[3]).strip() if row[3] is not None else None
+        sdate = str(row[4]).strip() if row[4] is not None else None
+        edate = str(row[5]).strip() if row[5] is not None else None
+        
+        if rcode not in rate_map:
+            rate_map[rcode] = []
+        rate_map[rcode].append({
+            "rate_val": rval,
+            "specific_rate": srate,
+            "usage_type": utype,
+            "start_date": sdate,
+            "end_date": edate
+        })
+        
+    # 기본세율 (A / A1)
+    base_info = rate_map.get("A", rate_map.get("A1", []))
+    actual_base_rate = base_info[0]["rate_val"] if base_info and base_info[0]["rate_val"] is not None else 8.0
     
-    # 전 FTA 양허제외 및 중국/RCEP 양허제외 판단
-    is_all_excluded = any(clean_code.startswith(p.replace(".", "")) for p in ALL_FTA_EXCLUDED_PREFIXES)
-    is_china_rcep_excluded = (origin_upper in ["CN", "JP", "RCEP"]) and any(clean_code.startswith(p.replace(".", "")) for p in CHINA_RCEP_EXCLUDED_PREFIXES)
+    # WTO 협정세율 (C / C1~C6)
+    wto_info = rate_map.get("C", rate_map.get("C1", []))
+    actual_wto_rate = wto_info[0]["rate_val"] if wto_info and wto_info[0]["rate_val"] is not None else None
     
-    # 2. 원산지 국가 코드에 따른 FTA 협정 조회
-    target_countries = get_representative_countries(origin_upper)
-    
-    applicable_records = []
-    if not is_all_excluded:
-        # 1차: 정확한 10단위 / 입력 코드 우선 조회
-        records = db.query(HSRateMaster).filter(
-            HSRateMaster.hs_code.in_(formatted_codes) & 
-            HSRateMaster.country_code.in_(target_countries)
-        ).all()
-        # 2차: 1차 일치 레코드가 없을 때만 6단위 prefix로 fallback
-        if not records and len(clean_code) >= 6:
-            records = db.query(HSRateMaster).filter(
-                HSRateMaster.hs_code.like(f"{clean_code[:6]}%") & 
-                HSRateMaster.country_code.in_(target_countries)
-            ).all()
-        for r in records:
-            rec_country = (r.country_code or "").upper().strip()
-            fta_name = r.fta_name or ""
+    # WTO 우선순위 법률 안내 문구 (관세법 제50조)
+    wto_rule_note = None
+    if actual_wto_rate is not None:
+        if actual_wto_rate > actual_base_rate:
+            wto_rule_note = f"관세법 제50조 제2항에 따라 WTO 양허세율({actual_wto_rate}%)보다 낮은 기본세율({actual_base_rate}%)이 실무상 우선 적용됩니다."
+        elif actual_wto_rate < actual_base_rate:
+            wto_rule_note = f"관세법 제50조에 따라 기본세율({actual_base_rate}%)보다 유리한 WTO 협정세율({actual_wto_rate}%)이 우선 적용됩니다."
+        else:
+            wto_rule_note = f"기본세율과 WTO 협정세율이 {actual_base_rate}%로 동일합니다."
             
-            # 중국/RCEP 양허제외 품목 가드 (FCN6/TRQ 명시 추천세율 제외하고 일반 FTA 0% 배제)
-            if is_china_rcep_excluded and rec_country in ["CN", "JP", "RCEP"]:
-                if ("FCN6" in fta_name or "TRQ" in fta_name) and r.fta_rate is not None:
-                    applicable_records.append(r)
-                continue
-
-            # 1) 정확한 국가 코드 매칭
-            if rec_country == origin_upper and r.fta_rate is not None:
-                applicable_records.append(r)
-                continue
-
-            # 2) EU 27개 가입국 전체 호환 매칭
-            if origin_upper in EU_COUNTRIES and (rec_country in EU_COUNTRIES or "EU" in fta_name or "유럽" in fta_name):
-                if r.fta_rate is not None:
-                    applicable_records.append(r)
-                    continue
-                    
-            # 3) ASEAN 가입국 협정 호환 매칭
-            if origin_upper in ASEAN_COUNTRIES and (rec_country in ASEAN_COUNTRIES or "ASEAN" in fta_name or "아세안" in fta_name):
-                if r.fta_rate is not None:
-                    applicable_records.append(r)
-                    continue
-                    
-            # 4) RCEP 가입국 협정 호환 매칭
-            if origin_upper in RCEP_COUNTRIES and (rec_country in RCEP_COUNTRIES or "RCEP" in fta_name or "역내" in fta_name):
-                if r.fta_rate is not None:
-                    applicable_records.append(r)
-                    continue
-
-    # 3. 최적 추천세율 산정 (FTA특혜 vs WTO양허 vs 기본세율)
-    fta_info = COUNTRY_FTA_MAP.get(origin_upper)
-    default_fta_name = fta_info[0] if fta_info else "미체결국"
+    # 할당관세 (W1: 추천/감면, W2: 미추천/초과)
+    quota_w1 = rate_map.get("W1", [])
+    quota_w2 = rate_map.get("W2", [])
+    quota_w1_rate = quota_w1[0]["rate_val"] if quota_w1 else None
+    quota_w2_rate = quota_w2[0]["rate_val"] if quota_w2 else None
+    has_quota = quota_w1_rate is not None or quota_w2_rate is not None
     
-    best_fta = None
-    has_seasonal_rate = False
-    seasonal_schedule_parsed = None
-    active_seasonal_desc = ""
-
-    if applicable_records:
-        applicable_records.sort(key=lambda x: x.fta_rate if x.fta_rate is not None else 999)
-        best_fta = applicable_records[0]
-        fta_rate = best_fta.fta_rate
-        fta_name = default_fta_name if (origin_upper in EU_COUNTRIES or origin_upper in RCEP_COUNTRIES) else (best_fta.fta_name or default_fta_name)
+    quota_rates_list = []
+    if quota_w1_rate is not None:
+        quota_rates_list.append({
+            "code": "W1",
+            "name": "할당관세 (수입추천/감면)",
+            "rate": quota_w1_rate,
+            "type": "RECOMMENDED"
+        })
+    if quota_w2_rate is not None:
+        quota_rates_list.append({
+            "code": "W2",
+            "name": "할당관세 (미추천/한도초과)",
+            "rate": quota_w2_rate,
+            "type": "OUT_OF_QUOTA"
+        })
         
-        # 계절관세 / 상·하반기 스케줄 동적 판정
-        if getattr(best_fta, "has_seasonal_rate", False) and getattr(best_fta, "seasonal_schedule", None):
-            has_seasonal_rate = True
-            try:
-                seasonal_schedule_parsed = json.loads(best_fta.seasonal_schedule)
-                if "first_half" in seasonal_schedule_parsed and "second_half" in seasonal_schedule_parsed:
-                    active_info = seasonal_schedule_parsed["first_half"] if is_first_half else seasonal_schedule_parsed["second_half"]
-                    fta_rate = active_info.get("fta_rate", fta_rate)
-                    active_seasonal_desc = f"{active_info.get('name', current_season_badge)} 적용: {active_info.get('formula')}"
-                elif "in_season" in seasonal_schedule_parsed and "out_season" in seasonal_schedule_parsed:
-                    in_months = seasonal_schedule_parsed["in_season"].get("months", [])
-                    active_info = seasonal_schedule_parsed["in_season"] if (dec_month in in_months) else seasonal_schedule_parsed["out_season"]
-                    fta_rate = active_info.get("rate", fta_rate)
-                    active_seasonal_desc = f"{active_info.get('name', '')} 적용: {active_info.get('formula')}"
-            except Exception as e:
-                print(f"[SEASONAL_PARSE_WARN] {e}")
-    else:
-        if fta_info:
-            fta_name = f"{fta_info[0]} (양허제외/기본세율 적용)"
-            fta_rate = None
-        else:
-            fta_name = "미체결국"
-            fta_rate = None
-
-    # 기본세율 자체 계절관세 체크 (예: 오렌지, 포도 등)
-    if base_record and getattr(base_record, "has_seasonal_rate", False) and getattr(base_record, "seasonal_schedule", None):
-        has_seasonal_rate = True
-        try:
-            seasonal_schedule_parsed = json.loads(base_record.seasonal_schedule)
-            if "in_season" in seasonal_schedule_parsed and "out_season" in seasonal_schedule_parsed:
-                in_months = seasonal_schedule_parsed["in_season"].get("months", [])
-                active_info = seasonal_schedule_parsed["in_season"] if (dec_month in in_months) else seasonal_schedule_parsed["out_season"]
-                actual_base_rate = active_info.get("rate", actual_base_rate)
-                actual_wto_rate = actual_base_rate
-                active_seasonal_desc = f"{active_info.get('name', '')} 적용: {active_info.get('formula')}"
-        except Exception as e:
-            print(f"[BASE_SEASONAL_PARSE_WARN] {e}")
-
-    # 추천 세율 결정
-    # FTA 협정이 유효하게 존재하는 경우 원산지증명서(C/O) 구비 특혜세율을 우선 적용
-    specific_rate = None
-    specific_unit = None
-    duty_type = "AD_VALOREM"
-    duty_formula = None
-
-    if best_fta and fta_rate is not None:
-        recommended_rate = fta_rate
-        duty_type = getattr(best_fta, "duty_type", "AD_VALOREM") or "AD_VALOREM"
-        specific_unit = getattr(best_fta, "specific_unit", None)
+    # 조정관세 (T1, T2) / 잠정관세 (S) / 계절관세 (K)
+    adj_info = rate_map.get("T1", rate_map.get("T2", []))
+    adjustment_rate = adj_info[0]["rate_val"] if adj_info else None
+    
+    # 21개 전체 FTA 협정별 세율 목록 구성
+    all_fta_rates = []
+    for fta_def in OFFICIAL_FTA_DEFINITIONS:
+        f_code = fta_def["code"]
+        f_name = fta_def["name"]
+        f_countries = fta_def["countries"]
         
-        # 계절관세가 있는 경우 해당 시기 종량세액 적용
-        if has_seasonal_rate and seasonal_schedule_parsed:
-            if "first_half" in seasonal_schedule_parsed and "second_half" in seasonal_schedule_parsed:
-                active_info = seasonal_schedule_parsed["first_half"] if is_first_half else seasonal_schedule_parsed["second_half"]
-                specific_rate = active_info.get("specific_rate", best_fta.specific_rate)
-                specific_unit = active_info.get("unit", best_fta.specific_unit)
-                duty_formula = active_info.get("formula", best_fta.duty_formula)
-                duty_type = "ALTERNATIVE" if specific_rate else duty_type
-            else:
-                specific_rate = getattr(best_fta, "specific_rate", None)
-                duty_formula = getattr(best_fta, "duty_formula", None)
-        else:
-            specific_rate = getattr(best_fta, "specific_rate", None)
-            duty_formula = getattr(best_fta, "duty_formula", None)
-    else:
-        # 미협정국 또는 양허제외: 기본세율 vs WTO양허세율 비교
-        candidate_rates = [actual_base_rate]
-        if actual_wto_rate is not None and not (base_record and getattr(base_record, "duty_type", "AD_VALOREM") == "ALTERNATIVE" and actual_wto_rate > actual_base_rate):
-            candidate_rates.append(actual_wto_rate)
-        recommended_rate = min(candidate_rates)
+        f_rows = rate_map.get(f_code, [])
+        f_rate = f_rows[0]["rate_val"] if f_rows else None
         
-        if base_record and getattr(base_record, "duty_type", "AD_VALOREM") in ["ALTERNATIVE", "SPECIFIC"]:
-            specific_rate = base_record.specific_rate
-            specific_unit = base_record.specific_unit
-            duty_type = base_record.duty_type
-            duty_formula = base_record.duty_formula
-
-    # 5. 농림축산물 시장접근물량(TRQ) 및 관세사 실무 전략 브리핑 생성
-    is_trq_item = any(clean_code.startswith(pref.replace(".", "")) for pref in [
-        "1201", "1207.40", "120740", "1207.99", "120799", "0703", "0712", "0904", "0701", 
-        "1006", "0813", "0402", "0713", "0910", "1211", "2106", "1107", "1108", "1202", "0409", "0802", "1005", "1515", "1507"
-    ])
-    trq_in_rate = None
-    trq_out_rate = None
-    trq_agency = "한국농수산식품유통공사(aT)"
+        is_applied_country = origin_upper in f_countries or (origin_upper in EU_COUNTRIES and "EU" in f_countries) or (origin_upper in ASEAN_COUNTRIES and "ASEAN" in f_countries)
+        
+        all_fta_rates.append({
+            "code": f_code,
+            "name": f_name,
+            "rate": f_rate,
+            "is_applicable_to_origin": is_applied_country,
+            "status": "적용 가능" if (is_applied_country and f_rate is not None) else ("양허제외/미적용" if is_applied_country else "해당국가 아님")
+        })
+        
+    # 선택된 원산지 국가(origin)에 최적 FTA 세율 매칭
+    fta_info = COUNTRY_FTA_MAP.get(origin_upper)
+    fta_name = fta_info[0] if fta_info else "미체결국"
+    
+    # 국가별 우선 조회 FTA 코드 리스트
+    country_fta_code_order = []
+    if origin_upper == "CN":
+        country_fta_code_order = ["FCN1", "FRCCN1", "FCN2", "FCN6"]
+    elif origin_upper == "JP":
+        country_fta_code_order = ["FRCJP1", "FRCJP2", "FRCJP3"]
+    elif origin_upper == "US":
+        country_fta_code_order = ["FUS1", "FUS6", "FUS8"]
+    elif origin_upper in EU_COUNTRIES:
+        country_fta_code_order = ["FEU1", "FEU6", "FEU7"]
+    elif origin_upper in ["GB", "UK"]:
+        country_fta_code_order = ["FGB1", "FGB8", "FGB9"]
+    elif origin_upper == "VN":
+        country_fta_code_order = ["FVN1", "FAS1", "FRCAS1"]
+    elif origin_upper in ASEAN_COUNTRIES:
+        country_fta_code_order = ["FAS1", "FRCAS1"]
+    elif origin_upper == "AU":
+        country_fta_code_order = ["FAU1", "FRCAU1", "FAU9"]
+    elif origin_upper == "CA":
+        country_fta_code_order = ["FCA1", "FCA8", "FCA6"]
+    elif origin_upper == "NZ":
+        country_fta_code_order = ["FNZ1", "FRCNZ1", "FNZ9"]
+    elif origin_upper == "CL":
+        country_fta_code_order = ["FCL1", "FCL5"]
+    elif origin_upper == "PE":
+        country_fta_code_order = ["FPE1"]
+    elif origin_upper == "CO":
+        country_fta_code_order = ["FCO1", "FCO7"]
+    elif origin_upper == "TR":
+        country_fta_code_order = ["FTR1", "FTR5"]
+    elif origin_upper == "IN":
+        country_fta_code_order = ["FIN1"]
+    elif origin_upper == "ID":
+        country_fta_code_order = ["FID1", "FAS1", "FRCAS1"]
+    elif origin_upper == "SG":
+        country_fta_code_order = ["FSG1", "FAS1", "FRCAS1"]
+    elif origin_upper == "PH":
+        country_fta_code_order = ["FPH1", "FAS1", "FRCAS1"]
+    elif origin_upper == "KH":
+        country_fta_code_order = ["FKH1", "FAS1", "FRCAS1"]
+    elif origin_upper == "IL":
+        country_fta_code_order = ["FIL1"]
+    elif origin_upper in ["CH", "NO", "IS", "LI", "EFTA"]:
+        country_fta_code_order = ["FEFCH", "FEFNO", "FEFIS", "FEF1"]
+    elif origin_upper == "CR":
+        country_fta_code_order = ["FCECR1"]
+    elif origin_upper == "HN":
+        country_fta_code_order = ["FCEHN1"]
+    elif origin_upper == "NI":
+        country_fta_code_order = ["FCENI1"]
+    elif origin_upper == "PA":
+        country_fta_code_order = ["FCEPA1"]
+    elif origin_upper == "SV":
+        country_fta_code_order = ["FCESV1"]
+        
+    matched_fta_code = None
+    matched_fta_rate = None
+    for code in country_fta_code_order:
+        if code in rate_map and rate_map[code]:
+            matched_fta_code = code
+            matched_fta_rate = rate_map[code][0]["rate_val"]
+            break
+            
+    # 추천 최적 세율 결정 (FTA vs 할당관세 W1 vs min(기본A, WTO C))
+    legal_base_or_wto = min(actual_base_rate, actual_wto_rate) if actual_wto_rate is not None else actual_base_rate
+    candidate_rates = [legal_base_or_wto]
+    
+    if matched_fta_rate is not None:
+        candidate_rates.append(matched_fta_rate)
+    if quota_w1_rate is not None:
+        candidate_rates.append(quota_w1_rate)
+        
+    recommended_rate = min(candidate_rates)
+    
+    # 전문 브리핑 문구 생성
     expert_insight = ""
-
-    if clean_code.startswith("1201"): # 대두
-        trq_in_rate = 3.0
-        trq_out_rate = "487% 또는 956원/kg (선택세)"
-        if fta_rate == 0.0:
-            expert_insight = f"⭐ [{fta_name} 0.0% 무관세 특혜] 해당 원산지({origin_upper})산 대두(1201호)는 {fta_name} 원산지증명서(C/O) 구비 시 0.0% 무관세 특혜 통관이 가능합니다. (C/O 미구비 시 aT 추천서 구비 시 3.0%, 미구비 시 기본세율 3.0%가 적용됩니다.)"
+    if has_quota and quota_w1_rate is not None:
+        expert_insight = f"🌾 [할당관세(W1) {quota_w1_rate}% 대상] 본 품목은 수입추천서 구비 시 할당관세(W1) {quota_w1_rate}%가 적용되며, 미추천 시 {quota_w2_rate or actual_base_rate}%가 적용됩니다."
+    elif origin_upper == "CN":
+        if matched_fta_rate is not None:
+            expert_insight = f"🇨🇳 [한-중 FTA {matched_fta_code} {matched_fta_rate}%] 본 품목({hs_code})은 2026년 한-중 FTA 협정에 따라 {matched_fta_rate}% 특혜세율이 적용됩니다. 중국 해관/CCPIT 전자 원산지증명서(CO-PASS) 구비 시 {matched_fta_rate}%로 신속 통관이 가능합니다."
         else:
-            expert_insight = "본 품목(대두)은 농림축산물 양허관세(TRQ) 대상입니다. aT(한국농수산식품유통공사)의 추천서를 구비하여 수입신고하면 추천내 양허세율 3%가 적용되며, 한-EU/한-미 FTA 원산지증명서 구비 시 0% 특혜 통관이 가능합니다. 추천서가 없는 일반 수입 시에는 기본세율 3%가 적용됩니다."
-    elif clean_code.startswith("0712.34") or clean_code.startswith("071234") or clean_code.startswith("0712.39") or clean_code.startswith("071239"): # 표고버섯
-        trq_in_rate = 30.0
-        trq_out_rate = "514% 또는 1,625원/kg (선택세)"
-        trq_agency = "산림청 / 산림조합중앙회"
-        expert_insight = "본 품목(건조 표고버섯)은 산림청 추천 양허 품목(양허제외)입니다. 추천서 미구비 수입 시 514% 또는 1,625원/kg의 고액 선택세가 과세되므로, 반드시 수입 전 추천서 발급 요건 및 관세율을 확인하십시오."
-    elif clean_code.startswith("0703.20") or clean_code.startswith("070320"): # 마늘
-        trq_in_rate = 50.0
-        trq_out_rate = "360% 또는 1,800원/kg (선택세)"
-        expert_insight = "본 품목(마늘, 0703.20)은 대표적 초민감 농산물로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 추천 외 수입 시 360% 또는 1,800원/kg 중 고액 과세됩니다."
-    elif clean_code.startswith("0703.10") or clean_code.startswith("070310"): # 양파
-        trq_in_rate = 50.0
-        trq_out_rate = "135% 또는 206원/kg (선택세)"
-        expert_insight = "본 품목(양파, 0703.10)은 양허제외 품목으로 aT 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 135% 또는 206원/kg의 선택세가 적용됩니다."
-    elif clean_code.startswith("0904.20") or clean_code.startswith("090420") or clean_code.startswith("0904.21") or clean_code.startswith("090421") or clean_code.startswith("0904.22") or clean_code.startswith("090422"): # 고추
-        trq_in_rate = 50.0
-        trq_out_rate = "270% 또는 6,210원/kg (선택세)"
-        expert_insight = "본 품목(고추, 0904.20)은 초민감 품목으로 FTA 양허제외 품목입니다. aT TRQ 수입추천서 구비 시 50.0%가 적용되며, 미구비 시 270% 또는 6,210원/kg 중 고액 과세됩니다."
-    elif clean_code.startswith("0713.32") or clean_code.startswith("071332"): # 팥
-        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
-        trq_out_rate = "420.8% 또는 4,210원/kg (선택세)"
-        if origin_upper == "CN":
-            expert_insight = "🇨🇳 [한-중 FTA 팥 TRQ] 팥(0713.32)은 aT(한국농수산식품유통공사)의 한-중 FTA 시장접근물량(FCN6) 추천서 구비 시 0.0% 무관세가 적용됩니다. 미추천 일반 수입 시에는 420.8% 또는 4,210원/kg의 초고율 선택세가 과세됩니다."
-        else:
-            expert_insight = "본 품목(팥, 0713.32)은 aT TRQ 수입추천서(W1) 구비 시 30.0%가 적용되며, 미구비 시 420.8% 또는 4,210원/kg 중 고액 과세됩니다."
-    elif clean_code.startswith("0713.31") or clean_code.startswith("071331"): # 녹두
-        trq_in_rate = 0.0 if origin_upper == "CN" else 30.0
-        trq_out_rate = "607.5% 또는 4,950원/kg (선택세)"
-        if origin_upper == "CN":
-            expert_insight = "🇨🇳 [한-중 FTA 녹두 TRQ] 녹두(0713.31)는 aT 한-중 FTA 추천서(FCN6) 구비 시 0.0% 무관세가 적용되며, 미추천 시 607.5% 또는 4,950원/kg의 초고율 선택세가 부과됩니다."
-        else:
-            expert_insight = "본 품목(녹두, 0713.31)은 aT TRQ 수입추천서(W1) 구비 시 30.0%, 미구비 시 607.5% 또는 4,950원/kg 중 고액 과세됩니다."
-    elif clean_code.startswith("0910.11") or clean_code.startswith("091011") or clean_code.startswith("0910.12") or clean_code.startswith("091012"): # 생강
-        trq_in_rate = 0.0 if origin_upper == "CN" else 20.0
-        trq_out_rate = "377.3% 또는 1,910원/kg (선택세)"
-        if origin_upper == "CN":
-            expert_insight = "🇨🇳 [한-중 FTA 생강 TRQ] 생강(0910.11)은 aT 한-중 FTA 수입추천(FCN6) 시 0.0% 무관세 혜택을 받으며, 미추천 일반 수입 시 377.3% 또는 1,910원/kg 중 고액 과세됩니다."
-        else:
-            expert_insight = "본 품목(생강)은 aT TRQ 수입추천서 구비 시 20.0% 양허세율, 미구비 시 377.3% 또는 1,910원/kg의 선택세가 적용됩니다."
-    elif clean_code.startswith("1107"): # 맥아
-        trq_in_rate = 0.0 if (origin_upper in ["AU", "CA", "US", "GB"] or origin_upper in EU_COUNTRIES) else 30.0
-        trq_out_rate = "269.0%"
-        expert_insight = f"⭐ [{fta_name} 맥아 TRQ 실무] 맥아(1107.10)는 aT의 FTA TRQ 추천서 구비 시 0.0% 무관세가 적용되며, 일반 WTO TRQ 추천 시 30.0%, 추천 외 수입 시 269.0%의 고율 양허관세가 부과됩니다."
-    elif clean_code.startswith("0402"): # 분유
-        trq_in_rate = 0.0 if (origin_upper in ["US", "AU", "NZ"] or origin_upper in EU_COUNTRIES) else 20.0
-        trq_out_rate = "176% 또는 1,186원/kg (선택세)"
-        trq_agency = "한국유가공협회"
-        expert_insight = f"🥛 [{fta_name} 분유 TRQ] 탈지/전지분유(0402호)는 FTA TRQ 할당물량 추천 시 0.0% 무관세가 적용되며, 일반 수입추천 시 20.0%, 미추천 시 176% 또는 1,186원/kg의 선택세가 적용됩니다."
-    elif clean_code.startswith("1202"): # 땅콩
-        trq_in_rate = 24.0
-        trq_out_rate = "230.5% 또는 1,930원/kg (선택세)"
-        expert_insight = "본 품목(땅콩, 1202호)은 aT 수입추천서 구비 시 24.0%(탈각)가 적용되며, 미추천 수입 시 230.5% 또는 1,930원/kg의 초고율 선택세가 과세됩니다. (대부분의 FTA에서 양허제외)"
-    elif clean_code.startswith("0409"): # 천연꿀
-        trq_in_rate = 20.0
-        trq_out_rate = "243% 또는 1,864원/kg (선택세)"
-        expert_insight = "본 품목(천연 꿀, 0409.00)은 국내 양봉농가 보호를 위해 모든 FTA에서 양허제외된 초민감 품목입니다. aT 추천서 구비 시 20.0%, 미구비 시 243% 또는 1,864원/kg 중 고액 과세됩니다."
-    elif clean_code.startswith("1211.20") or clean_code.startswith("121120"): # 인삼/홍삼
-        trq_in_rate = 20.0
-        trq_out_rate = "754.3% 또는 28,218원/kg (선택세)"
-        trq_agency = "농협중앙회 / 인삼농협"
-        expert_insight = "본 품목(인삼/홍삼)은 국내 최고율 관세 품목(754.3% 또는 28,218원/kg)으로 전 FTA 양허제외 대상입니다. 수입 전 반드시 추천 요건을 확인하십시오."
-    elif clean_code.startswith("1207.40") or clean_code.startswith("120740"): # 참깨
-        trq_in_rate = 0.0 if origin_upper == "CN" else 40.0
-        trq_out_rate = "630% 또는 6,660원/kg (선택세)"
-        if origin_upper == "US" or fta_rate == 0.0:
-            expert_insight = "🇺🇸 [한-미 FTA 0.0% 무관세 특혜] 미국산 참깨(1207.40)는 한-미 FTA 원산지증명서(C/O) 구비 시 0.0% 무관세 특혜 통관이 적용됩니다. (중국 등 양허제외 국가와 달리 한-미 FTA 협정세율 혜택을 온전히 누릴 수 있어 원산지증명서 구비가 관세 절감의 핵심입니다. C/O 미구비 일반 수입 시에는 기본세율 40% 또는 aT 추천세율 40%가 적용됩니다.)"
-        elif origin_upper in EU_COUNTRIES or origin_upper in ["GB", "UK"]:
-            expert_insight = f"🇪🇺 [{fta_name} 복합세율 적용] 해당 원산지({origin_upper})산 참깨는 {current_season_badge} 기준 [{duty_formula}]이 적용됩니다. C/O 구비 시 종가세와 종량세 중 고액으로 세액이 산출되며, 일반 수입추천서 구비 시 40.0%의 저율이 적용될 수 있습니다."
-        elif origin_upper == "CN":
-            expert_insight = "🇨🇳 [한-중 FTA 실무: FCN1 vs FCN6 차이]\n• [FCN1 (일반 협정)]: 630% 또는 6,660원/kg (양자 중 고액) - 한-중 FTA 양허제외로 추천서 미구비 시 초고율 과세\n• [FCN6 (한-중 TRQ)]: 0.0% 무관세 - 한국농수산식품유통공사(aT)의 한-중 FTA 시장접근물량 수입추천서 구비 시 0.0% 파격 특혜 (국내 일반 TRQ 40.0%보다 40%p 추가 절감)"
-        else:
-            expert_insight = f"{origin_upper}산 참깨(1207.40)는 한-중 FTA 및 RCEP 협정 등에서 '양허제외(FTA 특혜 배제)' 품목으로 FTA 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사)의 TRQ 수입추천서를 발급받아야 40.0%의 양허세율이 적용되며, 추천서 미구비 시 630% 또는 6,660원/kg의 초고율 선택세가 과세됩니다."
-    elif clean_code.startswith("0701"): # 감자
-        trq_in_rate = 30.0
-        trq_out_rate = "304.0%"
-        trq_agency = "한국농수산식품유통공사(aT)"
-        if fta_rate == 0.0:
-            expert_insight = f"⭐ [{fta_name} 0.0% 무관세] 해당 원산지({origin_upper})산 감자(0701.90)는 {fta_name} 원산지증명서 구비 시 0.0% 무관세 수입이 가능합니다. (원산지증명서 미구비 수입 시에는 aT 추천서 구비 시 30.0%, 미구비 시 304.0%의 고율 양허관세가 부과됩니다.)"
-        else:
-            expert_insight = "본 품목(감자, 0701.90)은 농림축산물 시장접근물량(TRQ) 양허 품목입니다. aT(한국농수산식품유통공사)의 수입추천서를 구비하면 추천물량 내 30.0%의 저율이 적용되며, 추천서 미구비 시 304.0%의 고율 양허관세가 부과됩니다. (중국/EU 등 양허제외 국가 수입 시 aT 추천서 구비가 관세 절감의 핵심입니다.)"
-    elif clean_code.startswith("1207.99") or clean_code.startswith("120799"): # 들깨
-        trq_in_rate = 40.0
-        trq_out_rate = "40% 또는 369원/kg (선택세)"
-        expert_insight = "본 품목(들깨, 1207.99)은 원산지 국가별 FTA 양허표에 따라 상이합니다. aT 수입추천서 구비 시 40.0%가 적용되며, 추천서 미구비 시 40% 또는 369원/kg의 선택세가 적용됩니다."
-    elif clean_code.startswith("1006"): # 쌀
-        trq_in_rate = 5.0
-        trq_out_rate = "513.0%"
-        expert_insight = "본 품목(쌀, 1006호)은 전 FTA 협정 양허제외 초민감 품목입니다. aT 시장접근물량(TRQ) 국영무역 추천 시 5.0%가 적용되며, 추천 외 일반 상업 수입 시 513.0%의 고율 관세가 부과됩니다."
-    elif clean_code.startswith("85") or clean_code.startswith("84") or clean_code.startswith("90"):
-        expert_insight = f"본 공산품(전기전자/기계류)은 WTO 정보기술협정(ITA) 또는 {fta_name} 특혜 적용 시 0% 무관세 수입이 가능합니다. 수입 시 원산지증명서(C/O)의 형식적 요건(인증수출자 번호 등)을 철저히 확인하십시오."
+            expert_insight = f"🇨🇳 [한-중 FTA 양허제외] 본 품목은 한-중 FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
+    elif origin_upper in EU_COUNTRIES:
+        expert_insight = f"🇪🇺 [한-EU FTA {matched_fta_rate or 0.0}%] EU 회원국({origin_upper})산 물품은 한-EU FTA에 따라 {matched_fta_rate or 0.0}% 무관세/특혜세율이 적용됩니다. (6,000유로 초과 시 인증수출자 번호 필수)"
+    elif origin_upper == "US":
+        expert_insight = f"🇺🇸 [한-미 FTA {matched_fta_rate or 0.0}%] 미국산 물품은 한-미 FTA에 따라 {matched_fta_rate or 0.0}% 특혜세율이 적용됩니다. (수출자/생산자/수입자 자율 원산지증명서 구비)"
+    elif origin_upper == "JP":
+        expert_insight = f"🇯🇵 [RCEP(한-일) {matched_fta_rate or 4.0}%] 일본산 물품은 2022년 발효된 RCEP 협정에 따라 {matched_fta_rate or 4.0}% 협정세율이 적용됩니다."
     else:
         expert_insight = f"본 품목은 최적 추천세율 {recommended_rate}%가 적용됩니다. 원산지 국가({origin_upper})와의 {fta_name} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오."
-
-    # 국가별 특혜 통관 실무 팁
-    country_fta_tip = ""
-    if origin_upper in EU_COUNTRIES:
-        country_fta_tip = "🇪🇺 [한-EU FTA 실무] EU 27개 회원국 전체에 동일 특혜가 적용됩니다. 인보이스 상 수입금액이 6,000유로를 초과하는 경우 반드시 '인증수출자(Approved Exporter) 번호'가 기재된 원산지신고서 문안이 요구됩니다."
-    elif origin_upper == "US":
-        country_fta_tip = "🇺🇸 [한-미 FTA 실무] 수출자, 생산자 또는 수입자가 자율적으로 작성한 한-미 FTA 원산지증명서 서식으로 세관 특혜신고가 가능합니다."
-    elif origin_upper == "CN":
-        country_fta_tip = "🇨🇳 [한-중 FTA / RCEP 실무] 중국 해관총서 또는 CCPIT에서 전자 발급된 원산지증명서(C/O)의 전산 연동(CO-PASS) 여부를 확인하십시오."
-    elif origin_upper == "JP":
-        country_fta_tip = "🇯🇵 [RCEP(한-일) 실무] 일본산 물품은 RCEP 협정에 따라 특혜가 적용되며, 농산물 등 민감 품목은 양허제외로 기본세율이 적용됩니다."
-    elif origin_upper == "VN":
-        country_fta_tip = "🇻🇳 [한-베트남 / 한-아세안 실무] 한-베트남 FTA(Form KV) 또는 한-아세안 FTA(Form AK) 중 더 유리한 협정세율을 선택하여 적용할 수 있습니다."
-    elif origin_upper == "CL":
-        country_fta_tip = "🇨🇱 [한-칠레 FTA 실무] 칠레산 농산물/공산품 협정세율 적용 시 칠레 공인기관 발급 C/O가 필요합니다."
-    elif origin_upper == "PE":
-        country_fta_tip = "🇵🇪 [한-페루 FTA 실무] 2011년 8월 발효된 한-페루 FTA에 따라 현재 10년 이상 경과되어 주요 농수산물(아보카도, 망고, 포도, 아스파라거스, 커피, 오징어 등) 및 공산품이 0.0% 무관세 적용 대상입니다. 페루 공인기관 발급 원산지증명서(C/O)를 구비하십시오."
-    elif origin_upper == "AU":
-        country_fta_tip = "🇦🇺 [한-호주 FTA 실무] 호주 상공회의소 등 발급기관 증명서 또는 지정 서식의 원산지증명서가 필요합니다."
-
-    # 최적 통관 요약 Notice 문구 생성
-    if duty_formula:
-        notice = f"[⚠️ 선택세율 대상] {duty_formula} | {active_seasonal_desc or f'최저 특혜세율 {recommended_rate}%'}가 적용됩니다. (원산지: {origin_upper})"
-    elif fta_rate is not None and recommended_rate == fta_rate:
-        notice = f"[⭐ 최적 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
-    elif is_trq_item:
-        notice = f"[🌾 TRQ 수입추천 품목] 수입추천서 구비 시 {recommended_rate}% 적용 / 미구비 시 일반 기본세율({actual_base_rate}%) 또는 고액 선택세가 적용됩니다."
+        
+    notice = ""
+    if has_quota and quota_w1_rate is not None:
+        notice = f"[🌾 할당관세 적용 대상] 수입추천서 구비 시 {quota_w1_rate}% / 미구비 시 {quota_w2_rate or actual_base_rate}% 적용"
+    elif matched_fta_rate is not None and recommended_rate == matched_fta_rate:
+        notice = f"[⭐ 최적 FTA 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
     else:
         notice = f"기본세율(A) {actual_base_rate}%가 적용됩니다. (원산지: {origin_upper})"
-
+        
     return {
         "hs_code": hs_code,
         "origin": origin_upper,
         "declaration_date": dec_date_str,
         "active_season_badge": current_season_badge,
-        "has_seasonal_rate": has_seasonal_rate,
-        "seasonal_schedule": seasonal_schedule_parsed,
+        "has_seasonal_rate": False,
+        "seasonal_schedule": None,
         "rates": {
             "base_rate": actual_base_rate,
-            "wto_rate": actual_wto_rate if actual_wto_rate is not None else actual_base_rate,
-            "fta_rate": fta_rate,
+            "wto_rate": actual_wto_rate,
+            "wto_rule_note": wto_rule_note,
+            "fta_rate": matched_fta_rate,
+            "fta_code": matched_fta_code,
             "fta_name": fta_name,
+            "has_quota": has_quota,
+            "quota_rate": quota_w1_rate,
+            "quota_w1": quota_w1_rate,
+            "quota_w2": quota_w2_rate,
+            "quota_rates": quota_rates_list,
+            "adjustment_rate": adjustment_rate,
+            "all_fta_rates": all_fta_rates,
             "recommended_rate": recommended_rate,
-            "specific_rate": specific_rate,
-            "specific_unit": specific_unit or "kg",
-            "duty_type": duty_type,
-            "duty_formula": duty_formula,
-            "has_seasonal_rate": has_seasonal_rate,
-            "active_seasonal_desc": active_seasonal_desc,
-            "is_trq_item": is_trq_item,
-            "trq_in_rate": trq_in_rate,
-            "trq_out_rate": trq_out_rate,
-            "trq_agency": trq_agency,
+            "specific_rate": None,
+            "specific_unit": "kg",
+            "duty_type": "AD_VALOREM",
+            "duty_formula": None,
+            "is_trq_item": has_quota,
+            "trq_in_rate": quota_w1_rate,
+            "trq_out_rate": f"{quota_w2_rate}%" if quota_w2_rate else None,
+            "trq_agency": "한국농수산식품유통공사(aT) / 소관부처",
             "expert_insight": expert_insight,
-            "country_fta_tip": country_fta_tip,
+            "country_fta_tip": f"{origin_upper} 특혜통관 지침 준수",
             "notice": notice
         }
     }
@@ -2109,50 +1990,32 @@ def calculate_duty_api(
     
     # 2. 적용 관세율 및 과세 방식 결정
     applied_ad_valorem = rates_info["base_rate"]
-    applied_specific_rate = rates_info.get("specific_rate")
-    applied_unit = rates_info.get("specific_unit") or "kg"
-    applied_duty_type = rates_info.get("duty_type") or "AD_VALOREM"
     applied_basis_name = "기본세율 (A)"
     
     if has_co and rates_info.get("fta_rate") is not None:
         applied_ad_valorem = rates_info["fta_rate"]
         applied_basis_name = f"{rates_info.get('fta_name')} 특혜세율"
-    elif has_trq_recommendation and rates_info.get("trq_in_rate") is not None:
-        applied_ad_valorem = rates_info["trq_in_rate"]
-        applied_specific_rate = None
-        applied_duty_type = "AD_VALOREM"
-        applied_basis_name = f"TRQ 수입추천 양허세율 ({rates_info.get('trq_agency', 'aT')})"
+    elif has_trq_recommendation and rates_info.get("quota_w1") is not None:
+        applied_ad_valorem = rates_info["quota_w1"]
+        applied_basis_name = "할당관세 (W1 추천세율)"
     else:
-        if rates_info.get("wto_rate") is not None and rates_info.get("wto_rate") > rates_info["base_rate"]:
-            applied_ad_valorem = rates_info["wto_rate"]
-            applied_duty_type = rates_info.get("duty_type") or "ALTERNATIVE"
-            applied_basis_name = "WTO 시장접근초과 양허세율(고율)"
+        # 관세법 제50조 세율적용의 우선순위 (기본세율 vs WTO양허세율)
+        if rates_info.get("wto_rate") is not None:
+            if rates_info["wto_rate"] < rates_info["base_rate"]:
+                applied_ad_valorem = rates_info["wto_rate"]
+                applied_basis_name = "WTO 협정세율 (C)"
+            else:
+                applied_ad_valorem = rates_info["base_rate"]
+                applied_basis_name = "기본세율 (A) - 관세법 제50조에 따라 WTO양허세율보다 유리한 기본세율 우선적용"
         else:
             applied_ad_valorem = rates_info["base_rate"]
             applied_basis_name = "기본세율 (A)"
 
-    # 3. 종가세액 및 종량세액 계산
+    # 3. 세액 계산
     ad_valorem_duty = int(round(cif_price_krw * (applied_ad_valorem / 100.0)))
-    specific_duty = int(round(weight_kg * applied_specific_rate)) if (applied_specific_rate is not None and weight_kg > 0) else 0
-    
-    # 4. 최종 세액 판정
-    if applied_duty_type == "ALTERNATIVE" and applied_specific_rate is not None:
-        if specific_duty >= ad_valorem_duty:
-            final_duty = specific_duty
-            chosen_method = "종량세 (중량 기준)"
-            comparison_reason = f"종량세액({specific_duty:,}원)이 종가세액({ad_valorem_duty:,}원)보다 크거나 같으므로 종량세가 적용됩니다. (양자 중 고액 과세)"
-        else:
-            final_duty = ad_valorem_duty
-            chosen_method = "종가세 (가격 기준)"
-            comparison_reason = f"종가세액({ad_valorem_duty:,}원)이 종량세액({specific_duty:,}원)보다 크므로 종가세가 적용됩니다. (양자 중 고액 과세)"
-    elif applied_duty_type == "SPECIFIC" and applied_specific_rate is not None:
-        final_duty = specific_duty
-        chosen_method = "종량세 단독"
-        comparison_reason = f"수입 중량 {weight_kg:,.1f}{applied_unit}에 대해 단위당 {applied_specific_rate:,.0f}원이 부과되었습니다."
-    else:
-        final_duty = ad_valorem_duty
-        chosen_method = "종가세 단독"
-        comparison_reason = f"수입 과세가격 {cif_price_krw:,.0f}원에 대해 {applied_ad_valorem}%가 부과되었습니다."
+    final_duty = ad_valorem_duty
+    chosen_method = "종가세 단독"
+    comparison_reason = f"수입 과세가격 {cif_price_krw:,.0f}원에 대해 {applied_ad_valorem}% ({applied_basis_name})가 적용되었습니다."
 
     # 부가세(VAT) 추산: (과세가격 + 관세) × 10%
     vat_estimated = int(round((cif_price_krw + final_duty) * 0.1))
@@ -2170,14 +2033,14 @@ def calculate_duty_api(
             "has_trq_recommendation": has_trq_recommendation
         },
         "applied_rate_basis": applied_basis_name,
-        "applied_duty_type": applied_duty_type,
-        "applied_formula": rates_info.get("duty_formula"),
+        "applied_duty_type": "AD_VALOREM",
+        "applied_formula": f"{applied_ad_valorem}%",
         "calculation_breakdown": {
             "ad_valorem_rate": applied_ad_valorem,
             "ad_valorem_duty": ad_valorem_duty,
-            "specific_rate": applied_specific_rate,
-            "specific_unit": applied_unit,
-            "specific_duty": specific_duty,
+            "specific_rate": None,
+            "specific_unit": "kg",
+            "specific_duty": 0,
             "chosen_method": chosen_method,
             "comparison_reason": comparison_reason
         },
