@@ -251,7 +251,8 @@ export default function ClearanceWizard({
         calcExpertInsight = `🇨🇳 [한-중 FTA / RCEP 양허제외] 해당 품목(${hsCode})은 한-중 FTA에서 국내 산업 보호를 위해 양허제외되어 0% 특혜관세가 적용되지 않습니다.`;
       } else {
         if (hasFta) {
-          calcFtaRate = isFtaExempt ? 0.0 : (originCountry === 'CN' ? (isAgriOrFood ? calcBaseRate : 0.0) : 2.0);
+          const isStagingSpring = hsCode.startsWith('7320') && originCountry === 'CN';
+          calcFtaRate = isStagingSpring ? 1.6 : (isFtaExempt ? 0.0 : (originCountry === 'CN' ? (isAgriOrFood ? calcBaseRate : 0.0) : 2.0));
           calcRecommendedRate = calcFtaRate;
           calcNotice = `[⭐ 최적 특혜세율] ${resolvedFtaName} 특혜세율 ${calcRecommendedRate}%가 적용됩니다. (원산지증명서 구비 필수)`;
           calcExpertInsight = `원산지 국가(${originCountry})와의 ${resolvedFtaName} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오.`;
@@ -785,14 +786,16 @@ export default function ClearanceWizard({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 
                 {/* Rates comparison cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
                   <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-                    <span style={{ fontSize: '0.88rem', color: '#475569', fontWeight: 700 }}>기본 관세율 (A)</span>
+                    <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 700, display: 'block' }}>기본 관세율 (A)</span>
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>{ratesData.rates.base_rate}%</h4>
+                    <span style={{ fontSize: '0.74rem', color: '#64748b', display: 'block', marginTop: '4px' }}>일반 수입 기준 세율</span>
                   </div>
+
                   <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.88rem', color: '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
+                      <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
                       {ratesData.rates.is_trq_item && (
                         <span style={{ fontSize: '0.72rem', padding: '2px 6px', background: 'rgba(245,158,11,0.15)', color: '#b45309', borderRadius: '4px', fontWeight: 800 }}>
                           TRQ
@@ -802,7 +805,13 @@ export default function ClearanceWizard({
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>
                       {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate !== undefined ? `${ratesData.rates.wto_rate}%` : (ratesData.rates.trq_in_rate !== null && ratesData.rates.trq_in_rate !== undefined ? `${ratesData.rates.trq_in_rate}%` : 'N/A')}
                     </h4>
+                    <span style={{ fontSize: '0.74rem', color: ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate ? '#ea580c' : '#64748b', display: 'block', marginTop: '4px', fontWeight: 600 }}>
+                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate 
+                        ? `기본세율(${ratesData.rates.base_rate}%) 우선적용` 
+                        : (ratesData.rates.is_trq_item ? '양허추천 대상' : '다자간 양허세율')}
+                    </span>
                   </div>
+
                   <div style={{ 
                     background: ratesData.rates.fta_rate !== null ? '#f0fdf4' : '#ffffff', 
                     border: ratesData.rates.fta_rate !== null ? '1.5px solid #10b981' : '1.5px solid var(--border-color)', 
@@ -811,14 +820,17 @@ export default function ClearanceWizard({
                     textAlign: 'center',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
                   }}>
-                    <span style={{ fontSize: '0.88rem', color: ratesData.rates.fta_rate !== null ? '#047857' : '#475569', fontWeight: 800 }}>
+                    <span style={{ fontSize: '0.85rem', color: ratesData.rates.fta_rate !== null ? '#047857' : '#475569', fontWeight: 800, display: 'block' }}>
                       FTA 특혜세율 (F)
                     </span>
                     <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: ratesData.rates.fta_rate !== null ? '#059669' : '#0f172a' }}>
                       {ratesData.rates.fta_rate !== null ? `${ratesData.rates.fta_rate}%` : 'N/A'}
                     </h4>
-                    <span style={{ fontSize: '0.78rem', color: '#0f172a', fontWeight: 600, display: 'block', marginTop: '4px' }}>
-                      ({ratesData.rates.fta_name})
+                    <span style={{ fontSize: '0.76rem', color: '#0f172a', fontWeight: 700, display: 'block', marginTop: '4px' }}>
+                      {ratesData.rates.fta_name}
+                    </span>
+                    <span style={{ fontSize: '0.72rem', color: '#059669', display: 'block', marginTop: '2px', fontWeight: 600 }}>
+                      {ratesData.rates.fta_rate !== null ? 'C/O 구비 시 최우선 적용' : '양허제외/미체결'}
                     </span>
                   </div>
                 </div>
