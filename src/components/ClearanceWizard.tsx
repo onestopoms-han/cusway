@@ -401,16 +401,6 @@ export default function ClearanceWizard({
     { code: 'JP', name: '일본 (RCEP)' }
   ];
 
-  const sampleHsItems = [
-    { code: '9012.10-1010', name: '전자현미경(SEM)', tag: 'WTO 0% 무세' },
-    { code: '9027.30-3000', name: '발광분광분석기', tag: 'WTO 0% 무세' },
-    { code: '8518.29-1000', name: '초소형스피커', tag: 'WTO 0% 무세' },
-    { code: '3301.29-0000', name: '기타 정유', tag: 'A 5% / RCEP 2.5%' },
-    { code: '1302.19-1110', name: '인삼 추출물', tag: 'A 20% / RCEP 2.5%' },
-    { code: '1201.90-0000', name: '대두(콩)', tag: 'A 3% / TRQ' },
-    { code: '2008.19-3000', name: '볶음참깨', tag: 'A 40% / TRQ' }
-  ];
-
   return (
     <div className="clearance-wizard-container" style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', color: 'var(--text-main)' }}>
       
@@ -734,141 +724,55 @@ export default function ClearanceWizard({
         {/* Step 2: 세율/원산지 확정 */}
         {currentStep === 2 && (
           <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Globe size={18} color="var(--accent-cyan)" />
                 <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>[2단계] 원산지별 관세율 비교 확정</h3>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>현재 적용 세번:</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(6, 182, 212, 0.25)' }}>
-                  {hsCode}
-                </span>
-              </div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                확정 HSK: <b>{hsCode}</b>
+              </span>
             </div>
 
-            {/* Interactive HSK Code & Origin Country Dynamic Controls */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', background: 'rgba(0,0,0,0.25)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {/* Box 1: HSK 세번 직접 수정 & 빠른 벤치마크 선택 */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                    🔍 확정 대상 세번 (HSK 직접 입력/수정)
-                  </label>
-                  <span style={{ fontSize: '0.68rem', color: 'var(--accent-cyan)', fontWeight: 600 }}>실시간 세율 즉시 조회</span>
-                </div>
-                <input 
-                  type="text" 
-                  value={hsCode} 
-                  onChange={(e) => setHsCode(e.target.value)}
-                  placeholder="예: 9012.10-1010, 9027.30-3000 등"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    background: 'rgba(0,0,0,0.5)',
-                    border: '1.5px solid var(--accent-cyan)',
-                    borderRadius: '6px',
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontWeight: 800,
-                    letterSpacing: '0.5px'
-                  }}
-                />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '2px' }}>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>💡 주요 품목 빠른 전환 테스트:</span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {sampleHsItems.map(item => {
-                      const isSelected = hsCode.replace(/[\.\-]/g, '') === item.code.replace(/[\.\-]/g, '');
-                      return (
-                        <button
-                          key={item.code}
-                          type="button"
-                          onClick={() => setHsCode(item.code)}
-                          style={{
-                            padding: '4px 8px',
-                            background: isSelected ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
-                            border: isSelected ? '1.5px solid #fff' : '1px solid var(--border-color)',
-                            borderRadius: '4px',
-                            color: isSelected ? '#000' : '#e2e8f0',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          <span>{item.name}</span>
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            padding: '1px 4px', 
-                            borderRadius: '3px',
-                            background: isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(6, 182, 212, 0.2)',
-                            color: isSelected ? '#000' : 'var(--accent-cyan)',
-                            fontWeight: 800
-                          }}>
-                            {item.tag}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Box 2: 수입 원산지 국가 직접 수정 & 선택 */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)' }}>
-                    🌍 수입 대상 물품 원산지 (직접 입력/선택)
-                  </label>
-                  <span style={{ fontSize: '0.68rem', color: '#10b981', fontWeight: 600 }}>FTA 특혜 자동 매칭</span>
-                </div>
-                <input 
-                  type="text" 
-                  value={originCountry} 
-                  onChange={(e) => setOriginCountry(e.target.value.toUpperCase())}
-                  placeholder="예: US, CN, IT, JP, VN, CL, DE, GB 등"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    background: 'rgba(0,0,0,0.5)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    color: '#fff',
-                    fontSize: '0.9rem',
-                    fontWeight: 800
-                  }}
-                />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '2px' }}>
-                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>💡 주요 체결국 빠른 선택:</span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {countries.map(c => {
-                      const isSelected = originCountry === c.code;
-                      return (
-                        <button
-                          key={c.code}
-                          type="button"
-                          onClick={() => setOriginCountry(c.code)}
-                          style={{
-                            padding: '4px 8px',
-                            background: isSelected ? 'var(--accent-cyan)' : 'rgba(255,255,255,0.03)',
-                            border: isSelected ? '1.5px solid #fff' : '1px solid var(--border-color)',
-                            borderRadius: '4px',
-                            color: isSelected ? '#000' : '#bbb',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          {c.name.split(' ')[0]} ({c.code})
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '320px' }}>
+              <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>수입 대상 물품 원산지 국가 코드 (직접 입력 가능)</label>
+              <input 
+                type="text" 
+                value={originCountry} 
+                onChange={(e) => setOriginCountry(e.target.value.toUpperCase())}
+                placeholder="예: US, CN, IT, VN, JP, CL 등"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  background: 'rgba(0,0,0,0.5)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px',
+                  color: '#fff',
+                  fontSize: '0.85rem',
+                  fontWeight: 700
+                }}
+              />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '4px' }}>
+                {countries.map(c => (
+                  <button
+                    key={c.code}
+                    type="button"
+                    onClick={() => setOriginCountry(c.code)}
+                    style={{
+                      padding: '5px 8px',
+                      background: originCountry === c.code ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '4px',
+                      color: originCountry === c.code ? '#000' : '#bbb',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {c.name.split(' ')[0]} ({c.code})
+                  </button>
+                ))}
               </div>
             </div>
 
