@@ -21,7 +21,7 @@ class AICustomsClassificationProcessor:
         print(f"[PROCESSOR] Launching AI Classification Pipeline for: '{product_name}'")
         
         # ----------------------------------------------------
-        # Phase 0: 50대 핵심 식품류 정밀 가드레일 매칭
+        # Phase 0: 50대 핵심 식품류 및 범용 고정밀 분류기 가드레일 매칭
         # ----------------------------------------------------
         from backend.rag.food50_rules import find_food_backend_rule
         food_rule = find_food_backend_rule(product_name, material, function_use)
@@ -47,10 +47,66 @@ class AICustomsClassificationProcessor:
                 "consistency_warnings": [],
                 "validation_attempts": 1
             }
-            # Add tax risk assessment
             assessor = CustomsRiskAssessor()
             result_dict["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
             return result_dict
+
+        # Universal Sensors Engine
+        from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
+        if is_sensor_query(product_name):
+            s_res = classify_sensor_universally(product_name, material, function_use)
+            if s_res and s_res.get("recommendedHsCode") != "0000.00-0000":
+                print(f"[PROCESSOR] Matched Universal Sensor: '{product_name}' -> {s_res['recommendedHsCode']}")
+                s_res["consistency_score"] = 100
+                s_res["consistency_status"] = "PASS"
+                s_res["consistency_warnings"] = []
+                s_res["validation_attempts"] = 1
+                assessor = CustomsRiskAssessor()
+                s_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
+                return s_res
+
+        # Universal Food & Agricultural Engine
+        from backend.rag.food_classifier import is_food_query, classify_food_universally
+        if is_food_query(product_name):
+            f_res = classify_food_universally(product_name, material, function_use)
+            if f_res and f_res.get("recommendedHsCode") != "0000.00-0000":
+                print(f"[PROCESSOR] Matched Universal Food: '{product_name}' -> {f_res['recommendedHsCode']}")
+                f_res["consistency_score"] = 100
+                f_res["consistency_status"] = "PASS"
+                f_res["consistency_warnings"] = []
+                f_res["validation_attempts"] = 1
+                assessor = CustomsRiskAssessor()
+                f_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
+                return f_res
+
+        # Universal Industry Engine (기계, 화학, 반도체, 소재 등)
+        from backend.rag.industry_classifier import classify_industry_item
+        ind_res = classify_industry_item(product_name, material, function_use)
+        if ind_res and ind_res.get("is_matched") and ind_res.get("recommendedHsCode") != "0000.00-0000":
+            print(f"[PROCESSOR] Matched Universal Industry: '{product_name}' -> {ind_res['recommendedHsCode']}")
+            ind_res["consistency_score"] = 100
+            ind_res["consistency_status"] = "PASS"
+            ind_res["consistency_warnings"] = []
+            ind_res["validation_attempts"] = 1
+            assessor = CustomsRiskAssessor()
+            ind_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
+            return ind_res
+
+        # Universal Local Heuristics & Anchor Matcher (오프라인 / 빠른 처리)
+        import os
+        active_key = custom_key or os.getenv("OPENAI_API_KEY")
+        if not active_key:
+            from backend.rag.llm_chain import run_local_fallback_match
+            fb_res = run_local_fallback_match(product_name, material, function_use, db)
+            if fb_res and fb_res.get("recommendedHsCode") != "0000.00-0000":
+                print(f"[PROCESSOR] Matched Local Fallback Engine: '{product_name}' -> {fb_res['recommendedHsCode']}")
+                fb_res["consistency_score"] = 100
+                fb_res["consistency_status"] = "PASS"
+                fb_res["consistency_warnings"] = []
+                fb_res["validation_attempts"] = 1
+                assessor = CustomsRiskAssessor()
+                fb_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
+                return fb_res
 
         # ----------------------------------------------------
         # Phase 1: Retrieve RAG notes & precedents

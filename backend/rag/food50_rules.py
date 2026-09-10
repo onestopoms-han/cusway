@@ -1471,7 +1471,7 @@ FOOD_50_BACKEND_RULES = [
     {
         "id": 40,
         "name": "인스턴트 커피 분말",
-        "keywords": ["인스턴트 커피", "인스턴트커피", "동결건조 커피", "커피 추출물", "가용성 커피", "instant coffee", "커피분말", "커피 원액", "동결건조", "커피 분말"],
+        "keywords": ["인스턴트 커피", "인스턴트커피", "동결건조 커피", "동결건조커피", "커피 추출물", "가용성 커피", "instant coffee", "커피분말", "커피 원액", "커피 분말"],
         "recommendedHsCode": "2101.11-1000",
         "headingName": "제2101호 (커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들을 기본 재료로 한 조제품)",
         "subheadingName": "제2101.11-1000호 (커피의 추출물ㆍ에센스ㆍ농축물 - 인스턴트 커피 분말)",
@@ -1919,7 +1919,10 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 13)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 14)
 
-    if "들깨" in query:
+    if "들기름" in query or "참기름" in query or "오일" in query or "기름" in query:
+        # 식용유지(15류)는 12류 종자 룰을 건너뜀
+        pass
+    elif "들깨" in query:
         if "가루" in query or "분말" in query or "탈피" in query:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 18)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 19)
@@ -1944,6 +1947,13 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
 
     # 2. 나머지 일반 루프 매칭
     for rule in FOOD_50_BACKEND_RULES:
+        # 벌꿀 룰(43, 44)은 사탕/과자류 질의일 경우 매칭 제외
+        if rule["id"] in [43, 44] and any(ex in query for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
+            continue
+        # 식용 유지 질의일 경우 종자 룰(14, 18, 19) 매칭 제외
+        if rule["id"] in [14, 18, 19] and any(ex in query for ex in ["들기름", "참기름", "오일", "oil", "기름", "유지", "압착유"]):
+            continue
+            
         name_lower = rule["name"].lower()
         clean_name = name_lower.split('(')[0].strip()
         

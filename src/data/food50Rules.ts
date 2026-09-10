@@ -2067,7 +2067,9 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
     return FOOD_50_RULES.find(r => r.id === 14) || null;
   }
 
-  if (query.includes('들깨')) {
+  if (query.includes('들기름') || query.includes('참기름') || query.includes('오일') || query.includes('기름')) {
+    // 식용유지(15류)는 12류 종자 룰을 건너뜀
+  } else if (query.includes('들깨')) {
     if (query.includes('가루') || query.includes('분말') || query.includes('탈피')) {
       return FOOD_50_RULES.find(r => r.id === 18) || null;
     }
@@ -2100,6 +2102,12 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
 
   // 2. 나머지 일반 루프 매칭
   for (const rule of FOOD_50_RULES) {
+    if ((rule.id === 43 || rule.id === 44) && (query.includes('캔디') || query.includes('사탕') || query.includes('candy') || query.includes('과자') || query.includes('젤리') || query.includes('캐러멜') || query.includes('카라멜') || query.includes('sweets'))) {
+      continue;
+    }
+    if ((rule.id === 14 || rule.id === 18 || rule.id === 19) && (query.includes('들기름') || query.includes('참기름') || query.includes('오일') || query.includes('oil') || query.includes('기름') || query.includes('유지') || query.includes('압착유'))) {
+      continue;
+    }
     const nameLower = rule.name.toLowerCase();
     const cleanName = nameLower.split('(')[0].trim();
     
