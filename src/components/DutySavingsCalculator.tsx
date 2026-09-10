@@ -48,46 +48,31 @@ export default function DutySavingsCalculator({
     );
   })();
 
-  // Update default rates based on HS Code
+  // Update rates by fetching directly from backend database API
   useEffect(() => {
-    const clean = hsCode.replace(/[\.\-]/g, '');
-    
-    if (clean.startsWith('1201')) {
-      // 대두
-      setCustomBaseRate(487); // 양허관세 487% or 3% TRQ
-      setCustomFtaRate(487); // 미양허
-      setFtaAgreement('FTA 미양허 (한-중 FTA 양허제외 민감품목)');
-    } else if (clean.startsWith('1207')) {
-      // 참깨
-      setCustomBaseRate(630); // 630%
-      setCustomFtaRate(630);
-      setFtaAgreement('FTA 미양허 (한-중 FTA 양허제외 민감품목)');
-    } else if (clean.startsWith('2008193000')) {
-      // 볶은 참깨가루
-      setCustomBaseRate(45); // 45% or 40%
-      setCustomFtaRate(45);
-      setFtaAgreement('FTA 미양허 (한-중 FTA 양허제외 민감품목)');
-    } else if (clean.startsWith('8517') || clean.startsWith('8471') || clean.startsWith('8541')) {
-      // IT/반도체/전자
-      setCustomBaseRate(0);
-      setCustomFtaRate(0);
-      setFtaAgreement('ITA 정보기술협정 / WTO 무세');
-    } else if (clean.startsWith('8501')) {
-      // 전동기/모터
-      setCustomBaseRate(8);
-      setCustomFtaRate(0);
-      setFtaAgreement('한-EU / 한-중 / 한-미 FTA 0%');
-    } else if (clean.startsWith('8507')) {
-      // 축전지
-      setCustomBaseRate(8);
-      setCustomFtaRate(0);
-      setFtaAgreement('한-베트남 / 한-중 FTA 0%');
-    } else {
-      setCustomBaseRate(8);
-      setCustomFtaRate(0);
-      setFtaAgreement('한-중 FTA / RCEP 0%');
-    }
-  }, [hsCode]);
+    let isMounted = true;
+    const countryMatch = originCountry.match(/\(([A-Z]{2})\)/) || originCountry.match(/^([A-Z]{2})$/);
+    const countryCode = countryMatch ? countryMatch[1] : 'CN';
+
+    const fetchCalculatedRates = async () => {
+      try {
+        const res = await fetch(`/api/hs/rates?hs_code=${encodeURIComponent(hsCode)}&origin=${encodeURIComponent(countryCode)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data?.rates) {
+            setCustomBaseRate(data.rates.base_rate ?? 8);
+            setCustomFtaRate(data.rates.recommended_rate ?? data.rates.fta_rate ?? 0);
+            setFtaAgreement(data.rates.fta_name || '기본세율');
+          }
+        }
+      } catch (err) {
+        console.warn("DutySavingsCalculator rate fetch error:", err);
+      }
+    };
+
+    fetchCalculatedRates();
+    return () => { isMounted = false; };
+  }, [hsCode, originCountry]);
 
   // Calculate duty in KRW
   const cifInKrw = currency === 'USD' 
