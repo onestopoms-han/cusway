@@ -50,10 +50,37 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     }
   };
 
-  // Fallback CLHS News Headlines (Today: 2026-09-09)
+  // Fallback CLHS News Headlines (Updated: 2026-09-10)
   const fallbackNotices = [
     {
       id: 1,
+      tag: '관세청 속보',
+      title: '[속보] 2026년 9월 10일 관세율표 HSK 품목분류 및 첨단 광학·정밀계측기기 WTO 무세(ITA) 지침 고시',
+      date: '2026-09-10',
+      agency: '관세청 통관국 품목분류과',
+      summary: '2026년 9월 10일부로 연구용 주사전자현미경(SEM 제9012호), 발광분광분석기(OES 제9027호), 초소형 마이크로 스피커(제8518호) 등에 대한 WTO 정보기술협정(ITA) 0.0% 무세 적용 및 10단위 HSK 사전심사 표준 지침 전국 세관 시행 공표.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065460'
+    },
+    {
+      id: 2,
+      tag: '관세청 고시',
+      title: '[고시 제2026-98호] 2026년 9월 10일 RCEP 및 한-EU FTA 원산지증명서 전자검증(E-C/O) 수입신고 자동수리 확대',
+      date: '2026-09-10',
+      agency: '관세청 자유무역협정집행국',
+      summary: 'RCEP(한-일 포함) 체약국 및 한-EU FTA 체결국 간 전자 원산지교환시스템(EODES) 연계를 통해 종이 C/O 제출을 생략하고 1시간 이내 자동 수리되는 신속 통관 프로세스 전면 가동.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065461'
+    },
+    {
+      id: 3,
+      tag: '통합공고 요건',
+      title: '[공고] 2026년 9월 10일 농축수산물 시장접근물량(TRQ) 양허세율 및 수입추천서 자동 매핑 공고',
+      date: '2026-09-10',
+      agency: '농림축산식품부 / 관세청 통관기획과',
+      summary: '대두(콩 제1201호), 조제참깨(제2008호) 등 주요 농산물에 대한 aT 수입추천서 유니패스 자동 연계 시스템 구축으로 In-Quota 저율관세(3%~40%) 즉시 적용 안내.',
+      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065462'
+    },
+    {
+      id: 4,
       tag: '관세청 속보',
       title: '[속보] 2026년 9월 9일 관세율표 HSK 품목분류 및 첨단 반도체·이차전지 핵심소재 통관 고시',
       date: '2026-09-09',
@@ -62,7 +89,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065450'
     },
     {
-      id: 2,
+      id: 5,
       tag: '관세청 고시',
       title: '[고시 제2026-95호] 2026년 9월 9일 한-중동 CEPA 및 RCEP 원산지증명서 전자검증(E-C/O) 전면 가동',
       date: '2026-09-09',
@@ -71,7 +98,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065451'
     },
     {
-      id: 3,
+      id: 6,
       tag: '통합공고 요건',
       title: '[공고] 2026년 9월 8일 대외무역법 수입 세관장확인 대상 전기용품 및 화학물질 안전인증 개편',
       date: '2026-09-08',
@@ -80,40 +107,13 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065445'
     },
     {
-      id: 4,
+      id: 7,
       tag: '관세평가',
       title: '2026년 9월 7일 특수관계자 간 이전가격(APA) 및 로열티 권리사용료 과세가격 산정 결정례집 배포',
       date: '2026-09-07',
       agency: '관세평가분류원 관세평가과',
       summary: '다국적기업 본지사 간 특수관계 수입거래에서 제1방법(거래가격) 배제 사유 및 로열티/라이선스 비용 가산율 산정에 관한 최신 조세심판원/대법원 판례 해설집 발간.',
       link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065440'
-    },
-    {
-      id: 5,
-      tag: '특송 통관',
-      title: '2026년 9월 6일 해외직구 개인통관고유부호 도용 방지 AI 이상거래 실시간 탐지 시스템 가동',
-      date: '2026-09-06',
-      agency: '관세청 전자상거래통관과',
-      summary: '자가사용 인정 기준 초과 분할 수입 및 타인 명의 도용 특송 화물에 대한 실시간 AI 탐지 알고리즘 적용으로 성실 통관자 1시간 내 자동 수리 보장.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065435'
-    },
-    {
-      id: 6,
-      tag: '관세청 속보',
-      title: '[속보] 2026년 9월 4일 관세율표 HSK 품목분류 및 농축수산물 양허세율 적용 지침 고시',
-      date: '2026-09-04',
-      agency: '관세청 통관국 품목분류과',
-      summary: '2026년 9월 4일부로 개정 관세율표에 따른 주요 농축수산물(건조 표고버섯, 대두, 마늘 등) 종가·종량 선택세율 적용 및 WCO 2026 해설서 기반 품목분류 사전심사 기준 전국 세관 시행 안내.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065430'
-    },
-    {
-      id: 7,
-      tag: 'FTA 협정세율',
-      title: '[고시] 2026년 9월 4일 한-EU FTA 및 RCEP 원산지증명서(C/O) 간소화 기준 개정',
-      date: '2026-09-04',
-      agency: '관세청 자유무역협정집행기획관',
-      summary: 'EU 27개 회원국 대상 6,000유로 초과 시 인증수출자(Approved Exporter) 전산 검증 연동 및 RCEP 연결원산지증명서(Back-to-Back C/O) 인정 범위 확대 고시.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065431'
     }
   ];
 

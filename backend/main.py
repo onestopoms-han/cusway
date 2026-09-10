@@ -663,22 +663,23 @@ def sync_customs_news(db: Session = Depends(get_db)):
         from backend.customs_news_daemon import parse_customs_news_feed
         parse_customs_news_feed()
         
-        # Also ensure today's 2026-09-09 latest notices are present
+        # Also ensure today's 2026-09-10 and 2026-09-09 latest notices are present
         try:
             import importlib.util
-            tool_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "update_to_latest_news_2026_09_09.py")
-            if os.path.exists(tool_path):
-                spec = importlib.util.spec_from_file_location("update_news", tool_path)
-                if spec and spec.loader:
-                    mod = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(mod)
-                    mod.update_to_latest_2026_09_09()
+            for tool_file, func_name in [("update_to_latest_news_2026_09_10.py", "update_to_latest_2026_09_10"), ("update_to_latest_news_2026_09_09.py", "update_to_latest_2026_09_09")]:
+                tool_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", tool_file)
+                if os.path.exists(tool_path):
+                    spec = importlib.util.spec_from_file_location("update_news", tool_path)
+                    if spec and spec.loader:
+                        mod = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(mod)
+                        getattr(mod, func_name)()
         except Exception as seed_err:
             logger.warning(f"Additional seed sync warning: {seed_err}")
 
         total_count = db.query(CustomsNews).count()
         latest_item = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).first()
-        latest_date = latest_item.date if latest_item else "2026-09-09"
+        latest_date = latest_item.date if latest_item else "2026-09-10"
 
         return {
             "status": "success",
