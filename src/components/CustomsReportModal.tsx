@@ -342,6 +342,33 @@ export default function CustomsReportModal({
 
   const initialData = buildInitialReport();
 
+  const formatPercent = (val: string | number | undefined | null) => {
+    if (val === undefined || val === null || val === '') return '';
+    const s = String(val).trim();
+    return s.endsWith('%') ? s : `${s}%`;
+  };
+
+  const buildDefaultRateComment = (rates?: { baseRate?: string | number; recommendedRate?: string | number; ftaName?: string; wtoRate?: string | number }) => {
+    if (!rates || rates.recommendedRate === undefined || rates.recommendedRate === null) {
+      return '수입신고 시 추천 특혜세율 검토 적용';
+    }
+    const cleanBase = formatPercent(rates.baseRate || '8.0%');
+    const cleanRec = formatPercent(rates.recommendedRate);
+    const fta = rates.ftaName || '특혜세율';
+    const wto = (rates.wtoRate !== undefined && rates.wtoRate !== null && rates.wtoRate !== '') ? formatPercent(rates.wtoRate) : null;
+    
+    if (cleanRec === '0%' || cleanRec === '0.0%') {
+      if (wto === '0%' || wto === '0.0%') {
+        return `기본세율 ${cleanBase} / WTO ${wto}(무세) ➡️ WTO 협정세율(0%) 무관세 최우선 적용 (관세법 제50조)`;
+      }
+      return `기본세율 ${cleanBase} ➡️ ${fta} ${cleanRec} 무관세 적용`;
+    }
+    if (wto && (wto === '0%' || wto === '0.0%')) {
+      return `기본세율 ${cleanBase} / WTO ${wto}(무세) ➡️ WTO 협정세율(0%) 무관세 최우선 적용`;
+    }
+    return `기본세율 ${cleanBase} ➡️ ${fta} ${cleanRec} 적용`;
+  };
+
   // Editable Form States
   const [docTitle, setDocTitle] = useState(initialData.title || '[품목분류 사전심사 소명의견서]');
   const [docNumber, setDocNumber] = useState(initialData.docNumber || `DOC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -356,11 +383,7 @@ export default function CustomsReportModal({
   const [material, setMaterial] = useState(initialData.targetItem.material || '제품 사양서 및 원료 배합비 기준');
   const [functionUse, setFunctionUse] = useState(initialData.targetItem.functionUse || '산업 및 상업용 전용');
   const [targetHsCode, setTargetHsCode] = useState(initialData.targetItem.hsCode || '0901.21-0000');
-  const [rateComment, setRateComment] = useState(
-    initialData.rates?.recommendedRate !== undefined
-      ? `기본세율 ${initialData.rates.baseRate || '8.0%'} ➡️ ${initialData.rates.ftaName || 'FTA 특혜'} ${initialData.rates.recommendedRate}% 적용`
-      : '수입신고 시 추천 특혜세율 검토 적용'
-  );
+  const [rateComment, setRateComment] = useState(buildDefaultRateComment(initialData.rates));
 
   // Executive Summary Highlights (Page 1)
   const [summaryHighlight, setSummaryHighlight] = useState(initialData.summaryHighlightText);
@@ -415,6 +438,7 @@ export default function CustomsReportModal({
       setFunctionUse(fresh.targetItem.functionUse || '산업 및 상업용 전용');
       setTargetHsCode(fresh.targetItem.hsCode);
       setCleanHs(fresh.targetItem.hsCode);
+      setRateComment(buildDefaultRateComment(fresh.rates));
       setGeneralRule(fresh.legalBasis?.generalRule || '관세율표 해석에 관한 일반통칙 제1호 및 제6호');
       setRationaleSummary(fresh.legalBasis?.rationaleSummary || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함');
       setWcoNoteSnippet(fresh.legalBasis?.wcoNoteSnippet || '해당 호에는 이와 같은 성상과 용도를 지닌 물품을 명시적으로 포함함');
@@ -439,6 +463,7 @@ export default function CustomsReportModal({
     setFunctionUse(fresh.targetItem.functionUse || '산업 및 상업용 전용');
     setTargetHsCode(fresh.targetItem.hsCode);
     setCleanHs(fresh.targetItem.hsCode);
+    setRateComment(buildDefaultRateComment(fresh.rates));
     setGeneralRule(fresh.legalBasis?.generalRule || '관세율표 해석에 관한 일반통칙 제1호 및 제6호');
     setRationaleSummary(fresh.legalBasis?.rationaleSummary || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함');
     setWcoNoteSnippet(fresh.legalBasis?.wcoNoteSnippet || '해당 호에는 이와 같은 성상과 용도를 지닌 물품을 명시적으로 포함함');

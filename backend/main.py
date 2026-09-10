@@ -1800,9 +1800,15 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = 
     base_info = rate_map.get("A", rate_map.get("A1", []))
     actual_base_rate = base_info[0]["rate_val"] if base_info and base_info[0]["rate_val"] is not None else 8.0
     
-    # WTO 협정세율 (C / C1~C6)
-    wto_info = rate_map.get("C", rate_map.get("C1", []))
-    actual_wto_rate = wto_info[0]["rate_val"] if wto_info and wto_info[0]["rate_val"] is not None else None
+    # WTO 협정세율 (C / C1~C6 / C2A1~C2A9 전수 후보 탐색)
+    wto_cand_codes = ["C", "C1", "C2", "C3", "C4", "C5", "C6", "C2A1", "C2A2", "C2A3", "C2A4", "C2A5", "C2A6", "C2A7", "C2A8", "C2A9"]
+    actual_wto_rate = None
+    matched_wto_code = None
+    for cand in wto_cand_codes:
+        if cand in rate_map and rate_map[cand] and rate_map[cand][0]["rate_val"] is not None:
+            actual_wto_rate = rate_map[cand][0]["rate_val"]
+            matched_wto_code = cand
+            break
     
     # WTO 우선순위 법률 안내 문구 (관세법 제50조)
     wto_rule_note = None
@@ -1810,7 +1816,10 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = 
         if actual_wto_rate > actual_base_rate:
             wto_rule_note = f"관세법 제50조 제2항에 따라 WTO 양허세율({actual_wto_rate}%)보다 낮은 기본세율({actual_base_rate}%)이 실무상 우선 적용됩니다."
         elif actual_wto_rate < actual_base_rate:
-            wto_rule_note = f"관세법 제50조에 따라 기본세율({actual_base_rate}%)보다 유리한 WTO 협정세율({actual_wto_rate}%)이 우선 적용됩니다."
+            if actual_wto_rate == 0.0:
+                wto_rule_note = f"정보기술협정(ITA) 등 관세법 제50조에 따라 기본세율({actual_base_rate}%)보다 유리한 WTO 협정 무세(0.0%)가 원산지증명서 없이도 최우선 적용됩니다."
+            else:
+                wto_rule_note = f"관세법 제50조에 따라 기본세율({actual_base_rate}%)보다 유리한 WTO 협정세율({actual_wto_rate}%)이 우선 적용됩니다."
         else:
             wto_rule_note = f"기본세율과 WTO 협정세율이 {actual_base_rate}%로 동일합니다."
             
@@ -1941,39 +1950,39 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = 
     
     # 전문 브리핑 문구 생성
     expert_insight = ""
-    if has_quota and quota_w1_rate is not None:
+    if has_quota and quota_w1_rate is not None and recommended_rate == quota_w1_rate:
         expert_insight = f"🌾 [할당관세(W1) {quota_w1_rate}% 대상] 본 품목은 수입추천서 구비 시 할당관세(W1) {quota_w1_rate}%가 적용되며, 미추천 시 {quota_w2_rate or actual_base_rate}%가 적용됩니다."
-    elif origin_upper == "CN":
-        if matched_fta_rate is not None:
+    elif actual_wto_rate is not None and actual_wto_rate == 0.0 and recommended_rate == 0.0:
+        expert_insight = f"🌐 [WTO 협정 무세(0%) 최우선 적용] 본 품목({hs_code})은 정보기술협정(ITA) 등 WTO 다자간 무세(0.0%) 양허 품목으로, FTA 원산지증명서(C/O) 발급 여부와 관계없이 0.0% 무관세가 전 세계 WTO 회원국에 최우선 적용됩니다."
+    elif matched_fta_rate is not None and recommended_rate == matched_fta_rate and (actual_wto_rate is None or matched_fta_rate < actual_wto_rate):
+        if origin_upper == "CN":
             expert_insight = f"🇨🇳 [한-중 FTA {matched_fta_code} {matched_fta_rate}%] 본 품목({hs_code})은 2026년 한-중 FTA 협정에 따라 {matched_fta_rate}% 특혜세율이 적용됩니다. 중국 해관/CCPIT 전자 원산지증명서(CO-PASS) 구비 시 {matched_fta_rate}%로 신속 통관이 가능합니다."
-        else:
-            expert_insight = f"🇨🇳 [한-중 FTA 양허제외] 본 품목은 한-중 FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
-    elif origin_upper in EU_COUNTRIES:
-        if matched_fta_rate is not None:
+        elif origin_upper in EU_COUNTRIES:
             expert_insight = f"🇪🇺 [한-EU FTA {matched_fta_rate}%] EU 회원국({origin_upper})산 물품은 한-EU FTA에 따라 {matched_fta_rate}% 무관세/특혜세율이 적용됩니다. (6,000유로 초과 시 인증수출자 번호 필수)"
-        else:
-            expert_insight = f"🇪🇺 [한-EU FTA 양허제외] 본 품목은 한-EU FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
-    elif origin_upper == "US":
-        if matched_fta_rate is not None:
+        elif origin_upper == "US":
             expert_insight = f"🇺🇸 [한-미 FTA {matched_fta_rate}%] 미국산 물품은 한-미 FTA에 따라 {matched_fta_rate}% 특혜세율이 적용됩니다. (수출자/생산자/수입자 자율 원산지증명서 구비)"
-        else:
-            expert_insight = f"🇺🇸 [한-미 FTA 양허제외] 본 품목은 한-미 FTA에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
-    elif origin_upper == "JP":
-        if matched_fta_rate is not None:
+        elif origin_upper == "JP":
             expert_insight = f"🇯🇵 [RCEP(한-일) {matched_fta_rate}%] 일본산 물품은 2022년 발효된 RCEP 협정에 따라 {matched_fta_rate}% 협정세율이 적용됩니다."
         else:
-            expert_insight = f"🇯🇵 [RCEP(한-일) 양허제외] 본 품목은 RCEP(한-일) 협정에서 양허제외되어 기본세율({actual_base_rate}%)이 적용됩니다."
-    else:
-        if matched_fta_rate is not None:
             expert_insight = f"본 품목은 {fta_name} {matched_fta_rate}% 특혜세율이 적용됩니다. 원산지 국가({origin_upper})와의 {fta_name} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오."
-        else:
-            expert_insight = f"원산지 국가({origin_upper})는 본 품목에 대해 양허제외 또는 미체결 상태이므로 기본세율({actual_base_rate}%)이 적용됩니다."
+    elif actual_wto_rate is not None and actual_wto_rate < actual_base_rate and recommended_rate == actual_wto_rate:
+        expert_insight = f"🌐 [WTO 협정세율({actual_wto_rate}%) 적용] 관세법 제50조에 따라 기본세율({actual_base_rate}%)보다 유리한 WTO 협정세율({actual_wto_rate}%)이 원산지증명서 없이도 적용됩니다."
+    elif actual_wto_rate is not None and actual_wto_rate > actual_base_rate:
+        expert_insight = f"⚖️ [기본세율({actual_base_rate}%) 우선적용] 관세법 제50조 제2항에 의거, WTO 양허세율({actual_wto_rate}%)이 기본세율({actual_base_rate}%)보다 높으므로 실무상 더 낮은 기본세율({actual_base_rate}%)이 적용됩니다."
+    else:
+        expert_insight = f"원산지 국가({origin_upper})는 본 품목에 대해 양허제외 또는 미체결 상태이므로 기본세율({actual_base_rate}%)이 적용됩니다."
         
     notice = ""
-    if has_quota and quota_w1_rate is not None:
+    if has_quota and quota_w1_rate is not None and recommended_rate == quota_w1_rate:
         notice = f"[🌾 할당관세 적용 대상] 수입추천서 구비 시 {quota_w1_rate}% / 미구비 시 {quota_w2_rate or actual_base_rate}% 적용"
-    elif matched_fta_rate is not None and recommended_rate == matched_fta_rate:
+    elif actual_wto_rate is not None and actual_wto_rate == 0.0 and recommended_rate == 0.0:
+        notice = f"[🌐 WTO 협정 무세(0%)] WTO 협정세율 0.0%가 최우선 적용됩니다. (원산지증명서 불요)"
+    elif matched_fta_rate is not None and recommended_rate == matched_fta_rate and (actual_wto_rate is None or matched_fta_rate < actual_wto_rate):
         notice = f"[⭐ 최적 FTA 특혜세율] {fta_name} 특혜세율 {recommended_rate}%가 적용됩니다. (원산지증명서 구비 필수)"
+    elif actual_wto_rate is not None and actual_wto_rate < actual_base_rate and recommended_rate == actual_wto_rate:
+        notice = f"[🌐 WTO 협정세율] WTO 협정세율 {actual_wto_rate}%가 우선 적용됩니다. (원산지증명서 불요)"
+    elif actual_wto_rate is not None and actual_wto_rate > actual_base_rate:
+        notice = f"기본세율(A) {actual_base_rate}%가 적용됩니다. (WTO 양허상한 {actual_wto_rate}% 대비 기본세율 우선 적용)"
     else:
         notice = f"기본세율(A) {actual_base_rate}%가 적용됩니다. (원산지: {origin_upper})"
         
@@ -1987,6 +1996,7 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = 
         "rates": {
             "base_rate": actual_base_rate,
             "wto_rate": actual_wto_rate,
+            "wto_code": matched_wto_code,
             "wto_rule_note": wto_rule_note,
             "fta_rate": matched_fta_rate,
             "fta_code": matched_fta_code,
@@ -2029,28 +2039,35 @@ def calculate_duty_api(
     rate_resp = get_hs_rates_api(hs_code=hs_code, origin=origin, declaration_date=declaration_date, db=db)
     rates_info = rate_resp["rates"]
     
-    # 2. 적용 관세율 및 과세 방식 결정
-    applied_ad_valorem = rates_info["base_rate"]
-    applied_basis_name = "기본세율 (A)"
+    # 2. 적용 관세율 및 과세 방식 결정 (관세법 제50조 세율적용의 우선순위)
+    base_rate = rates_info["base_rate"]
+    wto_rate = rates_info.get("wto_rate")
+    fta_rate = rates_info.get("fta_rate")
+    quota_w1 = rates_info.get("quota_w1")
     
-    if has_co and rates_info.get("fta_rate") is not None:
-        applied_ad_valorem = rates_info["fta_rate"]
-        applied_basis_name = f"{rates_info.get('fta_name')} 특혜세율"
-    elif has_trq_recommendation and rates_info.get("quota_w1") is not None:
-        applied_ad_valorem = rates_info["quota_w1"]
-        applied_basis_name = "할당관세 (W1 추천세율)"
-    else:
-        # 관세법 제50조 세율적용의 우선순위 (기본세율 vs WTO양허세율)
-        if rates_info.get("wto_rate") is not None:
-            if rates_info["wto_rate"] < rates_info["base_rate"]:
-                applied_ad_valorem = rates_info["wto_rate"]
-                applied_basis_name = "WTO 협정세율 (C)"
-            else:
-                applied_ad_valorem = rates_info["base_rate"]
-                applied_basis_name = "기본세율 (A) - 관세법 제50조에 따라 WTO양허세율보다 유리한 기본세율 우선적용"
+    # 일반세율 우선 결정: 기본세율 vs WTO 협정세율
+    legal_general_rate = base_rate
+    legal_general_name = f"기본세율 (A: {base_rate}%)"
+    if wto_rate is not None:
+        if wto_rate < base_rate:
+            legal_general_rate = wto_rate
+            legal_general_name = f"WTO 협정세율 (C: {wto_rate}%)"
         else:
-            applied_ad_valorem = rates_info["base_rate"]
-            applied_basis_name = "기본세율 (A)"
+            legal_general_rate = base_rate
+            legal_general_name = f"기본세율 (A: {base_rate}%) - 관세법 제50조에 따라 WTO양허세율({wto_rate}%)보다 유리한 기본세율 적용"
+            
+    applied_ad_valorem = legal_general_rate
+    applied_basis_name = legal_general_name
+    
+    # FTA 특혜세율 비교 (C/O 구비 시 및 일반세율보다 유리한 경우)
+    if has_co and fta_rate is not None and fta_rate < applied_ad_valorem:
+        applied_ad_valorem = fta_rate
+        applied_basis_name = f"{rates_info.get('fta_name')} 특혜세율 ({applied_ad_valorem}%)"
+        
+    # 할당관세 비교 (추천서 구비 시 및 더 유리한 경우)
+    if has_trq_recommendation and quota_w1 is not None and quota_w1 < applied_ad_valorem:
+        applied_ad_valorem = quota_w1
+        applied_basis_name = f"할당관세 (W1 추천세율 {applied_ad_valorem}%)"
 
     # 3. 세액 계산
     ad_valorem_duty = int(round(cif_price_krw * (applied_ad_valorem / 100.0)))

@@ -192,12 +192,14 @@ export default function ClearanceWizard({
       const isEssentialOil = cleanCode.startsWith('3301');
       const isSesame = cleanCode.startsWith('120740') || cleanCode.startsWith('2008193000');
       const isSoy = cleanCode.startsWith('1201');
+      const isExtract = cleanCode.startsWith('1302');
+      const isItaTech = cleanCode.startsWith('8518') || cleanCode.startsWith('8471') || cleanCode.startsWith('8541') || cleanCode.startsWith('8542') || cleanCode.startsWith('8517') || cleanCode.startsWith('9031') || cleanCode.startsWith('8504') || cleanCode.startsWith('8523');
 
-      let calcBaseRate = isEssentialOil ? 5.0 : (isSoy ? 3.0 : (isSesame ? 40.0 : 8.0));
-      let calcWtoRate = isEssentialOil ? 13.0 : (isSoy ? 487.0 : (isSesame ? 630.0 : 8.0));
+      let calcBaseRate = isEssentialOil ? 5.0 : (isSoy ? 3.0 : (isSesame ? 40.0 : (isExtract ? 20.0 : 8.0)));
+      let calcWtoRate: number | null = isItaTech ? 0.0 : (isEssentialOil ? 13.0 : (isSoy ? 487.0 : (isSesame ? 630.0 : (isExtract ? 20.0 : 8.0))));
       let calcFtaRate: number | null = null;
       let calcFtaName = resolvedFtaName;
-      let calcRecommendedRate = calcBaseRate;
+      let calcRecommendedRate = isItaTech ? 0.0 : (calcWtoRate !== null && calcWtoRate < calcBaseRate ? calcWtoRate : calcBaseRate);
       let calcSpecificRate = isSesame ? (['IT', 'EU', 'GB'].includes(originCountry) ? 1051.0 : 6660.0) : (isSoy ? 956.0 : null);
       let calcSpecificUnit = (isSesame || isSoy) ? '원/kg' : null;
       let calcDutyType = (isSesame || isSoy) ? 'ALTERNATIVE' : 'AD_VALOREM';
@@ -205,7 +207,13 @@ export default function ClearanceWizard({
       let calcNotice = `공식 관세율 마스터 DB에서 [${hsCode}] 품목의 최신 관세율을 실시간 연동 중입니다.`;
       let calcExpertInsight = '공식 관세율 마스터 DB에서 최신 관세율을 실시간 연동 중입니다.';
 
-      if (isEssentialOil) {
+      if (isItaTech) {
+        calcBaseRate = 8.0;
+        calcWtoRate = 0.0;
+        calcRecommendedRate = 0.0;
+        calcNotice = `[🌐 WTO 협정 무세(0%)] 정보기술협정(ITA)에 따라 원산지증명서 없이도 0.0% 무관세가 최우선 적용됩니다.`;
+        calcExpertInsight = `본 품목은 WTO 정보기술협정(ITA) 무세(0.0%) 품목으로, FTA C/O 없이도 무관세 통관이 가능합니다.`;
+      } else if (isEssentialOil) {
         calcBaseRate = 5.0;
         calcWtoRate = 13.0;
         if (originCountry === 'JP') {
@@ -229,11 +237,11 @@ export default function ClearanceWizard({
         if (originCountry === 'JP') {
           calcFtaRate = 2.5;
           calcFtaName = 'RCEP (한-일 / FRCJP1)';
-          calcRecommendedRate = 2.5;
+          calcRecommendedRate = isItaTech ? 0.0 : 2.5;
         } else if (hasFta) {
           const isStagingSpring = cleanCode.startsWith('7320') && originCountry === 'CN';
           calcFtaRate = isStagingSpring ? 1.6 : (isFtaExempt ? 0.0 : 0.0);
-          calcRecommendedRate = calcFtaRate;
+          calcRecommendedRate = isItaTech ? 0.0 : calcFtaRate;
         }
       }
 
@@ -246,7 +254,9 @@ export default function ClearanceWizard({
         rates: {
           base_rate: calcBaseRate,
           wto_rate: calcWtoRate,
-          wto_rule_note: calcWtoRate > calcBaseRate ? `관세법 제50조 제2항에 따라 WTO 양허세율(${calcWtoRate}%)보다 낮은 기본세율(${calcBaseRate}%)이 실무상 우선 적용됩니다.` : null,
+          wto_rule_note: calcWtoRate !== null && calcWtoRate > calcBaseRate 
+            ? `관세법 제50조 제2항에 따라 WTO 양허세율(${calcWtoRate}%)보다 낮은 기본세율(${calcBaseRate}%)이 실무상 우선 적용됩니다.` 
+            : (calcWtoRate === 0.0 ? `정보기술협정(ITA) 등 관세법 제50조에 따라 WTO 협정 무세(0.0%)가 최우선 적용됩니다.` : null),
           fta_rate: calcFtaRate,
           fta_name: calcFtaName,
           has_quota: isSoy || isSesame,
@@ -784,22 +794,34 @@ export default function ClearanceWizard({
                   </div>
 
                   {/* Card 2: WTO Bound Concession Rate (C) */}
-                  <div style={{ background: '#ffffff', border: '1.5px solid var(--border-color)', padding: '16px', borderRadius: '8px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div style={{ 
+                    background: ratesData.rates.wto_rate === 0 ? '#f0fdf4' : '#ffffff', 
+                    border: ratesData.rates.wto_rate === 0 ? '1.5px solid #10b981' : '1.5px solid var(--border-color)', 
+                    padding: '16px', 
+                    borderRadius: '8px', 
+                    textAlign: 'center', 
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)' 
+                  }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
+                      <span style={{ fontSize: '0.85rem', color: ratesData.rates.wto_rate === 0 ? '#065f46' : '#475569', fontWeight: 700 }}>WTO 협정세율 (C)</span>
                       {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate && (
                         <span style={{ fontSize: '0.7rem', padding: '1px 5px', background: 'rgba(234, 88, 12, 0.12)', color: '#c2410c', borderRadius: '4px', fontWeight: 800 }}>
                           양허상한
                         </span>
                       )}
+                      {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate === 0 && (
+                        <span style={{ fontSize: '0.7rem', padding: '1px 5px', background: 'rgba(16, 185, 129, 0.2)', color: '#047857', borderRadius: '4px', fontWeight: 800 }}>
+                          무세(ITA)
+                        </span>
+                      )}
                     </div>
-                    <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: '#0f172a' }}>
+                    <h4 style={{ fontSize: '1.6rem', fontWeight: 900, marginTop: '6px', color: ratesData.rates.wto_rate === 0 ? '#047857' : '#0f172a' }}>
                       {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate !== undefined ? `${ratesData.rates.wto_rate}%` : '해당없음'}
                     </h4>
-                    <span style={{ fontSize: '0.74rem', color: ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate ? '#ea580c' : '#64748b', display: 'block', marginTop: '4px', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.74rem', color: ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate ? '#ea580c' : (ratesData.rates.wto_rate === 0 ? '#047857' : '#64748b'), display: 'block', marginTop: '4px', fontWeight: 600 }}>
                       {ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate > ratesData.rates.base_rate 
                         ? `기본세율(${ratesData.rates.base_rate}%) 우선적용 (관세법 제50조)` 
-                        : (ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate < ratesData.rates.base_rate ? 'WTO 우선적용' : '다자간 양허세율')}
+                        : (ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate === 0 ? 'WTO 무세(0%) 최우선 적용' : (ratesData.rates.wto_rate !== null && ratesData.rates.wto_rate < ratesData.rates.base_rate ? 'WTO 우선적용' : '다자간 양허세율'))}
                     </span>
                   </div>
 
