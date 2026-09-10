@@ -55,12 +55,25 @@ export default function DutySavingsCalculator({
   // Update rates by fetching directly from backend database API
   useEffect(() => {
     let isMounted = true;
-    const countryMatch = originCountry.match(/\(([A-Z]{2})\)/) || originCountry.match(/^([A-Z]{2})$/);
-    const countryCode = countryMatch ? countryMatch[1] : 'CN';
+    const nameToCode: Record<string, string> = {
+      '미국': 'US', '중국': 'CN', '일본': 'JP', '독일': 'DE', '이탈리아': 'IT',
+      '프랑스': 'FR', '영국': 'GB', '베트남': 'VN', '호주': 'AU', '캐나다': 'CA',
+      '뉴질랜드': 'NZ', '칠레': 'CL', '인도': 'IN', '싱가포르': 'SG', '인도네시아': 'ID'
+    };
+    const countryMatch = originCountry.match(/\(([A-Z]{2})\)/) || originCountry.match(/([A-Z]{2})/);
+    let countryCode = countryMatch ? countryMatch[1] : 'CN';
+    if (!countryMatch) {
+      for (const [name, code] of Object.entries(nameToCode)) {
+        if (originCountry.includes(name)) {
+          countryCode = code;
+          break;
+        }
+      }
+    }
 
     const fetchCalculatedRates = async () => {
       try {
-        const res = await fetch(`/api/hs/rates?hs_code=${encodeURIComponent(hsCode)}&origin=${encodeURIComponent(countryCode)}`);
+        const res = await fetch(`/api/hs/rates?hs_code=${encodeURIComponent(hsCode)}&country=${encodeURIComponent(countryCode)}`);
         if (res.ok) {
           const data = await res.json();
           if (isMounted && data?.rates) {

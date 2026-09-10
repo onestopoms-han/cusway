@@ -1710,10 +1710,10 @@ ASEAN_COUNTRIES = {"VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "
 RCEP_COUNTRIES = {"CN", "JP", "AU", "NZ", "VN", "SG", "TH", "ID", "MY", "PH", "KH", "LA", "MM", "BN", "KR", "RCEP"}
 
 @app.get("/api/hs/rates")
-def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optional[str] = None, db: Session = Depends(get_db)):
-    # HSK 포맷 클렌징
-    clean_code = hs_code.replace(".", "").replace("-", "").strip()
-    origin_upper = origin.upper().strip()
+def get_hs_rates_api(hs_code: str, origin: str = "US", country: Optional[str] = None, declaration_date: Optional[str] = None, db: Session = Depends(get_db)):
+    # HSK 포맷 클렌징 및 국가 파라미터 표준화
+    clean_code = re.sub(r'[^0-9]', '', hs_code).strip()
+    origin_upper = (country or origin).upper().strip()
     
     # 신고 일자 기반 계절/시기 판정 (기본값: 오늘 날짜)
     dec_date_str = declaration_date.strip() if (declaration_date and declaration_date.strip()) else datetime.now().strftime("%Y-%m-%d")
@@ -1727,8 +1727,9 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optiona
     is_first_half = (1 <= dec_month <= 6)
     current_season_badge = f"{dec_year}년 상반기(1~6월)" if is_first_half else f"{dec_year}년 하반기(7~12월)"
     
-    # 1. customs_rates_2026 전수 마스터에서 실시간 조회
+    # 1. customs_rates_2026 전수 마스터에서 실시간 계층적(10단위->6단위->4단위->2단위) 정밀 조회
     rate_rows = []
+    canonical_hsk = clean_code
     rates_db_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "customs_rates_2026.db")
     if os.environ.get("VERCEL"):
         rates_db_file = "/tmp/customs_rates_2026.db"
@@ -1737,11 +1738,24 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optiona
         if os.path.exists(rates_db_file):
             rconn = sqlite3.connect(rates_db_file)
             rcur = rconn.cursor()
+            
+            # 정확한 10단위 일치 우선 조회
             rcur.execute("SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date FROM customs_rates_2026 WHERE hs_code = ?", (clean_code,))
             rate_rows = rcur.fetchall()
-            if not rate_rows and len(clean_code) >= 6:
-                rcur.execute("SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date FROM customs_rates_2026 WHERE hs_code LIKE ? LIMIT 100", (f"{clean_code[:6]}%",))
-                rate_rows = rcur.fetchall()
+            
+            # 10단위 미존재 시 계층적 fallback (6자리 -> 4자리 -> 2자리)
+            if not rate_rows:
+                for plen in [8, 6, 4, 2]:
+                    if len(clean_code) >= plen:
+                        prefix = clean_code[:plen]
+                        rcur.execute("SELECT hs_code FROM customs_rates_2026 WHERE hs_code LIKE ? ORDER BY hs_code LIMIT 1", (f"{prefix}%",))
+                        cand = rcur.fetchone()
+                        if cand:
+                            canonical_hsk = cand[0]
+                            rcur.execute("SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date FROM customs_rates_2026 WHERE hs_code = ?", (canonical_hsk,))
+                            rate_rows = rcur.fetchall()
+                            if rate_rows:
+                                break
             rconn.close()
         else:
             query_sql = text("""
@@ -1750,16 +1764,16 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optiona
             WHERE hs_code = :hsk
             """)
             rate_rows = db.execute(query_sql, {"hsk": clean_code}).fetchall()
-            
-            # 10자리 없을 시 6단위 prefix 검색
-            if not rate_rows and len(clean_code) >= 6:
-                query_sql_prefix = text("""
-                SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
-                FROM customs_rates_2026
-                WHERE hs_code LIKE :prefix
-                LIMIT 100
-                """)
-                rate_rows = db.execute(query_sql_prefix, {"prefix": f"{clean_code[:6]}%"}).fetchall()
+            if not rate_rows:
+                for plen in [8, 6, 4, 2]:
+                    if len(clean_code) >= plen:
+                        prefix = clean_code[:plen]
+                        cand = db.execute(text("SELECT hs_code FROM customs_rates_2026 WHERE hs_code LIKE :prefix ORDER BY hs_code LIMIT 1"), {"prefix": f"{prefix}%"}).fetchone()
+                        if cand:
+                            canonical_hsk = cand[0]
+                            rate_rows = db.execute(query_sql, {"hsk": canonical_hsk}).fetchall()
+                            if rate_rows:
+                                break
     except Exception as e:
         print(f"[RATES_DB_WARN] Query on customs_rates_2026 failed: {e}")
         
