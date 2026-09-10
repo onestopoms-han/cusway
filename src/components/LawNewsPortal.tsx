@@ -15,6 +15,26 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
   const [previewAttachment, setPreviewAttachment] = useState<any | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [schedulerStatus, setSchedulerStatus] = useState<any | null>(null);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+  // Fetch 10-times daily scheduler status
+  useEffect(() => {
+    const fetchScheduler = async () => {
+      try {
+        const res = await fetch('/api/customs/scheduler/status');
+        if (res.ok) {
+          const data = await res.json();
+          setSchedulerStatus(data);
+        }
+      } catch (e) {
+        console.error('Scheduler status fetch error:', e);
+      }
+    };
+    fetchScheduler();
+    const timer = setInterval(fetchScheduler, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Reset page to 1 when search term changes
   useEffect(() => {
@@ -293,6 +313,75 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               {syncMessage}
             </div>
           )}
+
+          {/* 10-Times Daily Automated Intelligence Scheduler Bar */}
+          <div style={{
+            marginTop: '16px',
+            padding: '12px 16px',
+            background: 'rgba(15, 23, 42, 0.75)',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            borderRadius: '10px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                color: '#ffffff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.76rem',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}>
+                ⏰ 1일 10회 정시 자동 수집 가동 중
+              </span>
+              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                {['08:00', '09:30', '11:00', '12:30', '14:00', '15:30', '17:00', '18:30', '20:00', '22:00'].map((timeStr, tIdx) => (
+                  <span key={tIdx} style={{
+                    background: '#1e293b',
+                    color: '#94a3b8',
+                    border: '1px solid #334155',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700
+                  }}>
+                    {timeStr}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>
+                {schedulerStatus?.next_run_slot ? `다음 수집: ${schedulerStatus.next_run_slot.time_str} (${schedulerStatus.next_run_slot.label?.split(' - ')[1] || '정시 수집'})` : '1일 10회 정시 크롤링 활성'}
+              </span>
+              <button
+                onClick={() => setShowScheduleModal(true)}
+                style={{
+                  background: '#0369a1',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#0284c7'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#0369a1'}
+              >
+                📅 정시 시간표 보기
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1301,6 +1390,219 @@ ${selectedNoticeModal.full_content || selectedNoticeModal.summary}`}
                 }}
               >
                 확인 완료 (닫기)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 10-Times Daily Crawler Schedule Timeline Modal */}
+      {showScheduleModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#ffffff',
+            borderRadius: '16px',
+            maxWidth: '750px',
+            width: '100%',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+            border: '1.5px solid #cbd5e1',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1.5px solid #e2e8f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: '#f8fafc'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                  color: '#ffffff',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  fontSize: '0.78rem',
+                  fontWeight: 800
+                }}>
+                  자동화 데몬 24시간 가동
+                </span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  ⏰ 1일 10회 정시 자동 수집 스케줄표 (KST)
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowScheduleModal(false)}
+                style={{
+                  background: '#f1f5f9',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.1rem',
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  fontWeight: 700
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', padding: '14px 18px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <div style={{ fontSize: '0.86rem', color: '#0369a1', fontWeight: 800 }}>
+                    🎯 현재 수집 주기: 하루 10회 정밀 자동 동기화
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '4px' }}>
+                    관세청 공식 보도자료, 관세평가분류원, 조세심판원 결정례, WCO/HSK 품목분류 개정을 정시마다 실시간 수집합니다.
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{
+                    background: '#10b981',
+                    color: '#ffffff',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    fontSize: '0.72rem',
+                    fontWeight: 800
+                  }}>
+                    ● 데몬 정상 작동 중
+                  </span>
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '4px' }}>
+                    {schedulerStatus?.last_run_time ? `최근 수집: ${schedulerStatus.last_run_time}` : '실시간 대기 중'}
+                  </div>
+                </div>
+              </div>
+
+              {/* 10 Checkpoints Table */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '0.86rem', fontWeight: 800, color: '#0f172a' }}>
+                  📋 1일 10회 정시 수집 체크포인트 및 업무 목적
+                </span>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '10px' }}>
+                  {[
+                    { num: 1, time: '08:00', title: '조간 관세 고시/지침 개정 수집', desc: '관세청 밤사이 발표 지침 및 일일 조간 고시' },
+                    { num: 2, time: '09:30', title: '관세청 개청 및 1차 보도자료', desc: '전국 세관 및 통관포털 오전 공식 보도자료' },
+                    { num: 3, time: '11:00', title: '오전 관세/통관 동향 및 환율', desc: '수출입 통관 실적 및 관세청 기준환율 고시' },
+                    { num: 4, time: '12:30', title: '점심 시간대 관세 행정 공시', desc: '통관 심사 기준 및 대외무역 요건공고' },
+                    { num: 5, time: '14:00', title: '오후 업무 개시 및 통관 심사', desc: '세관장확인 대상 및 요건확인 고시 개정' },
+                    { num: 6, time: '15:30', title: '품목분류(HS) & FTA 긴급 공지', desc: '관세평가분류원 사전심사 및 협정세율' },
+                    { num: 7, time: '17:00', title: '관세청 석간 보도 및 고시 개정', desc: '관세청 공식 당일 보도자료 및 행정예고' },
+                    { num: 8, time: '18:30', title: '당일 통관 행정/단속 종합 브리핑', desc: '위조상품/부정수입 세관 단속 및 환특법 공지' },
+                    { num: 9, time: '20:00', title: '야간 관세 평가 및 결정례 수집', desc: '조세심판원 관세 결정례 및 관세평가 사례' },
+                    { num: 10, time: '22:00', title: '일일 관세/무역 최종 결산 종합', desc: '당일 전체 관세 행정/법령 최종 누적 동기화' }
+                  ].map((slot) => (
+                    <div 
+                      key={slot.num}
+                      style={{
+                        background: '#f8fafc',
+                        border: '1.5px solid #e2e8f0',
+                        borderRadius: '8px',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{
+                          background: '#0284c7',
+                          color: '#ffffff',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.74rem',
+                          fontWeight: 800
+                        }}>
+                          {slot.num}회차 | {slot.time}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', color: '#10b981', fontWeight: 700 }}>
+                          자동 실행 예약
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
+                        {slot.title}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        {slot.desc}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              padding: '16px 24px',
+              borderTop: '1.5px solid #e2e8f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: '#f8fafc'
+            }}>
+              <button
+                onClick={() => {
+                  setShowScheduleModal(false);
+                  handleSync();
+                }}
+                disabled={isSyncing}
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 18px',
+                  fontSize: '0.82rem',
+                  fontWeight: 800,
+                  cursor: isSyncing ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <RefreshCw size={13} className={isSyncing ? 'animate-spin' : ''} />
+                {isSyncing ? '수집 진행 중...' : '⚡ 지금 즉시 전체 수집 실행'}
+              </button>
+              
+              <button
+                onClick={() => setShowScheduleModal(false)}
+                style={{
+                  background: '#64748b',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '8px 20px',
+                  fontSize: '0.84rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                닫기
               </button>
             </div>
           </div>

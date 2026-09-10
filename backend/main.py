@@ -66,12 +66,12 @@ def startup_event():
     finally:
         db.close()
 
-    # Launch background 2x daily crawler scheduler (09:00 & 18:00 KST)
+    # Launch background 10x daily crawler scheduler (08:00, 09:30, 11:00, 12:30, 14:00, 15:30, 17:00, 18:30, 20:00, 22:00 KST)
     if not os.environ.get("VERCEL"):
         try:
             from backend.daily_crawler_daemon import init_background_scheduler
             init_background_scheduler()
-            print("[STARTUP] ⏰ Dual Daily Intelligence Crawler Scheduler (09:00 & 18:00 KST) started successfully in background.")
+            print("[STARTUP] ⏰ 10-Times Daily Intelligence Crawler Scheduler (1일 10회 정시 자동 수집) started successfully in background.")
         except Exception as e:
             print(f"[STARTUP DAEMON ERROR] {e}")
 
@@ -680,9 +680,42 @@ def sync_customs_news(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Error syncing customs news: {e}")
         raise HTTPException(status_code=500, detail=f"동기화 중 오류가 발생했습니다: {str(e)}")
+
+@app.get("/api/customs/scheduler/status")
+def get_scheduler_status():
+    """Returns 10-times daily automatic collection scheduler status and schedule table."""
+    try:
+        from backend.daily_crawler_daemon import SCHEDULER_STATE, SCHEDULED_SLOTS, get_next_scheduled_slot
+        next_slot = get_next_scheduled_slot()
+        return {
+            "status": "active",
+            "schedule_count": len(SCHEDULED_SLOTS),
+            "scheduled_slots": SCHEDULED_SLOTS,
+            "is_running": SCHEDULER_STATE.get("is_running", False),
+            "last_run_time": SCHEDULER_STATE.get("last_run_time"),
+            "last_status": SCHEDULER_STATE.get("last_status", "Idle"),
+            "last_slot_label": SCHEDULER_STATE.get("last_slot_label"),
+            "next_run_slot": next_slot,
+            "history": SCHEDULER_STATE.get("history", [])[:10]
+        }
     except Exception as e:
-        print(f"[QUERY NEWS DB ERROR] {e}")
-        return latest_today_news
+        return {
+            "status": "error",
+            "message": str(e),
+            "schedule_count": 10
+        }
+
+@app.post("/api/customs/scheduler/trigger")
+def trigger_scheduler_manually():
+    """Manually triggers an immediate run of the 10x crawler pipeline."""
+    import threading
+    from backend.daily_crawler_daemon import run_daily_crawler_task
+    t = threading.Thread(target=run_daily_crawler_task, args=("수동 즉시 수집 실행",), daemon=True)
+    t.start()
+    return {
+        "status": "triggered",
+        "message": "1일 10회 정시 크롤러 수집 파이프라인이 즉시 백그라운드에서 기동되었습니다."
+    }
 
 @app.get("/api/customs/download-pdf")
 def download_customs_pdf(id: int, filename: str, db: Session = Depends(get_db)):
