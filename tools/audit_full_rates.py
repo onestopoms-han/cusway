@@ -15,7 +15,8 @@ def run_comprehensive_rate_audit():
     from backend.main import app
     client = TestClient(app)
     
-    conn = sqlite3.connect('cusway.db')
+    rates_db_file = 'customs_rates_2026.db' if os.path.exists('customs_rates_2026.db') else 'cusway.db'
+    conn = sqlite3.connect(rates_db_file)
     c = conn.cursor()
     
     # 1. Verify customs_rates_2026 and hs_rate_master row counts
@@ -23,8 +24,12 @@ def run_comprehensive_rate_audit():
     total_2026_rows = c.fetchone()[0]
     c.execute("SELECT count(DISTINCT hs_code) FROM customs_rates_2026")
     distinct_2026_hsk = c.fetchone()[0]
-    c.execute("SELECT count(*) FROM hs_rate_master")
-    total_master_rows = c.fetchone()[0]
+    
+    conn_cusway = sqlite3.connect('cusway.db')
+    cc = conn_cusway.cursor()
+    cc.execute("SELECT count(*) FROM hs_rate_master")
+    total_master_rows = cc.fetchone()[0]
+    conn_cusway.close()
     
     print(f"📊 [마스터 DB 검증] customs_rates_2026: {total_2026_rows:,}건 ({distinct_2026_hsk:,}개 세번)")
     print(f"📊 [동기화 검증] hs_rate_master: {total_master_rows:,}건")

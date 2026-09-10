@@ -74,17 +74,32 @@ def init_db_migrations():
 
 def init_customs_rates_2026():
     import sqlite3
-    db_file = "./cusway.db"
+    rates_db_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "customs_rates_2026.db")
     if os.environ.get("VERCEL"):
-        db_file = "/tmp/cusway.db"
+        rates_db_file = "/tmp/customs_rates_2026.db"
         
     excel_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "관세청_품목번호별 관세율표_20260211.xlsx")
     if not os.path.exists(excel_path):
         excel_path = "관세청_품목번호별 관세율표_20260211.xlsx"
         
-    if os.path.exists(db_file) and os.path.exists(excel_path):
+    # Clean redundant table from cusway.db if present to keep cusway.db under 100MB git limit
+    cusway_file = "./cusway.db"
+    if os.path.exists(cusway_file):
         try:
-            conn = sqlite3.connect(db_file)
+            cconn = sqlite3.connect(cusway_file)
+            ccur = cconn.cursor()
+            ccur.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='customs_rates_2026'")
+            if ccur.fetchone()[0] > 0:
+                ccur.execute("DROP TABLE IF EXISTS customs_rates_2026")
+                cconn.commit()
+                ccur.execute("VACUUM")
+            cconn.close()
+        except Exception:
+            pass
+
+    if os.path.exists(excel_path):
+        try:
+            conn = sqlite3.connect(rates_db_file)
             cursor = conn.cursor()
             cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='customs_rates_2026'")
             table_exists = cursor.fetchone()[0] > 0
@@ -95,7 +110,7 @@ def init_customs_rates_2026():
                     conn.close()
                     return # already populated
             
-            print("[RATES_INIT] Initializing 2026 Customs Tariff Master from Excel...")
+            print("[RATES_INIT] Initializing 2026 Customs Tariff Master into customs_rates_2026.db...")
             import openpyxl
             wb = openpyxl.load_workbook(excel_path, read_only=True)
             ws = wb['2.12'] if '2.12' in wb.sheetnames else wb.active
@@ -143,7 +158,7 @@ def init_customs_rates_2026():
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_rates_rcode ON customs_rates_2026(rate_code)")
             conn.commit()
             conn.close()
-            print(f"[RATES_INIT] Successfully loaded {len(batch)} tariff rows into customs_rates_2026.")
+            print(f"[RATES_INIT] Successfully loaded {len(batch)} tariff rows into customs_rates_2026.db.")
         except Exception as e:
             print(f"[RATES_INIT_WARN] Failed to auto-init customs_rates_2026: {e}")
 

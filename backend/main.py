@@ -8,6 +8,7 @@ from typing import List, Optional
 import os
 import re
 import json
+import sqlite3
 from datetime import datetime
 
 def load_env():
@@ -1728,23 +1729,37 @@ def get_hs_rates_api(hs_code: str, origin: str = "US", declaration_date: Optiona
     
     # 1. customs_rates_2026 전수 마스터에서 실시간 조회
     rate_rows = []
-    try:
-        query_sql = text("""
-        SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
-        FROM customs_rates_2026
-        WHERE hs_code = :hsk
-        """)
-        rate_rows = db.execute(query_sql, {"hsk": clean_code}).fetchall()
+    rates_db_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "customs_rates_2026.db")
+    if os.environ.get("VERCEL"):
+        rates_db_file = "/tmp/customs_rates_2026.db"
         
-        # 10자리 없을 시 6단위 prefix 검색
-        if not rate_rows and len(clean_code) >= 6:
-            query_sql_prefix = text("""
+    try:
+        if os.path.exists(rates_db_file):
+            rconn = sqlite3.connect(rates_db_file)
+            rcur = rconn.cursor()
+            rcur.execute("SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date FROM customs_rates_2026 WHERE hs_code = ?", (clean_code,))
+            rate_rows = rcur.fetchall()
+            if not rate_rows and len(clean_code) >= 6:
+                rcur.execute("SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date FROM customs_rates_2026 WHERE hs_code LIKE ? LIMIT 100", (f"{clean_code[:6]}%",))
+                rate_rows = rcur.fetchall()
+            rconn.close()
+        else:
+            query_sql = text("""
             SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
             FROM customs_rates_2026
-            WHERE hs_code LIKE :prefix
-            LIMIT 100
+            WHERE hs_code = :hsk
             """)
-            rate_rows = db.execute(query_sql_prefix, {"prefix": f"{clean_code[:6]}%"}).fetchall()
+            rate_rows = db.execute(query_sql, {"hsk": clean_code}).fetchall()
+            
+            # 10자리 없을 시 6단위 prefix 검색
+            if not rate_rows and len(clean_code) >= 6:
+                query_sql_prefix = text("""
+                SELECT rate_code, rate_val, specific_rate, usage_type, start_date, end_date
+                FROM customs_rates_2026
+                WHERE hs_code LIKE :prefix
+                LIMIT 100
+                """)
+                rate_rows = db.execute(query_sql_prefix, {"prefix": f"{clean_code[:6]}%"}).fetchall()
     except Exception as e:
         print(f"[RATES_DB_WARN] Query on customs_rates_2026 failed: {e}")
         
