@@ -136,7 +136,30 @@ HEADING_ANCHORS = {
     "천연 벌꿀 함유 하드 캔디 (honey hard candy)": ["17.04", "1704"],
     "벌꿀 함유 하드 캔디": ["17.04", "1704"],
     "벌꿀 캔디": ["17.04", "1704"],
-    "하드 캔디": ["17.04", "1704"],
+    # 자동차 센서류 Anchors (하중, 충격, 가속도, 충돌, 압력 등)
+    "자동차 충격센서": ["90.31", "9031"],
+    "자동차충격센서": ["90.31", "9031"],
+    "충격센서": ["90.31", "9031"],
+    "충격 센서": ["90.31", "9031"],
+    "충돌센서": ["90.31", "9031"],
+    "충돌 센서": ["90.31", "9031"],
+    "크래시센서": ["90.31", "9031"],
+    "크래시 센서": ["90.31", "9031"],
+    "가속도센서": ["90.31", "9031"],
+    "가속도 센서": ["90.31", "9031"],
+    "g센서": ["90.31", "9031"],
+    "에어백 센서": ["90.31", "9031"],
+    "에어백센서": ["90.31", "9031"],
+    "자동차 시트 하중 센서": ["90.31", "9031"],
+    "자동차시트하중센서": ["90.31", "9031"],
+    "시트 하중 센서": ["90.31", "9031"],
+    "시트하중센서": ["90.31", "9031"],
+    "하중 센서": ["90.31", "9031"],
+    "하중센서": ["90.31", "9031"],
+    "승객감지센서": ["90.31", "9031"],
+    "승객 감지 센서": ["90.31", "9031"],
+    "wcs 센서": ["90.31", "9031"],
+    "ods 센서": ["90.31", "9031"],
     "베이킹용 순수 무가당 코코아 분말 (pure cocoa powder)": ["18.05", "1805"],
     "순수 무가당 코코아 분말": ["18.05", "1805"],
     "무가당 코코아 분말": ["18.05", "1805"],
@@ -1888,6 +1911,17 @@ def retrieve_relevant_notes(query: str, db: Session):
     # Clean query and parse/normalize text keywords
     raw_keywords = [kw.strip() for kw in re.split(r'[\s,\.\-\(\)]+', split_query) if len(kw.strip()) >= 2]
     
+    # Sub-word expansion for unspaced Korean compound nouns
+    KNOWN_SUBWORDS = ["자동차", "차량", "시트", "하중", "충격", "충돌", "크래시", "에어백", "가속도", "센서", "승객", "감지", "로드셀", "압력", "온도", "스위치", "모터", "감속기", "밸브", "펌프", "배터리", "인버터"]
+    expanded = []
+    for rk in raw_keywords:
+        expanded.append(rk)
+        if len(rk) >= 4:
+            for sw in KNOWN_SUBWORDS:
+                if sw in rk and sw not in expanded:
+                    expanded.append(sw)
+    raw_keywords = expanded
+
     normalized = []
     for rk in raw_keywords:
         nk = normalize_korean_keyword(rk)
@@ -1914,6 +1948,15 @@ def retrieve_relevant_notes(query: str, db: Session):
     
     # 0. Force target heading anchors into SQL candidates if query contains anchor phrases
     query_lower = query.lower()
+    
+    # Universal Sensor Anchor Routing (9025, 9026, 9027, 9030, 9031, 8536)
+    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
+    if is_sensor_query(query):
+        sensor_res = classify_sensor_universally(query)
+        sensor_head = sensor_res["recommendedHsCode"][:4]
+        anchor_filters.append(ExplanatoryNote.heading.like(f"%{sensor_head}%"))
+        anchor_filters.append(ExplanatoryNote.heading.like(f"%{sensor_head[:2]}.{sensor_head[2:]}%"))
+
     for anchor_key, allowed_headings in HEADING_ANCHORS.items():
         if anchor_key in query_lower:
             for ah in allowed_headings:

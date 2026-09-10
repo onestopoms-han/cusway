@@ -193,6 +193,13 @@ class HSConsistencyValidator:
                 score_deduction += 45
                 warnings.append(f"기계/전자기기 관련 단어가 감지되었으나 농축수산물/식품류(제{chapter}류)로 분류되었습니다.")
 
+        # 3. Sensor keywords mapped to vehicle parts (8708), construction machinery (8430), or generic furniture (9401)
+        from backend.rag.sensor_classifier import is_sensor_query
+        if is_sensor_query(query_text):
+            if chapter in ["87", "86", "88", "89", "94", "95"] or clean_code.startswith("8430") or clean_code.startswith("8479"):
+                score_deduction += 50
+                warnings.append(f"센서/계측기기 물품은 제16부 주 제1호 마목 및 제17부 주 제2호 사목에 의해 완제품 부품(제{chapter}류)이나 건설기계(제8430호)에서 배제되고 제90류(제9025~9031호) 또는 제85류로 분류되어야 합니다.")
+
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 
     @classmethod

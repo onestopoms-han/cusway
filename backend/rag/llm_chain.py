@@ -322,10 +322,17 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
   - 폴리이미드 필름으로 뒷면을 보강한 FPCB용 2층 동박적층판(FCCL)은 알루미늄박(제7607호)이 아니라 뒷면 보강 동박 제7410호(제7410.21-0000호)로 분류됩니다.
   - 제강용 고탄소 페로크롬 합금철 덩어리는 기타 비철금속(제8112호)이 아니라 합금철 제7202호(제7202.41-0000호)로 분류됩니다.
   - 자율주행 차량용 5G 텔레매틱스 무선통신 제어 모듈(TCU)은 카메라/방송기기(제8525호)가 아니라 데이터 통신 기기 제8517호(제8517.62-0000호)로 분류됩니다.
-  - 산업용 로봇 관절 모터 구동용 서보 드라이브 인버터는 로봇 완성품(제8479호)이 아니라 전력 변환기 제8504호(제8504.40-0000호) 또는 배전반 제8537호로 분류됩니다.
-  - 병원 수술실용 전동 유압식 다기능 수술대는 매트리스 침구(제9404호)가 아니라 외과용 가구/수술대 제9402호(제9402.90-0000호)로 분류됩니다.
-  - 무대 및 콘서트 연출용 DMX 제어 고출력 LED 무빙헤드 조명기구는 제어반(제8537호)이 아니라 조명기구 제9405호(제9405.42-0000호)로 분류됩니다.
-  - 골프 클럽 헤드와 그립을 연결하는 카본 그라파이트 골프채 샤프트는 기계류 동력전달축(제8483호)이 아니라 골프용품 부분품 제9506호(제9506.39-0000호)로 분류됩니다.
+* [전 산업 분야 센서(Sensor) 및 계측기기 보편적 분류 원칙 (제16부 주 제1호 마목 & 제17부 주 제2호 사목)]:
+  - 센서(Sensor), 트랜스듀서, 감지기(Detector), 로드셀, 엔코더 등은 장착되는 대상 기계나 완제품(자동차, 산업용 로봇, 항공기, 선박, 반도체 제조장비, 공작기계, 스마트팩토리, 가전, 드론, IoT 기기 등)의 전용 부분품(제8708호, 제8479호, 제8486호, 제8803호 등)이나 건설/토목기계(제8430호)로 분류되지 않고, 독립된 계측 기기로서 제90류(또는 제85류 소자/스위치)로 최우선 분류됩니다:
+    ① 온도/온습도 센서: 제9025호 (9025.19-1000 / 9025.80-0000)
+    ② 압력/유량/액위 센서: 제9026호 (9026.20-4000 / 9026.10-1000)
+    ③ 가스/연기/화학/광학분석 센서: 제9027호 (9027.10-0000 / 9027.89-9000)
+    ④ 전압/전류/자기장/홀 센서: 제9030호 (9030.33-0000 / 9030.89-0000)
+    ⑤ 하중/무게/충격/충돌/가속도/자이로/진동/토크/조향각/변위/위치/엔코더/근접/두께/스트레인 센서: 제9031호 (9031.80-9090 / 로드셀은 9031.80-2000)
+    ⑥ 단순 온/오프 접점 개폐식 스위치 센서: 제8536호 (8536.50-9000)
+
+
+
 
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
 """
@@ -568,6 +575,16 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
         )
     )
 
+    # 0-A. Universal Sensor Classification Engine (전 산업 분야 모든 센서 즉시 정밀 판정)
+    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
+    if is_sensor_query(product_name):
+        return classify_sensor_universally(product_name, material, function_use)
+
+    # 0-B. Universal Food & Agricultural Classification Engine (농축수산물 및 식품류 정밀 판정)
+    from backend.rag.food_classifier import is_food_query, classify_food_universally
+    if is_food_query(product_name):
+        return classify_food_universally(product_name, material, function_use)
+
     # 0. HEADING_ANCHORS 기반 즉시 고정밀 복원
     from backend.rag.retriever import HEADING_ANCHORS
     from backend.models import HSCodeMaster, CustomsPrecedent
@@ -586,13 +603,22 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                 
     if matched_head:
         # 마스터 DB에서 해당 4단위로 시작하는 실존 10자리 세번 검색
-        master_match = db.query(HSCodeMaster).filter(HSCodeMaster.hs_code.like(f"{matched_head}%")).first()
+        if matched_head == "9031":
+            master_match = db.query(HSCodeMaster).filter(
+                HSCodeMaster.hs_code.like("9031.80%"),
+                HSCodeMaster.hscode_length == 10
+            ).order_by(HSCodeMaster.hs_code.desc()).first()
+        else:
+            master_match = db.query(HSCodeMaster).filter(
+                HSCodeMaster.hs_code.like(f"{matched_head}%"),
+                HSCodeMaster.hscode_length == 10
+            ).order_by(HSCodeMaster.hs_code.desc()).first()
         if master_match:
             raw_c = re.sub(r'[^\d]', '', master_match.hs_code)
             if len(raw_c) >= 10:
                 f_code = f"{raw_c[:4]}.{raw_c[4:6]}-{raw_c[6:10]}"
             else:
-                f_code = f"{matched_head}.00-0000"
+                f_code = f"{matched_head}.80-9090" if matched_head == "9031" else f"{matched_head}.90-9000"
             return {
                 "recommendedHsCode": f_code,
                 "headingName": master_match.name_ko or f"제{matched_head}호 관련 물품",
@@ -600,7 +626,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                 "confidence": 98,
                 "technicalTerms": product_name,
                 "legalReasoning": f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 주요 구성 재질은 [{material}]이며 [{function_use}] 용도로 사용됩니다.\n나. 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 제{matched_head}호의 품목 분류 기준 및 해설서 지침에 따라 정확히 분류됩니다.",
-                "applicableRules": ["관세율표 해석에 관한 통칙 제1호", "관세율표 해석에 관한 통칙 제6호"]
+                "appliedGris": ["통칙 제1호", "통칙 제6호"]
             }
 
     # 1. 로컬 데이터베이스 내 기존 결정례(CustomsPrecedent)에서 제품명 매칭 검색 시도
@@ -979,6 +1005,43 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                     "appliedGri": "통칙 제1호",
                     "reasoning": "아동 완구 또는 유희용 스펙을 가진 극소형 전동 완구 자전거일 경우 검토됩니다.",
                     "exclusionReason": "본 제품은 성인 공도 주행용 도로 교통수단 스펙을 충족하므로 완구류(95류)에서 완전 제외됩니다."
+                }
+            ]
+        }
+
+    # 자동차 시트 하중 센서 / 충격 센서 / 가속도 센서 / WCS / ODS 센서 예외 매핑
+    if any(k in input_lower for k in [
+        "하중센서", "시트하중", "하중 센서", "시트 하중", "wcs", "승객감지센서", "승객 감지 센서", "ods sensor", "ods센서",
+        "충격센서", "충격 센서", "충돌센서", "충돌 센서", "크래시센서", "크래시 센서", "가속도센서", "가속도 센서", "g센서", "에어백센서", "에어백 센서"
+    ]):
+        sensor_type = "자동차 충격/가속도 센서" if any(x in input_lower for x in ["충격", "충돌", "크래시", "가속도", "g센서", "에어백"]) else "자동차 시트 하중/승객 감지 센서"
+        return {
+            "recommendedHsCode": "9031.80-9090",
+            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기)",
+            "subheadingName": f"{product_name} ({sensor_type})",
+            "confidence": 95,
+            "technicalTerms": "Automotive Crash/Impact/Load Classification Sensor (MEMS/Strain Gauge)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제17부 주 제2호 사목"],
+            "legalReasoning": f"가. 대상물품 개요: 차량(또는 시트/섀시)에 장착되어 충돌 충격, 가속도(G값), 또는 탑승자 하중을 검출하여 전기적 신호로 변환·측정하는 정밀 전자식 계측 센서입니다.\n나. 부/류 주 및 제외규정 검토: 관세율표 제17부 주 제2호 사목에 따라 '제90류의 물품(측정·검사기기)'은 제17부(제87류 자동차 부품 제8708호)에서 명시적으로 제외되며, 건설기계(제8430호)나 시트 부품(제9401호)에서도 배제됩니다.\n다. 일반통칙 적용: 통칙 제1호 및 제6호에 따라 따로 분류되지 않는 전기식 물리량 측정 기기인 제9031.80호에 해당합니다.\n라. 최종 결론: 따라서 본 물품은 HSK 제9031.80-9090호로 최종 분류됩니다.",
+            "sectionNote": "제17부 주 제2호 사목 (제90류의 측정·검사기기는 제17부 수송기기 부분품에서 제외)",
+            "chapterNote": "제90류 주 제1호 및 제9031호 해설 (전기식·전자식의 기타 측정 및 검사용 기기)",
+            "exclusionNote": "⚠️ 건설기계(제8430호 '충격식 기계')의 단순 어휘 매칭 오류나 자동차 전용 부품(제8708호)으로 오분류하지 않도록 주의하십시오 (제17부 주 제2호 사목 적용).",
+            "headingExplanation": "제9031호에는 관세율표의 다른 류나 호에 따로 분류되지 않는 모든 종류의 측정·검사용 기기가 분류됩니다. 자동차에 탑재되는 충격, 가속도, 하중, 압력 등 물리량 계측 센서 모듈은 제9031.80호로 분류됩니다.",
+            "precedents": [],
+            "competingHsCodes": [
+                {
+                    "hsCode": "8536.50-9000",
+                    "headingName": "제8536호 (전압 1,000V 이하의 스위치)",
+                    "appliedGri": "통칙 제1호",
+                    "reasoning": "물리량을 정밀 연속 측정하지 않고 단순 관성체/스프링에 의해 일정 충격 이상 시 접점이 개폐되는 단순 충격 스위치(Inertia switch)인 경우 경합 검토.",
+                    "exclusionReason": "본 물품은 충격/가속도/하중을 전기 신호로 연속 검출·측정하는 전자식 센서이므로 스위치(8536호)에서 배제되어 제9031호로 분류됨."
+                },
+                {
+                    "hsCode": "8708.99-9000",
+                    "headingName": "제8708호 (자동차의 부분품 및 부속품)",
+                    "appliedGri": "통칙 제1호",
+                    "reasoning": "자동차 에어백 시스템에 전용되는 차량용 부분품으로 보아 제8708호 경합 검토.",
+                    "exclusionReason": "관세율표 제17부 주 제2호 사목에 의해 제90류 측정기기는 제8708호에서 법적으로 명시적 제외됨."
                 }
             ]
         }
