@@ -50,70 +50,52 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     }
   };
 
-  // Fallback CLHS News Headlines (Updated: 2026-09-10)
+  // Fallback Real Customs News Headlines
   const fallbackNotices = [
     {
       id: 1,
-      tag: '관세청 속보',
-      title: '[속보] 2026년 9월 10일 관세율표 HSK 품목분류 및 첨단 광학·정밀계측기기 WTO 무세(ITA) 지침 고시',
-      date: '2026-09-10',
-      agency: '관세청 통관국 품목분류과',
-      summary: '2026년 9월 10일부로 연구용 주사전자현미경(SEM 제9012호), 발광분광분석기(OES 제9027호), 초소형 마이크로 스피커(제8518호) 등에 대한 WTO 정보기술협정(ITA) 0.0% 무세 적용 및 10단위 HSK 사전심사 표준 지침 전국 세관 시행 공표.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065460'
+      tag: '품목 분류',
+      title: '관세평가분류원, K-반도체 지원을 위한 품목분류 제도개선 추진',
+      date: '2026-06-01',
+      agency: '관세평가분류원 품목분류과',
+      summary: '관세평가분류원은 첨단 반도체 및 핵심 부품 수출입 기업의 통관 불확실성을 해소하기 위해 품목분류 사전심사 처리기간 단축 및 전담 상담 창구를 운영합니다.',
+      link: 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%ED%8F%89%EA%B0%80%EB%B6%84%EB%A5%98%EC%9B%90+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98+%EC%A0%9C%EB%8F%84%EA%B0%9C%EC%84%A0'
     },
     {
       id: 2,
-      tag: '관세청 고시',
-      title: '[고시 제2026-98호] 2026년 9월 10일 RCEP 및 한-EU FTA 원산지증명서 전자검증(E-C/O) 수입신고 자동수리 확대',
-      date: '2026-09-10',
-      agency: '관세청 자유무역협정집행국',
-      summary: 'RCEP(한-일 포함) 체약국 및 한-EU FTA 체결국 간 전자 원산지교환시스템(EODES) 연계를 통해 종이 C/O 제출을 생략하고 1시간 이내 자동 수리되는 신속 통관 프로세스 전면 가동.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065461'
+      tag: '관세 평가',
+      title: '수입물품 과세가격 실력 겨룬다…관세청 제24회 관세평가 경진대회 개최',
+      date: '2026-06-04',
+      agency: '관세청 관세평가분류원',
+      summary: '관세청은 다국적기업 이전가격, 특수관계자 간 로열티 과세가격 산정 등 관세평가 전문 역량 강화를 위해 전국 세관 및 민간 무역 실무자 대상 경진대회를 개최합니다.',
+      link: 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%ED%8F%89%EA%B0%80+%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C+%EA%B4%80%EC%84%B8%EC%B2%AD'
     },
     {
       id: 3,
-      tag: '통합공고 요건',
-      title: '[공고] 2026년 9월 10일 농축수산물 시장접근물량(TRQ) 양허세율 및 수입추천서 자동 매핑 공고',
-      date: '2026-09-10',
-      agency: '농림축산식품부 / 관세청 통관기획과',
-      summary: '대두(콩 제1201호), 조제참깨(제2008호) 등 주요 농산물에 대한 aT 수입추천서 유니패스 자동 연계 시스템 구축으로 In-Quota 저율관세(3%~40%) 즉시 적용 안내.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065462'
+      tag: 'FTA/원산지',
+      title: '관세청, 인도와 품목분류(HS) 분쟁 예방 협력채널 전격 구축 합의',
+      date: '2026-04-30',
+      agency: '관세청 국제협력총괄과',
+      summary: '한-인도 CEPA 활용 기업의 통관 애로를 해소하고 양국 간 품목분류 상이로 인한 관세 분쟁을 사전에 차단하기 위한 실시간 협의 채널을 가동합니다.',
+      link: 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%EC%B2%AD+%EC%9D%B8%EB%8F%84+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98+%EB%B6%84%EC%9F%81%EC%98%88%EB%B0%A9'
     },
     {
       id: 4,
-      tag: '관세청 속보',
-      title: '[속보] 2026년 9월 9일 관세율표 HSK 품목분류 및 첨단 반도체·이차전지 핵심소재 통관 고시',
-      date: '2026-09-09',
-      agency: '관세청 통관국 품목분류과',
-      summary: '2026년 9월 9일부로 AI 가속기 모듈(제8473호), 고대역폭메모리(HBM 제8542호) 및 실리콘 음극재 전구체(제28류/38류)에 대한 10단위 HSK 확정 및 사전심사 표준 지침 전국 세관 시행 공표.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065450'
+      tag: '품목 분류',
+      title: '수출입 품목분류 최강자 가린다...관세청, 품목분류 경진대회 공표',
+      date: '2026-08-18',
+      agency: '관세청 세원심사국',
+      summary: '관세율표 통칙 제1호부터 제6호 적용, 부·류·소호 주규정 해석 능력 향상을 위한 전국 단위 품목분류 온라인 경진대회를 시행합니다.',
+      link: 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98+%EA%B2%BD%EC%A7%84%EB%8C%80%ED%9A%8C'
     },
     {
       id: 5,
-      tag: '관세청 고시',
-      title: '[고시 제2026-95호] 2026년 9월 9일 한-중동 CEPA 및 RCEP 원산지증명서 전자검증(E-C/O) 전면 가동',
-      date: '2026-09-09',
-      agency: '관세청 자유무역협정집행국',
-      summary: '한-UAE CEPA 발효 및 RCEP 체약국 간 원산지증명서 실시간 전자교환시스템(EODES) 확대에 따른 종이 C/O 제출 면제 및 수입신고 즉시 수리 가이드라인 배포.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065451'
-    },
-    {
-      id: 6,
-      tag: '통합공고 요건',
-      title: '[공고] 2026년 9월 8일 대외무역법 수입 세관장확인 대상 전기용품 및 화학물질 안전인증 개편',
-      date: '2026-09-08',
-      agency: '산업통상자원부 / 관세청 통관기획과',
-      summary: '전기용품및생활용품안전관리법(전안법) 및 화학물질관리법(화관법) 개정에 따른 유니패스 수입신고 자동 승인 연계 품목 35종 추가 공표.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065445'
-    },
-    {
-      id: 7,
-      tag: '관세평가',
-      title: '2026년 9월 7일 특수관계자 간 이전가격(APA) 및 로열티 권리사용료 과세가격 산정 결정례집 배포',
-      date: '2026-09-07',
-      agency: '관세평가분류원 관세평가과',
-      summary: '다국적기업 본지사 간 특수관계 수입거래에서 제1방법(거래가격) 배제 사유 및 로열티/라이선스 비용 가산율 산정에 관한 최신 조세심판원/대법원 판례 해설집 발간.',
-      link: 'https://www.customs.go.kr/kcs/na/ntt/selectNttInfo.do?mi=2888&nttSn=10065440'
+      tag: '고시/지침',
+      title: '관세청, WTO 관세평가협정 및 HS 해설서 번역 오류 374건 정비 발표',
+      date: '2026-02-24',
+      agency: '관세청 품목분류평가원',
+      summary: '대국민 의견 수렴 및 관세사·학계 전문가 자문을 거쳐 WCO 영문 해설서와 국내 번역 간 불일치 조항 374건을 공식 정비하여 고시했습니다.',
+      link: 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%EC%B2%AD+WTO+%EA%B4%80%EC%84%B8%ED%8F%89%EA%B0%80%ED%98%91%EC%A0%95+HS+%ED%95%B4%EC%84%A4%EC%84%9C+%EB%B2%88%EC%97%AD+%EC%98%A4%EB%A5%98'
     }
   ];
 

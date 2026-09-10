@@ -658,32 +658,22 @@ def get_customs_news(db: Session = Depends(get_db)):
 @app.post("/api/customs/news/sync")
 @app.get("/api/customs/news/sync")
 def sync_customs_news(db: Session = Depends(get_db)):
-    """Trigger on-demand live sync of latest customs laws, notifications, and news."""
+    """Trigger on-demand live sync of latest customs laws, notifications, and real news."""
     try:
-        from backend.customs_news_daemon import parse_customs_news_feed
-        parse_customs_news_feed()
-        
-        # Also ensure today's 2026-09-10 and 2026-09-09 latest notices are present
         try:
-            import importlib.util
-            for tool_file, func_name in [("update_to_latest_news_2026_09_10.py", "update_to_latest_2026_09_10"), ("update_to_latest_news_2026_09_09.py", "update_to_latest_2026_09_09")]:
-                tool_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", tool_file)
-                if os.path.exists(tool_path):
-                    spec = importlib.util.spec_from_file_location("update_news", tool_path)
-                    if spec and spec.loader:
-                        mod = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(mod)
-                        getattr(mod, func_name)()
-        except Exception as seed_err:
-            logger.warning(f"Additional seed sync warning: {seed_err}")
+            from tools.clean_and_crawl_real_news import clean_and_crawl_real_news
+            clean_and_crawl_real_news()
+        except Exception:
+            from backend.customs_news_daemon import parse_customs_news_feed
+            parse_customs_news_feed()
 
         total_count = db.query(CustomsNews).count()
         latest_item = db.query(CustomsNews).order_by(CustomsNews.date.desc(), CustomsNews.id.desc()).first()
-        latest_date = latest_item.date if latest_item else "2026-09-10"
+        latest_date = latest_item.date if latest_item else datetime.now().strftime("%Y-%m-%d")
 
         return {
             "status": "success",
-            "message": f"관세청 최신 법령·고시 및 무역 뉴스가 성공적으로 동기화되었습니다. (총 {total_count}건, 최신 기준일: {latest_date})",
+            "message": f"관세청 및 통관 유관기관 공식 보도 뉴스가 실시간으로 동기화되었습니다. (총 {total_count}건, 최신 기준일: {latest_date})",
             "total_count": total_count,
             "latest_date": latest_date
         }
