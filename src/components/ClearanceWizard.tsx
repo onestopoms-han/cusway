@@ -188,12 +188,13 @@ export default function ClearanceWizard({
       const hasFta = ftaCountries.includes(originCountry);
       const isFtaExempt = ['US', 'CL', 'AU', 'CA', 'NZ', 'SG'].includes(originCountry);
 
-      const isSesame = hsCode.startsWith('1207.40') || hsCode.startsWith('120740');
-      const isSoy = hsCode.startsWith('1201');
-      const isChinaOrJapan = ['CN', 'JP', 'RCEP'].includes(originCountry);
+      const cleanCode = hsCode.replace(/[\.\-]/g, '').trim();
+      const isEssentialOil = cleanCode.startsWith('3301');
+      const isSesame = cleanCode.startsWith('120740') || cleanCode.startsWith('2008193000');
+      const isSoy = cleanCode.startsWith('1201');
 
-      let calcBaseRate = isSoy ? 3.0 : (isSesame ? 40.0 : 8.0);
-      let calcWtoRate = isSoy ? 487.0 : (isSesame ? 630.0 : 8.0);
+      let calcBaseRate = isEssentialOil ? 5.0 : (isSoy ? 3.0 : (isSesame ? 40.0 : 8.0));
+      let calcWtoRate = isEssentialOil ? 13.0 : (isSoy ? 487.0 : (isSesame ? 630.0 : 8.0));
       let calcFtaRate: number | null = null;
       let calcFtaName = resolvedFtaName;
       let calcRecommendedRate = calcBaseRate;
@@ -204,62 +205,35 @@ export default function ClearanceWizard({
       let calcNotice = `공식 관세율 마스터 DB에서 [${hsCode}] 품목의 최신 관세율을 실시간 연동 중입니다.`;
       let calcExpertInsight = '공식 관세율 마스터 DB에서 최신 관세율을 실시간 연동 중입니다.';
 
-      const cleanCode = hsCode.replace(/[\.\-]/g, '').trim();
-      const isAgriOrFood = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'].some(p => cleanCode.startsWith(p));
-      const isChinaExcludedAgri = isChinaOrJapan && isAgriOrFood;
-
-      if (isSoy) {
-        if (isChinaOrJapan) {
+      if (isEssentialOil) {
+        calcBaseRate = 5.0;
+        calcWtoRate = 13.0;
+        if (originCountry === 'JP') {
+          calcFtaRate = 2.5;
+          calcFtaName = 'RCEP (한-일 / FRCJP1)';
+          calcRecommendedRate = 2.5;
+        } else if (['US', 'EU', 'DE', 'FR', 'IT', 'CN', 'VN', 'GB', 'AU', 'CA'].includes(originCountry)) {
+          calcFtaRate = 0.0;
+          calcRecommendedRate = 0.0;
+        }
+      } else if (isSoy) {
+        if (['CN', 'RCEP'].includes(originCountry)) {
           calcFtaRate = null;
           calcFtaName = `${resolvedFtaName} (양허제외)`;
           calcRecommendedRate = 3.0;
-          calcDutyFormula = "487% 또는 956원/kg (선택세) (aT 추천서 구비 시 3.0%)";
-          calcNotice = "[🌾 TRQ 수입추천 품목] aT 추천서 구비 시 3.0% 적용 / 미구비 시 일반 기본세율(3.0%) 또는 초고율 선택세(487% 또는 956원/kg)가 적용됩니다.";
-          calcExpertInsight = "🇨🇳 [한-중 FTA / RCEP 양허제외 품목] 대두(콩나물용·밥밑용·채유용)는 한-중 FTA 및 RCEP에서 양허제외되어 0% 특혜관세가 적용되지 않습니다. aT(한국농수산식품유통공사) 수입추천서를 구비하여 3.0% 양허관세를 적용받으십시오.";
-        } else if (['US', 'IT', 'EU', 'DE', 'FR', 'ES', 'NL', 'AU', 'CA'].includes(originCountry)) {
+        } else if (['US', 'IT', 'EU', 'DE', 'FR', 'AU', 'CA'].includes(originCountry)) {
           calcFtaRate = 0.0;
           calcRecommendedRate = 0.0;
-          calcDutyType = 'AD_VALOREM';
-          calcSpecificRate = null;
-          calcDutyFormula = '0.0% 무관세 (협정 C/O 구비 시)';
-          calcNotice = `[⭐ 최적 특혜세율] ${resolvedFtaName} 특혜세율 0.0%가 적용됩니다. (원산지증명서 구비 필수)`;
-          calcExpertInsight = `${resolvedFtaName} 원산지증명서(C/O) 구비 시 0.0% 무관세 수입이 가능합니다.`;
-        } else {
-          calcRecommendedRate = 3.0;
-          calcDutyFormula = "487% 또는 956원/kg (선택세) (aT 추천서 구비 시 3.0%)";
-          calcNotice = "[🌾 TRQ 수입추천 품목] aT 추천서 구비 시 3.0% 적용 / 미구비 시 일반 기본세율(3.0%) 또는 초고율 선택세가 적용됩니다.";
         }
-      } else if (isSesame) {
-        if (originCountry === 'CN') {
-          calcFtaRate = null;
-          calcRecommendedRate = 0.0;
-          calcDutyFormula = '0.0% (FCN6: aT 한-중 TRQ) / 630% 또는 6,660원/kg (FCN1)';
-          calcNotice = '[🌾 한-중 FTA TRQ 추천] aT 한-중 FTA 추천서(FCN6) 구비 시 0.0% 무관세, 미구비 시 630% 또는 6,660원/kg(FCN1) 적용';
-          calcExpertInsight = '🇨🇳 [한-중 FTA FCN6 vs FCN1] aT의 한-중 FTA 추천서 구비 시 0.0% 무관세(FCN6), 미구비 시 630% 또는 6,660원/kg(FCN1)이 적용됩니다.';
-        } else if (['IT', 'EU', 'GB'].includes(originCountry)) {
-          calcFtaRate = 99.4;
-          calcRecommendedRate = 99.4;
-          calcDutyFormula = '99.4% 또는 1,051원/kg 양자 중 고액 (상반기: 132.6% 또는 1,402원/kg)';
-          calcNotice = `[⚠️ 선택세율 대상] ${resolvedFtaName} 복합세율 99.4% 또는 1,051원/kg 양자 중 고액 적용`;
-          calcExpertInsight = `🇪🇺 [${resolvedFtaName} 복합세율 적용] 해당 원산지(${originCountry})산 참깨는 2026년 하반기 기준 [99.4% 또는 1,051원/kg 양자 중 고액]이 적용됩니다.`;
-        }
-      } else if (isChinaExcludedAgri) {
-        // 중국 및 RCEP 대상 일반 농축수산물 양허제외 가드
-        calcFtaRate = null;
-        calcFtaName = `${resolvedFtaName} (양허제외)`;
-        calcRecommendedRate = calcBaseRate;
-        calcNotice = `[⚠️ 한-중 FTA 양허제외 품목] 농축수산물·식품 민감 품목으로 FTA 0% 특혜관세가 배제되며, 기본세율(${calcBaseRate}%) 또는 TRQ 세액이 부과됩니다.`;
-        calcExpertInsight = `🇨🇳 [한-중 FTA / RCEP 양허제외] 해당 품목(${hsCode})은 한-중 FTA에서 국내 산업 보호를 위해 양허제외되어 0% 특혜관세가 적용되지 않습니다.`;
       } else {
-        if (hasFta) {
-          const isStagingSpring = hsCode.startsWith('7320') && originCountry === 'CN';
-          calcFtaRate = isStagingSpring ? 1.6 : (isFtaExempt ? 0.0 : (originCountry === 'CN' ? (isAgriOrFood ? calcBaseRate : 0.0) : 2.0));
+        if (originCountry === 'JP') {
+          calcFtaRate = 2.5;
+          calcFtaName = 'RCEP (한-일 / FRCJP1)';
+          calcRecommendedRate = 2.5;
+        } else if (hasFta) {
+          const isStagingSpring = cleanCode.startsWith('7320') && originCountry === 'CN';
+          calcFtaRate = isStagingSpring ? 1.6 : (isFtaExempt ? 0.0 : 0.0);
           calcRecommendedRate = calcFtaRate;
-          calcNotice = `[⭐ 최적 특혜세율] ${resolvedFtaName} 특혜세율 ${calcRecommendedRate}%가 적용됩니다. (원산지증명서 구비 필수)`;
-          calcExpertInsight = `원산지 국가(${originCountry})와의 ${resolvedFtaName} 협정 적용을 위해 적법한 원산지증명서를 구비하십시오.`;
-        } else {
-          calcRecommendedRate = calcBaseRate;
-          calcNotice = `기본세율(A) ${calcBaseRate}%가 적용됩니다. (원산지: ${originCountry})`;
         }
       }
 
@@ -272,8 +246,19 @@ export default function ClearanceWizard({
         rates: {
           base_rate: calcBaseRate,
           wto_rate: calcWtoRate,
+          wto_rule_note: calcWtoRate > calcBaseRate ? `관세법 제50조 제2항에 따라 WTO 양허세율(${calcWtoRate}%)보다 낮은 기본세율(${calcBaseRate}%)이 실무상 우선 적용됩니다.` : null,
           fta_rate: calcFtaRate,
           fta_name: calcFtaName,
+          has_quota: isSoy || isSesame,
+          quota_rate: null,
+          quota_w1: isSoy ? 3.0 : (isSesame ? 0.0 : null),
+          quota_w2: isSoy ? 487.0 : (isSesame ? 630.0 : null),
+          all_fta_rates: [
+            { code: 'FUS1', name: '한-미 FTA', rate: 0.0, is_applicable_to_origin: originCountry === 'US', status: originCountry === 'US' ? '적용 가능' : '해당국가 아님' },
+            { code: 'FCN1', name: '한-중 FTA', rate: isEssentialOil ? 0.0 : (cleanCode.startsWith('7320') ? 1.6 : 0.0), is_applicable_to_origin: originCountry === 'CN', status: originCountry === 'CN' ? '적용 가능' : '해당국가 아님' },
+            { code: 'FRCJP1', name: 'RCEP (한-일)', rate: 2.5, is_applicable_to_origin: originCountry === 'JP', status: originCountry === 'JP' ? '적용 가능' : '해당국가 아님' },
+            { code: 'FEU1', name: '한-EU FTA', rate: 0.0, is_applicable_to_origin: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU'].includes(originCountry), status: ['IT', 'DE', 'FR', 'ES', 'NL', 'EU'].includes(originCountry) ? '적용 가능' : '해당국가 아님' }
+          ],
           recommended_rate: calcRecommendedRate,
           specific_rate: calcSpecificRate,
           specific_unit: calcSpecificUnit,
