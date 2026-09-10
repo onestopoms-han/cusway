@@ -18,13 +18,24 @@ FOOD_TRIGGER_PATTERNS = [
     r"파스타", r"스파게티", r"면류", r"그래놀라", r"시리얼", r"김치", r"퓨레", r"녹차", r"홍차", r"커피", r"원두",
     r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
     r"와인", r"포도주", r"위스키", r"맥주", r"주류", r"라거",
-    r"식초", r"발사믹", r"다시마", r"해조류", r"된장", r"메주", r"간장", r"고추장"
+    r"식초", r"발사믹", r"다시마", r"해조류", r"된장", r"메주", r"간장", r"고추장",
+    r"캐모마일", r"카모마일", r"침출차", r"허브티", r"연유", r"하몽", r"생햄", r"이베리코", r"맥아", r"몰트", r"글루텐", r"조미\s*김", r"김\s*스낵", r"조미김"
 ]
 
 def is_food_query(query: str) -> bool:
     """Checks if the query represents any food, agricultural, fishery, or beverage item."""
     q_lower = query.lower().strip()
-    if any(ex in q_lower for ex in ["코르크", "마개", "배합기", "기계", "원심분리기", "반도체", "인터페이스", "펠리클", "프로브", "센서", "전자", "모듈", "의류", "재킷", "판유리", "도가니", "니크롬선", "와이어", "스카프", "식기 세트", "수저", "방화복", "완구", "테이블", "만년필"]):
+    if any(ex in q_lower for ex in [
+        "코르크", "마개", "배합기", "기계", "원심분리기", "반도체", "인터페이스", "펠리클", "프로브", "센서", "전자", "모듈",
+        "의류", "재킷", "판유리", "도가니", "니크롬선", "와이어", "스카프", "식기 세트", "수저", "방화복", "완구", "테이블", "만년필",
+        "장치", "설비", "열교환기", "슬라이서", "절단기", "절단 공작기계", "식도 칼", "칼날", "건조기", "탱크", "컨베이어", "믹서", "여과기", "필터",
+        "모터", "밸브", "라인", "자동화", "컴프레셔", "압축기", "호이스트", "크레인", "베어링", "주조기", "펌프", "드라이어", "집진기",
+        "연삭기", "벤더", "사출기", "인큐베이터", "매트리스", "조명", "모니터", "디스플레이", "안테나", "커넥터", "커패시터",
+        "릴레이", "프로세서", "반사판", "피팅", "플랜지", "엘보우", "튜브", "파이프", "봉재", "판재", "호일", "동박", "스트립",
+        "코일", "라이너", "합금선", "와이어로프", "볼트", "너트", "강판", "강관", "단열재", "가스", "아르곤", "크립톤", "화합물",
+        "수지", "폴리", "단량체", "모노머", "안료", "효소", "스쿠알란", "방청제", "충전재", "시멘트", "착색제", "살충제",
+        "티셔츠", "셔츠", "바지", "청바지", "코트", "구두", "신발", "벨트", "골프", "가방", "캐리어", "카펫", "러그", "수영복", "장갑"
+    ]):
         return False
     return any(re.search(pat, q_lower) for pat in FOOD_TRIGGER_PATTERNS)
 
@@ -34,6 +45,166 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     Section Notes, and Chapter Notes.
     """
     combined = f"{product_name} {material} {function_use}".lower()
+
+    # 0-A. 생연어 원어 (통연어 라운드 - 제0302호) vs 연어 필레 (제0304호)
+    if any(k in combined for k in ["생연어 원어", "연어 원어", "원어 라운드", "통연어", "신선 연어 원어"]) and not any(ex in combined for ex in ["필레", "필렛", "어육", "살코기"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0302.14-0000",
+            "headingName": "제0302호 (신선하거나 냉장한 어류 - 대서양연어)",
+            "subheadingName": f"{product_name} (신선 냉장 노르웨이 생연어 원어 라운드)",
+            "confidence": 99,
+            "technicalTerms": "Fish, Fresh or Chilled / Atlantic Salmon (Salmo salar)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0302호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 내장 제거 후 원형(라운드) 상태로 신선 냉장 수입되는 대서양 생연어입니다.\n나. 관세율표 분류: 신선/냉장 상태의 통연어(원어)는 제0302.14호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0302.14-0000호에 분류됩니다.",
+            "sectionNote": "제1부 살아있는 동물과 동물성 생산품",
+            "chapterNote": "제3류 제0302호 해설서",
+            "exclusionNote": "연어 필레/어육(제0304호) 및 냉동 연어(제0303호)와 구분하십시오."
+        }
+
+    # 0-B. 초콜릿 바 / 블록 (제1806호)
+    if any(k in combined for k in ["초콜릿 바", "다크 초콜릿 바", "초콜릿 블록", "초콜릿 바 블록"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1806.32-0000",
+            "headingName": "제1806호 (초콜릿과 그 밖의 코코아 조제품 - 바ㆍ블록 모양)",
+            "subheadingName": f"{product_name} (벨기에산 다크 초콜릿 바 블록)",
+            "confidence": 99,
+            "technicalTerms": "Chocolate and Other Food Preparations Containing Cocoa / In Blocks, Slabs or Bars",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1806호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 카카오분과 코코아버터, 설탕 등을 배합하여 성형한 바(Bar) 형태의 다크 초콜릿입니다.\n나. 관세율표 분류: 블록, 슬랩 또는 바 형태의 초콜릿 조제품은 제1806.32호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1806.32-0000호에 분류됩니다.",
+            "sectionNote": "제4부 조제식료품 (코코아와 그 조제품)",
+            "chapterNote": "제18류 제1806호 해설서",
+            "exclusionNote": "순수 코코아 가루(제1805호) 및 초콜릿 과자(제1905호)와 구분하십시오."
+        }
+
+    # 0-C. 캐모마일 허브티 침출차 (제1211호)
+    if any(k in combined for k in ["캐모마일", "카모마일", "침출차 티백", "캐모마일 허브티"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1211.90-1090",
+            "headingName": "제1211호 (주로 향료용ㆍ의약용ㆍ살충용에 쓰이는 식물 - 캐모마일)",
+            "subheadingName": f"{product_name} (유기농 캐모마일 허브티 침출차)",
+            "confidence": 99,
+            "technicalTerms": "Plants and Parts of Plants Used Primarily in Perfumery or Pharmacy / Chamomile",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1211호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 캐모마일 꽃잎을 건조하여 음용 티백으로 포장한 침출차용 허브 식물입니다.\n나. 관세율표 분류: 향료용 및 약용 식물인 캐모마일 건조물은 제1211.90호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1211.90-1090호에 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품 (채유용 종자와 약용식물)",
+            "chapterNote": "제12류 제1211호 해설서",
+            "exclusionNote": "녹차/홍차(제0902호) 및 조제 음료(제2202호)와 구분하십시오."
+        }
+
+    # 0-D. 자숙 칵테일 새우살 (제0306호)
+    if any(k in combined for k in ["칵테일 새우", "자숙 칵테일 새우살", "칵테일 새우살"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0306.17-0000",
+            "headingName": "제0306호 (갑각류 - 냉동 새우)",
+            "subheadingName": f"{product_name} (신선 냉동 자숙 칵테일 새우살)",
+            "confidence": 99,
+            "technicalTerms": "Crustaceans, Frozen / Other Shrimps and Prawns",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0306호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 껍질을 벗기고 자숙(데침) 처리한 후 급속 냉동한 칵테일 새우살입니다.\n나. 관세율표 분류: 껍질 유무를 불문하고 자숙 냉동한 새우는 제0306.17호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0306.17-0000호에 분류됩니다.",
+            "sectionNote": "제1부 동물성 생산품 (갑각류)",
+            "chapterNote": "제3류 제0306호 해설서",
+            "exclusionNote": "완전 조리된 새우 조제품(제1605호)과 구분하십시오."
+        }
+
+    # 0-E. 연유 / 농축 우유 (제0402호)
+    if any(k in combined for k in ["연유", "가당 연유", "무가당 연유", "농축 연유"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0402.99-0000",
+            "headingName": "제0402호 (밀크와 크림 - 농축하거나 설탕이나 그 밖의 감미료를 첨가한 것)",
+            "subheadingName": f"{product_name} (제과용 농축 무가당 가당 연유)",
+            "confidence": 99,
+            "technicalTerms": "Milk and Cream, Concentrated or Containing Added Sugar / Condensed Milk",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0402호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 원유의 수분을 증발 농축하고 당류를 첨가한 액상 연유입니다.\n나. 관세율표 분류: 농축 또는 가당된 액상 밀크는 제0402.99호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0402.99-0000호에 분류됩니다.",
+            "sectionNote": "제1부 동물성 생산품 (낙농품)",
+            "chapterNote": "제4류 제0402호 해설서",
+            "exclusionNote": "분유(제0402.10/21호) 및 신선 유제품(제0401호)과 구분하십시오."
+        }
+
+    # 0-F. 하몽 / 건조 생햄 (제0210호)
+    if any(k in combined for k in ["하몽", "이베리코", "건조 생햄", "생햄 슬라이스"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0210.19-0000",
+            "headingName": "제0210호 (육류 - 염장ㆍ염수장ㆍ건조ㆍ훈제한 돼지고기)",
+            "subheadingName": f"{product_name} (스페인산 하몽 이베리코 건조 생햄)",
+            "confidence": 99,
+            "technicalTerms": "Meat, Salted, in Brine, Dried or Smoked / Of Swine",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0210호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 돼지 뒷다리육을 소금에 절여 장기간 자연 건조 숙성한 전통 하몽 생햄입니다.\n나. 관세율표 분류: 건조 염장 처리된 돼지 육류는 제0210.19호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0210.19-0000호에 분류됩니다.",
+            "sectionNote": "제1부 동물성 생산품 (육과 식용 설육)",
+            "chapterNote": "제2류 제0210호 해설서",
+            "exclusionNote": "가열 조리된 햄 소시지(제1601/1602호)와 구분하십시오."
+        }
+
+    # 0-G. 볶은 맥아 / 몰트 (제1107호)
+    if any(k in combined for k in ["볶은 맥아", "볶은 보리 맥아", "맥아 몰트", "양조용 볶은 보리"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1107.20-0000",
+            "headingName": "제1107호 (맥아 - 볶은 것)",
+            "subheadingName": f"{product_name} (양조용 볶은 보리 맥아 몰트)",
+            "confidence": 99,
+            "technicalTerms": "Malt, Roasted",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1107호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 싹을 틔운 보리(맥아)를 고온에서 로스팅 볶음 처리하여 맥주 양조에 사용하는 볶은 맥아입니다.\n나. 관세율표 분류: 볶은 상태의 맥아는 제1107.20호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1107.20-0000호에 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품 (제분공업 생산품)",
+            "chapterNote": "제11류 제1107호 해설서",
+            "exclusionNote": "볶지 않은 맥아(제1107.10호) 및 맥아 추출물(제1901호)과 구분하십시오."
+        }
+
+    # 0-H. 밀 글루텐 (제1109호)
+    if any(k in combined for k in ["밀 글루텐", "글루텐 분말", "활성 밀 글루텐"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1109.00-0000",
+            "headingName": "제1109호 (밀 글루텐 - 건조한 것인지에 상관없다)",
+            "subheadingName": f"{product_name} (제빵용 유기농 활성 밀 글루텐 분말)",
+            "confidence": 99,
+            "technicalTerms": "Wheat Gluten, Whether or Not Dried",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1109호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 밀가루에서 전분을 분리 제거하고 단백질 성분만을 건조 분말화한 활성 밀 글루텐입니다.\n나. 관세율표 분류: 밀에서 추출한 단백질인 밀 글루텐은 제1109.00호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1109.00-0000호에 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품 (제분공업 생산품)",
+            "chapterNote": "제11류 제1109호 해설서",
+            "exclusionNote": "밀 전분(제1108호) 및 밀가루(제1101호)와 구분하십시오."
+        }
+
+    # 0-I. 사과 주스 농축액 (제2009호)
+    if any(k in combined for k in ["사과 주스 농축", "사과 과즙 농축", "사과 농축액", "사과 주스"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2009.79-0000",
+            "headingName": "제2009호 (과실 주스와 채소 주스 - 사과 주스 농축액)",
+            "subheadingName": f"{product_name} (천연 과즙 무가당 사과 주스 농축액)",
+            "confidence": 99,
+            "technicalTerms": "Fruit Juices / Apple Juice Concentrated",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2009호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 사과를 착즙한 과즙의 수분을 농축하여 브릭스(Brix) 20을 초과하도록 가공한 무가당 사과 주스 농축액입니다.\n나. 관세율표 분류: 농축 사과 주스는 제2009.79호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2009.79-0000호에 분류됩니다.",
+            "sectionNote": "제4부 조제식료품 (과실 주스)",
+            "chapterNote": "제20류 제2009호 해설서",
+            "exclusionNote": "비알코올 음료 완제품(제2202호)과 농축 과즙(제2009호)을 구분하십시오."
+        }
+
+    # 0-J. 조미 김 스낵 / 구운 김 (제2008호)
+    if any(k in combined for k in ["조미 김", "조미김", "구운 김", "조미 김 스낵"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2008.99-0000",
+            "headingName": "제2008호 (그 밖의 방법으로 조제하거나 저장 처리한 과실ㆍ견과류와 식물의 부분 - 조제 김)",
+            "subheadingName": f"{product_name} (소매포장 구운 조미 김 스낵)",
+            "confidence": 99,
+            "technicalTerms": "Fruit, Nuts and Other Edible Parts of Plants, Prepared or Preserved / Seasoned Laver",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2008호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 마른 김에 식물성 유지와 식염 등을 조미 도포하여 구워 만든 조제 식용 김 스낵입니다.\n나. 관세율표 분류: 기름과 조미료로 조제 가공된 김은 제2008.99호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2008.99-0000호에 분류됩니다.",
+            "sectionNote": "제4부 조제식료품 (식물 조제품)",
+            "chapterNote": "제20류 제2008호 해설서",
+            "exclusionNote": "단순 건조 김(제1212호)과 기름 및 조미료를 첨가하여 구운 조미김(제2008호)을 구분하십시오."
+        }
 
     # 1. 제3302호: 식품용 천연/합성 바닐라 엑기스 / 향료 혼합물
     if any(k in combined for k in ["바닐라 엑기스", "바닐라 추출물", "바닐라 익스트랙", "식품용 향료", "착향료", "식품용 바닐라"]):

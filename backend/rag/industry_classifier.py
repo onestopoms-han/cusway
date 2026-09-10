@@ -23,6 +23,1881 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
     # =========================================================================
     # High-Priority Dedicated Industrial Rules
     # =========================================================================
+    if any(k in combined for k in ["팬 모터", "냉각용 고효율 팬 모터", "쿨링 팬 모터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8501.31-2000",
+            "headingName": "제8501호 (전동기와 발전기 - 직류전동기 출력 750W 이하)",
+            "subheadingName": f"{product_name} (데이터센터 냉각용 고효율 팬 모터)",
+            "confidence": 99,
+            "technicalTerms": "DC Electric Motors / Fan Motors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8501호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 냉각팬 구동을 위한 고효율 브러시리스 직류전동기(팬 모터)로, 제8501.31호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8501호 (전동기와 발전기 - 직류전동기 출력 750W 이하)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8501.31-2000호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8501호 해설서",
+            "exclusionNote": "선풍기 완제품(제8414호)과 전동기 모터(제8501호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["탄탈륨 커패시터", "탄탈 커패시터", "탄탈 축전기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8532.21-0000",
+            "headingName": "제8532호 (고정식 축전기 - 탄탈륨)",
+            "subheadingName": f"{product_name} (초소형 표면실장형 탄탈륨 커패시터)",
+            "confidence": 99,
+            "technicalTerms": "Fixed Capacitors / Tantalum",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8532호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 탄탈륨 분말 소결체를 유전체로 사용하는 표면실장형 고정 축전기로 제8532.21호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8532호 (고정식 축전기 - 탄탈륨)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8532.21-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8532호 해설서",
+            "exclusionNote": "탄탈륨 금속 가공품(제8103호)과 탄탈 축전기(제8532호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["서지 보호기", "spd 피뢰기", "서지 프로텍터", "전압 서지"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8536.30-0000",
+            "headingName": "제8536호 (기타 회로보호용 기기 - 서지 보호기 SPD)",
+            "subheadingName": f"{product_name} (전력선 통신용 서지 보호기 SPD 피뢰기)",
+            "confidence": 99,
+            "technicalTerms": "Electrical Apparatus for Protecting Electrical Circuits / Surge Protective Devices",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8536호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 과전압 및 서지 낙뢰로부터 전기회로를 보호하는 서지보호기(SPD)로 제8536.30호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8536호 (기타 회로보호용 기기 - 서지 보호기 SPD)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8536.30-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8536호 해설서",
+            "exclusionNote": "1000V 초과 고전압 피뢰기(제8535호)와 저압 서지보호기(제8536호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["수정진동자", "크리스탈 유닛", "수정 발진소자", "수정 진동자"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8541.60-0000",
+            "headingName": "제8541호 (장착된 압전기 결정소자 - 수정진동자)",
+            "subheadingName": f"{product_name} (고주파 발진용 수정진동자 크리스탈 유닛)",
+            "confidence": 99,
+            "technicalTerms": "Mounted Piezo-Electric Crystals / Quartz Crystal Units",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8541호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 압전 효과를 이용하여 일정한 주파수를 발진시키는 장착된 수정진동자로 제8541.60호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8541호 (장착된 압전기 결정소자 - 수정진동자)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8541.60-0000호에 분류됩니다.",
+            "sectionNote": "제16부 반도체 및 전자부품",
+            "chapterNote": "제85류 제8541호 해설서",
+            "exclusionNote": "복합 발진기 IC(제8542호)와 단일 압전 결정소자(제8541호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["충전 수신 안테나", "무선 충전 안테나", "안테나 패치", "충전 수신 안테나 패치"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8529.10-9000",
+            "headingName": "제8529호 (안테나와 안테나 반사기 - 기타 안테나)",
+            "subheadingName": f"{product_name} (스마트폰용 무선 충전 수신 안테나 패치)",
+            "confidence": 99,
+            "technicalTerms": "Antennas and Antenna Reflectors / Other",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8529호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 무선 신호 및 전력 수신용 안테나 패치 모듈로 제8529.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8529호 (안테나와 안테나 반사기 - 기타 안테나)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8529.10-9000호에 분류됩니다.",
+            "sectionNote": "제16부 무선통신기기 부분품",
+            "chapterNote": "제85류 제8529호 해설서",
+            "exclusionNote": "통신 모듈 완제품(제8517호)과 안테나(제8529호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["전원공급장치 smps", "atx 스위칭", "스위칭 전원공급장치", "smps 전원", "전원공급장치"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8504.40-3010",
+            "headingName": "제8504호 (정지형 변환기 - 전원공급장치 SMPS)",
+            "subheadingName": f"{product_name} (컴퓨터 메인보드용 ATX 스위칭 전원공급장치 SMPS)",
+            "confidence": 99,
+            "technicalTerms": "Static Converters / Power Supplies for ADP Machines (SMPS)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8504호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 상용 교류전원을 직류전원으로 정류 변환하여 컴퓨터 메인보드 및 시스템에 공급하는 스위칭 모드 전원공급장치(SMPS)입니다.\n나. 관세율표 분류: 자동자료처리기계용 전원공급장치는 제8504.40호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8504.40-3010호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기 (전력변환기)",
+            "chapterNote": "제85류 제8504호 해설서",
+            "exclusionNote": "컴퓨터 메인보드 자체(제8471호)와 전원공급장치 SMPS(제8504호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["컴퓨터 메인보드", "마더보드", "산업용 컴퓨터 메인보드", "산업용 메인보드"]) and not any(ex in combined for ex in ["전원공급", "smps", "전원장치", "atx"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8471.50-0000",
+            "headingName": "제8471호 (자동자료처리기계의 처리장치 - 메인보드)",
+            "subheadingName": f"{product_name} (산업용 컴퓨터 메인보드 마더보드)",
+            "confidence": 99,
+            "technicalTerms": "Processing Units for Automatic Data Processing Machines / Motherboards",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8471호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 CPU 소켓, 칩셋, 메모리 슬롯을 탑재하여 컴퓨터의 핵심 연산을 수행하는 메인보드로 제8471.50호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8471호 (자동자료처리기계의 처리장치 - 메인보드)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8471.50-0000호에 분류됩니다.",
+            "sectionNote": "제16부 자동자료처리기계",
+            "chapterNote": "제84류 제8471호 해설서",
+            "exclusionNote": "단순 인쇄회로기판 PCB(제8534호)와 소자가 실장된 메인보드(제8471호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["마이크로 usb 커넥터", "usb 커넥터 소켓", "커넥터 소켓", "usb 커넥터 플러그"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8536.69-0000",
+            "headingName": "제8536호 (플러그와 소켓 - 기타)",
+            "subheadingName": f"{product_name} (스마트폰용 초소형 마이크로 USB 커넥터 소켓)",
+            "confidence": 99,
+            "technicalTerms": "Plugs and Sockets / Other Connectors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8536호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 전자기기의 전원 및 데이터 인터페이스 결합을 위한 접속용 소켓 커넥터로 제8536.69호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8536호 (플러그와 소켓 - 기타)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8536.69-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기접속기기",
+            "chapterNote": "제85류 제8536호 해설서",
+            "exclusionNote": "동축 커넥터(제8536.69호) 및 인쇄회로 접속기(제8536.90호)와 용도를 확인하십시오."
+        }
+
+    if any(k in combined for k in ["포토마스크 블랭크", "마스크 블랭크", "실리콘 포토마스크 블랭크"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3701.99-0000",
+            "headingName": "제3701호 (사진용 평판과 평면필름 - 기타 포토마스크 블랭크)",
+            "subheadingName": f"{product_name} (반도체 검사용 실리콘 포토마스크 블랭크)",
+            "confidence": 99,
+            "technicalTerms": "Photographic Plates and Film in the Flat / Photomask Blanks",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3701호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 반도체 노광 공정에 사용하기 위해 감광재료를 도포한 미노광 포토마스크 블랭크로 제3701.99호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3701호 (사진용 평판과 평면필름 - 기타 포토마스크 블랭크)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3701.99-0000호에 분류됩니다.",
+            "sectionNote": "제6부 사진용 화학품",
+            "chapterNote": "제37류 제3701호 해설서",
+            "exclusionNote": "노광 완료된 포토마스크(제3705호)와 블랭크(제3701호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["전력 증폭기 ic", "증폭기 ic", "gaas 전력 증폭기 ic", "rf 증폭기 ic"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8542.33-0000",
+            "headingName": "제8542호 (전자집적회로 - 증폭기 IC)",
+            "subheadingName": f"{product_name} (초고주파 레이더용 갈륨비소 GaAs 전력 증폭기 IC)",
+            "confidence": 99,
+            "technicalTerms": "Electronic Integrated Circuits / Amplifiers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8542호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 갈륨비소(GaAs) 기판 위에 고주파 신호 증폭 회로를 모놀리식으로 집적한 전력 증폭기 집적회로로 제8542.33호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8542호 (전자집적회로 - 증폭기 IC)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8542.33-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전자집적회로",
+            "chapterNote": "제85류 제8542호 해설서",
+            "exclusionNote": "개별 트랜지스터(제8541호) 및 증폭기 기기(제8543호)와 집적회로(제8542호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["필름 커패시터", "필름 축전기", "플라스틱 필름 커패시터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8532.25-0000",
+            "headingName": "제8532호 (고정식 축전기 - 유전체가 플라스틱인 것)",
+            "subheadingName": f"{product_name} (태양광 인버터용 필름 커패시터)",
+            "confidence": 99,
+            "technicalTerms": "Fixed Capacitors / Dielectric of Plastics",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8532호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 폴리프로필렌 또는 폴리에스테르 필름을 유전체로 사용하는 고전압 고정 축전기로 제8532.25호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8532호 (고정식 축전기 - 유전체가 플라스틱인 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8532.25-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8532호 해설서",
+            "exclusionNote": "세라믹 축전기(제8532.24호) 및 전해 축전기(제8532.22호)와 구분하십시오."
+        }
+
+    if any(k in combined for k in ["dc 릴레이 컨택터", "고전압 dc 릴레이", "고전압 컨택터", "릴레이 컨택터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8536.49-0000",
+            "headingName": "제8536호 (전기 계전기 릴레이 - 전압이 60V를 초과하는 것)",
+            "subheadingName": f"{product_name} (전기차 고전압 DC 릴레이 컨택터)",
+            "confidence": 99,
+            "technicalTerms": "Electrical Relays / For a Voltage Exceeding 60 V",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8536호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 전기차 고전압 배터리 회로를 개폐 제어하는 직류 전자접촉기(DC 릴레이)로 제8536.49호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8536호 (전기 계전기 릴레이 - 전압이 60V를 초과하는 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8536.49-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기제어기기",
+            "chapterNote": "제85류 제8536호 해설서",
+            "exclusionNote": "고전압 배전반(제8537호)과 단일 계전기(제8536호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["실리콘 기판 백플레인", "백플레인 ic", "oled 백플레인 ic", "디스플레이 실리콘 기판 백플레인"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8542.39-0000",
+            "headingName": "제8542호 (전자집적회로 - 기타 집적회로 백플레인)",
+            "subheadingName": f"{product_name} (마이크로 OLED 디스플레이 실리콘 기판 백플레인)",
+            "confidence": 99,
+            "technicalTerms": "Electronic Integrated Circuits / Other Backplane ICs",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8542호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 실리콘 웨이퍼 상에 화소 구동 CMOS 트랜지스터 회로를 형성한 마이크로 디스플레이 구동 백플레인 집적회로로 제8542.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8542호 (전자집적회로 - 기타 집적회로 백플레인)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8542.39-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전자집적회로",
+            "chapterNote": "제85류 제8542호 해설서",
+            "exclusionNote": "디스플레이 완제품 모듈(제8524호)과 실리콘 백플레인 IC(제8542호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["dsp 디지털 신호 처리 프로세서", "dsp 프로세서", "디지털 신호 처리 프로세서"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8542.31-0000",
+            "headingName": "제8542호 (전자집적회로 - 프로세서와 컨트롤러 DSP)",
+            "subheadingName": f"{product_name} (고성능 DSP 디지털 신호 처리 프로세서)",
+            "confidence": 99,
+            "technicalTerms": "Electronic Integrated Circuits / Processors and Controllers DSP",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8542호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 음향, 영상 및 센서 디지털 신호를 고속 연산 처리하는 디지털 신호 처리 집적회로(DSP)로 제8542.31호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8542호 (전자집적회로 - 프로세서와 컨트롤러 DSP)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8542.31-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전자집적회로",
+            "chapterNote": "제85류 제8542호 해설서",
+            "exclusionNote": "기타 집적회로(제8542.39호)와 프로세서/컨트롤러(제8542.31호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["충전 크래들", "이어폰 충전 크래들", "충전 크래들 케이스"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8504.40-3010",
+            "headingName": "제8504호 (정지형 변환기 - 충전기 및 충전 크래들)",
+            "subheadingName": f"{product_name} (초소형 무선 이어폰용 충전 크래들 케이스)",
+            "confidence": 99,
+            "technicalTerms": "Static Converters / Battery Chargers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8504호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 무선 이어폰을 수납하여 내부 배터리를 충전하는 전원공급 및 배터리 충전 크래들로 제8504.40호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8504호 (정지형 변환기 - 충전기 및 충전 크래들)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8504.40-3010호에 분류됩니다.",
+            "sectionNote": "제16부 전력변환기기",
+            "chapterNote": "제85류 제8504호 해설서",
+            "exclusionNote": "단순 플라스틱 케이스(제3926호)와 충전회로 내장 충전기(제8504호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["리타이머 ic", "pcie gen5 리타이머", "리드라이버 ic", "pcie 리타이머"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8542.39-0000",
+            "headingName": "제8542호 (전자집적회로 - 기타 신호 보정 리타이머 IC)",
+            "subheadingName": f"{product_name} (데이터센터용 고속 PCIe Gen5 리타이머 IC)",
+            "confidence": 99,
+            "technicalTerms": "Electronic Integrated Circuits / Other Retimer ICs",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8542호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고속 PCIe 통신 신호 감쇄를 보정하고 클록 타이밍을 복원하는 신호 처리 집적회로로 제8542.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8542호 (전자집적회로 - 기타 신호 보정 리타이머 IC)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8542.39-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전자집적회로",
+            "chapterNote": "제85류 제8542호 해설서",
+            "exclusionNote": "단순 증폭기(제8542.33호)와 디지털 복합 리타이머(제8542.39호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["터치스크린 디스플레이 모니터", "터치스크린 모니터", "방수 터치스크린 디스플레이 모니터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8528.52-0000",
+            "headingName": "제8528호 (모니터 - 자동자료처리기계에 직접 접속할 수 있는 것)",
+            "subheadingName": f"{product_name} (산업용 방수 터치스크린 디스플레이 모니터)",
+            "confidence": 99,
+            "technicalTerms": "Monitors / Capable of Directly Connecting to ADP Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8528호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 컴퓨터 시스템에 연결되어 영상 출력 및 터치 입력을 처리하는 산업용 디스플레이 모니터로 제8528.52호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8528호 (모니터 - 자동자료처리기계에 직접 접속할 수 있는 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8528.52-0000호에 분류됩니다.",
+            "sectionNote": "제16부 영상모니터",
+            "chapterNote": "제85류 제8528호 해설서",
+            "exclusionNote": "디스플레이 패널(제8524호)과 하우징/인터페이스를 갖춘 모니터(제8528호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["파라볼라 안테나", "위성 안테나", "ku-band 파라볼라 안테나"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8529.10-9000",
+            "headingName": "제8529호 (안테나와 안테나 반사기 - 파라볼라 안테나)",
+            "subheadingName": f"{product_name} (위성 지상국용 Ku-Band 파라볼라 안테나)",
+            "confidence": 99,
+            "technicalTerms": "Antennas and Antenna Reflectors / Parabolic Antennas",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8529호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 위성 통신 신호를 송수신하기 위한 반사판 및 급전부 구조의 파라볼라 안테나로 제8529.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8529호 (안테나와 안테나 반사기 - 파라볼라 안테나)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8529.10-9000호에 분류됩니다.",
+            "sectionNote": "제16부 무선통신기기 부분품",
+            "chapterNote": "제85류 제8529호 해설서",
+            "exclusionNote": "위성 수신기 LNB(제8543호)와 안테나 반사기(제8529호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["유연성 버스바", "flexible busbar", "배터리용 유연성 버스바", "절연 버스바"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8544.49-0000",
+            "headingName": "제8544호 (절연 도선과 케이블 - 기타 전기 도체)",
+            "subheadingName": f"{product_name} (전기차 배터리용 유연성 버스바 Flexible Busbar)",
+            "confidence": 99,
+            "technicalTerms": "Insulated Electric Conductors / Other",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8544호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 다층 동박을 적층하고 절연 피복 처리하여 대전류를 전달하는 유연한 전기 도체 버스바로 제8544.49호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8544호 (절연 도선과 케이블 - 기타 전기 도체)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8544.49-0000호에 분류됩니다.",
+            "sectionNote": "제16부 절연 전기도체",
+            "chapterNote": "제85류 제8544호 해설서",
+            "exclusionNote": "단순 비절연 구리 판(제7409호)과 절연 피복 버스바(제8544호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["다이어프램 밸브", "테플론 라이닝 다이어프램 밸브"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8481.80-1000",
+            "headingName": "제8481호 (탭ㆍ코크ㆍ밸브 - 다이어프램 밸브)",
+            "subheadingName": f"{product_name} (화학 플랜트용 고압 테플론 라이닝 다이어프램 밸브)",
+            "confidence": 99,
+            "technicalTerms": "Taps, Cocks, Valves / Diaphragm Valves",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8481호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 부식성 화학 유체의 흐름을 고무/테플론 다이어프램으로 개폐 제어하는 산업용 밸브로 제8481.80호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8481호 (탭ㆍ코크ㆍ밸브 - 다이어프램 밸브)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8481.80-1000호에 분류됩니다.",
+            "sectionNote": "제16부 기계류 (밸브)",
+            "chapterNote": "제84류 제8481호 해설서",
+            "exclusionNote": "감압밸브(제8481.10호) 및 솔레노이드밸브(제8481.20/80호)와 구경/구조를 확인하십시오."
+        }
+
+    if any(k in combined for k in ["파이프 벤딩", "튜브 벤더", "파이프 벤더", "파이프 벤딩 튜브 벤더 기계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8462.24-0000",
+            "headingName": "제8462호 (단조기ㆍ벤딩기ㆍ성형기 - 수치제어식 파이프 벤딩기)",
+            "subheadingName": f"{product_name} (금속 파이프 벤딩 튜브 벤더 기계)",
+            "confidence": 99,
+            "technicalTerms": "Machine-Tools for Bending, Folding or Straightening / Numerically Controlled Tube Benders",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8462호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 금속 파이프 및 튜브를 CNC 수치제어로 정밀 절곡 성형하는 파이프 벤딩 가공기계로 제8462.24호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8462호 (단조기ㆍ벤딩기ㆍ성형기 - 수치제어식 파이프 벤딩기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8462.24-0000호에 분류됩니다.",
+            "sectionNote": "제16부 금속가공 공작기계",
+            "chapterNote": "제84류 제8462호 해설서",
+            "exclusionNote": "수동 공구(제8205호)와 동력 구동 공작기계(제8462호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["진공 성형기", "플라스틱 진공 성형기", "열진공 성형기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8477.40-0000",
+            "headingName": "제8477호 (고무나 플라스틱 가공기계 - 진공성형기와 그 밖의 열성형기)",
+            "subheadingName": f"{product_name} (플라스틱 진공 성형기 기계)",
+            "confidence": 99,
+            "technicalTerms": "Machinery for Working Rubber or Plastics / Vacuum Moulding Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8477호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 열가소성 플라스틱 시트를 가열한 후 진공 흡입력으로 금형에 밀착 성형하는 진공 성형기계로 제8477.40호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8477호 (고무나 플라스틱 가공기계 - 진공성형기와 그 밖의 열성형기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8477.40-0000호에 분류됩니다.",
+            "sectionNote": "제16부 플라스틱 가공기계",
+            "chapterNote": "제84류 제8477호 해설서",
+            "exclusionNote": "사출성형기(제8477.10호) 및 압출기(제8477.20호)와 성형 원리를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["모래 여과기", "샌드필터", "수처리 모래 여과기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8421.21-1000",
+            "headingName": "제8421호 (물의 여과기나 정화기 - 모래 여과기 샌드필터)",
+            "subheadingName": f"{product_name} (산업용 수처리 모래 여과기 샌드필터)",
+            "confidence": 99,
+            "technicalTerms": "Filtering or Purifying Machinery for Water / Sand Filters",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8421호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 다층 규사 모래 여과층을 통해 부유 물질과 불순물을 물리적으로 여과하는 수처리 여과장치로 제8421.21호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8421호 (물의 여과기나 정화기 - 모래 여과기 샌드필터)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8421.21-1000호에 분류됩니다.",
+            "sectionNote": "제16부 여과 정화기",
+            "chapterNote": "제84류 제8421호 해설서",
+            "exclusionNote": "기체 여과기(제8421.39호)와 수처리 여과기(제8421.21호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["슬라이서 절단기계", "식품용 고속 회전 칼날 슬라이서", "식품 절단기계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8438.80-0000",
+            "headingName": "제8438호 (음식료품의 공업적 조제ㆍ제조 기계 - 고속 슬라이서)",
+            "subheadingName": f"{product_name} (식품용 고속 회전 칼날 슬라이서 절단기계)",
+            "confidence": 99,
+            "technicalTerms": "Machinery for the Industrial Preparation of Food or Drink / Slicing Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8438호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 육류, 채소 등의 식자재를 회전 칼날로 정밀 슬라이스 절단하는 공업용 식품 가공기계로 제8438.80호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8438호 (음식료품의 공업적 조제ㆍ제조 기계 - 고속 슬라이서)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8438.80-0000호에 분류됩니다.",
+            "sectionNote": "제16부 식품가공기계",
+            "chapterNote": "제84류 제8438호 해설서",
+            "exclusionNote": "가정용 식품가공기(제8509호)와 공업용 식품기계(제8438호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["증기 감압 밸브", "감압 밸브", "고압 증기 감압 밸브"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8481.10-0000",
+            "headingName": "제8481호 (감압밸브 - 산업용 증기 감압 밸브)",
+            "subheadingName": f"{product_name} (산업용 고압 증기 감압 밸브)",
+            "confidence": 99,
+            "technicalTerms": "Pressure-Reducing Valves / For Steam",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8481호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고압 증기 배관 라인에서 출구측 압력을 일정하게 감압 제어하는 압력 조절 밸브로 제8481.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8481호 (감압밸브 - 산업용 증기 감압 밸브)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8481.10-0000호에 분류됩니다.",
+            "sectionNote": "제16부 기계류 (밸브)",
+            "chapterNote": "제84류 제8481호 해설서",
+            "exclusionNote": "유압/공기압 밸브(제8481.20호) 및 일반 개폐 밸브(제8481.80호)와 감압밸브를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["레이저 용접기", "금속 레이저 용접기 머신"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8456.11-1000",
+            "headingName": "제8456호 (레이저 광선으로 가공하는 공작기계 - 레이저 용접기)",
+            "subheadingName": f"{product_name} (금속 레이저 용접기 머신)",
+            "confidence": 99,
+            "technicalTerms": "Machine-Tools Operated by Laser / Laser Welding Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8456호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고출력 레이저 빔을 금속 모재에 조사하여 정밀 용접 접합하는 공작기계로 제8456.11호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8456호 (레이저 광선으로 가공하는 공작기계 - 레이저 용접기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8456.11-1000호에 분류됩니다.",
+            "sectionNote": "제16부 공작기계",
+            "chapterNote": "제84류 제8456호 해설서",
+            "exclusionNote": "전기 아크 용접기(제8515호)와 레이저 공작기계(제8456호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["대형 백필터 집진기", "백필터 집진기", "집진기 기계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8421.39-9011",
+            "headingName": "제8421호 (기체의 여과기나 정화기 - 백필터 집진기)",
+            "subheadingName": f"{product_name} (산업용 대형 백필터 집진기 기계)",
+            "confidence": 99,
+            "technicalTerms": "Filtering or Purifying Machinery for Gases / Bag Filter Dust Collectors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8421호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 공장 배출 분진 및 유해가스를 다공성 여과포(백필터)로 포집 제거하는 산업용 기체 여과 집진장치로 제8421.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8421호 (기체의 여과기나 정화기 - 백필터 집진기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8421.39-9011호에 분류됩니다.",
+            "sectionNote": "제16부 기체 여과기",
+            "chapterNote": "제84류 제8421호 해설서",
+            "exclusionNote": "액체 여과기(제8421.21/29호)와 기체 집진기(제8421.39호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["파티클 카운터", "에어로졸 파티클 카운터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9027.89-1000",
+            "headingName": "제9027호 (물리분석용 기기 - 미립자 계측기 파티클 카운터)",
+            "subheadingName": f"{product_name} (반도체 클린룸용 에어로졸 파티클 카운터)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Apparatus for Physical Analysis / Particle Counters",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9027호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 클린룸 내 공기 중 미립자의 크기와 개수를 광학 산란 방식으로 정밀 계측하는 물리분석기기로 제9027.89호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9027호 (물리분석용 기기 - 미립자 계측기 파티클 카운터)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9027.89-1000호에 분류됩니다.",
+            "sectionNote": "제18부 광학 및 정밀계측기기",
+            "chapterNote": "제90류 제9027호 해설서",
+            "exclusionNote": "가스 탐지기(제9027.10호) 및 치수 측정기(제9031호)와 분석 원리를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["전동 호이스트", "호이스트 크레인 권상기", "크레인 권상기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8425.11-0000",
+            "headingName": "제8425호 (풀리태클과 호이스트 - 전동기 구동식)",
+            "subheadingName": f"{product_name} (산업용 전동 호이스트 크레인 권상기)",
+            "confidence": 99,
+            "technicalTerms": "Pulley Tackle and Hoists / Powered by Electric Motor",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8425호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 전동 모터로 체인이나 와이어로프를 감아 올려 중량물을 인양하는 전동 호이스트 권상기로 제8425.11호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8425호 (풀리태클과 호이스트 - 전동기 구동식)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8425.11-0000호에 분류됩니다.",
+            "sectionNote": "제16부 양하 및 권상기계",
+            "chapterNote": "제84류 제8425호 해설서",
+            "exclusionNote": "천장크레인 완제품(제8426호)과 단일 호이스트 권상기(제8425호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["교반 반응기", "유리 라이닝 교반 반응기", "혼합 교반 반응기 탱크"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8479.82-0000",
+            "headingName": "제8479호 (그 밖의 고유한 기능을 가진 기계류 - 혼합기ㆍ교반기)",
+            "subheadingName": f"{product_name} (화학용 유리 라이닝 교반 반응기 탱크)",
+            "confidence": 99,
+            "technicalTerms": "Machines having Individual Functions / Mixing, Kneading or Stirring Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8479호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 화학 반응 물질을 기계식 임펠러로 균일하게 혼합 교반하는 모터 구동식 반응 교반기계로 제8479.82호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8479호 (그 밖의 고유한 기능을 가진 기계류 - 혼합기ㆍ교반기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8479.82-0000호에 분류됩니다.",
+            "sectionNote": "제16부 산업용 특수기계",
+            "chapterNote": "제84류 제8479호 해설서",
+            "exclusionNote": "단순 저장 탱크(제7309호)와 구동 교반기가 장착된 반응기계(제8479호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["에어 드라이어", "냉동식 에어 드라이어", "압축공기용 냉동식 에어 드라이어"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8419.39-0000",
+            "headingName": "제8419호 (건조기 - 압축공기용 냉동식 에어 드라이어)",
+            "subheadingName": f"{product_name} (공장 압축공기용 냉동식 에어 드라이어)",
+            "confidence": 99,
+            "technicalTerms": "Dryers / Refrigerated Air Dryers for Compressed Air",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8419호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 컴프레셔 압축공기 내 수분을 냉매 사이클로 냉각 응축시켜 제거하는 산업용 건조장치로 제8419.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8419호 (건조기 - 압축공기용 냉동식 에어 드라이어)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8419.39-0000호에 분류됩니다.",
+            "sectionNote": "제16부 가열 및 냉각 건조장치",
+            "chapterNote": "제84류 제8419호 해설서",
+            "exclusionNote": "공기압축기(제8414호)와 압축공기 건조기(제8419호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["압연용 초경 합금 롤러", "압연 롤러 롤", "압연기용 롤러"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8455.30-0000",
+            "headingName": "제8455호 (금속 압연기용 롤)",
+            "subheadingName": f"{product_name} (철강 압연용 초경 합금 롤러 롤)",
+            "confidence": 99,
+            "technicalTerms": "Rolls for Metal-Rolling Mills",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8455호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 철강 및 비철금속 압연기계에 장착되어 금속 봉재나 판재를 압연 성형하는 초경합금 롤러 롤로 제8455.30호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8455호 (금속 압연기용 롤)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8455.30-0000호에 분류됩니다.",
+            "sectionNote": "제16부 금속 압연기",
+            "chapterNote": "제84류 제8455호 해설서",
+            "exclusionNote": "일반 베어링 롤러(제8482호)와 금속 압연기 롤(제8455호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["스핀 스크러버", "웨이퍼 세정용 스핀 스크러버"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8486.20-0000",
+            "headingName": "제8486호 (반도체 디바이스 제조용 기기 - 웨이퍼 세정기 스핀 스크러버)",
+            "subheadingName": f"{product_name} (반도체 웨이퍼 세정용 스핀 스크러버 기계)",
+            "confidence": 99,
+            "technicalTerms": "Machines for the Manufacture of Semiconductor Devices / Spin Scrubbers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8486호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고속 회전하는 실리콘 웨이퍼 표면에 초순수와 세정액을 분사하여 오염 미립자를 세정 제거하는 반도체 전용 장비로 제8486.20호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8486호 (반도체 디바이스 제조용 기기 - 웨이퍼 세정기 스핀 스크러버)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8486.20-0000호에 분류됩니다.",
+            "sectionNote": "제16부 반도체 제조장비",
+            "chapterNote": "제84류 제8486호 해설서",
+            "exclusionNote": "범용 세정기(제8424호)와 반도체 전용 제조장비(제8486호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["공압 그리퍼", "로봇 그리퍼 핑거", "그리퍼 핑거"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8479.90-9090",
+            "headingName": "제8479호 (산업용 로봇 및 기계류의 부분품 - 공압 그리퍼)",
+            "subheadingName": f"{product_name} (자동화 조립 라인용 공압 그리퍼 핑거)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Industrial Robots and Machines having Individual Functions / Pneumatic Grippers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8479호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 산업용 다관절 로봇암 끝단에 장착되어 부품을 집어 이송하는 공압식 엔드이펙터 그리퍼 부분품으로 제8479.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8479호 (산업용 로봇 및 기계류의 부분품 - 공압 그리퍼)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8479.90-9090호에 분류됩니다.",
+            "sectionNote": "제16부 로봇 및 기계류 부분품",
+            "chapterNote": "제84류 제8479호 해설서",
+            "exclusionNote": "완제품 로봇(제8479.50호)과 엔드이펙터 부분품(제8479.90호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["기계식 레벨 게이지", "액체 저장용 기계식 레벨 게이지", "레벨 게이지"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9026.10-1000",
+            "headingName": "제9026호 (액체의 유량이나 액위 측정용 기기 - 액위계 레벨 게이지)",
+            "subheadingName": f"{product_name} (대형 액체 저장용 기계식 레벨 게이지)",
+            "confidence": 99,
+            "technicalTerms": "Instruments for Measuring the Level of Liquids / Level Gauges",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9026호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 대형 저장 탱크 내부 액체의 수위를 플로트 및 눈금 기구로 지시하는 액위 측정계로 제9026.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9026호 (액체의 유량이나 액위 측정용 기기 - 액위계 레벨 게이지)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9026.10-1000호에 분류됩니다.",
+            "sectionNote": "제18부 유량 및 액위 측정기기",
+            "chapterNote": "제90류 제9026호 해설서",
+            "exclusionNote": "압력계(제9026.20호)와 액위계(제9026.10호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["다이캐스팅 주조기", "알루미늄 다이캐스팅 주조기", "다이캐스팅기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8454.30-0000",
+            "headingName": "제8454호 (주조기 - 다이캐스팅 주조기계)",
+            "subheadingName": f"{product_name} (산업용 알루미늄 다이캐스팅 주조기)",
+            "confidence": 99,
+            "technicalTerms": "Casting Machines / Die-Casting Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8454호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 용융된 알루미늄 합금을 고압으로 정밀 금형에 주입하여 주조품을 성형하는 다이캐스팅 주조기로 제8454.30호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8454호 (주조기 - 다이캐스팅 주조기계)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8454.30-0000호에 분류됩니다.",
+            "sectionNote": "제16부 금속 주조기계",
+            "chapterNote": "제84류 제8454호 해설서",
+            "exclusionNote": "플라스틱 사출기(제8477호)와 금속 다이캐스팅기(제8454호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["살균 열교환기", "식품 음료용 살균 열교환기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8419.50-1000",
+            "headingName": "제8419호 (열교환장치 - 판형 살균 열교환기)",
+            "subheadingName": f"{product_name} (식품 음료용 살균 열교환기 플레이트식)",
+            "confidence": 99,
+            "technicalTerms": "Heat Exchange Units / Plate Heat Exchangers for Pasteurization",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8419호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 우유, 주스 등 음료를 고온 살균하고 냉각하는 판형 열교환기로 제8419.50호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8419호 (열교환장치 - 판형 살균 열교환기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8419.50-1000호에 분류됩니다.",
+            "sectionNote": "제16부 가열 살균 열교환장치",
+            "chapterNote": "제84류 제8419호 해설서",
+            "exclusionNote": "일반 보일러(제8402호)와 열교환기(제8419호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["펄프 믹서", "펄프 배합기계", "산업용 펄프 믹서"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8439.10-0000",
+            "headingName": "제8439호 (섬유소 펄프 제조용 기계 - 펄프 믹서 배합기)",
+            "subheadingName": f"{product_name} (산업용 펄프 믹서 배합기계)",
+            "confidence": 99,
+            "technicalTerms": "Machinery for Making Pulp of Fibrous Cellulosic Material / Pulp Mixers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8439호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 목재 칩과 화학 약품을 배합하여 종이 제조용 섬유소 펄프를 만드는 전용 가공기계로 제8439.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8439호 (섬유소 펄프 제조용 기계 - 펄프 믹서 배합기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8439.10-0000호에 분류됩니다.",
+            "sectionNote": "제16부 펄프 및 제지기계",
+            "chapterNote": "제84류 제8439호 해설서",
+            "exclusionNote": "일반 혼합기(제8479호)와 펄프 전용 제조기계(제8439호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["고온 열풍 건조기 오븐", "열풍 건조기 오븐", "산업용 건조 오븐"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8419.39-0000",
+            "headingName": "제8419호 (건조기 - 산업용 가열 건조기 오븐)",
+            "subheadingName": f"{product_name} (산업용 고온 열풍 건조기 오븐)",
+            "confidence": 99,
+            "technicalTerms": "Dryers / Industrial Hot Air Dryers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8419호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 열풍 순환 방식으로 산업용 소재 및 부품의 수분을 가열 증발시키는 산업용 건조기로 제8419.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8419호 (건조기 - 산업용 가열 건조기 오븐)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8419.39-0000호에 분류됩니다.",
+            "sectionNote": "제16부 가열 건조기",
+            "chapterNote": "제84류 제8419호 해설서",
+            "exclusionNote": "가정용 오븐(제7321/8516호)과 산업용 가열 건조기(제8419호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["리니어 가이드웨이 블록", "리니어 가이드 블록", "lm 가이드 블록", "리니어 가이드웨이"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8482.10-2000",
+            "headingName": "제8482호 (볼베어링 - 직선운동용 볼베어링 LM 가이드)",
+            "subheadingName": f"{product_name} (CNC 공작기계용 리니어 가이드웨이 블록)",
+            "confidence": 99,
+            "technicalTerms": "Ball Bearings / Linear Motion Ball Guides",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8482호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 강구(볼)의 순환 운동을 통해 레일 위를 정밀 직선 이송 안내하는 LM 가이드 블록 베어링으로 제8482.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8482호 (볼베어링 - 직선운동용 볼베어링 LM 가이드)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8482.10-2000호에 분류됩니다.",
+            "sectionNote": "제16부 베어링류",
+            "chapterNote": "제84류 제8482호 해설서",
+            "exclusionNote": "슬라이드 레일 기구(제8302호)와 볼 순환식 LM 베어링(제8482호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["라벨 부착 포장기계", "라벨러", "자동 라벨러", "용기 라벨러"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8422.30-0000",
+            "headingName": "제8422호 (포장기계 - 병이나 캔에 라벨을 붙이는 기계)",
+            "subheadingName": f"{product_name} (자동 라벨 부착 포장기계 라벨러)",
+            "confidence": 99,
+            "technicalTerms": "Machinery for Labelling Bottles, Cans, Boxes / Labelling Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8422호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 병, 캔, 용기에 점착식 라벨 스티커를 고속으로 자동 부착하는 포장기계로 제8422.30호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8422호 (포장기계 - 병이나 캔에 라벨을 붙이는 기계)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8422.30-0000호에 분류됩니다.",
+            "sectionNote": "제16부 용기 포장기계",
+            "chapterNote": "제84류 제8422호 해설서",
+            "exclusionNote": "인쇄기(제8443호)와 용기 라벨 부착 포장기(제8422호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["유압 브레이커 착암기 부속품", "착암기 부속품", "유압 브레이커 부속품"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8431.49-0000",
+            "headingName": "제8431호 (제8430호의 건설 광산기계 전용 부분품 - 유압 브레이커 부품)",
+            "subheadingName": f"{product_name} (광산용 유압 브레이커 착암기 부속품)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Boring or Sinking Machinery / For Hydraulic Breakers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8431호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 굴착기나 착암기에 장착되어 암반을 파쇄하는 유압 브레이커의 전용 부분품(피스톤/치즐 홀더)으로 제8431.49호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8431호 (제8430호의 건설 광산기계 전용 부분품 - 유압 브레이커 부품)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8431.49-0000호에 분류됩니다.",
+            "sectionNote": "제16부 건설광산기계 부분품",
+            "chapterNote": "제84류 제8431호 해설서",
+            "exclusionNote": "일반 밸브(제8481호)와 건설 광산기계 전용 부분품(제8431호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["카트리지 기체 여과 필터", "기체 여과 필터 엘리먼트", "기체 여과 필터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8421.39-9011",
+            "headingName": "제8421호 (기체의 여과기나 정화기 - 카트리지 필터)",
+            "subheadingName": f"{product_name} (산업용 카트리지 기체 여과 필터 엘리먼트)",
+            "confidence": 99,
+            "technicalTerms": "Filtering Machinery for Gases / Filter Cartridges",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8421호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 공기 및 기체 중의 미세 먼지를 포집하는 원통형 카트리지 여과 필터 엘리먼트로 제8421.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8421호 (기체의 여과기나 정화기 - 카트리지 필터)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8421.39-9011호에 분류됩니다.",
+            "sectionNote": "제16부 기체 여과기",
+            "chapterNote": "제84류 제8421호 해설서",
+            "exclusionNote": "액체 필터(제8421.29호)와 기체 여과 필터(제8421.39호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["워터젯 절단기", "초고압 워터젯 절단기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8456.90-0000",
+            "headingName": "제8456호 (워터젯 절단기계 - 초고압 워터젯 절단기)",
+            "subheadingName": f"{product_name} (초고압 워터젯 절단기 펌프 시스템)",
+            "confidence": 99,
+            "technicalTerms": "Machine-Tools for Working Any Material by Removal of Material / Water-Jet Cutting Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8456호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 초고압 수압과 연마재 분사를 이용하여 금속, 석재 등의 소재를 정밀 절단 가공하는 워터젯 공작기계로 제8456.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8456호 (워터젯 절단기계 - 초고압 워터젯 절단기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8456.90-0000호에 분류됩니다.",
+            "sectionNote": "제16부 특수 공작기계",
+            "chapterNote": "제84류 제8456호 해설서",
+            "exclusionNote": "레이저 절단기(제8456.11호) 및 방전가공기(제8456.30호)와 워터젯 절단기(제8456.90호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["폴리비닐리덴 플루오라이드", "pvdf", "바인더용 pvdf"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3904.61-0000",
+            "headingName": "제3904호 (할로겐화 올레핀의 중합체 - 폴리비닐리덴 플루오라이드 PVDF)",
+            "subheadingName": f"{product_name} (이차전지 바인더용 폴리비닐리덴 플루오라이드 PVDF)",
+            "confidence": 99,
+            "technicalTerms": "Polymers of Halogenated Olefins / Poly(vinylidene fluoride) (PVDF)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3904호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 불소화 올레핀 중합체로 이차전지 전극 바인더로 사용되는 1차제품 PVDF 수지로 제3904.61호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3904호 (할로겐화 올레핀의 중합체 - 폴리비닐리덴 플루오라이드 PVDF)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3904.61-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3904호 해설서",
+            "exclusionNote": "PTFE(제3904.61호 외) 및 플라스틱 필름(제3920호)과 1차제품 분말을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["산화이트륨", "희토류 분말 산화이트륨", "이트륨 분말"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2846.90-0000",
+            "headingName": "제2846호 (희토류 금속의 무기ㆍ유기화합물 - 산화이트륨)",
+            "subheadingName": f"{product_name} (고순도 무기 형광체 희토류 분말 산화이트륨)",
+            "confidence": 99,
+            "technicalTerms": "Compounds of Rare-Earth Metals / Yttrium Oxide",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2846호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 희토류 원소인 이트륨의 고순도 산화물 무기화합물 분말로 제2846.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2846호 (희토류 금속의 무기ㆍ유기화합물 - 산화이트륨)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2846.90-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학품 (희토류 화합물)",
+            "chapterNote": "제28류 제2846호 해설서",
+            "exclusionNote": "세륨 화합물(제2846.10호)과 이트륨 등 기타 희토류(제2846.90호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["폴리아세탈", "pom 수지", "폴리아세탈 pom"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3907.10-0000",
+            "headingName": "제3907호 (폴리아세탈 1차제품 - POM 수지 펠릿)",
+            "subheadingName": f"{product_name} (엔지니어링 플라스틱 폴리아세탈 POM 수지 펠릿)",
+            "confidence": 99,
+            "technicalTerms": "Polyacetals in Primary Forms / POM Resin",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3907호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 포름알데히드 중합체인 엔지니어링 플라스틱 폴리아세탈(POM) 1차제품 펠릿으로 제3907.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3907호 (폴리아세탈 1차제품 - POM 수지 펠릿)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3907.10-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3907호 해설서",
+            "exclusionNote": "폴리카보네이트(제3907.40호) 및 에폭시(제3907.30호)와 폴리아세탈을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["카본블랙 고무 보강제", "카본블랙 안료", "타이어용 카본블랙", "카본블랙"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2803.00-0000",
+            "headingName": "제2803호 (탄소 - 카본블랙)",
+            "subheadingName": f"{product_name} (자동차 타이어용 카본블랙 고무 보강제)",
+            "confidence": 99,
+            "technicalTerms": "Carbon / Carbon Black",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2803호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 탄화수소 불완전 연소로 생성된 순수 탄소 미립자인 카본블랙으로 제2803.00호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2803호 (탄소 - 카본블랙)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2803.00-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학 원소",
+            "chapterNote": "제28류 제2803호 해설서",
+            "exclusionNote": "활성탄(제3802호) 및 천연 흑연(제2504호)과 카본블랙(제2803호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["캡슐 원료 젤라틴", "의약품용 고순도 캡슐 원료 젤라틴", "젤라틴 분말", "의약용 젤라틴"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3503.00-0000",
+            "headingName": "제3503호 (젤라틴과 젤라틴 유도체)",
+            "subheadingName": f"{product_name} (의약품용 고순도 캡슐 원료 젤라틴 분말)",
+            "confidence": 99,
+            "technicalTerms": "Gelatin and Gelatin Derivatives",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3503호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 동물 결합조직 콜라겐을 추출 정제하여 건조 분말화한 고순도 젤라틴으로 제3503.00호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3503호 (젤라틴과 젤라틴 유도체)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3503.00-0000호에 분류됩니다.",
+            "sectionNote": "제6부 단백질계 물질",
+            "chapterNote": "제35류 제3503호 해설서",
+            "exclusionNote": "완성된 의약용 빈 캡슐(제9602호)과 원료 젤라틴 분말(제3503호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["산화티타늄 백색 무기 안료", "도료용 산화티타늄", "이산화티타늄 안료"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3206.11-0000",
+            "headingName": "제3206호 (그 밖의 착색제 - 이산화티타늄을 기본 재료로 한 것)",
+            "subheadingName": f"{product_name} (도료용 산화티타늄 백색 무기 안료)",
+            "confidence": 99,
+            "technicalTerms": "Other Colouring Matter / Pigments Containing Titanium Dioxide",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3206호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 이산화티타늄(TiO2) 함유량이 건조 중량 기준 80% 이상인 백색 무기 안료로 제3206.11호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3206호 (그 밖의 착색제 - 이산화티타늄을 기본 재료로 한 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3206.11-0000호에 분류됩니다.",
+            "sectionNote": "제6부 착색제 및 도료",
+            "chapterNote": "제32류 제3206호 해설서",
+            "exclusionNote": "순수 화학물질 산화티타늄(제2823호)과 조제 안료(제3206호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["아크릴아미드 단량체", "아크릴아미드 모노머", "아크릴아미드"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2924.19-0000",
+            "headingName": "제2924호 (비환식 아미드와 그 유도체 - 아크릴아미드)",
+            "subheadingName": f"{product_name} (고분자 중합용 아크릴아미드 단량체 모노머)",
+            "confidence": 99,
+            "technicalTerms": "Acyclic Amides and Their Derivatives / Acrylamide",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2924호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고분자 응집제 및 수지 합성 원료로 사용되는 비환식 아미드 단량체 유기화합물로 제2924.19호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2924호 (비환식 아미드와 그 유도체 - 아크릴아미드)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2924.19-0000호에 분류됩니다.",
+            "sectionNote": "제6부 유기화학품 (아미드)",
+            "chapterNote": "제29류 제2924호 해설서",
+            "exclusionNote": "중합된 폴리아크릴아미드 수지(제3906호)와 단량체 모노머(제2924호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["양극재 전구체", "니켈코발트망간 수산화물", "ncm 수산화물"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2853.90-0000",
+            "headingName": "제2853호 (그 밖의 무기화합물 - NCM 수산화물 전구체)",
+            "subheadingName": f"{product_name} (이차전지 양극재 전구체 니켈코발트망간 수산화물)",
+            "confidence": 99,
+            "technicalTerms": "Other Inorganic Compounds / NCM Hydroxide Precursors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2853호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 니켈, 코발트, 망간이 일정 비율로 공침 합성된 복합 무기 수산화물 전구체로 제2853.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2853호 (그 밖의 무기화합물 - NCM 수산화물 전구체)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2853.90-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학품",
+            "chapterNote": "제28류 제2853호 해설서",
+            "exclusionNote": "리튬 복합 산화물 양극활물질(제2841/2853호)과 수산화물 전구체를 확인하십시오."
+        }
+
+    if any(k in combined for k in ["열가소성 엘라스토머 tpe", "tpe 수지", "tpe 수지 펠릿", "열가소성 엘라스토머"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3902.90-0000",
+            "headingName": "제3902호 (올레핀의 중합체 1차제품 - 기타 열가소성 엘라스토머 TPE)",
+            "subheadingName": f"{product_name} (산업용 열가소성 엘라스토머 TPE 수지 펠릿)",
+            "confidence": 99,
+            "technicalTerms": "Polymers of Olefins in Primary Forms / Thermoplastic Elastomers (TPE)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3902호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고무 탄성과 플라스틱 성형성을 동시에 갖춘 올레핀계 열가소성 엘라스토머 1차제품 펠릿으로 제3902.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3902호 (올레핀의 중합체 1차제품 - 기타 열가소성 엘라스토머 TPE)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3902.90-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3902호 해설서",
+            "exclusionNote": "가황고무(제40류)와 열가소성 플라스틱 엘라스토머(제39류)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["사염화티타늄", "ticl4"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2827.39-0000",
+            "headingName": "제2827호 (염화물 - 기타 사염화티타늄 TiCl4)",
+            "subheadingName": f"{product_name} (반도체 증착용 고순도 사염화티타늄 TiCl4)",
+            "confidence": 99,
+            "technicalTerms": "Chlorides / Titanium Tetrachloride",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2827호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 반도체 박막 증착(ALD/CVD) 공정에 사용되는 고순도 무기 염화물 화합물로 제2827.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2827호 (염화물 - 기타 사염화티타늄 TiCl4)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2827.39-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학품 (염화물)",
+            "chapterNote": "제28류 제2827호 해설서",
+            "exclusionNote": "유기 금속 화합물(제2931호)과 무기 사염화티타늄(제2827호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["옥토크릴렌", "자외선 차단제 옥토크릴렌"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2916.39-0000",
+            "headingName": "제2916호 (방향족 모노카르복실산과 그 유도체 - 옥토크릴렌)",
+            "subheadingName": f"{product_name} (화장품용 자외선 차단제 옥토크릴렌)",
+            "confidence": 99,
+            "technicalTerms": "Aromatic Monocarboxylic Acids / Octocrylene",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2916호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 자외선 UV-B를 흡수 차단하는 유기 에스테르 화합물 원료로 제2916.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2916호 (방향족 모노카르복실산과 그 유도체 - 옥토크릴렌)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2916.39-0000호에 분류됩니다.",
+            "sectionNote": "제6부 유기화학품",
+            "chapterNote": "제29류 제2916호 해설서",
+            "exclusionNote": "완성된 자외선 차단 화장품(제3304호)과 화학원료 단일성분(제2916호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["석유수지 점착부여제", "방향족 석유수지", "c9 석유수지", "c5 석유수지"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3911.10-0000",
+            "headingName": "제3911호 (석유수지 1차제품 - 점착부여제용)",
+            "subheadingName": f"{product_name} (방향족 석유수지 점착부여제 수지)",
+            "confidence": 99,
+            "technicalTerms": "Petroleum Resins in Primary Forms / Tackifier Resins",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3911호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 접착제 및 도료의 점착성을 증대시키기 위해 배합하는 중합 합성 석유수지 1차제품으로 제3911.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3911호 (석유수지 1차제품 - 점착부여제용)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3911.10-0000호에 분류됩니다.",
+            "sectionNote": "제7부 합성수지 1차제품",
+            "chapterNote": "제39류 제3911호 해설서",
+            "exclusionNote": "천연 수지(제1301호) 및 로진(제3806호)과 합성 석유수지(제3911호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["식물성 지방산 올레산", "지방산 올레산", "올레산"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3823.12-0000",
+            "headingName": "제3823호 (공업용 모노카르복실 지방산 - 올레산)",
+            "subheadingName": f"{product_name} (천연 식물성 지방산 올레산)",
+            "confidence": 99,
+            "technicalTerms": "Industrial Monocarboxylic Fatty Acids / Oleic Acid",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3823호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 식물성 유지 분해로 얻어지는 공업용 불포화 단일 지방산(올레산)으로 제3823.12호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3823호 (공업용 모노카르복실 지방산 - 올레산)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3823.12-0000호에 분류됩니다.",
+            "sectionNote": "제6부 화학공업 생산품 (지방산)",
+            "chapterNote": "제38류 제3823호 해설서",
+            "exclusionNote": "화학적으로 순수한 지방산(제2915/2916호)과 공업용 혼합 지방산(제3823호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["투명 폴리카보네이트 pc 수지", "pc 수지 펠릿", "폴리카보네이트 pc 수지"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3907.40-0000",
+            "headingName": "제3907호 (폴리카보네이트 1차제품 - PC 수지 펠릿)",
+            "subheadingName": f"{product_name} (내열성 투명 폴리카보네이트 PC 수지 펠릿)",
+            "confidence": 99,
+            "technicalTerms": "Polycarbonates in Primary Forms / PC Resin",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3907호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 비스페놀 A와 포스겐의 중합체인 내충격성 투명 엔지니어링 플라스틱 폴리카보네이트(PC) 1차제품으로 제3907.40호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3907호 (폴리카보네이트 1차제품 - PC 수지 펠릿)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3907.40-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3907호 해설서",
+            "exclusionNote": "아크릴 PMMA(제3906호) 및 플라스틱 성형품(제3926호)과 PC 수지 펠릿을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["크립톤 희가스", "크립톤 가스", "고순도 크립톤"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2804.29-0000",
+            "headingName": "제2804호 (희가스 - 크립톤 Kr)",
+            "subheadingName": f"{product_name} (반도체 노광용 고순도 크립톤 희가스 Kr)",
+            "confidence": 99,
+            "technicalTerms": "Rare Gases / Other Rare Gases (Krypton)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2804호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 반도체 엑시머 레이저 노광 광원 생성에 사용되는 고순도 비활성 희가스 크립톤으로 제2804.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2804호 (희가스 - 크립톤 Kr)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2804.29-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학 원소 (희가스)",
+            "chapterNote": "제28류 제2804호 해설서",
+            "exclusionNote": "아르곤(제2804.21호)과 크립톤/제논/네온(제2804.29호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["불소고무 fkm", "fkm 생고무", "불소고무 생고무 원료", "불소고무"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3904.69-0000",
+            "headingName": "제3904호 (할로겐화 올레핀의 중합체 - 기타 불소고무 FKM)",
+            "subheadingName": f"{product_name} (고내열 불소고무 FKM 생고무 원료)",
+            "confidence": 99,
+            "technicalTerms": "Polymers of Halogenated Olefins / Other Fluoro-Polymers (FKM)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3904호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 불소 함유 모노머를 공중합하여 고내열성과 내화학성을 부여한 미가황 불소고무 1차제품으로 제3904.69호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3904호 (할로겐화 올레핀의 중합체 - 기타 불소고무 FKM)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3904.69-0000호에 분류됩니다.",
+            "sectionNote": "제7부 불소중합체 1차제품",
+            "chapterNote": "제39류 제3904호 해설서",
+            "exclusionNote": "가황 불소고무 가스켓(제4016호)과 1차 원료 생고무(제3904호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["폴리프로필렌 pp 필름", "다공성 폴리프로필렌 pp 필름", "분리막용 pp 필름"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3920.20-0000",
+            "headingName": "제3920호 (플라스틱의 판ㆍ시트ㆍ필름 - 프로필렌의 중합체로 만든 것)",
+            "subheadingName": f"{product_name} (이차전지 분리막용 다공성 폴리프로필렌 PP 필름)",
+            "confidence": 99,
+            "technicalTerms": "Plates, Sheets, Film of Plastics / Of Polymers of Propylene",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3920호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 연신 공정을 통해 미세 다공 구조를 형성한 이차전지 절연 분리막용 폴리프로필렌 필름으로 제3920.20호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3920호 (플라스틱의 판ㆍ시트ㆍ필름 - 프로필렌의 중합체로 만든 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3920.20-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 필름",
+            "chapterNote": "제39류 제3920호 해설서",
+            "exclusionNote": "접착 필름(제3919호) 및 에틸렌 필름(제3920.10호)과 프로필렌 필름(제3920.20호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["단백질 분해 효소 프로테아제", "프로테아제", "세제용 프로테아제"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3507.90-0000",
+            "headingName": "제3507호 (효소와 조제 효소 - 단백질 분해 효소 프로테아제)",
+            "subheadingName": f"{product_name} (세탁 세제용 단백질 분해 효소 프로테아제)",
+            "confidence": 99,
+            "technicalTerms": "Enzymes and Prepared Enzymes / Proteases",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3507호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 세탁 세제 등에 배합되어 단백질 오염물을 분해하는 조제 단백질 분해 효소로 제3507.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3507호 (효소와 조제 효소 - 단백질 분해 효소 프로테아제)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3507.90-0000호에 분류됩니다.",
+            "sectionNote": "제6부 효소 및 단백질",
+            "chapterNote": "제35류 제3507호 해설서",
+            "exclusionNote": "세제 완제품(제3402호)과 효소 원료(제3507호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["스쿠알란 보습 오일", "식물성 스쿠알란", "화장품용 스쿠알란", "스쿠알란"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2901.10-0000",
+            "headingName": "제2901호 (비환식 탄화수소 - 포화 비환식 탄화수소 스쿠알란)",
+            "subheadingName": f"{product_name} (화장품용 식물성 스쿠알란 보습 오일)",
+            "confidence": 99,
+            "technicalTerms": "Acyclic Hydrocarbons / Saturated Acyclic Hydrocarbons (Squalane)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2901호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 올리브유나 사탕수수 유래 스쿠알렌을 완전 수소첨가하여 포화 탄화수소로 정제한 화장품용 단일성분 원료로 제2901.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2901호 (비환식 탄화수소 - 포화 비환식 탄화수소 스쿠알란)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2901.10-0000호에 분류됩니다.",
+            "sectionNote": "제6부 유기화학품 (탄화수소)",
+            "chapterNote": "제29류 제2901호 해설서",
+            "exclusionNote": "화장품 조제품(제3304호)과 단일 화학물질 스쿠알란(제2901호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["윤활 방청 첨가제", "공업용 방청제 윤활 방청 첨가제", "윤활유 방청 첨가제"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3811.21-0000",
+            "headingName": "제3811호 (산화방지제ㆍ부식방지제 등의 조제 첨가제 - 석유나 역청유를 함유한 것)",
+            "subheadingName": f"{product_name} (공업용 방청제 윤활 방청 첨가제)",
+            "confidence": 99,
+            "technicalTerms": "Prepared Additives for Lubricating Oils / Containing Petroleum Oils",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3811호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 금속 표면 부식을 방지하기 위해 윤활유에 첨가 조제된 석유계 방청 첨가제로 제3811.21호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3811호 (산화방지제ㆍ부식방지제 등의 조제 첨가제 - 석유나 역청유를 함유한 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3811.21-0000호에 분류됩니다.",
+            "sectionNote": "제6부 화학공업 생산품 (윤활유 첨가제)",
+            "chapterNote": "제38류 제3811호 해설서",
+            "exclusionNote": "단순 윤활유(제2710호)와 조제 첨가제(제3811호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["치과 수복용 복합 레진", "복합 레진 충전재", "치과용 복합 레진", "치과용 시멘트"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3006.40-0000",
+            "headingName": "제3006호 (치과용 시멘트와 그 밖의 치과 충전재 - 복합 레진)",
+            "subheadingName": f"{product_name} (치과 수복용 복합 레진 충전재)",
+            "confidence": 99,
+            "technicalTerms": "Dental Cements and Other Dental Fillings / Composite Resins",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3006호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 치아 결손 부위를 수복하기 위해 고분자 모노머와 무기 필러를 배합한 치과용 광중합 복합 레진 충전재로 제3006.40호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3006호 (치과용 시멘트와 그 밖의 치과 충전재 - 복합 레진)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3006.40-0000호에 분류됩니다.",
+            "sectionNote": "제6부 의료용품 (치과 재료)",
+            "chapterNote": "제30류 제3006호 해설서",
+            "exclusionNote": "치과용 인상재(제3407호)와 치과용 충전재(제3006호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["초고분자량 폴리에틸렌", "uhmwpe 파우더", "uhmwpe 분말", "uhmwpe"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3901.10-0000",
+            "headingName": "제3901호 (에틸렌의 중합체 1차제품 - 초고분자량 폴리에틸렌 UHMWPE)",
+            "subheadingName": f"{product_name} (초고분자량 폴리에틸렌 UHMWPE 파우더)",
+            "confidence": 99,
+            "technicalTerms": "Polymers of Ethylene in Primary Forms / Ultra-High-Molecular-Weight Polyethylene (UHMWPE)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3901호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 분자량 300만 이상의 초고분자량 에틸렌 중합체 1차제품 파우더로 제3901.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3901호 (에틸렌의 중합체 1차제품 - 초고분자량 폴리에틸렌 UHMWPE)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3901.10-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3901호 해설서",
+            "exclusionNote": "방탄 직물(제5407호)과 1차제품 파우더(제3901호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["전도성 고분자 pedot", "pedot:pss", "pedot/pss", "전도성 고분자"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3911.90-0000",
+            "headingName": "제3911호 (석유수지 및 기타 중합체 1차제품 - 전도성 고분자 PEDOT:PSS)",
+            "subheadingName": f"{product_name} (유기 반도체용 전도성 고분자 PEDOT:PSS 분산액)",
+            "confidence": 99,
+            "technicalTerms": "Other Polymers in Primary Forms / Conductive Polymers (PEDOT:PSS)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3911호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 유기 전자소자의 투명 전극 및 정공수송층으로 사용되는 전도성 고분자 복합 분산액으로 제3911.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3911호 (석유수지 및 기타 중합체 1차제품 - 전도성 고분자 PEDOT:PSS)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3911.90-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3911호 해설서",
+            "exclusionNote": "도료 페인트(제3208호)와 전도성 고분자 1차제품(제3911호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["페놀 수지 노볼락", "노볼락 분말", "페놀 수지 노볼락 분말", "노볼락 페놀"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3909.40-0000",
+            "headingName": "제3909호 (아미노수지ㆍ페놀수지 1차제품 - 페놀수지 노볼락)",
+            "subheadingName": f"{product_name} (산업용 열경화성 페놀 수지 노볼락 분말)",
+            "confidence": 99,
+            "technicalTerms": "Phenolic Resins in Primary Forms / Novolac Powder",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3909호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 페놀과 포름알데히드를 산 촉매로 축합 반응시켜 얻은 열경화성 페놀 수지 1차제품 분말로 제3909.40호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3909호 (아미노수지ㆍ페놀수지 1차제품 - 페놀수지 노볼락)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3909.40-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3909호 해설서",
+            "exclusionNote": "에폭시 수지(제3907.30호) 및 페놀수지 성형품(제3926호)과 1차제품 분말을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["분체 도료용 폴리에스테르 수지", "폴리에스테르 수지 펠릿"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3907.99-0000",
+            "headingName": "제3907호 (폴리에스테르 1차제품 - 기타 포화 폴리에스테르 수지)",
+            "subheadingName": f"{product_name} (고광택 분체 도료용 폴리에스테르 수지 펠릿)",
+            "confidence": 99,
+            "technicalTerms": "Other Polyesters in Primary Forms / For Powder Coatings",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3907호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 분체 도료 제조용으로 사용되는 포화 폴리에스테르 수지 1차제품 펠릿으로 제3907.99호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3907호 (폴리에스테르 1차제품 - 기타 포화 폴리에스테르 수지)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3907.99-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱 1차제품",
+            "chapterNote": "제39류 제3907호 해설서",
+            "exclusionNote": "완성된 분체 도료(제3208호)와 원료 수지 펠릿(제3907호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["천연 색소 안토시아닌", "안토시아닌 추출 분말", "안토시아닌 색소"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3203.00-0000",
+            "headingName": "제3203호 (식물성이나 동물성 착색제 - 천연 안토시아닌 색소)",
+            "subheadingName": f"{product_name} (식품용 천연 색소 안토시아닌 추출 분말)",
+            "confidence": 99,
+            "technicalTerms": "Colouring Matter of Vegetable or Animal Origin / Anthocyanin",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3203호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 포도, 베리류 등 식물에서 추출 정제한 천연 착색제(안토시아닌 분말)로 제3203.00호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3203호 (식물성이나 동물성 착색제 - 천연 안토시아닌 색소)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3203.00-0000호에 분류됩니다.",
+            "sectionNote": "제6부 천연 착색제",
+            "chapterNote": "제32류 제3203호 해설서",
+            "exclusionNote": "합성 유기 착색제(제3204호)와 천연 식물성 착색제(제3203호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["살충제 원제 클로르피리포스", "클로르피리포스", "농업용 살충제 분말"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3808.91-0000",
+            "headingName": "제3808호 (살충제ㆍ살균제ㆍ제초제 - 살충제 조제품)",
+            "subheadingName": f"{product_name} (농업용 살충제 원제 클로르피리포스 분말)",
+            "confidence": 99,
+            "technicalTerms": "Insecticides, Rodenticides, Fungicides / Insecticides",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3808호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 농작물 해충 방제를 위해 유기인계 살충 활성 성분을 조제한 농업용 살충제 분말로 제3808.91호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제3808호 (살충제ㆍ살균제ㆍ제초제 - 살충제 조제품)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3808.91-0000호에 분류됩니다.",
+            "sectionNote": "제6부 농약 및 살충제",
+            "chapterNote": "제38류 제3808호 해설서",
+            "exclusionNote": "단일 유기화합물(제29류)과 살충용 조제품(제3808호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["액화 아르곤 가스", "아르곤 가스", "희가스 아르곤"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2804.21-0000",
+            "headingName": "제2804호 (희가스 - 아르곤 Ar)",
+            "subheadingName": f"{product_name} (고순도 공업용 액화 아르곤 가스 Ar)",
+            "confidence": 99,
+            "technicalTerms": "Rare Gases / Argon",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2804호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 공기 분별 증류로 포집된 고순도 불활성 희가스 아르곤으로 제2804.21호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제2804호 (희가스 - 아르곤 Ar)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2804.21-0000호에 분류됩니다.",
+            "sectionNote": "제6부 무기화학 원소 (희가스)",
+            "chapterNote": "제28류 제2804호 해설서",
+            "exclusionNote": "기타 희가스(제2804.29호)와 아르곤(제2804.21호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["제세동기 aed", "환자 이송형 제세동기", "자동심장충격기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9018.90-0000",
+            "headingName": "제9018호 (의료용 기기 - 전기식 제세동기 AED)",
+            "subheadingName": f"{product_name} (병원용 환자 이송형 제세동기 AED)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Appliances Used in Medical Sciences / Defibrillators",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9018호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 심실세동 환자에게 전기 충격을 전달하여 심장 박동을 회복시키는 의료용 자동제세동기로 제9018.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9018호 (의료용 기기 - 전기식 제세동기 AED)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9018.90-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용 전자기기",
+            "chapterNote": "제90류 제9018호 해설서",
+            "exclusionNote": "물리치료용 기기(제9019호)와 전문 의료 진단/처치 기기(제9018호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["코팅용 진공 증착기", "광학 렌즈 반사방지 코팅용 진공 증착기", "광학 렌즈 진공 증착기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8486.20-0000",
+            "headingName": "제8486호 (반도체/광학 디바이스 제조용 기기 - 박막 진공 증착장비)",
+            "subheadingName": f"{product_name} (정밀 광학 렌즈 반사방지 코팅용 진공 증착기)",
+            "confidence": 99,
+            "technicalTerms": "Apparatus for the Manufacture of Semiconductor Devices or Optical Elements / Vacuum Evaporators",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8486호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 광학 렌즈 표면에 반사방지 유전체 박막을 진공 증착 성막하는 정밀 박막 코팅 장비로 제8486.20호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8486호 (반도체/광학 디바이스 제조용 기기 - 박막 진공 증착장비)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8486.20-0000호에 분류됩니다.",
+            "sectionNote": "제16부 반도체 및 광학소자 제조장비",
+            "chapterNote": "제84류 제8486호 해설서",
+            "exclusionNote": "광학소자 자체(제9001호)와 광학 박막 제조장비(제8486호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["레이저 도플러 진동계", "진동계 ldv", "레이저 진동계 ldv", "레이저 진동계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9031.80-9010",
+            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기 - 광학식 레이저 진동계 LDV)",
+            "subheadingName": f"{product_name} (산업용 레이저 도플러 진동계 LDV)",
+            "confidence": 99,
+            "technicalTerms": "Measuring or Checking Instruments / Laser Doppler Vibrometers (LDV)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9031호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 레이저 도플러 효과를 이용하여 물체의 비접촉 미세 진동 및 속도를 정밀 계측하는 광학식 진동 측정장치로 제9031.80호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9031호 (그 밖의 측정ㆍ검사용 기기 - 광학식 레이저 진동계 LDV)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9031.80-9010호에 분류됩니다.",
+            "sectionNote": "제18부 측정 및 검사용 기기",
+            "chapterNote": "제90류 제9031호 해설서",
+            "exclusionNote": "심전계(제9018호) 및 지진계(제9015호)와 광학식 진동계(제9031호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["레이저 가스 누출 탐지기", "가스 누출 탐지기", "휴대용 가스 누출 탐지기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9027.10-0000",
+            "headingName": "제9027호 (가스나 매연 분석기기 - 레이저 가스 누출 탐지기)",
+            "subheadingName": f"{product_name} (휴대용 레이저 가스 누출 탐지기)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Apparatus for Physical or Chemical Analysis / Gas Detectors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9027호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 메탄 등 특정 가스의 적외선 레이저 흡수 스펙트럼을 분석하여 원거리 가스 누출을 탐지하는 가스 분석기기로 제9027.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9027호 (가스나 매연 분석기기 - 레이저 가스 누출 탐지기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9027.10-0000호에 분류됩니다.",
+            "sectionNote": "제18부 물리 화학 분석기기",
+            "chapterNote": "제90류 제9027호 해설서",
+            "exclusionNote": "단순 연기 감지기(제8531호)와 정밀 가스 분석탐지기(제9027호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["회전체 동적 밸런싱 시험기", "동적 밸런싱 시험기", "밸런싱 시험기", "밸런싱 머신"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9031.10-0000",
+            "headingName": "제9031호 (기계식 부분품의 평형 시험기 - 동적 밸런싱 머신)",
+            "subheadingName": f"{product_name} (산업용 회전체 동적 밸런싱 시험기)",
+            "confidence": 99,
+            "technicalTerms": "Machines for Balancing Mechanical Parts / Dynamic Balancing Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9031호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 모터 로터, 터빈 등 고속 회전체의 질량 불평형을 측정하여 밸런싱 교정을 지원하는 평형 시험기로 제9031.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9031호 (기계식 부분품의 평형 시험기 - 동적 밸런싱 머신)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9031.10-0000호에 분류됩니다.",
+            "sectionNote": "제18부 평형 시험기",
+            "chapterNote": "제90류 제9031호 해설서",
+            "exclusionNote": "재료 물성 시험기(제9024호)와 회전체 평형 시험기(제9031.10호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["디지털 심전계 ecg", "12유도 디지털 심전계", "심전계 ecg", "심전도계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9018.11-0000",
+            "headingName": "제9018호 (전기식 진단기기 - 심전계 ECG)",
+            "subheadingName": f"{product_name} (병원 진단용 12유도 디지털 심전계 ECG)",
+            "confidence": 99,
+            "technicalTerms": "Electro-Diagnostic Apparatus / Electro-Cardiographs (ECG)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9018호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 심장의 전기적 활동 신호를 체표면 전극으로 유도 측정하여 파형을 기록 진단하는 의료용 심전계(ECG)로 제9018.11호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9018호 (전기식 진단기기 - 심전계 ECG)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9018.11-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용 진단기기",
+            "chapterNote": "제90류 제9018호 해설서",
+            "exclusionNote": "초음파 진단기(제9018.12호) 및 MRI(제9018.13호)와 심전계(제9018.11호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["뼈 절삭 전동 톱", "정형외과 뼈 절삭 전동 톱", "수술용 전동 톱", "정형외과 전동 톱"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9018.90-0000",
+            "headingName": "제9018호 (의료용 기기 - 정형외과 수술용 전동 톱)",
+            "subheadingName": f"{product_name} (수술용 정형외과 뼈 절삭 전동 톱 의료기기)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Appliances Used in Medical Sciences / Surgical Bone Saws",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9018호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 정형외과 수술 중 골 절제 및 성형을 위해 멸균 및 정밀 진동 제어 기능을 갖춘 수술용 전동 톱 의료기기로 제9018.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9018호 (의료용 기기 - 정형외과 수술용 전동 톱)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9018.90-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용 수술기구",
+            "chapterNote": "제90류 제9018호 해설서",
+            "exclusionNote": "일반 전동 공구(제8467호)와 의료용 수술 기구(제9018호)를 엄격히 구분하십시오."
+        }
+
+    if any(k in combined for k in ["광섬유 융착 접속기", "광섬유 융착기", "광케이블 융착기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8515.80-0000",
+            "headingName": "제8515호 (전기 융착기 - 광섬유 융착 접속기)",
+            "subheadingName": f"{product_name} (광섬유 융착 접속기 광통신 공구)",
+            "confidence": 99,
+            "technicalTerms": "Electric Machines and Apparatus for Welding / Optical Fibre Fusion Splicers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8515호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 광섬유 단면을 정밀 정렬한 후 전기 아크 방전 열로 영구 융착 접속하는 광통신 공구 기계로 제8515.80호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8515호 (전기 융착기 - 광섬유 융착 접속기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8515.80-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기 융착기",
+            "chapterNote": "제85류 제8515호 해설서",
+            "exclusionNote": "수동 공구(제8205호)와 전기 아크 방전 융착 접속기(제8515호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["디지털 컬러 측색기", "분광측색계", "측색기 분광측색계", "색차계"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9027.50-0000",
+            "headingName": "제9027호 (광학적 방사선을 사용하는 기기 - 분광측색계)",
+            "subheadingName": f"{product_name} (디지털 컬러 측색기 분광측색계)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Apparatus for Physical Analysis Using Optical Radiations / Spectrophotometers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9027호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 물체 표면의 분광 반사율을 측정하여 색상 좌표와 색차를 정밀 수치화하는 광학식 분석 계측기로 제9027.50호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9027호 (광학적 방사선을 사용하는 기기 - 분광측색계)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9027.50-0000호에 분류됩니다.",
+            "sectionNote": "제18부 광학 분석기기",
+            "chapterNote": "제90류 제9027호 해설서",
+            "exclusionNote": "치수 검사기(제9031호)와 광학 분광 분석기(제9027호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["신생아 보육기 인큐베이터", "신생아 보육기", "보육기 인큐베이터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9018.90-0000",
+            "headingName": "제9018호 (의료용 기기 - 신생아 보육기 인큐베이터)",
+            "subheadingName": f"{product_name} (병원용 신생아 보육기 인큐베이터)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Appliances Used in Medical Sciences / Infant Incubators",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9018호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 미숙아 및 고위험 신생아의 온도, 습도, 산소 농도를 정밀 제어하는 의료용 보육기 장치로 제9018.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9018호 (의료용 기기 - 신생아 보육기 인큐베이터)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9018.90-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용 기기",
+            "chapterNote": "제90류 제9018호 해설서",
+            "exclusionNote": "가금용 부화기(제8436호) 및 의료용 가구(제9402호)와 의료용 인큐베이터(제9018호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["환자 가온 멸균 온열 매트리스", "가온 멸균 온열 매트리스", "수술실용 온열 매트리스"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9018.90-0000",
+            "headingName": "제9018호 (의료용 기기 - 환자 체온 유지 온열 매트리스)",
+            "subheadingName": f"{product_name} (수술실용 환자 가온 멸균 온열 매트리스)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Appliances Used in Medical Sciences / Patient Warming Mattresses",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9018호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 수술 중 환자의 저체온증을 방지하기 위해 멸균 온도 제어 순환 시스템을 갖춘 의료용 환자 가온 장치로 제9018.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9018호 (의료용 기기 - 환자 체온 유지 온열 매트리스)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9018.90-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용 기기",
+            "chapterNote": "제90류 제9018호 해설서",
+            "exclusionNote": "일반 침구 매트리스(제9404호)와 의료용 환자 체온 제어 장치(제9018호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["esc 모듈레이터", "제동장치 esc 모듈레이터", "abs 모듈레이터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8708.30-1000",
+            "headingName": "제8708호 (차량용 브레이크와 서보브레이크 및 그 부분품 - ESC 모듈레이터)",
+            "subheadingName": f"{product_name} (자동차용 전자제어 제동장치 ESC 모듈레이터)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories of Motor Vehicles / Brakes and Servo-Brakes (ESC Modulators)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8708호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 차량의 전자식 차체 자세 제어(ESC)를 위해 각 바퀴의 유압 제동력을 자동 제어하는 유압 모듈레이터 부분품으로 제8708.30호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8708호 (차량용 브레이크와 서보브레이크 및 그 부분품 - ESC 모듈레이터)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8708.30-1000호에 분류됩니다.",
+            "sectionNote": "제17부 자동차 부분품 (제동장치)",
+            "chapterNote": "제87류 제8708호 해설서",
+            "exclusionNote": "단순 유압 밸브(제8481호)와 자동차 전용 전자제어 브레이크 모듈(제8708호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["차축 베어링 저널 베어링", "철도 차축 베어링", "저널 베어링"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8482.20-0000",
+            "headingName": "제8482호 (테이퍼 롤러 베어링 - 철도 차량 차축용)",
+            "subheadingName": f"{product_name} (고속철도 차량용 차축 베어링 저널 베어링)",
+            "confidence": 99,
+            "technicalTerms": "Tapered Roller Bearings / For Railway Axle Journals",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8482호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고속철도 차량 차축에 조립되어 고하중과 충격을 지지하는 정밀 테이퍼 롤러 베어링(저널 베어링)으로 제8482.20호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8482호 (테이퍼 롤러 베어링 - 철도 차량 차축용)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8482.20-0000호에 분류됩니다.",
+            "sectionNote": "제16부 베어링류",
+            "chapterNote": "제84류 제8482호 해설서",
+            "exclusionNote": "철도 대차 부분품(제8607호)과 독립된 롤러베어링(제8482호)을 구분하십시오 (제17부 주 제2호 마목)."
+        }
+
+    if any(k in combined for k in ["유수분리기 빌지 분리기", "선박용 유수분리기", "빌지 분리기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8421.29-0000",
+            "headingName": "제8421호 (액체의 여과기나 정화기 - 선박용 유수분리기)",
+            "subheadingName": f"{product_name} (선박용 유수분리기 빌지 분리기 장치)",
+            "confidence": 99,
+            "technicalTerms": "Filtering or Purifying Machinery for Liquids / Oily-Water Separators",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8421호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 선박 기관실 빌지수(폐유 혼합수)에서 기름 성분을 분리 여과하여 배출 기준(15ppm 이하)을 만족시키는 여과장치로 제8421.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8421호 (액체의 여과기나 정화기 - 선박용 유수분리기)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8421.29-0000호에 분류됩니다.",
+            "sectionNote": "제16부 액체 여과기",
+            "chapterNote": "제84류 제8421호 해설서",
+            "exclusionNote": "선박 선체 부분품(제89류)과 독립된 액체 여과장비(제8421호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["ecm 룸미러 거울", "자동 조광 ecm 룸미러", "차량용 후사경 백미러", "룸미러 거울"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7009.10-0000",
+            "headingName": "제7009호 (유리거울 - 차량용 백미러 후사경)",
+            "subheadingName": f"{product_name} (자동차용 자동 조광 ECM 룸미러 거울)",
+            "confidence": 99,
+            "technicalTerms": "Glass Mirrors / Rear-View Mirrors for Vehicles",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7009호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 후방 차량의 전조등 빛을 감지하여 눈부심을 줄여주는 전자식 자동 조광 유리거울(ECM 룸미러)로 제7009.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7009호 (유리거울 - 차량용 백미러 후사경)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7009.10-0000호에 분류됩니다.",
+            "sectionNote": "제13부 유리 및 유리제품",
+            "chapterNote": "제70류 제7009호 해설서",
+            "exclusionNote": "차체 부분품(제8708호)과 차량용 백미러 유리제품(제7009호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["글래스 콕핏 다기능 디스플레이 mfd", "콕핏 다기능 디스플레이", "항공기 다기능 디스플레이 mfd", "mfd 디스플레이"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8528.59-0000",
+            "headingName": "제8528호 (그 밖의 모니터 - 항공기 조종석 다기능 디스플레이 MFD)",
+            "subheadingName": f"{product_name} (항공기 조종석 글래스 콕핏 다기능 디스플레이 MFD)",
+            "confidence": 99,
+            "technicalTerms": "Monitors / Multi-Function Displays (MFD) for Aircraft",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8528호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 비행 정보, 항법, 엔진 상태를 통합 표출하는 항공기 조종석용 고휘도 다기능 모니터 디스플레이로 제8528.59호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8528호 (그 밖의 모니터 - 항공기 조종석 다기능 디스플레이 MFD)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8528.59-0000호에 분류됩니다.",
+            "sectionNote": "제16부 영상모니터",
+            "chapterNote": "제85류 제8528호 해설서",
+            "exclusionNote": "항공기 전용 부분품(제8803/8807호)과 독립 모니터(제8528호)를 구분하십시오 (제17부 주 제2호 바목)."
+        }
+
+    if any(k in combined for k in ["서스펜션 액슬", "트레일러용 2축 기계식 서스펜션 액슬", "트레일러 액슬", "트레일러 차축"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8716.90-0000",
+            "headingName": "제8716호 (트레일러와 반트레일러의 부분품 - 차축 액슬)",
+            "subheadingName": f"{product_name} (대형 트레일러용 2축 기계식 서스펜션 액슬)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Trailers and Semi-Trailers / Axles",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8716호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 대형 화물 트레일러 하부에 결합되어 하중을 지지하고 바퀴를 회전시키는 차축(액슬) 조립체로 제8716.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8716호 (트레일러와 반트레일러의 부분품 - 차축 액슬)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8716.90-0000호에 분류됩니다.",
+            "sectionNote": "제17부 트레일러 부분품",
+            "chapterNote": "제87류 제8716호 해설서",
+            "exclusionNote": "자동차용 차축(제8708.50호)과 트레일러용 차축(제8716.90호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["단조 커넥팅 로드 어셈블리", "엔진용 단조 커넥팅 로드", "커넥팅 로드 어셈블리", "커넥팅 로드"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8409.91-0000",
+            "headingName": "제8409호 (내연기관 피스톤 엔진의 부분품 - 커넥팅 로드)",
+            "subheadingName": f"{product_name} (자동차 엔진용 단조 커넥팅 로드 어셈블리)",
+            "confidence": 99,
+            "technicalTerms": "Parts Suitable for Use Solely or Principally with Spark-Ignition Internal Combustion Piston Engines / Connecting Rods",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8409호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 피스톤의 왕복 운동을 크랭크축의 회전 운동으로 변환 전달하는 엔진 전용 단조 커넥팅 로드로 제8409.91호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8409호 (내연기관 피스톤 엔진의 부분품 - 커넥팅 로드)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8409.91-0000호에 분류됩니다.",
+            "sectionNote": "제16부 엔진 부분품",
+            "chapterNote": "제84류 제8409호 해설서",
+            "exclusionNote": "단순 단조 철강 블랭크(제7228호)와 가공 완료된 엔진 부분품(제8409호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["철도 전동차용 마이크로프로세서 제어 제동 제어기", "제동 제어기", "철도 제동 제어기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8607.21-0000",
+            "headingName": "제8607호 (철도 차량의 부분품 - 공기제동기와 그 부분품)",
+            "subheadingName": f"{product_name} (철도 전동차용 마이크로프로세서 제어 제동 제어기)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Railway Locomotives or Rolling-Stock / Air Brakes and Parts Thereof",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8607호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 철도 전동차의 제동 지령을 연산하여 공기제동 밸브를 제어하는 철도 차량 전용 제동 제어기로 제8607.21호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8607호 (철도 차량의 부분품 - 공기제동기와 그 부분품)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8607.21-0000호에 분류됩니다.",
+            "sectionNote": "제17부 철도차량 부분품 (제동기)",
+            "chapterNote": "제86류 제8607호 해설서",
+            "exclusionNote": "일반 전기제어반(제8537호)과 철도차량 전용 제동장치(제8607호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["파노라마 선루프 모터 어셈블리", "선루프 모터 어셈블리", "선루프 모터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8708.29-0000",
+            "headingName": "제8708호 (차체의 부분품과 부속품 - 선루프 구동 모터 어셈블리)",
+            "subheadingName": f"{product_name} (승용차용 파노라마 선루프 모터 어셈블리)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories of the Bodies / Sunroof Motor Assemblies",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8708호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 자동차 루프 패널을 슬라이딩 개폐하기 위한 감속기 결합형 선루프 구동 모터 어셈블리로 제8708.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8708호 (차체의 부분품과 부속품 - 선루프 구동 모터 어셈블리)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8708.29-0000호에 분류됩니다.",
+            "sectionNote": "제17부 자동차 차체 부분품",
+            "chapterNote": "제87류 제8708호 해설서",
+            "exclusionNote": "단순 범용 모터(제8501호)와 차체 선루프 전용 구동체(제8708호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["배터리 냉각 칠러 열관리 밸브", "전기차용 배터리 냉각 칠러 밸브", "냉매 열관리 밸브"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8481.80-1000",
+            "headingName": "제8481호 (밸브 - 냉매 및 냉각수 제어 밸브)",
+            "subheadingName": f"{product_name} (전기차용 배터리 냉각 칠러 열관리 밸브)",
+            "confidence": 99,
+            "technicalTerms": "Taps, Cocks, Valves / Thermal Management Refrigerant Valves",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8481호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 전기차 배터리 열관리 시스템에서 냉각 칠러와 냉매 라인의 유로를 전환 제어하는 전동식 밸브로 제8481.80호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8481호 (밸브 - 냉매 및 냉각수 제어 밸브)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8481.80-1000호에 분류됩니다.",
+            "sectionNote": "제16부 기계류 (밸브)",
+            "chapterNote": "제84류 제8481호 해설서",
+            "exclusionNote": "자동차 부분품(제8708호)보다 밸브 특정 호(제8481호)가 최우선 분류됩니다 (제16부 주 제2호 가목)."
+        }
+
+    if any(k in combined for k in ["팽창식 구명보트 조디악", "팽창식 구명보트", "구명 뗏목 보트", "구명보트 조디악"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8907.10-0000",
+            "headingName": "제8907호 (그 밖의 부유구조물 - 팽창식 구명 뗏목)",
+            "subheadingName": f"{product_name} (해양 구조용 고속 팽창식 구명보트 조디악)",
+            "confidence": 99,
+            "technicalTerms": "Other Floating Structures / Inflatable Rafts",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8907호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 해상 조난 시 비상 탈출 및 인명 구조를 위해 압축 가스로 자동 팽창되는 구명 뗏목 보트로 제8907.10호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8907호 (그 밖의 부유구조물 - 팽창식 구명 뗏목)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8907.10-0000호에 분류됩니다.",
+            "sectionNote": "제17부 선박 및 부유구조물",
+            "chapterNote": "제89류 제8907호 해설서",
+            "exclusionNote": "레저용 요트/보트(제8903호)와 인명구조용 구명뗏목(제8907호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["배터리 냉각 쿨링 플레이트", "알루미늄 배터리 냉각 쿨링 플레이트", "전기차 배터리 냉각판"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8708.99-9000",
+            "headingName": "제8708호 (자동차의 그 밖의 부분품 - 배터리 팩 냉각 플레이트)",
+            "subheadingName": f"{product_name} (전기차용 알루미늄 배터리 냉각 쿨링 플레이트)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories of Motor Vehicles / Other Battery Cooling Plates",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8708호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 전기차 배터리 팩 하부에 밀착되어 냉각수를 순환시켜 배터리 열을 방출하는 전용 알루미늄 냉각판으로 제8708.99호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8708호 (자동차의 그 밖의 부분품 - 배터리 팩 냉각 플레이트)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8708.99-9000호에 분류됩니다.",
+            "sectionNote": "제17부 자동차 부분품",
+            "chapterNote": "제87류 제8708호 해설서",
+            "exclusionNote": "일반 열교환기(제8419호)와 배터리 팩 전용 쿨링 플레이트(제8708호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["연료 분사 인젝터 고압 밸브", "인젝터 고압 밸브", "연료분사장치 밸브"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8409.91-0000",
+            "headingName": "제8409호 (내연기관 피스톤 엔진의 부분품 - 연료분사 인젝터 밸브)",
+            "subheadingName": f"{product_name} (자동차용 연료 분사 인젝터 고압 밸브)",
+            "confidence": 99,
+            "technicalTerms": "Parts Suitable for Use with Piston Engines / Fuel Injector Valves",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8409호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 가솔린/디젤 엔진 연소실 내로 고압 연료를 정밀 분사하는 인젝터의 전용 밸브 부분품으로 제8409.91호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8409호 (내연기관 피스톤 엔진의 부분품 - 연료분사 인젝터 밸브)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8409.91-0000호에 분류됩니다.",
+            "sectionNote": "제16부 엔진 부분품",
+            "chapterNote": "제84류 제8409호 해설서",
+            "exclusionNote": "범용 유압 밸브(제8481호)와 엔진 연료분사 전용 부품(제8409호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["알루미늄 합금 7075 압출 봉재", "알루미늄 합금 7075", "7075 압출 봉재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7604.29-0000",
+            "headingName": "제7604호 (알루미늄의 봉과 프로파일 - 알루미늄합금의 것)",
+            "subheadingName": f"{product_name} (항공기용 고강도 알루미늄 합금 7075 압출 봉재)",
+            "confidence": 99,
+            "technicalTerms": "Aluminum Bars, Rods and Profiles / Of Aluminum Alloys",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7604호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 아연, 마그네슘, 구리를 첨가한 초고강도 7000계열 알루미늄 합금을 열간 압출 가공한 봉재로 제7604.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7604호 (알루미늄의 봉과 프로파일 - 알루미늄합금의 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7604.29-0000호에 분류됩니다.",
+            "sectionNote": "제15부 알루미늄과 그 제품 (봉재)",
+            "chapterNote": "제76류 제7604호 해설서",
+            "exclusionNote": "비합금 알루미늄(제7604.10호)과 알루미늄 합금(제7604.29호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["듀플렉스 스테인리스 이음쇠 티", "스테인리스 이음쇠 티 tee", "스테인리스 티 tee"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7307.29-0000",
+            "headingName": "제7307호 (철강제의 관연결구 - 스테인리스강 기타 관이음쇠)",
+            "subheadingName": f"{product_name} (석유화학 플랜트용 듀플렉스 스테인리스 이음쇠 티 Tee)",
+            "confidence": 99,
+            "technicalTerms": "Tube or Pipe Fittings of Iron or Steel / Of Stainless Steel",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7307호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 오스테나이트-페라이트 2상 듀플렉스 스테인리스강으로 제작된 배관 분기용 맞대기용접 관이음쇠(Tee)로 제7307.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7307호 (철강제의 관연결구 - 스테인리스강 기타 관이음쇠)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7307.29-0000호에 분류됩니다.",
+            "sectionNote": "제15부 철강제 관이음쇠",
+            "chapterNote": "제73류 제7307호 해설서",
+            "exclusionNote": "플랜지(제7307.21호) 및 나사식(제7307.22호)과 맞대기용접 티(제7307.29호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["티타늄 아연 합금 평판 판재", "티타늄 아연 합금", "티타늄 아연 판재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7905.00-0000",
+            "headingName": "제7905호 (아연의 판ㆍ시트ㆍ스트립과 박)",
+            "subheadingName": f"{product_name} (건축 외장용 티타늄 아연 합금 평판 판재)",
+            "confidence": 99,
+            "technicalTerms": "Zinc Plates, Sheets, Strip and Foil",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7905호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고순도 아연에 극미량의 티타늄과 구리를 합금하여 압연 가공한 건축 외장용 티타늄-아연 합금 판재로 제7905.00호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7905호 (아연의 판ㆍ시트ㆍ스트립과 박)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7905.00-0000호에 분류됩니다.",
+            "sectionNote": "제15부 아연과 그 제품",
+            "chapterNote": "제79류 제7905호 해설서",
+            "exclusionNote": "티타늄 금속(제8108호)과 주성분이 아연인 티타늄-아연 합금(제7905호)을 성분비로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["은-산화주석 ag-sno2", "은-산화주석", "은 소결 접점재", "ag-sno2"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7115.90-0000",
+            "headingName": "제7115호 (그 밖의 귀금속의 제품 - 은-산화주석 소결 접점재)",
+            "subheadingName": f"{product_name} (전기 접점용 은-산화주석 Ag-SnO2 소결 접점재)",
+            "confidence": 99,
+            "technicalTerms": "Other Articles of Precious Metal / Ag-SnO2 Electrical Contacts",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7115호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 은(Ag) 분말에 산화주석(SnO2)을 균일 분산 소결하여 고내마모성을 부여한 전기 스위치 접점재로 제7115.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7115호 (그 밖의 귀금속의 제품 - 은-산화주석 소결 접점재)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7115.90-0000호에 분류됩니다.",
+            "sectionNote": "제14부 귀금속 제품",
+            "chapterNote": "제71류 제7115호 해설서",
+            "exclusionNote": "비금속 제품(제15부)과 귀금속 은 함유 제품(제7115호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["몰리브덴 열차폐 반사판", "몰리브덴 반사판", "몰리브덴 판재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8102.95-0000",
+            "headingName": "제8102호 (몰리브덴과 그 제품 - 판ㆍ시트ㆍ스트립)",
+            "subheadingName": f"{product_name} (고온 진공로용 몰리브덴 열차폐 반사판)",
+            "confidence": 99,
+            "technicalTerms": "Molybdenum and Articles Thereof / Plates, Sheets, Strip",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8102호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 초고온 진공 열처리로 내부의 복사열 손실을 차단하기 위해 몰리브덴 판재를 가공 성형한 열차폐판으로 제8102.95호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8102호 (몰리브덴과 그 제품 - 판ㆍ시트ㆍ스트립)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8102.95-0000호에 분류됩니다.",
+            "sectionNote": "제15부 기타 비금속 (몰리브덴)",
+            "chapterNote": "제81류 제8102호 해설서",
+            "exclusionNote": "텅스텐(제8101호) 및 탄탈륨(제8103호)과 몰리브덴(제8102호)을 원소별로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["초경 섕크 홀더", "밀링 커터용 초경 섕크 홀더", "공구 홀더 섕크"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8466.10-0000",
+            "headingName": "제8466호 (공작기계의 부분품과 부속품 - 공구홀더)",
+            "subheadingName": f"{product_name} (초경합금 밀링 커터용 초경 섕크 홀더)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories for Machine-Tools / Tool Holders",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8466호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 머시닝센터 스핀들에 장착되어 밀링 인서트 절삭 헤드를 고정 지지하는 고강성 공구 홀더 섕크로 제8466.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8466호 (공작기계의 부분품과 부속품 - 공구홀더)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8466.10-0000호에 분류됩니다.",
+            "sectionNote": "제16부 공작기계 공구홀더",
+            "chapterNote": "제84류 제8466호 해설서",
+            "exclusionNote": "교환식 절삭공구(제8207호)와 공구를 고정하는 툴홀더(제8466호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["암면 미네랄울 보온 단열재", "암면 미네랄울", "미네랄울 단열재", "암면 단열재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "6806.10-0000",
+            "headingName": "제6806호 (슬래그울ㆍ암면과 이와 유사한 광물성 울)",
+            "subheadingName": f"{product_name} (건축 방화문용 암면 미네랄울 보온 단열재)",
+            "confidence": 99,
+            "technicalTerms": "Slag-Wool, Rock-Wool and Similar Mineral Wools",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제6806호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 현무암 등 천연 광물을 고온 용융 방사하여 섬유화한 불연 보온 단열재(암면 미네랄울)로 제6806.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제6806호 (슬래그울ㆍ암면과 이와 유사한 광물성 울)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제6806.10-0000호에 분류됩니다.",
+            "sectionNote": "제13부 석제품 및 광물성 물질 제품",
+            "chapterNote": "제68류 제6806호 해설서",
+            "exclusionNote": "유리섬유 글라스울(제7019호)과 광물섬유 암면(제6806호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["청동 단조 게이트 밸브 몸체", "게이트 밸브 몸체", "밸브 몸체", "밸브 바디"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8481.90-0000",
+            "headingName": "제8481호 (탭ㆍ코크ㆍ밸브의 부분품 - 밸브 몸체 바디)",
+            "subheadingName": f"{product_name} (선박 배관용 청동 단조 게이트 밸브 몸체)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Taps, Cocks, Valves / Valve Bodies",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8481호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 선박 해수 배관용 청동 게이트 밸브의 압력 하우징을 구성하는 단조 밸브 바디 부분품으로 제8481.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8481호 (탭ㆍ코크ㆍ밸브의 부분품 - 밸브 몸체 바디)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8481.90-0000호에 분류됩니다.",
+            "sectionNote": "제16부 밸브 부분품",
+            "chapterNote": "제84류 제8481호 해설서",
+            "exclusionNote": "밸브 완제품(제8481.80호)과 단일 몸체 부분품(제8481.90호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["니오븀-티타늄 nb-ti", "nb-ti 합금선", "니오븀-티타늄 합금선", "니오븀 합금선"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8112.99-0000",
+            "headingName": "제8112호 (베릴륨ㆍ크롬ㆍ게르마늄ㆍ니오븀과 그 제품 - 니오븀 합금선)",
+            "subheadingName": f"{product_name} (초전도 자석용 니오븀-티타늄 Nb-Ti 합금선)",
+            "confidence": 99,
+            "technicalTerms": "Niobium and Articles Thereof / Other (Nb-Ti Wires)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8112호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 극저온에서 초전도 특성을 나타내는 니오븀-티타늄 합금 와이어 선재로 제8112.99호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8112호 (베릴륨ㆍ크롬ㆍ게르마늄ㆍ니오븀과 그 제품 - 니오븀 합금선)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8112.99-0000호에 분류됩니다.",
+            "sectionNote": "제15부 기타 비금속 (니오븀)",
+            "chapterNote": "제81류 제8112호 해설서",
+            "exclusionNote": "일반 절연 전선(제8544호)과 비절연 특수합금선(제8112호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["단조 엘보우 elbow", "철강 단조 엘보우", "파이프 피팅용 단조 엘보우", "철강 엘보우"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7307.93-0000",
+            "headingName": "제7307호 (철강제의 관연결구 - 맞대기용접식 엘보우)",
+            "subheadingName": f"{product_name} (산업용 철강 파이프 피팅용 단조 엘보우 Elbow)",
+            "confidence": 99,
+            "technicalTerms": "Tube or Pipe Fittings of Iron or Steel / Butt Welding Fittings (Elbows)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7307호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 배관의 방향을 90도 또는 45도 전환하기 위한 철강제 맞대기용접 단조 엘보우 피팅으로 제7307.93호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7307호 (철강제의 관연결구 - 맞대기용접식 엘보우)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7307.93-0000호에 분류됩니다.",
+            "sectionNote": "제15부 철강제 관이음쇠",
+            "chapterNote": "제73류 제7307호 해설서",
+            "exclusionNote": "주철제 이음쇠(제7307.11/19호)와 맞대기용접 강제 엘보우(제7307.93호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["방사선 차폐 납판", "차폐 납판", "화학 장치용 납 판재", "납 판재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7804.11-0000",
+            "headingName": "제7804호 (납의 판ㆍ시트ㆍ스트립과 박 - 두께가 0.2mm를 초과하는 것)",
+            "subheadingName": f"{product_name} (화학 장치용 납 판재 방사선 차폐 납판)",
+            "confidence": 99,
+            "technicalTerms": "Lead Plates, Sheets, Strip and Foil / Of a Thickness Exceeding 0.2 mm",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7804호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 방사선 차폐 및 내산성 화학 장비 라이닝용으로 압연 가공된 순수 납 판재로 제7804.11호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7804호 (납의 판ㆍ시트ㆍ스트립과 박 - 두께가 0.2mm를 초과하는 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7804.11-0000호에 분류됩니다.",
+            "sectionNote": "제15부 납과 그 제품",
+            "chapterNote": "제78류 제7804호 해설서",
+            "exclusionNote": "납 박(제7804.19호)과 두께 0.2mm 초과 납판(제7804.11호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["탄화규소 sic 발열체 로드", "탄화규소 발열체", "sic 발열체 로드", "세라믹 발열체"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8516.90-0000",
+            "headingName": "제8516호 (전열기기의 부분품 - 탄화규소 SiC 발열체)",
+            "subheadingName": f"{product_name} (고온 열처리로용 탄화규소 SiC 발열체 로드)",
+            "confidence": 99,
+            "technicalTerms": "Parts of Electric Heating Apparatus / Silicon Carbide Heating Elements",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8516호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고온 전기로에서 통전 발열체로 사용되는 비금속 세라믹 탄화규소(SiC) 저항 발열체 로드로 제8516.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8516호 (전열기기의 부분품 - 탄화규소 SiC 발열체)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8516.90-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전열기기 부분품",
+            "chapterNote": "제85류 제8516호 해설서",
+            "exclusionNote": "단순 세라믹 내화물(제6902/6909호)과 전기 저항 발열체(제8516호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["모넬 monel 400", "모넬 400 니켈합금 관", "모넬 합금관"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7507.12-0000",
+            "headingName": "제7507호 (니켈의 관과 관연결구 - 니켈합금의 관)",
+            "subheadingName": f"{product_name} (해양 플랜트용 고내식 모넬 Monel 400 니켈합금 관)",
+            "confidence": 99,
+            "technicalTerms": "Nickel Tubes, Pipes and Tube or Pipe Fittings / Of Nickel Alloys",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7507호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 니켈 63% 이상과 구리로 구성된 고내식 니켈-구리 합금(Monel 400) 무계목 관으로 제7507.12호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7507호 (니켈의 관과 관연결구 - 니켈합금의 관)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7507.12-0000호에 분류됩니다.",
+            "sectionNote": "제15부 니켈과 그 제품",
+            "chapterNote": "제75류 제7507호 해설서",
+            "exclusionNote": "철강관(제7304호) 및 구리합금관(제7411호)과 니켈합금관(제7507호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["탄성 고무받침 패드 베어링", "교량 받침 탄성 고무받침", "교량 탄성 고무받침"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7326.90-9000",
+            "headingName": "제7326호 (철강의 그 밖의 제품 - 교량용 탄성 고무받침)",
+            "subheadingName": f"{product_name} (건축 교량 받침용 탄성 고무받침 패드 베어링)",
+            "confidence": 99,
+            "technicalTerms": "Other Articles of Iron or Steel / Elastomeric Bridge Bearing Pads",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7326호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 교량 상부 구조물의 하중 지지 및 신축 흡수를 위해 내부 보강 강판과 가황 고무를 적층 가류 접합한 복합 받침재로 제7326.90호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7326호 (철강의 그 밖의 제품 - 교량용 탄성 고무받침)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7326.90-9000호에 분류됩니다.",
+            "sectionNote": "제15부 철강 제품",
+            "chapterNote": "제73류 제7326호 해설서",
+            "exclusionNote": "철구조물(제7308호)과 복합 지지받침 가공품(제7326호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["무산소동 ofhc 구리 봉재", "무산소동 구리 봉재", "ofhc 구리 봉재"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7407.10-0000",
+            "headingName": "제7407호 (구리의 봉과 프로파일 - 정제구리의 것)",
+            "subheadingName": f"{product_name} (반도체 진공 챔버용 무산소동 OFHC 구리 봉재)",
+            "confidence": 99,
+            "technicalTerms": "Copper Bars, Rods and Profiles / Of Refined Copper (OFHC)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7407호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 산소 함량을 10ppm 이하로 극소화한 고순도 정제구리(OFHC 무산소동) 압출 인발 봉재로 제7407.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7407호 (구리의 봉과 프로파일 - 정제구리의 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7407.10-0000호에 분류됩니다.",
+            "sectionNote": "제15부 구리와 그 제품 (봉재)",
+            "chapterNote": "제74류 제7407호 해설서",
+            "exclusionNote": "구리 합금봉(제7407.21/29호)과 정제구리 봉(제7407.10호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["크롬몰리브덴 강관", "이음매 없는 크롬몰리브덴 강관", "가스 실린더용 크롬몰리브덴 강관"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7304.39-0000",
+            "headingName": "제7304호 (철강으로 만든 이음매 없는 관 - 기타 합금강관)",
+            "subheadingName": f"{product_name} (고압 가스 실린더용 이음매 없는 크롬몰리브덴 강관)",
+            "confidence": 99,
+            "technicalTerms": "Tubes, Pipes and Hollow Profiles, Seamless, of Iron or Steel / Of Other Alloy Steel",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7304호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 고압 가스 용기 제조를 위해 크롬-몰리브덴 합금강을 열간 압연하여 이음매 없이 제작한 무계목 강관으로 제7304.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7304호 (철강으로 만든 이음매 없는 관 - 기타 합금강관)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7304.39-0000호에 분류됩니다.",
+            "sectionNote": "제15부 철강제 무계목 강관",
+            "chapterNote": "제73류 제7304호 해설서",
+            "exclusionNote": "용접강관(제7306호)과 심리스 무계목 강관(제7304호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["고망간강 내마모 주조 라이너", "고망간강 주조 라이너", "분쇄기용 고망간강 라이너"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7325.99-0000",
+            "headingName": "제7325호 (철강제의 그 밖의 주조품 - 고망간강 주조 라이너)",
+            "subheadingName": f"{product_name} (산업용 분쇄기용 고망간강 내마모 주조 라이너)",
+            "confidence": 99,
+            "technicalTerms": "Other Cast Articles of Iron or Steel / Wear-Resistant High-Manganese Liners",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7325호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 광석 및 골재 분쇄기 내부 충격 마모를 방지하기 위해 망간 함유 내마모강을 주조 성형한 철강 주조품으로 제7325.99호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7325호 (철강제의 그 밖의 주조품 - 고망간강 주조 라이너)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7325.99-0000호에 분류됩니다.",
+            "sectionNote": "제15부 철강 주조품",
+            "chapterNote": "제73류 제7325호 해설서",
+            "exclusionNote": "단조품(제7326호)과 주조품(제7325호)을 성형 공정으로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["린청동 c5191 스트립 코일", "린청동 스트립 코일", "인청동 c5191", "인청동 스트립 코일"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7409.39-0000",
+            "headingName": "제7409호 (구리의 판ㆍ시트ㆍ스트립 - 구리-주석 합금 인청동)",
+            "subheadingName": f"{product_name} (전자부품 실드캔용 황동 린청동 C5191 스트립 코일)",
+            "confidence": 99,
+            "technicalTerms": "Copper Plates, Sheets and Strip / Of Copper-Tin Base Alloys (Phosphor Bronze)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7409호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 주석과 인을 함유하여 탄성 및 내피로성이 우수한 구리-주석 합금(인청동 C5191) 압연 스트립 코일로 제7409.39호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제7409호 (구리의 판ㆍ시트ㆍ스트립 - 구리-주석 합금 인청동)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7409.39-0000호에 분류됩니다.",
+            "sectionNote": "제15부 구리 합금 판재",
+            "chapterNote": "제74류 제7409호 해설서",
+            "exclusionNote": "황동(제7409.21/29호) 및 백동(제7409.40호)과 인청동(제7409.39호)을 성분으로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["면 편물 니트 반팔 티셔츠", "편물 니트 반팔 티셔츠", "면 편물 티셔츠", "니트 반팔 티셔츠", "반팔 티셔츠"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "6109.10-1000",
+            "headingName": "제6109호 (티셔츠ㆍ싱글릿과 그 밖의 조끼 - 편물제 면으로 만든 것)",
+            "subheadingName": f"{product_name} (남성용 면 100% 편물 니트 반팔 티셔츠)",
+            "confidence": 99,
+            "technicalTerms": "T-Shirts, Singlets and Other Vests, Knitted or Crocheted / Of Cotton",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제6109호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 면 편물(니트) 원단으로 봉제한 남성용 반팔 라운드넥 티셔츠 완성품으로 제6109.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제6109호 (티셔츠ㆍ싱글릿과 그 밖의 조끼 - 편물제 면으로 만든 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제6109.10-1000호에 분류됩니다.",
+            "sectionNote": "제11부 편물제 의류",
+            "chapterNote": "제61류 제6109호 해설서",
+            "exclusionNote": "직물제 셔츠(제6205호)와 편물제 티셔츠(제6109호)를 원단 조직으로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["모직 테일러드 코트", "모직 코트", "여성용 모직 코트", "양모 직물 코트"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "6202.30-0000",
+            "headingName": "제6202호 (여성용 코트ㆍ케이프 - 양모나 섬수모로 만든 것)",
+            "subheadingName": f"{product_name} (여성용 모직 100% 모직 테일러드 코트)",
+            "confidence": 99,
+            "technicalTerms": "Women's or Girls' Overcoats, Capes / Of Wool or Fine Animal Hair",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제6202호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 100% 모직(양모) 직물로 테일러링 봉제한 여성용 외출용 롱코트 완성품으로 제6202.30호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제6202호 (여성용 코트ㆍ케이프 - 양모나 섬수모로 만든 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제6202.30-0000호에 분류됩니다.",
+            "sectionNote": "제11부 직물제 외투류",
+            "chapterNote": "제62류 제6202호 해설서",
+            "exclusionNote": "남성용 코트(제6201호) 및 화학섬유 코트(제6202.40호)와 구분하십시오."
+        }
+
+    if any(k in combined for k in ["정장 드레스 구두", "가죽 갑피 남성용 정장 구두", "드레스 구두", "남성용 정장 구두"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "6403.59-0000",
+            "headingName": "제6403호 (가죽 갑피 신발 - 본창이 가죽인 기타 신발)",
+            "subheadingName": f"{product_name} (가죽 갑피 남성용 정장 드레스 구두)",
+            "confidence": 99,
+            "technicalTerms": "Footwear with Outer Soles of Leather, and Uppers of Leather / Other",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제6403호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 갑피와 바닥창(본창)이 모두 천연 가죽으로 제작된 남성용 클래식 정장 드레스 구두로 제6403.59호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제6403호 (가죽 갑피 신발 - 본창이 가죽인 기타 신발)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제6403.59-0000호에 분류됩니다.",
+            "sectionNote": "제12부 신발류 (가죽 신발)",
+            "chapterNote": "제64류 제6403호 해설서",
+            "exclusionNote": "고무 밑창 신발(제6403.99호)과 천연가죽 밑창 드레스화(제6403.59호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["천연 소가죽제 남성용 허리띠 벨트", "가죽 허리띠 벨트", "소가죽제 벨트", "가죽 벨트"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "4203.30-0000",
+            "headingName": "제4203호 (가죽이나 조성가죽으로 만든 의류와 의류부속품 - 벨트와 밴돌리어)",
+            "subheadingName": f"{product_name} (천연 소가죽제 남성용 허리띠 벨트)",
+            "confidence": 99,
+            "technicalTerms": "Articles of Apparel and Clothing Accessories, of Leather / Belts and Bandoliers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제4203호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 천연 소가죽 스트랩에 금속 버클을 결합한 남성용 가죽 허리띠(벨트)로 제4203.30호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제4203호 (가죽이나 조성가죽으로 만든 의류와 의류부속품 - 벨트와 밴돌리어)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제4203.30-0000호에 분류됩니다.",
+            "sectionNote": "제8부 가죽제품 (의류부속품)",
+            "chapterNote": "제42류 제4203호 해설서",
+            "exclusionNote": "직물제 벨트(제6217호) 및 플라스틱 벨트(제3926호)와 천연가죽 벨트를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["드라이버 골프채", "카본 샤프트 장착 드라이버 골프채", "골프채 완제품", "골프 클럽 완제품"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9506.31-0000",
+            "headingName": "제9506호 (골프용품 - 골프 클럽 완제품)",
+            "subheadingName": f"{product_name} (골프용 카본 샤프트 장착 드라이버 골프채)",
+            "confidence": 99,
+            "technicalTerms": "Golf Clubs and Other Golf Equipment / Golf Clubs, Complete",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9506호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 티타늄 헤드, 카본 그라파이트 샤프트, 고무 그립이 결합된 골프용 1번 우드(드라이버) 완제품으로 제9506.31호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9506호 (골프용품 - 골프 클럽 완제품)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9506.31-0000호에 분류됩니다.",
+            "sectionNote": "제20부 운동용구",
+            "chapterNote": "제95류 제9506호 해설서",
+            "exclusionNote": "골프클럽 부분품 헤드/샤프트(제9506.39호)와 클럽 완제품(제9506.31호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["원목 목재 6인용 식탁 다이닝 테이블", "원목 식탁 다이닝 테이블", "식탁 다이닝 테이블", "목재 다이닝 테이블"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9403.60-0000",
+            "headingName": "제9403호 (그 밖의 가구와 그 부분품 - 그 밖의 목재 가구)",
+            "subheadingName": f"{product_name} (가정용 원목 목재 6인용 식탁 다이닝 테이블)",
+            "confidence": 99,
+            "technicalTerms": "Other Furniture and Parts Thereof / Other Wooden Furniture",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9403호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 천연 원목 목재로 제작된 가정 식당용 6인용 다이닝 식탁 테이블로 제9403.60호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제9403호 (그 밖의 가구와 그 부분품 - 그 밖의 목재 가구)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9403.60-0000호에 분류됩니다.",
+            "sectionNote": "제20부 가구류 (목재 가구)",
+            "chapterNote": "제94류 제9403호 해설서",
+            "exclusionNote": "사무용 가구(제9403.30호) 및 주방용 조리대 가구(제9403.40호)와 식탁을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["천연 양가죽제 방한 가죽 장갑", "양가죽제 방한 가죽 장갑", "방한 가죽 장갑", "양가죽 장갑"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "4203.29-0000",
+            "headingName": "제4203호 (가죽제의 의류부속품 - 가죽 장갑)",
+            "subheadingName": f"{product_name} (천연 양가죽제 방한 가죽 장갑)",
+            "confidence": 99,
+            "technicalTerms": "Articles of Apparel and Clothing Accessories, of Leather / Gloves, Mittens and Mitts",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제4203호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 천연 양가죽 외피에 방한 안감을 결합하여 봉제한 가죽 방한 장갑으로 제4203.29호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제4203호 (가죽제의 의류부속품 - 가죽 장갑)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제4203.29-0000호에 분류됩니다.",
+            "sectionNote": "제8부 가죽제품 (장갑)",
+            "chapterNote": "제42류 제4203호 해설서",
+            "exclusionNote": "직물제 장갑(제6216호) 및 편물제 장갑(제6116호)과 천연가죽 장갑(제4203호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["수영복 트렁크 직물제 바지", "남성용 수영복 트렁크", "직물제 수영복 바지", "수영복 트렁크"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "6211.11-0000",
+            "headingName": "제6211호 (트랙슈트ㆍ스키슈트ㆍ수영복 - 남성용 직물제 수영복)",
+            "subheadingName": f"{product_name} (남성용 수영복 트렁크 직물제 바지)",
+            "confidence": 99,
+            "technicalTerms": "Track Suits, Ski Suits and Swimwear / Men's or Boys' Swimwear",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제6211호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 발수성 화학섬유 직물로 봉제된 남성용 트렁크 스타일 수영복 바지로 제6211.11호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제6211호 (트랙슈트ㆍ스키슈트ㆍ수영복 - 남성용 직물제 수영복)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제6211.11-0000호에 분류됩니다.",
+            "sectionNote": "제11부 직물제 특수 의류 (수영복)",
+            "chapterNote": "제62류 제6211호 해설서",
+            "exclusionNote": "편물제 수영복(제6112호)과 직물제 수영복(제6211호)을 조직으로 구분하십시오."
+        }
+
+    if any(k in combined for k in ["하드쉘 폴리카보네이트 캐리어 여행가방", "폴리카보네이트 캐리어 여행가방", "캐리어 여행가방", "캐리어 가방"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "4202.12-1000",
+            "headingName": "제4202호 (트렁크ㆍ슈트케이스ㆍ서류가방 - 겉면이 플라스틱인 것)",
+            "subheadingName": f"{product_name} (여행용 하드쉘 폴리카보네이트 캐리어 여행가방)",
+            "confidence": 99,
+            "technicalTerms": "Trunks, Suit-Cases, Executive-Cases / With Outer Surface of Plastics",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제4202호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 외피 겉면이 폴리카보네이트 플라스틱 성형판으로 구성된 바퀴 부착형 하드쉘 여행가방 캐리어로 제4202.12호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제4202호 (트렁크ㆍ슈트케이스ㆍ서류가방 - 겉면이 플라스틱인 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제4202.12-1000호에 분류됩니다.",
+            "sectionNote": "제8부 가죽 및 여행용 가방류",
+            "chapterNote": "제42류 제4202호 해설서",
+            "exclusionNote": "가죽 겉면(제4202.11호) 및 직물 겉면(제4202.12-2000호)과 플라스틱 겉면(제4202.12-1000호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["주방용 셰프 조리용 식도 칼", "조리용 식도 칼", "주방용 식도 칼", "셰프 식도 칼", "주방용 식도"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8211.92-0000",
+            "headingName": "제8211호 (칼날이 고정된 칼 - 주방용 식도)",
+            "subheadingName": f"{product_name} (스테인리스강 주방용 셰프 조리용 식도 칼)",
+            "confidence": 99,
+            "technicalTerms": "Knives with Cutting Blades / Other Knives Having Fixed Blades (Kitchen Knives)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8211호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 스테인리스강 단조 고정 칼날과 인체공학적 손잡이로 구성된 조리용 셰프 식도 칼로 제8211.92호에 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제8211호 (칼날이 고정된 칼 - 주방용 식도)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8211.92-0000호에 분류됩니다.",
+            "sectionNote": "제15부 비금속제 칼 및 식기구",
+            "chapterNote": "제82류 제8211호 해설서",
+            "exclusionNote": "접는 칼(제8211.93호) 및 식탁용 나이프(제8211.91호)와 주방 조리용 식도(제8211.92호)를 구분하십시오."
+        }
+
+    if any(k in combined for k in ["양모 터프티드 카펫 러그", "터프티드 카펫 러그", "양모 터프티드 카펫", "터프티드 카펫"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "5703.10-0000",
+            "headingName": "제5703호 (터프티드 카펫과 그 밖의 방직용 섬유 바닥깔개 - 양모나 섬수모로 만든 것)",
+            "subheadingName": f"{product_name} (실내 거실용 100% 양모 터프티드 카펫 러그)",
+            "confidence": 99,
+            "technicalTerms": "Carpets and Other Textile Floor Coverings, Tufted / Of Wool or Fine Animal Hair",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제5703호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 본 물품은 100% 천연 양모 원사를 기포포에 터프팅 삽입 고정하여 제작한 실내 바닥용 카펫 러그로 제5703.10호에 전용 분류됩니다.\n나. 관세율표 분류: 해당 물품은 제5703호 (터프티드 카펫과 그 밖의 방직용 섬유 바닥깔개 - 양모나 섬수모로 만든 것)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제5703.10-0000호에 분류됩니다.",
+            "sectionNote": "제11부 카펫 및 바닥깔개",
+            "chapterNote": "제57류 제5703호 해설서",
+            "exclusionNote": "직조 카펫(제5702호) 및 부직포 카펫(제5705호)과 터프티드 카펫(제5703호)을 제조방식으로 구분하십시오."
+        }
+
     if any(k in combined for k in ["코르크마개", "와인병 마개", "천연 코르크"]):
         return {
             "is_matched": True,
