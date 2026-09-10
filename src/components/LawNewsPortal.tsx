@@ -172,6 +172,28 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     { name: '관세청 공식 홈페이지', url: 'https://www.customs.go.kr/', desc: '관세청 공식 보도자료 및 공지사항 바로가기' }
   ];
 
+  const getNaverNewsUrl = (title: string) => {
+    if (!title) return 'https://search.naver.com/search.naver?where=news&query=%EA%B4%80%EC%84%B8%EC%B2%AD';
+    const clean = title
+      .replace(/^\[[^\]]+\]\s*/g, '')
+      .replace(/\([^\)]+\)$/g, '')
+      .replace(/\s*-\s*[가-힣a-zA-Z0-9\s]+$/g, '')
+      .trim();
+    const searchKeyword = clean.length >= 3 ? clean : title;
+    return `https://search.naver.com/search.naver?where=news&query=${encodeURIComponent(searchKeyword)}`;
+  };
+
+  const getDaumNewsUrl = (title: string) => {
+    if (!title) return 'https://search.daum.net/search?w=news&q=%EA%B4%80%EC%84%B8%EC%B2%AD';
+    const clean = title
+      .replace(/^\[[^\]]+\]\s*/g, '')
+      .replace(/\([^\)]+\)$/g, '')
+      .replace(/\s*-\s*[가-힣a-zA-Z0-9\s]+$/g, '')
+      .trim();
+    const searchKeyword = clean.length >= 3 ? clean : title;
+    return `https://search.daum.net/search?w=news&q=${encodeURIComponent(searchKeyword)}`;
+  };
+
   const filteredNotices = notices.filter(n => 
     (n.title || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
     (n.summary || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -510,9 +532,9 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                           {notice.summary}
                         </p>
 
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap', gap: '8px' }}>
                           <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>담당: <b style={{ color: '#1e293b' }}>{notice.agency}</b></span>
-                          <div style={{ display: 'flex', gap: '6px' }}>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                             <button
                               onClick={() => setSelectedNoticeModal(notice)}
                               style={{ 
@@ -520,7 +542,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                                 color: '#0369a1', 
                                 background: '#f0f9ff',
                                 padding: '4px 10px',
-                                borderRadius: '4px',
+                                borderRadius: '6px',
                                 border: '1px solid #bae6fd',
                                 cursor: 'pointer',
                                 fontWeight: 700,
@@ -535,7 +557,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                               <BookOpen size={12} /> 본문 전문 보기
                             </button>
                             <a 
-                              href={notice.link && notice.link.startsWith('http') ? notice.link : `https://search.naver.com/search.naver?where=news&query=${encodeURIComponent(notice.title)}`}
+                              href={getNaverNewsUrl(notice.title)}
                               target="_blank" 
                               rel="noopener noreferrer"
                               style={{ 
@@ -545,18 +567,43 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                                 display: 'flex', 
                                 alignItems: 'center', 
                                 gap: '4px', 
-                                fontWeight: 700,
+                                fontWeight: 800,
                                 background: '#f0fdf4',
                                 padding: '4px 10px',
-                                borderRadius: '4px',
-                                border: '1px solid #bbf7d0',
+                                borderRadius: '6px',
+                                border: '1px solid #86efac',
                                 transition: 'all 0.15s ease'
                               }}
                               onMouseEnter={(e) => e.currentTarget.style.background = '#dcfce7'}
                               onMouseLeave={(e) => e.currentTarget.style.background = '#f0fdf4'}
+                              title="네이버 뉴스에서 관련 기사 실시간 검색"
                             >
-                              <Search size={12} /> 네이버 뉴스 원문 <ExternalLink size={11} />
+                              <Search size={12} /> 네이버 뉴스 검색 <ExternalLink size={11} />
                             </a>
+                            {notice.link && notice.link.startsWith('http') && !notice.link.includes('search.naver.com') && !notice.link.includes('news.google.com') && (
+                              <a 
+                                href={notice.link}
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                style={{ 
+                                  fontSize: '0.78rem', 
+                                  color: '#475569', 
+                                  textDecoration: 'none', 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: '4px', 
+                                  fontWeight: 700,
+                                  background: '#f8fafc',
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  border: '1px solid #cbd5e1',
+                                  transition: 'all 0.15s ease'
+                                }}
+                                title="관세청 공식 공문 바로가기"
+                              >
+                                <ExternalLink size={11} /> 공식 공문
+                              </a>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1044,10 +1091,56 @@ ${selectedNoticeModal.full_content || selectedNoticeModal.summary}`}
               padding: '16px 24px',
               borderTop: '1.5px solid #e2e8f0',
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
               alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '10px',
               background: '#f8fafc'
             }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <a
+                  href={getNaverNewsUrl(selectedNoticeModal.title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '0.8rem',
+                    color: '#009743',
+                    fontWeight: 800,
+                    background: '#f0fdf4',
+                    border: '1px solid #86efac',
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    textDecoration: 'none'
+                  }}
+                  title="네이버 뉴스에서 관련 기사 실시간 검색"
+                >
+                  <Search size={13} /> 네이버 뉴스 검색 <ExternalLink size={11} />
+                </a>
+                <a
+                  href={getDaumNewsUrl(selectedNoticeModal.title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    fontSize: '0.8rem',
+                    color: '#2563eb',
+                    fontWeight: 800,
+                    background: '#eff6ff',
+                    border: '1px solid #bfdbfe',
+                    padding: '7px 12px',
+                    borderRadius: '6px',
+                    textDecoration: 'none'
+                  }}
+                  title="다음 뉴스에서 관련 기사 실시간 검색"
+                >
+                  <Search size={13} /> 다음 뉴스 검색 <ExternalLink size={11} />
+                </a>
+              </div>
               <button
                 onClick={() => setSelectedNoticeModal(null)}
                 style={{

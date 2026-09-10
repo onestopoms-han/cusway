@@ -96,6 +96,12 @@ def clean_and_crawl_real_news():
                     elif "평가" in clean_title or "과세" in clean_title:
                         tag = "관세 평가"
 
+                    # Clean and create reliable direct Naver News search URL
+                    if "news.google.com" in raw_link or not raw_link.startswith("http"):
+                        final_link = f"https://search.naver.com/search.naver?where=news&query={urllib.parse.quote(clean_title)}"
+                    else:
+                        final_link = raw_link
+
                     full_content = f"""[{clean_title}]
 【실제 보도 언론 / 소관기관】 관세청 및 유관 통관기관 (발행일: {formatted_date})
 
@@ -104,17 +110,17 @@ def clean_and_crawl_real_news():
 
 ■ 2. 관세 실무 시사점
 - 관련 품목 및 수출입 신고 시 관세청 최신 통관 지침 및 규정 준수 필요
-- 상세 전문은 하단의 원문 바로가기 링크를 통해 확인하실 수 있습니다.
+- 상세 전문은 하단의 네이버 뉴스 검색 및 원문 바로가기 링크를 통해 확인하실 수 있습니다.
 
-■ 3. 원문 링크
-{raw_link}"""
+■ 3. 관련 뉴스 검색
+{final_link}"""
 
                     attached_files = json.dumps([], ensure_ascii=False)
 
                     cursor.execute("""
                         INSERT INTO customs_news (tag, title, date, agency, summary, link, full_content, attached_files)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (tag, clean_title, formatted_date, "관세청 / 언론 보도", clean_desc[:150], raw_link, full_content, attached_files))
+                    """, (tag, clean_title, formatted_date, "관세청 / 언론 보도", clean_desc[:150], final_link, full_content, attached_files))
                     collected += 1
                     print(f"  + [실제 뉴스] {clean_title} ({formatted_date})")
         except Exception as e:
