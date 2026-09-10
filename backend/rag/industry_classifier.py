@@ -218,19 +218,29 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "기계의 영구 장착 부품이 아닌 소모성 플라스틱 연마재(제39류)로 분류됩니다."
         }
 
-    if any(k in combined for k in ["마이크로 스피커", "마이크로스피커", "초소형 스피커", "스피커", "loudspeaker"]):
+    if any(k in combined for k in ["마이크로 스피커", "마이크로스피커", "초소형 스피커", "스피커", "loudspeaker", "리시버 스피커"]):
+        is_telecom_narrowband = any(k in combined for k in ["통신용", "음성통신", "300hz", "3.4khz", "50mm", "리시버", "음성용"])
+        recommended_code = "8518.29-1000" if is_telecom_narrowband else "8518.29-9000"
+        subhead_desc = "통신용 - 지름 50mm 이하, 300Hz~3.4kHz, 하우징 없음" if is_telecom_narrowband else "기타 (광대역 멀티미디어 및 일반 마이크로 스피커)"
+        
         return {
             "is_matched": True,
-            "recommendedHsCode": "8518.29-1000",
-            "headingName": "제8518호 (마이크로폰ㆍ확성기 - 단일 확성기 소형)",
-            "subheadingName": f"{product_name} (모바일 스마트폰용 초소형 마이크로 스피커)",
+            "recommendedHsCode": recommended_code,
+            "headingName": f"제8518호 (확성기 - 인클로저에 수납되지 않은 것: {subhead_desc})",
+            "subheadingName": f"{product_name} ({subhead_desc})",
             "confidence": 99,
             "technicalTerms": "Micro Loudspeaker / Single Loudspeaker Not in Enclosure",
             "appliedGris": ["통칙 제1호", "통칙 제6호", "제8518호 해설서"],
-            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전기 음향 신호를 음파 진동으로 변환하는 모바일 기기용 초소형 마이크로 확성기 유닛입니다.\n나. 관세율표 분류: 인클로저에 수납되지 않은 단일 확성기는 제8518.29호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8518.29-1000호에 분류됩니다.",
+            "legalReasoning": (
+                f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전기 음향 신호를 음파 진동으로 변환하는 모바일 기기용 초소형 마이크로 확성기 유닛입니다.\n"
+                f"나. 관세율표 분류: 인클로저에 수납되지 않은 단일 확성기는 제8518.29호에 분류되며, "
+                + (f"통신용 규격(지름 50mm 이하, 주파수대역 300Hz~3.4kHz, 하우징 미장착) 요건을 충족하여 HSK 제8518.29-1000호에 분류됩니다.\n" if is_telecom_narrowband
+                   else f"음성전용 협대역 규격(300Hz~3.4kHz)이 특정되지 않은 일반 마이크로 스피커이므로 HSK 제8518.29-9000호(기타)에 분류됩니다.\n")
+                + f"다. 적용 관세율: 기본세율 8%이나, WTO 정보기술협정(ITA) 양허 대상 품목으로서 WTO 협정세율(C) 0.0%(무세)가 최우선 적용됩니다."
+            ),
             "sectionNote": "제16부 음향 기기",
             "chapterNote": "제85류 제8518호 해설서",
-            "exclusionNote": "통신용 이어폰/헤드폰(제8518.30호)과 단품 스피커(제8518.29호)를 구분하십시오."
+            "exclusionNote": "인클로저 장착 여부(제8518.21호/8518.22호 vs 8518.29호) 및 통신용 협대역 규격(8518.29-1000 vs 8518.29-9000)을 명확히 구분하십시오."
         }
 
     if any(k in combined for k in ["plc", "프로그래머블 로직 컨트롤러", "수치제어반", "배전반", "제어반"]):
