@@ -581,88 +581,146 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                     );
                   })}
                   
-                  {/* Always Visible Enhanced Pagination Controls with Page Numbers */}
-                  <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginTop: '14px',
-                    paddingTop: '12px',
-                    borderTop: '1.5px solid #e2e8f0'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                        style={{
-                          border: '1px solid #cbd5e1',
-                          background: currentPage === 1 ? '#f8fafc' : '#ffffff',
-                          color: currentPage === 1 ? '#94a3b8' : '#0f172a',
-                          padding: '5px 12px',
-                          borderRadius: '6px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        이전
-                      </button>
+                  {/* 10-Page Block Pagination Controls */}
+                  {(() => {
+                    const totalPages = Math.max(1, Math.ceil(filteredNotices.length / 5));
+                    const pageBlockSize = 10;
+                    const currentBlock = Math.floor((currentPage - 1) / pageBlockSize);
+                    const startPage = currentBlock * pageBlockSize + 1;
+                    const endPage = Math.min(totalPages, (currentBlock + 1) * pageBlockSize);
+                    const pageNumbers = [];
+                    for (let p = startPage; p <= endPage; p++) {
+                      pageNumbers.push(p);
+                    }
 
-                      {Array.from({ length: Math.max(1, Math.ceil(filteredNotices.length / 5)) }).map((_, pIdx) => {
-                        const pageNum = pIdx + 1;
-                        const isActive = pageNum === currentPage;
-                        return (
+                    return (
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginTop: '14px',
+                        paddingTop: '12px',
+                        borderTop: '1.5px solid #e2e8f0'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                          {/* First Page Button */}
                           <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            title="첫 페이지"
                             style={{
-                              minWidth: '32px',
-                              height: '32px',
-                              border: isActive ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
-                              background: isActive ? '#0284c7' : '#ffffff',
-                              color: isActive ? '#ffffff' : '#334155',
-                              padding: '0 8px',
+                              border: '1px solid #cbd5e1',
+                              background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                              color: currentPage === 1 ? '#94a3b8' : '#0f172a',
+                              padding: '5px 8px',
                               borderRadius: '6px',
-                              fontSize: '0.82rem',
-                              fontWeight: 800,
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease',
-                              boxShadow: isActive ? '0 2px 6px rgba(2, 132, 199, 0.3)' : 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
+                              fontSize: '0.76rem',
+                              fontWeight: 700,
+                              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.15s ease'
                             }}
                           >
-                            {pageNum}
+                            « 처음
                           </button>
-                        );
-                      })}
 
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredNotices.length / 5), prev + 1))}
-                        disabled={currentPage === Math.max(1, Math.ceil(filteredNotices.length / 5))}
-                        style={{
-                          border: '1px solid #cbd5e1',
-                          background: currentPage === Math.max(1, Math.ceil(filteredNotices.length / 5)) ? '#f8fafc' : '#ffffff',
-                          color: currentPage === Math.max(1, Math.ceil(filteredNotices.length / 5)) ? '#94a3b8' : '#0f172a',
-                          padding: '5px 12px',
-                          borderRadius: '6px',
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                          cursor: currentPage === Math.max(1, Math.ceil(filteredNotices.length / 5)) ? 'not-allowed' : 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        다음
-                      </button>
-                    </div>
+                          {/* Previous Page Button */}
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            title="이전 페이지"
+                            style={{
+                              border: '1px solid #cbd5e1',
+                              background: currentPage === 1 ? '#f8fafc' : '#ffffff',
+                              color: currentPage === 1 ? '#94a3b8' : '#0f172a',
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            ‹ 이전
+                          </button>
 
-                    <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>
-                      ⚡ 관세청 행정고시 및 유니패스 개정 정보가 실시간으로 계속 누적 집계됩니다. (총 {filteredNotices.length}건)
-                    </div>
-                  </div>
+                          {/* Page Number Buttons (1~10 per block) */}
+                          {pageNumbers.map(pageNum => {
+                            const isActive = pageNum === currentPage;
+                            return (
+                              <button
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                style={{
+                                  minWidth: '32px',
+                                  height: '32px',
+                                  border: isActive ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
+                                  background: isActive ? '#0284c7' : '#ffffff',
+                                  color: isActive ? '#ffffff' : '#334155',
+                                  padding: '0 8px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.82rem',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.15s ease',
+                                  boxShadow: isActive ? '0 2px 6px rgba(2, 132, 199, 0.3)' : 'none',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
+
+                          {/* Next Page Button */}
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                            title="다음 페이지"
+                            style={{
+                              border: '1px solid #cbd5e1',
+                              background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                              color: currentPage === totalPages ? '#94a3b8' : '#0f172a',
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            다음 ›
+                          </button>
+
+                          {/* Last Page Button */}
+                          <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            title="마지막 페이지"
+                            style={{
+                              border: '1px solid #cbd5e1',
+                              background: currentPage === totalPages ? '#f8fafc' : '#ffffff',
+                              color: currentPage === totalPages ? '#94a3b8' : '#0f172a',
+                              padding: '5px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.76rem',
+                              fontWeight: 700,
+                              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            끝 »
+                          </button>
+                        </div>
+
+                        <div style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 600 }}>
+                          ⚡ 관세청 행정고시 및 유니패스 개정 정보가 실시간으로 계속 누적 집계됩니다. (총 {filteredNotices.length}건, {totalPages}페이지)
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </>
               ) : (
                 <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
