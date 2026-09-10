@@ -8,15 +8,16 @@ Food, Agricultural, Fishery, Dairy, Sugar, Beverage & Feed items (Chapters 01~24
 import re
 
 FOOD_TRIGGER_PATTERNS = [
-    r"해물", r"수산", r"어육", r"연어", r"어묵", r"맛살", r"문어", r"낙지", r"오징어", r"새우", r"게",
+    r"해물", r"수산물", r"수산가공", r"어육", r"연어", r"어묵", r"맛살", r"문어", r"낙지", r"오징어", r"새우", r"꽃게", r"대게", r"킹크랩", r"바다가재", r"게살",
     r"송어", r"참치", r"고등어", r"명태", r"어분", r"참깨", r"들깨", r"깨가루", r"깨분말", r"치아시드",
-    r"해바라기씨", r"닭", r"가슴살", r"돼지", r"소고기", r"우육", r"돈육", r"계육", r"개구리", r"녹용",
-    r"돈모", r"원유", r"우유", r"분유", r"전지분유", r"탈지분유", r"유청", r"치즈", r"버터", r"벌꿀",
-    r"로열젤리", r"파프리카", r"버섯", r"표고버섯", r"트러플", r"송이", r"두리안", r"무화과", r"망고",
+    r"해바라기씨", r"닭", r"가슴살", r"돼지", r"소고기", r"쇠고기", r"우육", r"안심", r"정육", r"돈육", r"계육", r"개구리", r"녹용",
+    r"돈모", r"원유", r"우유", r"분유", r"전지분유", r"탈지분유", r"유청", r"치즈", r"(?<!인)버터", r"벌꿀",
+    r"로열젤리", r"파프리카", r"버섯", r"표고버섯", r"트러플", r"송이버섯", r"두리안", r"무화과", r"망고",
     r"크랜베리", r"과실", r"정향", r"바닐라", r"향신료", r"후추", r"계피", r"퀴노아", r"전분", r"밀가루",
-    r"올리브유", r"들기름", r"참기름", r"팜유", r"코코아", r"초콜릿", r"캔디", r"사탕", r"설탕", r"시럽",
-    r"파스타", r"스파게티", r"면류", r"그래놀라", r"시리얼", r"김치", r"퓨레", r"녹차", r"홍차", r"커피",
-    r"효모", r"이스트", r"맥주박", r"주정", r"에틸알코올", r"미네랄워터", r"탄산수", r"생수", r"음료"
+    r"올리브유", r"들기름", r"참기름", r"팜유", r"코코아", r"초콜릿", r"캔디", r"사탕", r"설탕", r"백설탕", r"시럽",
+    r"파스타", r"스파게티", r"면류", r"그래놀라", r"시리얼", r"김치", r"퓨레", r"녹차", r"홍차", r"커피", r"원두",
+    r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
+    r"식초", r"발사믹", r"다시마", r"해조류", r"된장", r"메주", r"간장", r"고추장"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -51,7 +52,25 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "단순 건조 바닐라 빈(제0905호)과 정제/추출된 조제 향료(제3302호)를 구분하십시오."
         }
 
-    # 2. 제23류: 사료용 조제품, 어분, 맥주박
+    # 2. 제23류: 사료용 조제품, 어분, 맥주박, 대두박
+    if any(k in combined for k in ["대두박", "탈지 대두박", "대두 깻묵", "soybean meal"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2304.00-0000",
+            "headingName": "제2304호 (대두유의 추출박 및 찌꺼기)",
+            "subheadingName": f"{product_name} (가축 사료용 탈지 대두박)",
+            "confidence": 99,
+            "technicalTerms": "Oil-Cake and Other Solid Residues Resulting from the Extraction of Soya-Bean Oil",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제23류 제2304호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 대두에서 콩기름(대두유)을 추출한 후 남은 고단백 잔재물로 가축 배합사료 원료로 사용하는 대두박입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 대두유 추출 시 발생하는 찌꺼기 및 박은 제2304호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2304.00-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제식료품ㆍ사료 (유지 추출박)",
+            "chapterNote": "제23류 제2304호 해설서",
+            "exclusionNote": "대두 원두(제1201호) 및 대두 단백질 분리물(제3504호)과 구분하십시오."
+        }
     if any(k in combined for k in ["맥주박", "양조박", "증류박"]):
         return {
             "is_food": True,
@@ -90,6 +109,24 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 3. 제22류: 음료, 주류, 식초
+    if any(k in combined for k in ["식초", "발사믹", "포도 식초", "vinegar"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2209.00-1000",
+            "headingName": "제2209호 (식초와 초산으로 만든 식초 대용물 - 포도식초)",
+            "subheadingName": f"{product_name} (이탈리아산 숙성 발사믹 포도 식초)",
+            "confidence": 99,
+            "technicalTerms": "Vinegar and Substitutes for Vinegar / Balsamic Wine Vinegar",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제22류 제2209호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 포도즙을 농축하여 오크통에서 장기 발효 숙성한 산도 6% 이상의 조미용 발사믹 식초입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 발효 포도 식초는 제2209.00-1000호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2209.00-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 음료, 주류 및 식초",
+            "chapterNote": "제22류 제2209호 해설서 (식초)",
+            "exclusionNote": "화학 합성 초산(제2915호)과 식용 발효 식초(제2209호)를 구분하십시오."
+        }
     if any(k in combined for k in ["에틸알코올", "에탄올", "주정", "비변성"]):
         return {
             "is_food": True,
@@ -125,6 +162,44 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "sectionNote": "제4부 음료, 주류 및 조제식료품",
             "chapterNote": "제22류 제2201호 해설서 (천연 또는 인조 광천수 및 탄산수)",
             "exclusionNote": "설탕이나 향미료가 첨가된 가당 탄산음료(제2202호)와 구분하십시오."
+        }
+
+    # 4. 제21류: 각종 조제식료품, 효모, 커피/차 추출물, 된장/소스류
+    if any(k in combined for k in ["된장", "메주", "발효 소스", "간장", "고추장", "soybean paste"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2103.90-1010",
+            "headingName": "제2103호 (소스와 소스용 조제품 - 된장)",
+            "subheadingName": f"{product_name} (전통 발효 메주 대두 된장 소스)",
+            "confidence": 99,
+            "technicalTerms": "Sauces and Preparations Thereof / Fermented Soybean Paste (Doenjang)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제21류 제2103호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 삶은 대두로 만든 메주를 소금물에 담가 발효 숙성시킨 전통 장류 조제 조미 소스입니다.\n"
+                f"나. 관세율표 분류: 전통 된장 및 조제 소스는 제2103.90-1010호에 전용 분류됩니다.\n"
+                f"다. 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2103.90-1010호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제식료품 (소스류)",
+            "chapterNote": "제21류 제2103호 해설서 (된장 및 조미 소스)",
+            "exclusionNote": "단순 대두 콩(제1201호)과 발효 가공 소스(제2103호)를 구분하십시오."
+        }
+    if any(k in combined for k in ["인스턴트 커피", "블랙커피 분말", "인스턴트 블랙커피", "커피 추출물", "커피 엑기스", "instant coffee"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2101.11-1000",
+            "headingName": "제2101호 (커피의 추출물ㆍ에센스ㆍ농축물 - 인스턴트 커피)",
+            "subheadingName": f"{product_name} (동결건조 인스턴트 블랙커피 분말)",
+            "confidence": 99,
+            "technicalTerms": "Extracts, Essences and Concentrates of Coffee / Instant Coffee",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제21류 제2101호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 볶은 원두커피에서 수용성 성분을 열수 추출 농축 후 동결건조한 인스턴트 수용성 블랙커피 분말입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 볶은 원두(제0901호)와 달리 물 추출 공정을 거친 추출물 및 가공 분말은 제2101.11호에 분류됩니다.\n"
+                f"다. 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2101.11-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제식료품 (커피 추출물)",
+            "chapterNote": "제21류 제2101호 해설서",
+            "exclusionNote": "볶은 원두커피(제0901호)와 수용성 인스턴트 커피 분말(제2101호)을 구분하십시오."
         }
 
     # 4. 제21류: 각종 조제식료품, 효모, 차 추출물
@@ -165,7 +240,25 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "죽은 불활성 효모(제2102.20호) 및 일반 미생물 제제(제3002호)와 구분하십시오."
         }
 
-    # 5. 제20류: 채소, 과실, 견과류 조제품 (김치, 망고퓨레, 볶은 깨가루)
+    # 5. 제20류: 채소, 과실, 견과류 조제품 (김치, 망고퓨레, 볶은 깨가루, 오렌지주스)
+    if any(k in combined for k in ["오렌지 주스", "오렌지주스", "과실 주스", "과일 주스", "착즙 주스", "orange juice"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2009.12-0000",
+            "headingName": "제2009호 (과실이나 견과류의 주스 - 오렌지 주스)",
+            "subheadingName": f"{product_name} (압착 착즙 100% 순수 비동결 오렌지 주스)",
+            "confidence": 99,
+            "technicalTerms": "Fruit Juices / Orange Juice, Not Frozen",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제20류 제2009호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 신선한 오렌지 과실을 압착 착즙하여 비발포 밀봉 포장한 무가당 비동결 천연 과실 주스입니다.\n"
+                f"나. 관세율표 분류: 비동결 오렌지 주스는 제2009.12호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2009.12-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 과실 주스",
+            "chapterNote": "제20류 제2009호 해설서 (과실 주스)",
+            "exclusionNote": "인공 향료/색소가 첨가된 청량음료(제2202호)와 천연 과실 주스(제2009호)를 구분하십시오."
+        }
     if "김치" in combined:
         return {
             "is_food": True,
@@ -316,6 +409,24 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 8. 제17류: 당류 및 설탕과자
+    if any(k in combined for k in ["백설탕", "정제 설탕", "정제설탕", "사탕수수 설탕", "사탕수수 정제", "원당", "정제 백설탕", "solid sugar"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1701.99-0000",
+            "headingName": "제1701호 (사탕수수당이나 사탕무당 - 고형 정제당)",
+            "subheadingName": f"{product_name} (정제 사탕수수 백설탕)",
+            "confidence": 99,
+            "technicalTerms": "Cane or Beet Sugar and Chemically Pure Sucrose in Solid Form / Refined White Sugar",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1701호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 사탕수수 원당을 정제 및 재결정화 가공하여 제조한 순도 99.5% 이상의 고형 정제 백설탕입니다.\n"
+                f"나. 관세율표 분류: 향미나 착색제를 첨가하지 않은 고형의 기타 당은 제1701.99호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제1701.99-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 당류와 설탕과자 (정제당)",
+            "chapterNote": "제17류 제1701호 해설서",
+            "exclusionNote": "액상 당시럽(제1702호) 및 설탕과자 사탕(제1704호)과 고형 정제당(제1701호)을 구분하십시오."
+        }
     if any(k in combined for k in ["흑당 시럽", "흑당시럽", "흑당", "당시럽", "사탕수수 시럽", "사탕수수 농축", "사탕수수", "설탕 시럽", "포도당 시럽", "과당 시럽", "sugar syrup"]):
         return {
             "is_food": True,
@@ -967,6 +1078,86 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "sectionNote": "제1부 육류 (기타 육류)",
             "chapterNote": "제2류 제0208호 해설서 (개구리 다리)",
             "exclusionNote": "살아있는 개구리(제0106호)와 식용 육(제0208호)을 구분하십시오."
+        }
+
+    # 20. 제12류: 해조류, 다시마, 미역
+    if any(k in combined for k in ["다시마", "해조류", "건조 다시마", "seaweed", "kelp"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1212.21-1010",
+            "headingName": "제1212호 (해조류와 그 밖의 조류 - 식용 다시마)",
+            "subheadingName": f"{product_name} (소매포장 식용 건조 다시마)",
+            "confidence": 99,
+            "technicalTerms": "Seaweeds and Other Algae / Dried Kelp (Laminaria japonica)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제12류 제1212호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 청정 해역에서 채취한 천연 다시마를 세척 및 자연 건조하여 소매 포장한 식용 해조류입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 건조한 식용 해조류(다시마)는 관세율표 제1212.21호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제1212.21-1010호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (채종ㆍ종자ㆍ해조류)",
+            "chapterNote": "제12류 제1212호 해설서 (해조류 및 그 밖의 조류)",
+            "exclusionNote": "조미/구이 가공된 김/해조류 조제품(제2008호)과 단순 건조 다시마(제1212호)를 구분하십시오."
+        }
+
+    # 21. 제09류: 커피, 원두커피 (볶은 것)
+    if any(k in combined for k in ["볶은 원두커피", "볶은 커피", "원두커피", "아라비카 원두", "roasted coffee", "커피원두"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0901.21-0000",
+            "headingName": "제0901호 (커피 - 볶은 것, 카페인을 빼지 않은 것)",
+            "subheadingName": f"{product_name} (유기농 볶은 아라비카 원두커피)",
+            "confidence": 99,
+            "technicalTerms": "Coffee, Roasted, Not Decaffeinated / Arabica Roasted Coffee Beans",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9류 제0901호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 생두(Green bean)를 고온에서 로스팅(볶음) 열처리하여 향미를 발현시킨 미분쇄 볶은 원두커피입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 볶은 상태의 원두커피(카페인 미제거)는 제0901.21호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0901.21-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (커피ㆍ차ㆍ향신료)",
+            "chapterNote": "제9류 제0901호 해설서 (커피)",
+            "exclusionNote": "수용성 인스턴트 추출 분말(제2101호) 및 볶지 않은 생두(제0901.11호)와 구분하십시오."
+        }
+
+    # 22. 제03류: 어육, 필레 (고등어 필레)
+    if any(k in combined for k in ["고등어", "고등어 필레", "냉동 고등어", "mackerel fillet"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0304.89-1000",
+            "headingName": "제0304호 (어류의 필레와 그 밖의 어육 - 냉동 고등어 필레)",
+            "subheadingName": f"{product_name} (냉동 손질 노르웨이 고등어 필레)",
+            "confidence": 99,
+            "technicalTerms": "Fish Fillets and Other Fish Meat / Frozen Mackerel Fillets (Scomber scombrus)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3류 제0304호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 신선한 고등어의 머리, 내장, 뼈를 제거하고 좌우 근육 부위(필레)만을 포 떠서 급속 동결한 냉동 어육입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 뼈를 제거한 어류의 냉동 필레는 원형 냉동 어류(제0303호)가 아닌 제0304.89호에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0304.89-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제1부 어류 (어류의 필레)",
+            "chapterNote": "제3류 제0304호 해설서 (어류의 필레 및 기타 어육)",
+            "exclusionNote": "원형 냉동 어류(제0303호) 및 열처리 조리 통조림(제1604호)과 구분하십시오."
+        }
+
+    # 23. 제02류: 신선/냉장 소고기 정육 (소 안심)
+    if any(k in combined for k in ["소고기", "쇠고기", "소 안심", "우육", "소 정육", "beef loin", "tenderloin"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0201.30-0000",
+            "headingName": "제0201호 (소의 육 - 신선하거나 냉장한 뼈 없는 것)",
+            "subheadingName": f"{product_name} (신선 냉장 소 안심 정육)",
+            "confidence": 99,
+            "technicalTerms": "Meat of Bovine Animals, Fresh or Chilled / Boneless Cuts (Tenderloin)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2류 제0201호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 도축 후 발골 정형하여 0~4℃ 냉장 상태로 보관/유통되는 뼈 없는 신선 소고기 정육(안심)입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 신선 또는 냉장 상태의 뼈 없는 소고기는 제0201.30호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0201.30-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제1부 육류 (소의 육)",
+            "chapterNote": "제2류 제0201호 해설서 (소의 신선ㆍ냉장육)",
+            "exclusionNote": "냉동 소고기(제0202호) 및 가공 육류 조제품(제1602호)과 구분하십시오."
         }
 
     # Default fallback

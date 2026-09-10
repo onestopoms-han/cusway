@@ -585,6 +585,12 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
     if is_food_query(product_name):
         return classify_food_universally(product_name, material, function_use)
 
+    # 0-C. Universal Industry Classification Engine (기계, 화학, 소재, 광학, 모빌리티, 전자 등 전 산업 분야 정밀 판정)
+    from backend.rag.industry_classifier import classify_industry_item
+    ind_res = classify_industry_item(product_name, material, function_use)
+    if ind_res.get("is_matched"):
+        return ind_res
+
     # 0. HEADING_ANCHORS 기반 즉시 고정밀 복원
     from backend.rag.retriever import HEADING_ANCHORS
     from backend.models import HSCodeMaster, CustomsPrecedent
