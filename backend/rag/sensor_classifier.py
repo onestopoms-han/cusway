@@ -24,6 +24,7 @@ SENSOR_TRIGGER_WORDS = [
     "포토다이오드", "photodiode", "포토트랜지스터", "phototransistor", "써미스터",
     "서미스터", "thermistor", "열전대", "thermocouple", "레이더센서", "radar sensor",
     "산소센서", "가스센서", "압력센서", "유량센서", "온도센서", "습도센서", "수위센서",
+    "유량계", "유량 측정기", "전자기식 유량계", "flow meter",
     "리미트스위치", "limit switch", "마이크로스위치", "micro switch", "접점스위치"
 ]
 
@@ -38,6 +39,28 @@ def classify_sensor_universally(product_name: str, material: str = "", function_
     legal reasoning document for any sensor based on WCO Nomenclature and Korean Customs precedents.
     """
     combined = f"{product_name} {material} {function_use}".lower()
+
+    # -------------------------------------------------------------------------
+    # 0-0. Flow Meter / 유량계 / 유량 측정기 (제9026.10호)
+    # -------------------------------------------------------------------------
+    if any(k in combined for k in ["유량계", "유량 측정기", "유량측정기", "전자기식 유량계", "flow meter", "유량센서", "유량 센서"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "9026.10-1000",
+            "headingName": "제9026호 (액체나 기체의 유량ㆍ액면ㆍ압력이나 그 밖의 변수의 측정용이나 검사용 기기 - 유량계)",
+            "subheadingName": f"{product_name} (전자기식 유량계 유량 측정기)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Apparatus for Measuring or Checking the Flow or Level of Liquids / Flow Meters",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9026호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 배관 내 유체의 흐름 속도와 유량을 패러데이 전자기 유도 법칙 등에 따라 계측하는 유량계(Flow meter)입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 액체나 기체의 유량 측정 기기는 관세율표 제9026.10호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제9026.10-1000호에 확정 분류됩니다."
+            ),
+            "sectionNote": "제18부 정밀측정기기",
+            "chapterNote": "제90류 제9026호 해설서 (유량계)",
+            "exclusionNote": "온도계/압력계(제9025/9026호 타 소호) 및 범용 밸브(제8481호)와 구분하십시오."
+        }
 
     # -------------------------------------------------------------------------
     # 0-A. Priority Optical LiDAR & 3D Spatial Scanners (제9031호)

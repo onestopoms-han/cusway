@@ -24,7 +24,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 from backend.db import SessionLocal
 db = SessionLocal()
 
-from backend.rag.llm_chain import run_local_fallback_match
+from backend.rag.classification_processor import AICustomsClassificationProcessor
 
 NEW_300_TEST_CASES = [
     # 1. Electronics, Semiconductor, Telecom & Computing (50 items)
@@ -356,7 +356,7 @@ def run_all_new_300_benchmarks():
 
     for idx, (name, exp_hsk, exp_head, desc) in enumerate(NEW_300_TEST_CASES, 1):
         try:
-            res = run_local_fallback_match(name, "", desc, db)
+            res = AICustomsClassificationProcessor.run_classification_pipeline(product_name=name, material="", function_use=desc, db=db)
             got_hsk = res.get("recommendedHsCode", "")
             got_head = re.sub(r'[^\d]', '', got_hsk)[:4]
 

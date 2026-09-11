@@ -34,16 +34,16 @@ def detect_query_domain(product_name: str) -> tuple:
     if is_sensor_query(product_name):
         return ("SENSOR_INSTRUMENT", ["90", "85"])
 
-    # 3. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85)
-    if any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동"]):
-        return ("MACHINERY_ELEC", ["84", "85"])
+    # 3. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85, 90)
+    if any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동", "광섬유", "광케이블", "광통신"]):
+        return ("MACHINERY_ELEC", ["84", "85", "90"])
 
     # 4. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
     if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "선박", "보트", "항공기", "드론", "철도"]):
         return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89"])
 
     # 5. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
-    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "양말", "장갑", "모자", "가방", "섬유"]):
+    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "양말", "장갑", "모자", "가방"]) or ("섬유" in p_lower and not any(ex in p_lower for ex in ["광섬유", "유리섬유", "탄소섬유", "광케이블"])):
         return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 64)])
 
     # 6. Chemicals, Plastics & Rubber (Section 6 & 7: Chapters 28 ~ 40)

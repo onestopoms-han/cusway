@@ -25,6 +25,246 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
     # =========================================================================
     p_lower = product_name.lower().strip()
 
+    # 0-1. 방향성 규소강판 코일 / 전기강판 (제7225.11-0000) - 변압기/모터 간섭 방지
+    if any(k in p_lower for k in ["규소강판", "방향성 규소강판", "규소전기강판", "전기강판", "grain-oriented silicon electrical steel"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7225.11-0000",
+            "headingName": "제7225호 (그 밖의 합금강의 평판압연제품 - 폭이 600밀리미터 이상인 것 - 규소전기강판 - 방향성의 것)",
+            "subheadingName": f"{product_name} (변압기 철심용 방향성 규소강판 코일)",
+            "confidence": 99,
+            "technicalTerms": "Flat-rolled products of other alloy steel / Grain-oriented silicon electrical steel coils",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7225호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 변압기 철심 코어 제조에 사용되는 폭 600mm 이상의 방향성 규소전기강판 코일(Grain-oriented silicon steel)입니다.\n나. 관세율표 분류: 관세율표 제7225.11호는 방향성 규소전기강판의 평판압연제품을 전용 분류하며, HSK 제7225.11-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7225.11-0000호에 확정 분류됩니다.",
+            "sectionNote": "제15부 비금속과 그 제품",
+            "chapterNote": "제72류 철강 (제7225호)",
+            "exclusionNote": "변압기 완성품(제8504호)과 그 철심 원재료인 합금강 평판압연 강판(제7225호)을 명확히 구분하십시오."
+        }
+
+    # 0-2. 서보 모터 드라이브 / 모터 드라이버 앰프 / 인버터 (제8504.40-3010) - 모터(8501) 간섭 방지
+    if any(k in p_lower for k in ["모터 드라이브", "모터드라이브", "서보 드라이브", "서보드라이브", "모터 드라이버", "드라이브 앰프", "서보 앰프", "서보드라이브 앰프", "motor drive", "servo drive", "inverter drive"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8504.40-3010",
+            "headingName": "제8504호 (정지형 변환기 - 서보 모터 구동 드라이브 앰프 / 인버터)",
+            "subheadingName": f"{product_name} (산업용 정밀 서보 모터 드라이브 앰프)",
+            "confidence": 99,
+            "technicalTerms": "Static Converters / Servo Motor Drive Amplifiers, Inverters",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8504호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 상용 교류 또는 직류 전력을 입력받아 서보 모터 구동에 적합한 가변 전압/가변 주파수 전력으로 변환 증폭하는 서보 드라이브 전력변환기입니다.\n나. 관세율표 분류: 모터 구동용 인버터 및 드라이브 앰프는 정지형 변환기로서 제8504.40-3010호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8504.40-3010호에 확정 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8504호 해설서",
+            "exclusionNote": "구동 대상인 전동기 모터 자체(제8501호)와 전력 제어 드라이브 변환기(제8504호)를 구분하십시오."
+        }
+
+    # 0-3. 자동차 조향 컬럼 MDPS 조향장치 (제8708.94-0000) - 모터 간섭 방지
+    if any(k in p_lower for k in ["mdps", "스티어링 컬럼", "조향 컬럼", "파워 스티어링 컬럼", "스티어링 모터 컬럼", "조향장치"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8708.94-0000",
+            "headingName": "제8708호 (자동차의 부분품과 부속품 - 스티어링 휠ㆍ스티어링 컬럼ㆍ스티어링 박스)",
+            "subheadingName": f"{product_name} (자동차 전동 파워 스티어링 MDPS 모터 컬럼)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories of Motor Vehicles / Steering Columns and Boxes, MDPS Assembly",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8708호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 자동차 운전자의 조향 휠 조작력을 전동 모터와 감속 기구로 보조 전달하는 전동 파워 스티어링(MDPS) 조향 컬럼 어셈블리입니다.\n나. 관세율표 분류: 관세율표 제8708.94호는 자동차의 스티어링 컬럼 및 조향장치를 전용 분류하며, HSK 제8708.94-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8708.94-0000호에 확정 분류됩니다.",
+            "sectionNote": "제17부 수송기기",
+            "chapterNote": "제87류 제8708호 해설서",
+            "exclusionNote": "범용 모터(제8501호)가 아닌 자동차 전용 조향 컬럼 기구 어셈블리(제8708호)로 분류됩니다."
+        }
+
+    # 0-4. 전기 오토바이 / 스쿠터 모터 휠 (제8711.60-1000) - 모터 간섭 방지
+    if any(k in p_lower for k in ["전기 오토바이", "전기오토바이", "전기 스쿠터", "전기스쿠터", "전동 스쿠터", "전동스쿠터"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8711.60-1000",
+            "headingName": "제8711호 (모터사이클과 보조 모터를 갖춘 자전거 - 전동기 구동식)",
+            "subheadingName": f"{product_name} (전기 오토바이 스쿠터 구동용 모터 휠)",
+            "confidence": 99,
+            "technicalTerms": "Motorcycles and Cycles Fitted with an Auxiliary Motor / With Electric Motor for Propulsion",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8711호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전동 모터를 추진 동력원으로 장착한 전기 오토바이/스쿠터 구동 유닛입니다.\n나. 관세율표 분류: 전기 모터로 구동되는 오토바이 및 스쿠터는 제8711.60호에 전용 분류되며, HSK 제8711.60-1000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8711.60-1000호에 확정 분류됩니다.",
+            "sectionNote": "제17부 수송기기",
+            "chapterNote": "제87류 제8711호 해설서",
+            "exclusionNote": "일반 교류/직류 모터(제8501호)와 전동 구동식 이륜 모빌리티(제8711호)를 구분하십시오."
+        }
+
+    # 0-5. 선박용 선외 모터 엔진 (제8407.21-0000) - 모터 간섭 방지
+    if any(k in p_lower for k in ["선외 모터", "선외모터", "선외기", "아웃보드 모터", "아웃보드 엔진", "outboard motor"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8407.21-0000",
+            "headingName": "제8407호 (왕복식 또는 로터리 피스톤 불꽃점화식 내연기관 - 선박 추진용 엔진 - 선외 모터)",
+            "subheadingName": f"{product_name} (해양 요트용 아웃보드 선외 모터 엔진)",
+            "confidence": 99,
+            "technicalTerms": "Spark-Ignition Reciprocating Internal Combustion Piston Engines / Marine Propulsion - Outboard Motors",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8407호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 소형 요트나 선박 선미 외측에 장착하여 추진력과 방향 전환을 동시에 제공하는 불꽃점화식 선외 모터(Outboard engine)입니다.\n나. 관세율표 분류: 선박 추진용 선외 모터 엔진은 관세율표 제8407.21호에 전용 특게되어 있으며, HSK 제8407.21-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8407.21-0000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 기계류",
+            "chapterNote": "제84류 제8407호 해설서",
+            "exclusionNote": "전기 모터(제8501호)와 선박 추진용 내연기관 선외 모터(제8407호)를 구분하십시오."
+        }
+
+    # 0-6. 전기 자전거 구동 모터 키트 / 자전거 부분품 (제8714.99-0000) - 모터 간섭 방지
+    if any(k in p_lower for k in ["전기 자전거", "전기자전거"]) and any(x in p_lower for x in ["키트", "모터 키트", "구동 키트", "센터드라이브"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8714.99-0000",
+            "headingName": "제8714호 (모터사이클과 자전거의 부분품과 부속품 - 기타)",
+            "subheadingName": f"{product_name} (전기 자전거용 센터드라이브 구동 모터 키트)",
+            "confidence": 99,
+            "technicalTerms": "Parts and Accessories of Vehicles of Headings 8711 to 8713 / E-Bike Drive Kits",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8714호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 일반 자전거 프레임 중앙 비비쉘(BB)에 장착하여 페달 보조 전동 구동력을 전달하는 전기 자전거 전용 센터드라이브 모터 개조 키트입니다.\n나. 관세율표 분류: 자전거 전용 부분품 및 부속품 세트는 제8714.99호에 분류되며, HSK 제8714.99-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8714.99-0000호에 확정 분류됩니다.",
+            "sectionNote": "제17부 수송기기",
+            "chapterNote": "제87류 제8714호 해설서",
+            "exclusionNote": "범용 모터(제8501호)가 아닌 자전거 전용 구동 모터 키트(제8714호)로 분류됩니다."
+        }
+
+    # 0-7. 자동차 시트 전동 조절기 / 시트 프레임 (제9401.99-0000) - 모터 간섭 방지
+    if any(k in p_lower for k in ["시트 조절기", "시트조절기", "시트 프레임", "시트프레임", "전동 시트 프레임", "모터 시트 조절기"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9401.99-0000",
+            "headingName": "제9401호 (의자와 그 부분품 - 부분품 - 기타)",
+            "subheadingName": f"{product_name} (자동차 시트용 4방향 전동 모터 시트 조절기 프레임)",
+            "confidence": 99,
+            "technicalTerms": "Seats and Parts Thereof / Parts of Seats - Power Seat Adjuster Frames",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9401호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 자동차 시트 하부에 장착되어 탑승자의 체형에 맞게 시트 위치와 각도를 전동 조절하는 모터 일체형 시트 조절기 프레임 메커니즘입니다.\n나. 관세율표 분류: 차량용 시트의 전용 부분품은 관세율표 제9401.99호에 전용 분류되며, HSK 제9401.99-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9401.99-0000호에 확정 분류됩니다.",
+            "sectionNote": "제20부 잡품 (가구ㆍ침구ㆍ의자)",
+            "chapterNote": "제94류 제9401호 해설서 (의자의 부분품)",
+            "exclusionNote": "범용 모터(제8501호)나 차체 부품(제8708호)이 아닌 의자 전용 부분품(제9401호)으로 분류됩니다."
+        }
+
+    # 0-8. 광섬유 케이블 / 단일모드 광통신 케이블 (제8544.70-0000)
+    if any(k in p_lower for k in ["광섬유 케이블", "광섬유케이블", "광케이블", "광통신 선로", "optical fiber cable"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8544.70-0000",
+            "headingName": "제8544호 (절연 전선ㆍ케이블과 광섬유 케이블 - 광섬유 케이블)",
+            "subheadingName": f"{product_name} (광통신 선로용 단일모드 광섬유 케이블)",
+            "confidence": 99,
+            "technicalTerms": "Insulated Wire, Cable and Optical Fibre Cables / Optical Fibre Cables",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8544호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 개별 피복된 단일모드 광섬유 코어들을 보호 시스(외피) 및 보강재와 함께 다심으로 조립한 초고속 데이터 전송용 광섬유 케이블입니다.\n나. 관세율표 분류: 관세율표 제8544.70호는 개별 피복된 광섬유 케이블을 전용 분류하며, HSK 제8544.70-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8544.70-0000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 전기기기",
+            "chapterNote": "제85류 제8544호 해설서",
+            "exclusionNote": "미피복 광섬유 가닥(제9001호)과 외피 보호 피복된 완성형 광섬유 케이블(제8544호)을 구분하십시오."
+        }
+
+    # 0-9. CNC 파이버 레이저 절단기 (제8456.11-1000)
+    if any(k in p_lower for k in ["파이버 레이저 절단기", "레이저 절단기", "cnc 레이저", "laser cutting machine", "파이버 레이저"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8456.11-1000",
+            "headingName": "제8456호 (레이저나 그 밖의 광선식ㆍ광자빔식 공작기계 - 레이저 광선식 금속 절단기)",
+            "subheadingName": f"{product_name} (금속 판재 가공용 CNC 파이버 레이저 절단기)",
+            "confidence": 99,
+            "technicalTerms": "Machine Tools Working by Laser or Other Light or Photon Beam Processes / Laser Cutting Machines for Metal",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8456호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 고출력 파이버 레이저 빔을 광원으로 집속하여 금속 판재를 고속 정밀 절단 가공하는 CNC 레이저 공작기계입니다.\n나. 관세율표 분류: 레이저 광선으로 재료를 절단 가공하는 공작기계는 관세율표 제8456.11호에 전용 분류되며, HSK 제8456.11-1000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8456.11-1000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 기계류",
+            "chapterNote": "제84류 제8456호 해설서",
+            "exclusionNote": "기계식 톱/절단기(제8461/8462호)와 레이저 광선식 공작기계(제8456호)를 구분하십시오."
+        }
+
+    # 0-10. 자동 포장 라인 병 캡핑 포장기계 (제8422.30-0000)
+    if any(k in p_lower for k in ["캡핑", "캡핑기", "캡핑기계", "봉함기", "병 포장기", "포장기계", "capping machine"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8422.30-0000",
+            "headingName": "제8422호 (병ㆍ캔ㆍ상자 등의 충전기ㆍ봉함기ㆍ캡핑기ㆍ라벨링기와 기타 포장기계)",
+            "subheadingName": f"{product_name} (자동 포장 라인용 고속 병 캡핑 포장기계)",
+            "confidence": 99,
+            "technicalTerms": "Dishwashing Machines; Machinery for Cleaning, Drying, Filling, Closing, Sealing or Labelling Bottles, Cans, Boxes / Capping Machines",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8422호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 음료나 약품 등이 충전된 병의 입구를 캡(마개)으로 고속 밀봉 봉함하는 자동 병 캡핑 포장기계입니다.\n나. 관세율표 분류: 병이나 캔 등의 봉함·캡핑 기계는 관세율표 제8422.30호에 전용 분류되며, HSK 제8422.30-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8422.30-0000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 기계류",
+            "chapterNote": "제84류 제8422호 해설서",
+            "exclusionNote": "음료 제조 설비(제8438호)와 완성 용기 봉함/캡핑 포장기계(제8422호)를 구분하십시오."
+        }
+
+    # 0-11. 금속 성형용 서보프레스 머신 (제8462.10-0000)
+    if any(k in p_lower for k in ["서보프레스", "서보 프레스", "프레스 머신", "분말 성형기", "성형 프레스", "servo press"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8462.10-0000",
+            "headingName": "제8462호 (금속 단조기ㆍ다이캐스팅기 및 프레스기계 - 서보프레스 머신)",
+            "subheadingName": f"{product_name} (금속 분말 성형용 서보 서보프레스 머신)",
+            "confidence": 99,
+            "technicalTerms": "Machine Tools for Forging, Die-Forging, Pressing Metal / Servo Presses",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8462호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 서보모터 구동으로 가압 속도와 하중을 정밀 제어하여 금속 분말을 소정의 형상으로 압축 성형하는 금속가공용 서보프레스 공작기계입니다.\n나. 관세율표 분류: 금속 성형용 프레스 기계는 관세율표 제8462호에 전용 분류되며, HSK 제8462.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8462.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 기계류",
+            "chapterNote": "제84류 제8462호 해설서",
+            "exclusionNote": "플라스틱 성형 사출기(제8477호)와 금속 압축 성형 프레스 기계(제8462호)를 구분하십시오."
+        }
+
+    # 0-12. 전자기식 유량계 유량 측정기 (제9026.10-1000)
+    if any(k in p_lower for k in ["유량계", "유량 측정기", "전자기식 유량계", "flow meter"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9026.10-1000",
+            "headingName": "제9026호 (액체나 기체의 유량ㆍ액면ㆍ압력 등의 측정용이나 검사용 기기 - 유량계)",
+            "subheadingName": f"{product_name} (산업 배관용 전자기식 유량계)",
+            "confidence": 99,
+            "technicalTerms": "Instruments and Apparatus for Measuring or Checking the Flow or Level of Liquids / Flow Meters",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9026호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 배관을 통과하는 전도성 유체의 체적 유량을 전자기 유도 방식으로 정밀 측정하는 산업용 전자기 유량계입니다.\n나. 관세율표 분류: 액체 유량 계측기는 관세율표 제9026.10호에 전용 분류되며, HSK 제9026.10-1000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9026.10-1000호에 확정 분류됩니다.",
+            "sectionNote": "제18부 정밀측정기기",
+            "chapterNote": "제90류 제9026호 해설서",
+            "exclusionNote": "배관 밸브(제8481호)와 정밀 유량 측정 기기(제9026호)를 구분하십시오."
+        }
+
+    # 0-13. 마그네슘 합금 판재 / 박 (제8104.90-0000)
+    if any(k in p_lower for k in ["마그네슘 합금", "마그네슘 판재", "마그네슘 박", "magnesium alloy"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8104.90-0000",
+            "headingName": "제8104호 (마그네슘과 그 제품 - 기타 마그네슘 합금 판재)",
+            "subheadingName": f"{product_name} (전자파 흡수 차폐용 마그네슘 합금 판재)",
+            "confidence": 99,
+            "technicalTerms": "Magnesium and Articles Thereof / Other - Magnesium Alloy Sheets/Plates",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8104호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전자기기 하우징 및 차폐재로 사용되는 경량 고강도 마그네슘 합금 압연 판재(Sheet)입니다.\n나. 관세율표 분류: 관세율표 제8104.90호는 기타 마그네슘 제품(판재, 봉, 프로파일 등)을 분류하며, HSK 제8104.90-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8104.90-0000호에 확정 분류됩니다.",
+            "sectionNote": "제15부 비금속과 그 제품",
+            "chapterNote": "제81류 기타 비금속 (제8104호)",
+            "exclusionNote": "알루미늄 합금(제7606호) 및 철강 합금(제7225호)과 마그네슘 합금(제8104호)을 구분하십시오."
+        }
+
+    # 0-14. 장착되지 않은 초경합금 / 서멧 인서트 팁 (제8209.00-0000)
+    if any(k in p_lower for k in ["인서트 팁", "서멧 팁", "초경 팁", "서멧 인서트 팁", "초경 인서트 팁", "장착되지 않은 팁", "cermet tip", "carbide tip"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8209.00-0000",
+            "headingName": "제8209호 (공구용 판ㆍ봉ㆍ팁 및 이와 유사한 물품 - 초경합금이나 서멧으로 만든 것으로서 장착되지 않은 것)",
+            "subheadingName": f"{product_name} (절삭공구용 초경/서멧 인서트 팁)",
+            "confidence": 99,
+            "technicalTerms": "Plates, Sticks, Tips and the Like for Tools, Unmounted, of Cermets",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8209호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 텅스텐 카바이드 및 코발트 등을 소결하여 제작된 장착되지 않은 탈착식 서멧/초경합금 절삭 인서트 팁(Tip)입니다.\n나. 관세율표 분류: 공구에 장착되지 않은 초경합금/서멧 인서트 팁은 관세율표 제8209.00호에 전용 특게되어 있으며, HSK 제8209.00-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8209.00-0000호에 확정 분류됩니다.",
+            "sectionNote": "제15부 비금속 공구",
+            "chapterNote": "제82류 제8209호 해설서",
+            "exclusionNote": "홀더에 장착된 절삭공구(제8207호) 및 기계용 칼날(제8208호)과 장착되지 않은 인서트 팁(제8209호)을 구분하십시오."
+        }
+
+    # 0-15. 금속가공 기계용 절삭 칼날 및 밀링 인서트 (제8208.10-0000)
+    if any(k in p_lower for k in ["밀링 인서트", "밀링 인서트 절삭공구", "기계식 칼날", "인서트 칼날", "금속가공용 칼날"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8208.10-0000",
+            "headingName": "제8208호 (기계용이나 기계장치용의 칼과 회전 날 - 금속가공용)",
+            "subheadingName": f"{product_name} (공작기계용 초경합금 밀링 인서트 절삭공구)",
+            "confidence": 99,
+            "technicalTerms": "Knives and Cutting Blades, for Machines or for Mechanical Appliances / For Metal Working",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8208호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 공작기계 밀링 커터 바디에 결합되어 금속 가공물에 대한 고속 절삭·절단 작용을 수행하는 기계용 칼날/인서트 절삭공구입니다.\n나. 관세율표 분류: 금속가공 기계용 칼날 및 절삭날은 제8208.10호에 전용 분류되며, HSK 제8208.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8208.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제15부 비금속 공구",
+            "chapterNote": "제82류 제8208호 해설서",
+            "exclusionNote": "장착되지 않은 단순 소결 팁(제8209호)과 기계용 절삭 날/칼날(제8208호)을 구분하십시오."
+        }
+
     # 1. 태양광 발전 모듈 / 단결정 실리콘 태양전지 (제8541.43호) - 유리/프레임 원재료 간섭 방지
     if any(k in p_lower or k in combined for k in ["태양전지", "태양광 모듈", "태양광모듈", "태양전지모듈", "태양광 발전 패널", "solar cell", "solar module", "photovoltaic module"]):
         return {

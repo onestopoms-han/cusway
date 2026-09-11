@@ -2616,28 +2616,35 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     raw_query = f"{product_name} {material} {function_use}".lower().strip()
     query = normalize_food_spelling(raw_query)
 
-    # 0. 비식품 산업용 품목 즉시 배제 가드레일 (사파이어, 반도체 웨이퍼, 센서, 모터 등 오매칭 방지)
+    # 0. 비식품 산업용 품목 즉시 배제 가드레일 (사파이어, 반도체 웨이퍼, 센서, 모터, 레이저 절단기 등 오매칭 방지)
     if any(ind in p_norm for ind in [
         "사파이어", "sapphire", "잉곳", "ingot", "반도체", "semiconductor", "센서", "sensor",
         "변압기", "transformer", "서보모터", "전동기", "motor", "펌프", "pump",
+        "레이저", "laser", "절단기", "공작기계", "cnc", "파이버", "fiber",
         "igbt", "plc", "tpu", "cfrp", "동박", "copper foil", "볼트", "너트", "자켓", "등산자켓",
         "라이다", "레이더", "엔코더", "다이오드", "트랜지스터", "집적회로", "축전지", "배터리"
     ]):
         return None
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
+    # 1-0-효모. 활성/건조 효모 및 이스트 (제2102호 - 제빵용 빵 매칭 간섭 방지)
+    if any(y in p_norm or y in pm_norm for y in ["효모", "이스트", "yeast"]):
+        return None
+
     # 1-0-착향료. 바닐라 엑기스 / 착향료 혼합물 (제3302호)
     if any(k in pm_norm or k in query for k in ["바닐라 엑기스", "바닐라엑기스", "바닐라 추출물", "바닐라에센스", "바닐라 에센스", "착향료 혼합물", "식품용 바닐라"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 66)
 
     # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호 - 원재료에 올리브유/버터가 있어도 빵이 최우선)
     if any(k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
+        if any(y in pm_norm for y in ["효모", "이스트", "yeast"]):
+            return None
         # 만약 프리믹스/생지/반죽인 경우
         if any(d in pm_norm for d in ["믹스", "생지", "반죽", "dough", "mix", "프리믹스"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 25)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 60)
     
-    if any(k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "애플파이", "호두파이", "피칸파이", "파이류", "와플", "waffle", "도넛", "donut", "doughnut"]) or ("파이" in p_norm and not any(ex in p_norm for ex in ["사파이어", "파이프", "스파이"])):
+    if any(k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "애플파이", "호두파이", "피칸파이", "파이류", "와플", "waffle", "도넛", "donut", "doughnut"]) or ("파이" in p_norm and not any(ex in p_norm for ex in ["사파이어", "파이프", "스파이", "파이버", "광파이버", "레이저", "절단기", "cnc", "금속", "metal", "fiber"])):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 61)
 
     if any(k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨하스"]) or ("웨이퍼" in p_norm and not any(ex in p_norm for ex in ["반도체", "실리콘", "패턴", "결함"])):
@@ -2674,6 +2681,8 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         if any(j in pm_norm for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 57)
         if any(d in pm_norm for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
+            if any(u in pm_norm for u in ["무가당", "무설탕", "비가당", "unsweetened"]):
+                return None
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 56)
         if any(fz in pm_norm for fz in ["냉동", "frozen", "iqf", "급속냉동"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
@@ -2751,14 +2760,25 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     # 1-7. 배추 / 김치 (김치 2005 vs 절임배추 0711)
     if "김치" in pm_norm or "kimchi" in pm_norm:
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 37)
-    if "절임 배추" in pm_norm or "절임배추" in pm_norm or "염수절임" in pm_norm or ("배추" in pm_norm and "소금물" in pm_norm):
-        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 38)
+    # 1-8. 효모 / 이스트 (2102호) - 제빵용 빵 룰(1905) 매칭 간섭 방지
+    if "효모" in pm_norm or "이스트" in pm_norm or "yeast" in pm_norm:
+        return None
+
+    # 1-9. 무가당 건조 크랜베리 (0813호) - 조제 가당 크랜베리 룰(2008) 매칭 간섭 방지
+    if ("크랜베리" in pm_norm or "cranberry" in pm_norm) and any(u in pm_norm for u in ["무가당", "무설탕", "비가당", "unsweetened"]):
+        return None
 
     # 2. 나머지 일반 루프 매칭
     for rule in FOOD_50_BACKEND_RULES:
         if rule["id"] in [43, 44] and any(ex in query for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
             continue
         if rule["id"] in [14, 18, 19] and any(ex in query for ex in ["들기름", "참기름", "오일", "oil", "기름", "유지", "압착유"]):
+            continue
+        if rule["id"] == 61 and any(ex in query for ex in ["파이버", "광파이버", "레이저", "파이프", "절단기", "cnc", "금속", "metal", "fiber"]):
+            continue
+        if rule["id"] == 60 and any(ex in query for ex in ["효모", "이스트", "yeast"]):
+            continue
+        if rule["id"] == 56 and any(ex in query for ex in ["무가당", "무설탕", "비가당", "unsweetened"]):
             continue
             
         name_lower = rule["name"].lower()

@@ -26,7 +26,8 @@ FOOD_TRIGGER_PATTERNS = [
     r"요거트", r"요구르트", r"그릭\s*요거트", r"발효유", r"yogurt", r"아이스크림", r"ice\s*cream", r"빙과", r"젤라또", r"소르베",
     r"마들렌", r"madeleine", r"피낭시에", r"휘낭시에", r"financier", r"파운드케이크", r"카스텔라", r"카스테라",
     r"파니니", r"panini", r"샌드위치", r"sandwich", r"핫도그", r"햄버거", r"토스트", r"웨이퍼", r"전병",
-    r"올리브", r"올리브오일", r"올리브유", r"olive\s*oil", r"캡슐", r"capsule", r"식물성\s*캡슐", r"오메가", r"omega", r"크릴오일", r"루테인", r"프로폴리스"
+    r"올리브", r"올리브오일", r"올리브유", r"olive\s*oil", r"캡슐", r"capsule", r"식물성\s*캡슐", r"오메가", r"omega", r"크릴오일", r"루테인", r"프로폴리스",
+    r"식초", r"발사믹", r"포도\s*식초", r"vinegar", r"balsamic", r"다시마", r"미역", r"해조류", r"톳", r"모자반", r"kelp", r"seaweed"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -53,8 +54,24 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     """
     combined = f"{product_name} {material} {function_use}".lower()
 
+    # 0-0-생지. 굽지 않은 냉동 반죽 생지 / 베이커리 제조용 믹스와 반죽 (제1901.20호)
+    if any(k in combined for k in ["생지", "반죽", "dough", "프리믹스", "베이커리 믹스"]) and any(b in combined for b in ["치아바타", "바게트", "크루아상", "식빵", "피자", "도우", "베이글", "와플", "쿠키", "페이스트리", "빵"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1901.20-2000",
+            "headingName": "제1901호 (곡물ㆍ고운 가루 등의 조제품 - 제1905호의 베이커리 제품 제조용 혼합물과 반죽)",
+            "subheadingName": f"{product_name} (냉동 베이커리 생지 반죽)",
+            "confidence": 99,
+            "technicalTerms": "Mixes and Doughs for the Preparation of Bakers' Wares of Heading 1905 / Frozen Unbaked Dough",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1901호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 곡분, 물, 효모 등을 배합하여 성형 후 굽지(소성) 않고 급속 냉동한 베이커리 제조용 미소성 냉동 생지(반죽)입니다.\n나. 관세율표 분류: 제1905호의 베이커리 제품 제조용 반죽(Dough)은 관세율표 제1901.20호에 전용 분류되며, HSK 제1901.20-2000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1901.20-2000호에 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품 (곡물 조제품)",
+            "chapterNote": "제19류 제1901호 해설서",
+            "exclusionNote": "이미 오븐에 구워진 완제품 빵(제1905호)과 굽지 않은 반죽 생지(제1901.20호)를 엄격히 구분하십시오."
+        }
+
     # 0-0-캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 오메가3 캡슐 / 기능성 유지 캡슐 (제2106호 vs 제1509호)
-    if any(k in combined for k in ["올리브오일", "올리브유", "올리브", "olive oil", "olive"]):
+    if any(k in combined for k in ["올리브오일", "올리브유", "올리브", "olive oil", "olive"]) and not any(b in combined for b in ["빵", "치아바타", "생지", "반죽", "바게트", "포카치아", "피자", "식빵", "도우", "dough", "bread"]):
         if any(c in combined for c in ["캡슐", "capsule", "연질", "식물성", "식이보충", "영양제", "보충제", "정제"]):
             return {
                 "is_food": True,
@@ -173,9 +190,43 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "조미용 소스류(제2103호) 및 합성 에센스 오일(제3301호)과 구분하십시오."
         }
 
+    # 0-0-효모. 제빵용 활성/건조 효모 및 이스트 (제2102.10호)
+    p_lower_clean = product_name.lower().strip()
+    if any(k in p_lower_clean for k in ["효모", "이스트", "yeast", "건조효모", "건조 효모", "활성 효모", "인스턴트 효모", "제빵용 효모", "제빵용 이스트"]) and not any(b in p_lower_clean for b in ["치아바타", "바게트", "식빵", "구운 빵", "베이글", "브리오슈", "호밀빵", "통밀빵", "빵", "cake", "bread"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2102.10-0000",
+            "headingName": "제2102호 (효모 - 활성인 것)",
+            "subheadingName": f"{product_name} (제빵용 활성 인스턴트 건조 효모)",
+            "confidence": 99,
+            "technicalTerms": "Yeasts (Active) / Dried Active Bakers' Yeast",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2102호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 제빵 발효 공정에 사용되는 배양된 단세포 미생물인 활성 건조 효모(이스트)입니다.\n나. 관세율표 분류: 관세율표 제2102.10호는 활성 효모를 전용 분류하며, HSK 제2102.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2102.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품",
+            "chapterNote": "제21류 각종 조제 식료품 (제2102호 효모)",
+            "exclusionNote": "비활성 효모(제2102.20호) 및 빵 완제품(제1905호)과 구분하십시오."
+        }
+
+    # 0-0-해조류. 식용 건조 다시마, 미역, 해조류 (제1212.21-1010)
+    if any(k in combined for k in ["다시마", "미역", "해조류", "kelp", "seaweed", "톳", "모자반"]):
+        if not any(ex in combined for ex in ["조미김", "김스낵", "스낵"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "1212.21-1010",
+                "headingName": "제1212호 (해조류와 그 밖의 조류 - 식용인 것 - 다시마)",
+                "subheadingName": f"{product_name} (소매포장 건조 다시마)",
+                "confidence": 99,
+                "technicalTerms": "Seaweeds and other algae / Fit for human consumption, Dried Kelp (Laminaria japonica)",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제1212호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 자연산 또는 양식 해조류(다시마)를 채취하여 세척 후 단순 건조하여 국물용 또는 식용으로 소매 포장한 건조 다시마입니다.\n나. 관세율표 분류: 관세율표 제1212.21호는 식용 해조류를 분류하며, 다시마는 세부 HSK 제1212.21-1010호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1212.21-1010호에 확정 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제12류 채유용에 적합한 종자와 과실, 각종 종자와 과실, 해조류",
+                "exclusionNote": "조미 가공된 김/해조류 스낵(제2008.99호/제2106호)과 단순 건조 해조류(제1212호)를 구분하십시오."
+            }
+
     # 0-0c. 구운 베이커리 완제품 (치아바타, 바게트, 식빵, 사워도우, 포카치아, 파니니, 샌드위치 등 - 제1905호)
     if any(k in combined for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "사워도우", "포카치아", "식빵", "구운 빵", "베이글", "브리오슈", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "파니니", "샌드위치", "토스트", "빵"]):
-        if not any(ex in combined for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루"]):
+        if not any(ex in p_lower_clean for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루", "효모", "이스트", "yeast"]):
             return {
                 "is_food": True,
                 "recommendedHsCode": "1905.90-1010",
@@ -192,19 +243,20 @@ def classify_food_universally(product_name: str, material: str = "", function_us
 
     # 0-0d. 페이스트리, 케이크, 마들렌, 피낭시에 (제1905.90-1030)
     if any(k in combined for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "스콘", "와플", "도넛", "마들렌", "madeleine", "피낭시에", "휘낭시에", "financier", "파운드케이크", "카스텔라", "카스테라", "타르트", "파이"]):
-        return {
-            "is_food": True,
-            "recommendedHsCode": "1905.90-1030",
-            "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
-            "subheadingName": f"{product_name} (페이스트리와 케이크)",
-            "confidence": 99,
-            "technicalTerms": "Bakers' wares / Pastry, Cakes, Madeleines, Financiers",
-            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1905호 해설서"],
-            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 버터/유지 배합 페이스트리 반죽으로 구워낸 케이크·구움과자·페이스트리류입니다.\n나. 관세율표 분류: 제1905.90-1030호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1905.90-1030호에 확정 분류됩니다.",
-            "sectionNote": "제4부 조제 식료품 (베이커리 제품)",
-            "chapterNote": "제19류 제1905호 해설서",
-            "exclusionNote": "일반 빵(1905.90-1010) 및 비스킷/쿠키(1905.90-1040)와 구분하십시오."
-        }
+        if not any(ex in combined for ex in ["파이버", "광파이버", "레이저", "파이프", "절단기", "cnc", "금속", "metal", "fiber"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "1905.90-1030",
+                "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+                "subheadingName": f"{product_name} (페이스트리와 케이크)",
+                "confidence": 99,
+                "technicalTerms": "Bakers' wares / Pastry, Cakes, Madeleines, Financiers",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제1905호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 버터/유지 배합 페이스트리 반죽으로 구워낸 케이크·구움과자·페이스트리류입니다.\n나. 관세율표 분류: 제1905.90-1030호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1905.90-1030호에 확정 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품 (베이커리 제품)",
+                "chapterNote": "제19류 제1905호 해설서",
+                "exclusionNote": "일반 빵(1905.90-1010) 및 비스킷/쿠키(1905.90-1040)와 구분하십시오."
+            }
 
     # 0-0e. 쿠키, 비스킷, 크래커, 웨이퍼 (제1905.90-1040)
     if any(k in combined for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "웨이퍼", "전병", "스낵과자"]):
@@ -1109,6 +1161,20 @@ def classify_food_universally(product_name: str, material: str = "", function_us
                 "sectionNote": "제4부 조제 식료품",
                 "chapterNote": "제20류 제2009호 해설서 (과실 주스)",
                 "exclusionNote": "알코올 주정을 함유한 과실주(제22류)와 구분하십시오."
+            }
+        if any(u in combined for u in ["무가당", "무설탕", "비가당", "unsweetened"]) and any(d in combined for d in ["건조", "dried"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "0813.40-0000",
+                "headingName": "제0813호 (건조한 과실 - 제0801호부터 제0806호까지에 해당하는 것은 제외하며, 이 류의 견과류나 건조한 과실의 혼합물)",
+                "subheadingName": f"{product_name} (무가당 건조 크랜베리)",
+                "confidence": 99,
+                "technicalTerms": "Dried fruit / Dried cranberries without added sugar",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 설탕이나 감미료를 첨가하지 않고 순수하게 수분을 건조한 무가당 건조 크랜베리입니다.\n나. 관세율표 분류: 관세율표 제0813호는 설탕이나 감미료를 첨가하지 않은 건조 과실을 분류하며, 크랜베리는 제0813.40-0000호(기타 건조 과실)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0813.40-0000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제8류 식용 과실 및 견과류",
+                "exclusionNote": "설탕이나 시럽에 침지/가당 조제된 건조 크랜베리는 제2008.93호에 분류됩니다."
             }
         if any(d in combined for d in ["건조", "dried", "가당", "설탕절임", "조제", "설탕침지"]):
             return {
