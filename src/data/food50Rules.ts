@@ -2296,6 +2296,95 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
     headingExplanation: "제2009호 해설: 이 호에는 발효되지 않은 크랜베리 주스(2009.81)를 직접 분류합니다.",
     precedents: [],
     competingHsCodes: []
+  },
+  {
+    id: 58,
+    name: "라떼 파우더 (카페라떼 조제커피 믹스)",
+    material: "인스턴트 커피 추출물 분말, 식물성 크리머/분유, 당류, 바닐라 향료",
+    functionUse: "음료 제조용 분말 조제품 (카페라떼/바닐라라떼)",
+    category: "커피 조제품 (21류)",
+    recommendedHsCode: "2101.12-1000",
+    headingName: "제2101호 (커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들을 기본 재료로 한 조제품, 볶은 치커리와 그 밖의 볶은 커피 대용물)",
+    subheadingName: "제2101.12호 (추출물ㆍ에센스ㆍ농축물을 기본 재료로 한 조제품 - 인스턴트 커피 조제품/조제커피)",
+    confidence: 99,
+    technicalTerms: "Preparations with a basis of extracts, essences or concentrates of coffee (Instant coffee latte mix powder, containing dairy creamer and sugar)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 인스턴트 커피 추출물(원두 가공 커피 분말)을 기본 재료로 하여 식물성 크리머(또는 분유/유고형분), 당류 및 바닐라/카라멜 향료를 균일하게 배합한 음료 제조용 분말 조제품('라떼 파우더 / 카페라떼 믹스')입니다.\n2. 관세율표 제2101호는 '커피의 추출물·에센스·농축물과 이들을 기본 재료로 한 조제품'을 분류하며, 소호 제2101.12호는 추출물·농축물을 기본 재료로 한 커피 조제품을 명문으로 규정하고 있습니다.\n3. WCO 관세율표 해설서 제2101호 총설에 따라 커피 추출물에 유제품, 당류 등을 배합한 분말 믹스는 제2101.12호에 귀속되며, 대한민국 관세청 관세율표 국내 10단위 HSK 제2101.12-1000호(인스턴트 커피 조제품)에 최종 확정 분류됩니다. (기본관세율: 8%, 식약처 수입식품안전관리특별법 검사 대상)",
+    sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초, 담배 및 제조 담배 대용물",
+    chapterNote: "제21류 각종 조제 식료품 (제2101호 커피 조제품)",
+    exclusionNote: "⚠️ 커피 추출물이 전혀 함유되지 않고 순수 탈지분유/곡물가루/향료만으로 구성된 무커피 라떼 베이스는 제1901.90호 또는 제2106.90호로 분류되며, 녹차/말차 라떼 파우더는 제2101.20-1000호(차 조제품)로 분류되어 본 호에서 제외됩니다.",
+    headingExplanation: "WCO 관세율표 해설서 제2101호: 본 호에는 인스턴트 커피 추출물에 설탕, 분유, 식물성 크리머 등을 첨가하여 만든 커피 믹스 및 라떼 조제품 분말을 분류함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2023-0452",
+        title: "인스턴트 커피 분말과 유크림, 당류를 혼합한 카페라떼 파우더 믹스의 품목분류",
+        code: "2101.12-1000",
+        issuingBody: "관세평가분류원",
+        date: "2023-07-12",
+        similarity: 99,
+        reasoningSnippet: "커피 추출물 분말에 분유 및 당류를 혼합한 인스턴트 카페라떼 분말 제품은 커피 추출물을 기본 재료로 한 조제품으로 보아 HSK 제2101.12-1000호에 분류함."
+      },
+      {
+        id: "분류원-2022-0914",
+        title: "바닐라향 및 커피 추출물을 함유한 바닐라 라떼 파우더의 품목분류",
+        code: "2101.12-1000",
+        issuingBody: "관세평가분류원",
+        date: "2022-10-25",
+        similarity: 98,
+        reasoningSnippet: "커피 추출물이 기재된 음료용 라떼 분말 믹스는 제2101.12호의 인스턴트 커피 조제품으로 결정함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "2106.90-9099",
+        headingName: "제2106.90호 기타 조제 식료품 (음료용 베이스 조제품)",
+        appliedGri: "통칙 제1호",
+        reasoning: "커피 성분이 전혀 없고 합성 향료와 크리머/당류만 배합된 무커피 음료 베이스 파우더 수입 시 검토되는 잔여 세번입니다.",
+        exclusionReason: "본 물품은 커피 추출물을 기본 재료로 함유하고 있으므로 제2101.12호 전용 세번이 우선합니다."
+      },
+      {
+        hsCode: "1901.90-9000",
+        headingName: "제1901.90호 기타 유조제품 / 곡물 조제품",
+        appliedGri: "통칙 제1호",
+        reasoning: "우유 분말(유고형분) 함량이 높거나 곡물가루 베이스의 미숫가루형 곡물라떼 파우더일 경우 검토되는 세번입니다.",
+        exclusionReason: "커피 추출물이 배합된 라떼 믹스는 제2101호에 특게되어 있으므로 제1901호에서 배제됩니다."
+      },
+      {
+        hsCode: "2101.20-1000",
+        headingName: "제2101.20호 차 조제품 (녹차/말차 라떼 파우더)",
+        appliedGri: "통칙 제1호",
+        reasoning: "커피 대신 녹차(말차) 또는 홍차 추출물이 주원료인 차 라떼 믹스일 경우 검토되는 세번입니다.",
+        exclusionReason: "커피 베이스 라떼 파우더이므로 커피 조제품(2101.12)으로 확정됩니다."
+      }
+    ]
+  },
+  {
+    id: 59,
+    name: "녹차 라떼 파우더 (말차 라떼 믹스)",
+    material: "녹차(말차) 추출 분말, 분유, 당류",
+    functionUse: "음료 제조용 분말 조제품 (녹차라떼)",
+    category: "차 조제품 (21류)",
+    recommendedHsCode: "2101.20-1000",
+    headingName: "제2101호 (커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들을 기본 재료로 한 조제품)",
+    subheadingName: "제2101.20호 (차나 마테의 추출물ㆍ에센스ㆍ농축물을 기본 재료로 한 조제품 - 인스턴트 차 조제품)",
+    confidence: 99,
+    technicalTerms: "Preparations with a basis of extracts, essences or concentrates of tea (Matcha/Green tea latte mix powder)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 일반통칙 제1호 및 제6호에 따라, 녹차/말차 추출 분말에 분유 및 당류를 배합한 녹차 라떼 파우더는 차의 추출물을 기본 재료로 한 조제품이 분류되는 HSK 제2101.20-1000호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 각종 조제 식료품 (제2101호 차 조제품)",
+    exclusionNote: "⚠️ 커피 베이스 라떼는 제2101.12-1000호로 분류됩니다.",
+    headingExplanation: "제2101호 해설서: 차 추출물에 설탕, 분유 등을 첨가한 인스턴트 차 조제품(녹차라떼, 밀크티 분말 등)을 분류함.",
+    precedents: [],
+    competingHsCodes: [
+      {
+        hsCode: "2101.12-1000",
+        headingName: "카페라떼 파우더 (커피 조제품)",
+        appliedGri: "통칙 제1호",
+        reasoning: "커피가 함유된 라떼 분말인 경우 검토되는 세번입니다.",
+        exclusionReason: "녹차/말차 추출물이 기본 재료이므로 제2101.20호에 분류됩니다."
+      }
+    ]
   }
 ];
 
@@ -2359,7 +2448,10 @@ export function normalizeFoodSpelling(query: string): string {
     ['피넛버터', '땅콩버터'],
     ['피넛 버터', '땅콩버터'],
     ['핫케익', '핫케이크'],
-    ['팬케익', '팬케이크']
+    ['팬케익', '팬케이크'],
+    ['라테', '라떼'],
+    ['라떼파우다', '라떼파우더'],
+    ['랃떼', '라떼']
   ];
   for (const [src, dst] of replacements) {
     q = q.replace(new RegExp(src, 'g'), dst);
@@ -2377,7 +2469,15 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   const query = normalizeFoodSpelling(rawQuery);
   
   // 1. 최우선 특수 품목 판정 (혼동 방지)
-  // 1-0a. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
+  // 1-0a. 라떼 파우더 / 카페라떼 / 녹차라떼 정밀 분기
+  if (pmNorm.includes('라떼') || pNorm.includes('라떼') || pmNorm.includes('라테') || pmNorm.includes('카페라떼') || pmNorm.includes('바닐라라떼') || pmNorm.includes('카라멜라떼') || pmNorm.includes('말차라떼') || pmNorm.includes('녹차라떼') || pmNorm.includes('밀크티') || pmNorm.includes('조제커피') || pmNorm.includes('커피믹스') || pmNorm.includes('latte')) {
+    if (pmNorm.includes('녹차') || pmNorm.includes('말차') || pmNorm.includes('그린티') || pmNorm.includes('matcha') || pmNorm.includes('green tea')) {
+      return FOOD_50_RULES.find(r => r.id === 59) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 58) || null;
+  }
+
+  // 1-0b. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
   if (query.includes('혼합 과일') || query.includes('혼합과일') || query.includes('혼합 과실') || query.includes('베리 믹스') || query.includes('베리믹스') || query.includes('mixed fruit') || query.includes('mixed berries') || query.includes('frozen mixed') || query.includes('냉동 과일') || query.includes('냉동과일') || query.includes('단순 냉동 과일')) {
     return FOOD_50_RULES.find(r => r.id === 52) || null;
   }

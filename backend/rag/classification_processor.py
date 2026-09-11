@@ -21,8 +21,9 @@ def detect_query_domain(product_name: str) -> tuple:
         "육류", "생선", "어류", "곡물", "쌀", "밀가루", "커피", "녹차", "홍차", "침출차", "향신료", "주스", "음료",
         "과자", "사탕", "초콜릿", "초콜렛", "초코렛", "면류", "라면", "소스", "조미료", "식품", "유제품", "치즈",
         "버터", "벌꿀", "식용", "오일", "참기름", "들기름", "올리브유", "두부", "김치",
+        "라떼", "라테", "밀크티", "말차", "그린티", "조제커피", "커피믹스", "음료베이스", "바닐라라떼", "파우더",
         "fruit", "fruits", "berry", "berries", "blueberry", "blueberries", "cranberry", "cranberries", "meat", "fish", "seafood",
-        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey"
+        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey", "latte", "matcha"
     ]):
         allowed = [f"{i:02d}" for i in range(1, 25)] + ["3302"]
         return ("FOOD_AGRI", allowed)
@@ -274,6 +275,7 @@ class AICustomsClassificationProcessor:
         # ----------------------------------------------------
         # Identify risk keys by scanning keywords in inputs & reasoning
         risk_keys = []
+        combined_query = f"{product_name} {material} {function_use}".strip()
         lower_query = combined_query.lower() + " " + result_dict.get("legalReasoning", "").lower()
         
         if any(w in lower_query for w in ["로열티", "상표권", "라이선스", "royalty", "licence"]):

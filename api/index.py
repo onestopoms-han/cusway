@@ -1508,6 +1508,60 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
+        # 4-B. 라떼 파우더 / 카페라떼 / 녹차라떼 믹스
+        if any(lk in prod_low for lk in ["라떼", "라테", "카페라떼", "바닐라라떼", "카라멜라떼", "말차라떼", "녹차라떼", "밀크티", "조제커피", "커피믹스", "latte"]):
+            if any(gk in prod_low for gk in ["녹차", "말차", "그린티", "matcha"]):
+                return {
+                    "keywordTrigger": ["녹차라떼", "말차라떼", "matcha latte"],
+                    "recommendedHsCode": "2101.20-1000",
+                    "headingName": "제2101호 (커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들을 기본 재료로 한 조제품)",
+                    "subheadingName": "제2101.20호 (차나 마테의 추출물ㆍ에센스ㆍ농축물을 기본 재료로 한 조제품 - 인스턴트 차 조제품)",
+                    "confidence": 99,
+                    "technicalTerms": "Instant green tea / matcha latte mix powder",
+                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                    "legalReasoning": "본 물품은 녹차/말차 추출 분말에 분유 및 당류를 배합한 차 음료용 분말 조제품으로 제2101.20-1000호에 분류됩니다.",
+                    "sectionNote": "제4부 조제 식료품",
+                    "chapterNote": "제21류 제2101호 차 조제품",
+                    "exclusionNote": "⚠️ 커피 베이스 라떼는 제2101.12호로 분류됩니다.",
+                    "headingExplanation": "제2101호에는 인스턴트 차 조제품을 분류합니다.",
+                    "precedents": [],
+                    "competingHsCodes": []
+                }
+            return {
+                "keywordTrigger": ["라떼 파우더", "라떼파우더", "카페라떼 파우더", "바닐라라떼 파우더", "latte powder"],
+                "recommendedHsCode": "2101.12-1000",
+                "headingName": "제2101호 (커피ㆍ차ㆍ마테의 추출물ㆍ에센스ㆍ농축물과 이들을 기본 재료로 한 조제품)",
+                "subheadingName": "제2101.12호 (추출물ㆍ에센스ㆍ농축물을 기본 재료로 한 조제품 - 인스턴트 커피 조제품)",
+                "confidence": 99,
+                "technicalTerms": "Instant coffee latte mix powder, with dairy creamer and sugar",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": "본 물품은 인스턴트 커피 추출물 분말에 크리머(분유)와 당류를 균일하게 배합한 음료용 라떼 파우더입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 커피 추출물을 기본 재료로 한 커피 조제품이 분류되는 HSK 제2101.12-1000호에 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품",
+                "chapterNote": "제21류 제2101호 커피 조제품",
+                "exclusionNote": "⚠️ 커피가 전혀 없는 무커피 음료 베이스는 제1901호 또는 제2106호로 분류됩니다.",
+                "headingExplanation": "제2101호에는 인스턴트 커피 추출물을 기본 재료로 한 커피 조제품(라떼 파우더 등)을 분류합니다.",
+                "precedents": [
+                    {
+                        "id": "품목분류사전회시 2023-0452",
+                        "title": "카페라떼 파우더 믹스의 품목분류",
+                        "code": "2101.12-1000",
+                        "issuingBody": "관세평가분류원",
+                        "date": "2023-07-12",
+                        "similarity": 99,
+                        "reasoningSnippet": "커피 추출물에 분유와 당류를 혼합한 인스턴트 카페라떼 분말은 제2101.12-1000호에 분류함."
+                    }
+                ],
+                "competingHsCodes": [
+                    {
+                        "hsCode": "2106.90-9099",
+                        "headingName": "기타 조제 식료품",
+                        "appliedGri": "통칙 제1호",
+                        "reasoning": "무커피 음료용 베이스 조제품일 경우 검토되는 세번입니다.",
+                        "exclusionReason": "커피 추출물이 기본 재료이므로 제2101.12호가 우선합니다."
+                    }
+                ]
+            }
+
         # 5. 크랜베리 및 과실류 (냉동/신선/건조 및 그랜베리/크렌베리 오타 정규화)
         if any(cb in prod_low for cb in ["크랜베리", "그랜베리", "크렌베리", "그렌베리", "글랜베리", "클랜베리", "cranberry"]):
             is_frozen = any(fz in prod_low for fz in ["냉동", "동결", "frozen", "iqf", "급속"])

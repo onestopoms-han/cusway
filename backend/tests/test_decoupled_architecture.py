@@ -247,7 +247,29 @@ def test_cranberry_family_cases():
     finally:
         db.close()
 
+def test_latte_family_cases():
+    db = SessionLocal()
+    try:
+        latte_cases = [
+            ("라떼파우더", "", "", "2101.12-1000"),
+            ("라떼 파우더", "커피 추출물, 분유, 당류", "음료용", "2101.12-1000"),
+            ("카페라떼 파우더", "커피 15%, 분유 30%, 설탕 55%", "카페 음료 제조", "2101.12-1000"),
+            ("바닐라라떼 파우더", "인스턴트 커피, 바닐라향, 크리머", "음료 베이스", "2101.12-1000"),
+            ("녹차라떼 파우더", "말차 분말, 분유, 설탕", "녹차 음료 제조", "2101.20-1000"),
+            ("말차 라떼 파우더", "말차 가루, 크리머", "티 음료", "2101.20-1000")
+        ]
+        print("\n=== RUNNING LATTE FAMILY TESTS ===")
+        for prod, mat, func, expected in latte_cases:
+            res = AICustomsClassificationProcessor.run_classification_pipeline(prod, mat, func, db)
+            hs = res.get("recommendedHsCode", "")
+            print(f"[Latte] {prod} -> {hs} (Expected: {expected})")
+            assert hs == expected, f"Latte '{prod}' failed: got {hs}, expected {expected}"
+        print("=== ALL LATTE TESTS PASSED 100% ===")
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     test_detect_query_domain()
     test_5_kakaotalk_failure_cases()
     test_cranberry_family_cases()
+    test_latte_family_cases()
