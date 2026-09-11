@@ -2368,6 +2368,11 @@ export function normalizeFoodSpelling(query: string): string {
 }
 
 export function findFoodRuleMatch(productName: string, material: string = '', functionUse: string = ''): FoodClassificationRule | null {
+  const pNorm = normalizeFoodSpelling(productName.toLowerCase().trim());
+  const mNorm = normalizeFoodSpelling(material.toLowerCase().trim());
+  const fNorm = normalizeFoodSpelling(functionUse.toLowerCase().trim());
+  const pmNorm = (pNorm + ' ' + mNorm).trim();
+  
   const rawQuery = (productName + ' ' + material + ' ' + functionUse).toLowerCase().trim();
   const query = normalizeFoodSpelling(rawQuery);
   
@@ -2378,14 +2383,14 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   }
 
   // 1-0b-1. 크랜베리/그랜베리/크렌베리 전용 정밀 분기
-  if (query.includes('크랜베리') || rawQuery.includes('크랜베리') || rawQuery.includes('그랜베리') || rawQuery.includes('크렌베리') || rawQuery.includes('그렌베리') || rawQuery.includes('글랜베리') || rawQuery.includes('클랜베리') || query.includes('cranberry')) {
-    if (query.includes('주스') || query.includes('과즙') || query.includes('juice') || query.includes('농축액') || query.includes('착즙')) {
+  if (pmNorm.includes('크랜베리') || pNorm.includes('크랜베리') || rawQuery.includes('크랜베리') || rawQuery.includes('그랜베리') || rawQuery.includes('크렌베리') || rawQuery.includes('그렌베리') || rawQuery.includes('글랜베리') || rawQuery.includes('클랜베리') || pmNorm.includes('cranberry')) {
+    if (pmNorm.includes('주스') || pmNorm.includes('과즙') || pmNorm.includes('juice') || pmNorm.includes('농축액') || pmNorm.includes('착즙')) {
       return FOOD_50_RULES.find(r => r.id === 57) || null;
     }
-    if (query.includes('건조') || query.includes('dried') || query.includes('가당') || query.includes('설탕절임') || query.includes('조제')) {
+    if (pmNorm.includes('건조') || pmNorm.includes('dried') || pmNorm.includes('가당') || pmNorm.includes('설탕절임') || pmNorm.includes('조제')) {
       return FOOD_50_RULES.find(r => r.id === 56) || null;
     }
-    if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리') || rawQuery.includes('생그랜베리') || rawQuery.includes('생 그랜베리') || rawQuery.includes('생크렌베리') || rawQuery.includes('생 크렌베리') || rawQuery.includes('생그렌베리') || rawQuery.includes('생 그렌베리')) {
+    if (pmNorm.includes('신선') || pmNorm.includes('생과') || pmNorm.includes('fresh') || pmNorm.includes('생크랜베리') || pmNorm.includes('생 크랜베리') || rawQuery.includes('생그랜베리') || rawQuery.includes('생 그랜베리') || rawQuery.includes('생크렌베리') || rawQuery.includes('생 크렌베리') || rawQuery.includes('생그렌베리') || rawQuery.includes('생 그렌베리')) {
       return FOOD_50_RULES.find(r => r.id === 55) || null;
     }
     // 냉동 또는 일반 크랜베리/그랜베리/크렌베리 질의 시 0811.90-9000
@@ -2393,10 +2398,10 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   }
 
   // 1-0b-2. 블루베리 / 빌베리 정밀 분기
-  if (query.includes('블루베리') || rawQuery.includes('불루베리') || query.includes('blueberry') || query.includes('빌베리') || query.includes('bilberry')) {
-    if (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('meal')) {
+  if (pmNorm.includes('블루베리') || pNorm.includes('블루베리') || rawQuery.includes('불루베리') || pmNorm.includes('blueberry') || pmNorm.includes('빌베리') || pmNorm.includes('bilberry')) {
+    if (pmNorm.includes('가루') || pmNorm.includes('분말') || pmNorm.includes('powder') || pmNorm.includes('flour') || pmNorm.includes('meal')) {
       // 일반 루프로 이동
-    } else if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생 블루베리') || query.includes('생블루베리') || rawQuery.includes('생 불루베리')) {
+    } else if (pmNorm.includes('신선') || pmNorm.includes('생과') || pmNorm.includes('fresh') || pmNorm.includes('생 블루베리') || pmNorm.includes('생블루베리') || rawQuery.includes('생 불루베리')) {
       return FOOD_50_RULES.find(r => r.id === 53) || null;
     } else {
       return FOOD_50_RULES.find(r => r.id === 51) || null;
@@ -2404,88 +2409,88 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   }
 
   // 1-0c. '과일' 단독 질의이면서 원재료에 베리류/블루베리 등이 있는 경우
-  if (query.includes('과일') || query.includes('fruit')) {
-    if (query.includes('블루베리') || query.includes('라즈베리') || query.includes('블랙베리') || query.includes('딸기') || query.includes('berry') || query.includes('blueberry')) {
+  if (pmNorm.includes('과일') || pmNorm.includes('fruit')) {
+    if (pmNorm.includes('블루베리') || pmNorm.includes('라즈베리') || pmNorm.includes('블랙베리') || pmNorm.includes('딸기') || pmNorm.includes('berry') || pmNorm.includes('blueberry')) {
       return FOOD_50_RULES.find(r => r.id === 52) || null;
     }
   }
 
   // 1-1. 베이커리/튀김 조제 프리믹스 (제1901호 - 밀가루/쌀가루 원료 혼동 방지)
-  if (query.includes('핫케이크') || query.includes('팬케이크') || query.includes('pancake')) {
+  if (pmNorm.includes('핫케이크') || pmNorm.includes('팬케이크') || pmNorm.includes('pancake')) {
     return FOOD_50_RULES.find(r => r.id === 25) || null;
   }
-  if (query.includes('튀김가루') || query.includes('부침가루') || query.includes('튀김 가루') || query.includes('부침 가루') || query.includes('batter mix')) {
+  if (pmNorm.includes('튀김가루') || pmNorm.includes('부침가루') || pmNorm.includes('튀김 가루') || pmNorm.includes('부침 가루') || pmNorm.includes('batter mix')) {
     return FOOD_50_RULES.find(r => r.id === 26) || null;
   }
 
   // 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409) - 캔디/사탕/과자류는 제1704호로 배제
-  if (!query.includes('캔디') && !query.includes('사탕') && !query.includes('candy') && !query.includes('과자') && !query.includes('젤리') && !query.includes('캐러멜') && !query.includes('카라멜')) {
-    if (query.includes('사양') || query.includes('설탕급여') || query.includes('sugar-fed')) {
+  if (!pmNorm.includes('캔디') && !pmNorm.includes('사탕') && !pmNorm.includes('candy') && !pmNorm.includes('과자') && !pmNorm.includes('젤리') && !pmNorm.includes('캐러멜') && !pmNorm.includes('카라멜')) {
+    if (pmNorm.includes('사양') || pmNorm.includes('설탕급여') || pmNorm.includes('sugar-fed')) {
       return FOOD_50_RULES.find(r => r.id === 44) || null;
     }
-    if (query.includes('천연 벌꿀') || query.includes('천연벌꿀') || query.includes('아카시아꿀') || query.includes('벌꿀') || query.includes('꿀')) {
+    if (pmNorm.includes('천연 벌꿀') || pmNorm.includes('천연벌꿀') || pmNorm.includes('아카시아꿀') || pmNorm.includes('벌꿀') || pmNorm.includes('꿀')) {
       return FOOD_50_RULES.find(r => r.id === 43) || null;
     }
   }
 
   // 1-3. 땅콩버터 (2008.11-1000) vs 볶은땅콩 vs 생땅콩
-  if (query.includes('땅콩버터') || query.includes('땅콩 버터') || query.includes('피넛버터') || query.includes('peanut butter')) {
+  if (pmNorm.includes('땅콩버터') || pmNorm.includes('땅콩 버터') || pmNorm.includes('피넛버터') || pmNorm.includes('peanut butter')) {
     return FOOD_50_RULES.find(r => r.id === 22) || null;
   }
-  if (query.includes('땅콩')) {
-    if (query.includes('볶은') || query.includes('roasted')) {
+  if (pmNorm.includes('땅콩')) {
+    if (pmNorm.includes('볶은') || pmNorm.includes('roasted')) {
       return FOOD_50_RULES.find(r => r.id === 20) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 21) || null;
   }
 
   // 1-4. 참깨 / 들깨 정밀 분기
-  if (query.includes('참깨')) {
-    if (query.includes('고운') || query.includes('미세') || query.includes('고운분말')) {
+  if (pmNorm.includes('참깨')) {
+    if (pmNorm.includes('고운') || pmNorm.includes('미세') || pmNorm.includes('고운분말')) {
       return FOOD_50_RULES.find(r => r.id === 17) || null;
     }
-    if (query.includes('거친가루') || query.includes('파쇄') || query.includes('1.25mm') || query.includes('cracked')) {
+    if (pmNorm.includes('거친가루') || pmNorm.includes('파쇄') || pmNorm.includes('1.25mm') || pmNorm.includes('cracked')) {
       return FOOD_50_RULES.find(r => r.id === 16) || null;
     }
-    if (query.includes('참깨가루') || (query.includes('식용') && query.includes('가루'))) {
+    if (pmNorm.includes('참깨가루') || (pmNorm.includes('식용') && pmNorm.includes('가루'))) {
       return FOOD_50_RULES.find(r => r.id === 15) || null;
     }
-    if (query.includes('볶은') || query.includes('roasted')) {
+    if (pmNorm.includes('볶은') || pmNorm.includes('roasted')) {
       return FOOD_50_RULES.find(r => r.id === 13) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 14) || null;
   }
 
-  if (query.includes('들기름') || query.includes('참기름') || query.includes('오일') || query.includes('기름')) {
+  if (pmNorm.includes('들기름') || pmNorm.includes('참기름') || pmNorm.includes('오일') || pmNorm.includes('기름')) {
     // 식용유지(15류)는 12류 종자 룰을 건너뜀
-  } else if (query.includes('들깨')) {
-    if (query.includes('가루') || query.includes('분말') || query.includes('탈피')) {
+  } else if (pmNorm.includes('들깨')) {
+    if (pmNorm.includes('가루') || pmNorm.includes('분말') || pmNorm.includes('탈피')) {
       return FOOD_50_RULES.find(r => r.id === 18) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 19) || null;
   }
 
   // 1-5. 커피 (원두 0901 vs 인스턴트 2101)
-  if (query.includes('커피')) {
-    if (query.includes('인스턴트') || query.includes('동결건조') || query.includes('추출물') || query.includes('분말')) {
+  if (pmNorm.includes('커피')) {
+    if (pmNorm.includes('인스턴트') || pmNorm.includes('동결건조') || pmNorm.includes('추출물') || pmNorm.includes('분말')) {
       return FOOD_50_RULES.find(r => r.id === 40) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 39) || null;
   }
 
   // 1-6. 카레 (레토르트 2103 vs 분말 0910)
-  if (query.includes('카레')) {
-    if (query.includes('레토르트') || query.includes('3분') || query.includes('즉석') || query.includes('조리') || query.includes('소스')) {
+  if (pmNorm.includes('카레')) {
+    if (pmNorm.includes('레토르트') || pmNorm.includes('3분') || pmNorm.includes('즉석') || pmNorm.includes('조리') || pmNorm.includes('소스')) {
       return FOOD_50_RULES.find(r => r.id === 49) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 48) || null;
   }
 
   // 1-7. 배추 / 김치 (김치 2005 vs 절임배추 0711)
-  if (query.includes('김치') || query.includes('kimchi')) {
+  if (pmNorm.includes('김치') || pmNorm.includes('kimchi')) {
     return FOOD_50_RULES.find(r => r.id === 37) || null;
   }
-  if (query.includes('절임 배추') || query.includes('절임배추') || query.includes('염수절임') || (query.includes('배추') && query.includes('소금물'))) {
+  if (pmNorm.includes('절임 배추') || pmNorm.includes('절임배추') || pmNorm.includes('염수절임') || (pmNorm.includes('배추') && pmNorm.includes('소금물'))) {
     return FOOD_50_RULES.find(r => r.id === 38) || null;
   }
 
@@ -2500,7 +2505,7 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
     const nameLower = rule.name.toLowerCase();
     const cleanName = nameLower.split('(')[0].trim();
     
-    if (query.includes(nameLower) || query.includes(cleanName)) {
+    if (pmNorm.includes(nameLower) || pmNorm.includes(cleanName) || query.includes(nameLower) || query.includes(cleanName)) {
       return rule;
     }
   }

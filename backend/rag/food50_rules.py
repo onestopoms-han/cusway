@@ -2268,6 +2268,11 @@ def normalize_food_spelling(query: str) -> str:
     return q
 
 def find_food_backend_rule(product_name: str, material: str = "", function_use: str = "") -> dict:
+    p_norm = normalize_food_spelling(product_name.lower().strip())
+    m_norm = normalize_food_spelling(material.lower().strip())
+    f_norm = normalize_food_spelling(function_use.lower().strip())
+    pm_norm = f"{p_norm} {m_norm}".strip()
+    
     raw_query = f"{product_name} {material} {function_use}".lower().strip()
     query = normalize_food_spelling(raw_query)
     
@@ -2277,87 +2282,88 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 52)
 
     # 1-0b-1. 크랜베리/그랜베리/크렌베리 전용 정밀 분기
-    if any(k in query or k in raw_query for k in ["크랜베리", "그랜베리", "크렌베리", "그렌베리", "글랜베리", "클랜베리", "cranberry"]):
-        if any(j in query for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
+    if any(k in pm_norm or k in p_norm for k in ["크랜베리", "그랜베리", "크렌베리", "그렌베리", "글랜베리", "클랜베리", "cranberry"]):
+        # 주스인지 여부는 대상 품목명/원재료(pm_norm) 자체에 주스/착즙액이 명시된 경우로 한정 (용도에 주스 제조용이 적힌 경우는 원물 과실 0811 유지)
+        if any(j in pm_norm for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 57)
-        if any(d in query for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
+        if any(d in pm_norm for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 56)
-        if any(fr in query or fr in raw_query for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리", "생그랜베리", "생 그랜베리", "생크렌베리", "생 크렌베리", "생그렌베리", "생 그렌베리"]):
+        if any(fr in pm_norm for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리", "생그랜베리", "생 그랜베리", "생크렌베리", "생 크렌베리", "생그렌베리", "생 그렌베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 55)
         # 냉동 또는 일반 크랜베리/그랜베리/크렌베리 질의 시 0811.90-9000
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
 
     # 1-0b-2. 블루베리 / 빌베리 정밀 분기
-    if any(k in query or k in raw_query for k in ["블루베리", "불루베리", "blueberry", "빌베리", "bilberry"]):
-        if any(f in query for f in ["가루", "분말", "powder", "flour", "meal"]):
+    if any(k in pm_norm or k in p_norm for k in ["블루베리", "불루베리", "blueberry", "빌베리", "bilberry"]):
+        if any(f in pm_norm for f in ["가루", "분말", "powder", "flour", "meal"]):
             pass
-        elif any(fr in query for fr in ["신선", "생과", "fresh", "생 블루베리", "생블루베리", "생 불루베리"]):
+        elif any(fr in pm_norm for fr in ["신선", "생과", "fresh", "생 블루베리", "생블루베리", "생 불루베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 53)
         else:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 51)
 
     # 1-0c. '과일' 단독 질의이면서 원재료에 베리류/블루베리 등이 있는 경우
-    if "과일" in query or "fruit" in query:
-        if any(b in query for b in ["블루베리", "라즈베리", "블랙베리", "딸기", "berry", "blueberry"]):
+    if "과일" in pm_norm or "fruit" in pm_norm:
+        if any(b in pm_norm for b in ["블루베리", "라즈베리", "블랙베리", "딸기", "berry", "blueberry"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 52)
 
     # 1-1. 베이커리/튀김 조제 프리믹스 (제1901호 - 밀가루/쌀가루 원료 혼동 방지)
-    if "핫케이크" in query or "팬케이크" in query or "pancake" in query:
+    if any(pk in pm_norm for pk in ["핫케이크", "팬케이크", "pancake"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 25)
-    if "튀김가루" in query or "부침가루" in query or "튀김 가루" in query or "부침 가루" in query or "batter mix" in query:
+    if any(tk in pm_norm for tk in ["튀김가루", "부침가루", "튀김 가루", "부침 가루", "batter mix"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 26)
 
     # 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409) - 캔디/사탕/과자류는 제1704호로 배제
-    if not any(ex in query for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
-        if "사양" in query or "설탕급여" in query or "sugar-fed" in query:
+    if not any(ex in pm_norm for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
+        if "사양" in pm_norm or "설탕급여" in pm_norm or "sugar-fed" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 44)
-        if "천연 벌꿀" in query or "천연벌꿀" in query or "아카시아꿀" in query or "벌꿀" in query or "꿀" in query:
+        if "천연 벌꿀" in pm_norm or "천연벌꿀" in pm_norm or "아카시아꿀" in pm_norm or "벌꿀" in pm_norm or "꿀" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 43)
 
     # 1-3. 땅콩버터 (2008.11-1000) vs 볶은땅콩 vs 생땅콩
-    if "땅콩버터" in query or "땅콩 버터" in query or "피넛버터" in query or "peanut butter" in query:
+    if any(pb in pm_norm for pb in ["땅콩버터", "땅콩 버터", "피넛버터", "peanut butter"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 22)
-    if "땅콩" in query:
-        if "볶은" in query or "roasted" in query:
+    if "땅콩" in pm_norm:
+        if "볶은" in pm_norm or "roasted" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 20)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 21)
 
     # 1-4. 참깨 / 들깨 정밀 분기
-    if "참깨" in query:
-        if "고운" in query or "미세" in query or "고운분말" in query:
+    if "참깨" in pm_norm:
+        if "고운" in pm_norm or "미세" in pm_norm or "고운분말" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 17)
-        if "거친가루" in query or "파쇄" in query or "1.25mm" in query or "cracked" in query:
+        if "거친가루" in pm_norm or "파쇄" in pm_norm or "1.25mm" in pm_norm or "cracked" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 16)
-        if "참깨가루" in query or ("식용" in query and "가루" in query):
+        if "참깨가루" in pm_norm or ("식용" in pm_norm and "가루" in pm_norm):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 15)
-        if "볶은" in query or "roasted" in query:
+        if "볶은" in pm_norm or "roasted" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 13)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 14)
 
-    if "들기름" in query or "참기름" in query or "오일" in query or "기름" in query:
+    if "들기름" in pm_norm or "참기름" in pm_norm or "오일" in pm_norm or "기름" in pm_norm:
         # 식용유지(15류)는 12류 종자 룰을 건너뜀
         pass
-    elif "들깨" in query:
-        if "가루" in query or "분말" in query or "탈피" in query:
+    elif "들깨" in pm_norm:
+        if "가루" in pm_norm or "분말" in pm_norm or "탈피" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 18)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 19)
 
     # 1-5. 커피 (원두 0901 vs 인스턴트 2101)
-    if "커피" in query:
-        if "인스턴트" in query or "동결건조" in query or "추출물" in query or "분말" in query:
+    if "커피" in pm_norm:
+        if "인스턴트" in pm_norm or "동결건조" in pm_norm or "추출물" in pm_norm or "분말" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 40)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 39)
 
     # 1-6. 카레 (레토르트 2103 vs 분말 0910)
-    if "카레" in query:
-        if "레토르트" in query or "3분" in query or "즉석" in query or "조리" in query or "소스" in query:
+    if "카레" in pm_norm:
+        if "레토르트" in pm_norm or "3분" in pm_norm or "즉석" in pm_norm or "조리" in pm_norm or "소스" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 49)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 48)
 
     # 1-7. 배추 / 김치 (김치 2005 vs 절임배추 0711)
-    if "김치" in query or "kimchi" in query:
+    if "김치" in pm_norm or "kimchi" in pm_norm:
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 37)
-    if "절임 배추" in query or "절임배추" in query or "염수절임" in query or ("배추" in query and "소금물" in query):
+    if "절임 배추" in pm_norm or "절임배추" in pm_norm or "염수절임" in pm_norm or ("배추" in pm_norm and "소금물" in pm_norm):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 38)
 
     # 2. 나머지 일반 루프 매칭
@@ -2372,7 +2378,7 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         name_lower = rule["name"].lower()
         clean_name = name_lower.split('(')[0].strip()
         
-        if any(k in query for k in rule["keywords"]) or clean_name in query or name_lower in query:
+        if any(k in pm_norm for k in rule["keywords"]) or clean_name in pm_norm or name_lower in pm_norm or any(k in query for k in rule["keywords"]):
             return rule
 
     return None
