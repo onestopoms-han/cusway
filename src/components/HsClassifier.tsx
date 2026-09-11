@@ -20,7 +20,12 @@ import {
   Bookmark,
   DollarSign,
   Upload,
-  Zap
+  Zap,
+  Key,
+  Cpu,
+  X,
+  CheckCircle2,
+  Settings
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
 import CustomsReportModal, { ReportData } from './CustomsReportModal';
@@ -115,6 +120,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [openaiKey, setOpenaiKey] = useState<string>(() => {
     return localStorage.getItem('openai_key') || '';
   });
+  const [showAiSettingsModal, setShowAiSettingsModal] = useState(false);
+  const [customKeyInput, setCustomKeyInput] = useState<string>(openaiKey);
+  const [keySavedToast, setKeySavedToast] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [approvedStatus, setApprovedStatus] = useState<string | null>(null);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
@@ -1746,6 +1754,29 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               >
                 <FileCheck size={14} color="var(--accent-cyan)" /> 📄 공식 검토서 PDF / 인쇄
               </button>
+
+              <button 
+                onClick={() => {
+                  setCustomKeyInput(openaiKey);
+                  setShowAiSettingsModal(true);
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  color: 'var(--text-main)',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.15)'
+                }}
+              >
+                <Cpu size={14} color="#10b981" /> 🤖 AI 엔진 & API Key 설정
+              </button>
             </div>
           </div>
         </div>
@@ -3106,6 +3137,160 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
         onClose={() => setShowOfficeBrandingModal(false)}
         currentUser={currentUser}
       />
+
+      {/* AI Engine & API Key Settings Modal */}
+      {showAiSettingsModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '20px'
+        }}>
+          <div className="glass-panel" style={{
+            width: '100%',
+            maxWidth: '560px',
+            background: 'var(--bg-secondary)',
+            border: '1px solid rgba(20, 184, 166, 0.3)',
+            borderRadius: '16px',
+            padding: '28px',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px'
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Cpu size={22} style={{ color: 'var(--accent-primary)' }} />
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>CUSWAY AI 엔진 및 API Key 설정</h3>
+              </div>
+              <button 
+                onClick={() => setShowAiSettingsModal(false)}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Current Active Engine Status */}
+            <div style={{
+              background: 'rgba(20, 184, 166, 0.08)',
+              border: '1px solid rgba(20, 184, 166, 0.25)',
+              borderRadius: '10px',
+              padding: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>현재 AI 엔진 가동 체계</span>
+                <span style={{
+                  background: 'rgba(16, 185, 129, 0.2)',
+                  color: '#10b981',
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  <CheckCircle2 size={12} /> 정상 가동 중
+                </span>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                <div>• <strong>0순위 (초고속 즉시 판정)</strong>: 관세율표 50대 식품/센서 룰셋 & WCO 결정례 DB (0.01초)</div>
+                <div>• <strong>1순위 (주력 생성 AI)</strong>: <span style={{ color: '#38bdf8', fontWeight: 600 }}>OpenAI GPT-4o-mini</span> (서버 백엔드 자동 연동)</div>
+                <div>• <strong>2순위 (장애 백업)</strong>: <span style={{ color: '#a78bfa', fontWeight: 600 }}>Google Gemini Flash</span></div>
+                <div>• <strong>3순위 (초고속 Failover)</strong>: <span style={{ color: '#fb923c', fontWeight: 600 }}>Groq LPU (GPT-OSS-120B)</span></div>
+              </div>
+            </div>
+
+            {/* Custom OpenAI API Key Input */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Key size={14} style={{ color: 'var(--accent-primary)' }} />
+                사용자 정의 OpenAI API Key (선택 사항)
+              </label>
+              <input 
+                type="password"
+                placeholder="sk-... (미입력 시 CUSWAY 서버 내장 GPT-4o-mini 엔진으로 자동 작동)"
+                value={customKeyInput}
+                onChange={(e) => setCustomKeyInput(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: '8px',
+                  background: 'var(--bg-tertiary)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-main)',
+                  fontSize: '0.85rem'
+                }}
+              />
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                * 개인 전용 API Key를 입력하시면 해당 키로 우선 호출되며 브라우저에 안전하게 저장됩니다.
+              </span>
+            </div>
+
+            {keySavedToast && (
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                color: '#10b981',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                fontSize: '0.8rem',
+                textAlign: 'center'
+              }}>
+                ✓ API Key 설정이 성공적으로 저장되었습니다.
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomKeyInput('');
+                  setOpenaiKey('');
+                  localStorage.removeItem('openai_key');
+                  setKeySavedToast(true);
+                  setTimeout(() => setKeySavedToast(false), 2000);
+                }}
+                className="btn btn-secondary"
+                style={{ padding: '8px 14px', fontSize: '0.85rem' }}
+              >
+                초기화 (서버 기본값 사용)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const trimmed = customKeyInput.trim();
+                  setOpenaiKey(trimmed);
+                  localStorage.setItem('openai_key', trimmed);
+                  setKeySavedToast(true);
+                  setTimeout(() => {
+                    setKeySavedToast(false);
+                    setShowAiSettingsModal(false);
+                  }, 800);
+                }}
+                className="btn btn-primary"
+                style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+              >
+                설정 저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
