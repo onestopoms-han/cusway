@@ -380,7 +380,59 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 }}
 """
 
-    # 1. Try OpenAI Engine First (1st Priority: Stable, fast, high rate limits)
+    # 0. Try Local Free AI Engines First (LM Studio on port 1234, Ollama on port 11434)
+    # 0-A. LM Studio (Local Free OpenAI-Compatible Engine)
+    try:
+        lm_url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234/v1/chat/completions")
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "messages": [
+                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0
+        }
+        req = urllib.request.Request(lm_url, data=json.dumps(data).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as response:
+            res_body = response.read().decode("utf-8")
+            res_json = json.loads(res_body)
+            lm_output = res_json["choices"][0]["message"]["content"].strip()
+            if lm_output.startswith("```json"):
+                lm_output = lm_output.split("```json")[1].split("```")[0].strip()
+            elif lm_output.startswith("```"):
+                lm_output = lm_output.split("```")[1].split("```")[0].strip()
+            print("[RAG-LLM] Successfully processed via Free Local LM Studio Engine!")
+            return json.loads(lm_output)
+    except Exception as lm_err:
+        pass
+
+    # 0-B. Ollama (Local Free Engine)
+    try:
+        ollama_url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434/v1/chat/completions")
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "model": os.environ.get("OLLAMA_MODEL", "llama3.2:latest"),
+            "messages": [
+                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0
+        }
+        req = urllib.request.Request(ollama_url, data=json.dumps(data).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=6) as response:
+            res_body = response.read().decode("utf-8")
+            res_json = json.loads(res_body)
+            ol_output = res_json["choices"][0]["message"]["content"].strip()
+            if ol_output.startswith("```json"):
+                ol_output = ol_output.split("```json")[1].split("```")[0].strip()
+            elif ol_output.startswith("```"):
+                ol_output = ol_output.split("```")[1].split("```")[0].strip()
+            print("[RAG-LLM] Successfully processed via Free Local Ollama Engine!")
+            return json.loads(ol_output)
+    except Exception as ol_err:
+        pass
+
+    # 1. Try OpenAI Engine (1st Cloud Priority: Stable, fast, high rate limits)
     api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
     if not api_key:
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

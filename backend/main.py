@@ -1213,6 +1213,46 @@ def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"RAG AI 통합 프로세서 분석 도중 오류가 발생했습니다: {str(e)}")
 
+@app.get("/api/ai/engines")
+def get_ai_engines_status():
+    """Real-time connectivity check for LM Studio, Ollama, OpenAI, Gemini, and Groq."""
+    import urllib.request
+    
+    lm_status = False
+    lm_models = []
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:1234/v1/models", timeout=1) as resp:
+            if resp.status == 200:
+                lm_status = True
+                d = json.loads(resp.read().decode())
+                lm_models = [m.get("id") for m in d.get("data", [])]
+    except Exception:
+        pass
+
+    ollama_status = False
+    ollama_models = []
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:11434/api/tags", timeout=1) as resp:
+            if resp.status == 200:
+                ollama_status = True
+                d = json.loads(resp.read().decode())
+                ollama_models = [m.get("name") for m in d.get("models", [])]
+    except Exception:
+        pass
+
+    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    has_openai = bool(os.environ.get("OPENAI_API_KEY") or os.path.exists(os.path.join(parent_dir, "openai.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "openai.key")))
+    has_gemini = bool(os.environ.get("GEMINI_API_KEY") or os.path.exists(os.path.join(parent_dir, "gemini.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "gemini.key")))
+    has_groq = bool(os.environ.get("GROQ_API_KEY") or os.path.exists(os.path.join(parent_dir, "groq.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "groq.key")))
+
+    return {
+        "lmstudio": {"online": lm_status, "models": lm_models, "endpoint": "http://127.0.0.1:1234"},
+        "ollama": {"online": ollama_status, "models": ollama_models, "endpoint": "http://127.0.0.1:11434"},
+        "openai": {"configured": has_openai, "model": "gpt-4o-mini"},
+        "gemini": {"configured": has_gemini, "model": "gemini-flash-latest"},
+        "groq": {"configured": has_groq, "model": "openai/gpt-oss-120b"}
+    }
+
 @app.get("/api/hs/search")
 def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session = Depends(get_db)):
     # Log the search query in database

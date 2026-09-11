@@ -123,6 +123,17 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [showAiSettingsModal, setShowAiSettingsModal] = useState(false);
   const [customKeyInput, setCustomKeyInput] = useState<string>(openaiKey);
   const [keySavedToast, setKeySavedToast] = useState(false);
+  const [engineStatus, setEngineStatus] = useState<any>(null);
+
+  useEffect(() => {
+    if (showAiSettingsModal) {
+      fetch('/api/ai/engines')
+        .then(res => res.json())
+        .then(data => setEngineStatus(data))
+        .catch(() => setEngineStatus(null));
+    }
+  }, [showAiSettingsModal]);
+
   const [analyzing, setAnalyzing] = useState(false);
   const [approvedStatus, setApprovedStatus] = useState<string | null>(null);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
@@ -3188,10 +3199,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               padding: '16px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '10px'
+              gap: '12px'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>현재 AI 엔진 가동 체계</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-main)' }}>AI 엔진 실시간 가동 상태</span>
                 <span style={{
                   background: 'rgba(16, 185, 129, 0.2)',
                   color: '#10b981',
@@ -3203,14 +3214,56 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  <CheckCircle2 size={12} /> 정상 가동 중
+                  <CheckCircle2 size={12} /> 멀티 엔진 활성화
                 </span>
               </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+
+              {/* Local Free Engines Status Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <div style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: engineStatus?.lmstudio?.online ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                  border: `1px solid ${engineStatus?.lmstudio?.online ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)' }}>🆓 LM Studio (로컬)</span>
+                    <span style={{ fontSize: '0.7rem', color: engineStatus?.lmstudio?.online ? '#10b981' : 'var(--text-muted)', fontWeight: 600 }}>
+                      {engineStatus?.lmstudio?.online ? '🟢 1234 연결됨' : '⚪ 미실행'}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    {engineStatus?.lmstudio?.online && engineStatus.lmstudio.models.length > 0 
+                      ? `${engineStatus.lmstudio.models[0]}`
+                      : '포트 1234 로컬 무료 실행'}
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: engineStatus?.ollama?.online ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.03)',
+                  border: `1px solid ${engineStatus?.ollama?.online ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)' }}>🆓 Ollama (로컬)</span>
+                    <span style={{ fontSize: '0.7rem', color: engineStatus?.ollama?.online ? '#10b981' : 'var(--text-muted)', fontWeight: 600 }}>
+                      {engineStatus?.ollama?.online ? '🟢 11434 연결됨' : '⚪ 미실행'}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                    {engineStatus?.ollama?.online && engineStatus.ollama.models.length > 0 
+                      ? `${engineStatus.ollama.models[0]}`
+                      : '포트 11434 로컬 무료 실행'}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.6, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px' }}>
                 <div>• <strong>0순위 (초고속 즉시 판정)</strong>: 관세율표 50대 식품/센서 룰셋 & WCO 결정례 DB (0.01초)</div>
-                <div>• <strong>1순위 (주력 생성 AI)</strong>: <span style={{ color: '#38bdf8', fontWeight: 600 }}>OpenAI GPT-4o-mini</span> (서버 백엔드 자동 연동)</div>
-                <div>• <strong>2순위 (장애 백업)</strong>: <span style={{ color: '#a78bfa', fontWeight: 600 }}>Google Gemini Flash</span></div>
-                <div>• <strong>3순위 (초고속 Failover)</strong>: <span style={{ color: '#fb923c', fontWeight: 600 }}>Groq LPU (GPT-OSS-120B)</span></div>
+                <div>• <strong>1순위 (로컬 무료 AI)</strong>: <span style={{ color: '#10b981', fontWeight: 600 }}>LM Studio (1234) & Ollama (11434)</span> 자동 우선 처리</div>
+                <div>• <strong>2순위 (클라우드 AI)</strong>: <span style={{ color: '#38bdf8', fontWeight: 600 }}>OpenAI GPT-4o-mini</span> (서버 내장 키 연동)</div>
+                <div>• <strong>3순위 (장애 백업)</strong>: <span style={{ color: '#a78bfa', fontWeight: 600 }}>Google Gemini Flash</span> / <span style={{ color: '#fb923c', fontWeight: 600 }}>Groq LPU</span></div>
               </div>
             </div>
 
