@@ -432,53 +432,61 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     except Exception as ol_err:
         pass
 
-    # 1. Try OpenAI Engine (1st Cloud Priority: Stable, fast, high rate limits)
-    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        key_path = os.path.join(parent_dir, "openai.key")
-        key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
-        
-        target_path = None
-        if os.path.exists(key_path):
-            target_path = key_path
-        elif os.path.exists(key_root_path):
-            target_path = key_root_path
-            
-        if target_path:
-            with open(target_path, "r", encoding="utf-8") as kf:
-                api_key = kf.read().strip()
+    # 1. Try OpenAI Cloud Engine (ONLY in Test Environment or when user explicitly supplies custom key)
+    is_test_env = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("CUSWAY_ENV") == "test" or os.environ.get("RUN_PAID_TESTS") == "1")
+    is_user_explicit_key = bool(custom_key and custom_key.strip().startswith("sk-"))
+    allow_paid_cloud = is_test_env or is_user_explicit_key
 
-    if api_key and api_key.strip():
-        try:
-            url = "https://api.openai.com/v1/chat/completions"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {api_key}"
-            }
-            data = {
-                "model": "gpt-4o-mini",
-                "messages": [
-                    {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.0
-            }
+    if allow_paid_cloud:
+        api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            key_path = os.path.join(parent_dir, "openai.key")
+            key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
             
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=12) as response:
-                res_body = response.read().decode("utf-8")
-                res_json = json.loads(res_body)
-                gpt_output = res_json["choices"][0]["message"]["content"].strip()
+            target_path = None
+            if os.path.exists(key_path):
+                target_path = key_path
+            elif os.path.exists(key_root_path):
+                target_path = key_root_path
                 
-                if gpt_output.startswith("```json"):
-                    gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
-                elif gpt_output.startswith("```"):
-                    gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+            if target_path:
+                with open(target_path, "r", encoding="utf-8") as kf:
+                    api_key = kf.read().strip()
+
+        if api_key and api_key.strip():
+            try:
+                url = "https://api.openai.com/v1/chat/completions"
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {api_key}"
+                }
+                data = {
+                    "model": "gpt-4o-mini",
+                    "messages": [
+                        {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.0
+                }
+                
+                req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+                with urllib.request.urlopen(req, timeout=12) as response:
+                    res_body = response.read().decode("utf-8")
+                    res_json = json.loads(res_body)
+                    gpt_output = res_json["choices"][0]["message"]["content"].strip()
                     
-                return json.loads(gpt_output)
-        except Exception as e:
-            print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to Gemini.")
+                    if gpt_output.startswith("```json"):
+                        gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
+                    elif gpt_output.startswith("```"):
+                        gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+                        
+                    print(f"[RAG-LLM] Successfully processed via OpenAI (Test/Explicit Key Mode).")
+                    return json.loads(gpt_output)
+            except Exception as e:
+                print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to free backup.")
+    else:
+        print("[RAG-LLM] Production runtime: Paid cloud API disabled (Free local AI & RAG mode active).")
 
     # 2. Try Gemini Engine Second (2nd Priority: Backup)
     gemini_key = os.environ.get("GEMINI_API_KEY")
