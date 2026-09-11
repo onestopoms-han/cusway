@@ -7,7 +7,11 @@ STOPWORDS = {
     "재질", "용도", "기능", "구성", "성분", "물품", "제품", "수입", "대상", 
     "분류", "추천", "기계", "장치", "기구", "사용", "제조", "제작", "부품", "도면",
     "속에", "속에는", "대신", "대신해주고", "할수", "할수있는", "있는", "있고", "탑제된", 
-    "탑재된", "인간의", "일을", "하고", "하는", "으로", "에서", "은", "는", "이", "가", "외형"
+    "탑재된", "인간의", "일을", "하고", "하는", "으로", "에서", "은", "는", "이", "가", "외형",
+    "이상", "이하", "미만", "초과", "없는", "없음", "않은", "않음", "있는", "있음",
+    "포함", "제외", "함유", "불문", "각종", "기타", "그밖의", "그 밖의", "물건", "물질",
+    "것", "것으로서", "것으로", "것에", "한한다", "한정", "알수없는", "알 수 없는", "이상한",
+    "미지의", "외계", "미지", "어떤", "무엇"
 }
 
 # Core customs terms heavy boosts to guarantee accurate chapter RAG anchoring
@@ -2202,16 +2206,16 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
     # De-duplicate keywords while preserving order, and drop single-letter alphabets to prevent score pollution
     keywords = []
     for k in normalized:
-        if k not in keywords:
-            # Exclude single English letter (e.g. 'c', 'd', 'a')
-            if not (len(k) == 1 and k.isalpha()):
-                keywords.append(k)
-            
-    if not keywords:
-        keywords = [normalize_korean_keyword(rk) for rk in raw_keywords if not (len(rk) == 1 and rk.isalpha())]
-    
+        if k not in keywords and not (len(k) == 1 and k.isalpha()):
+            keywords.append(k)
+
+    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
+
     if not keywords and not numeric_keywords:
-        return []
+        # If no genuine customs keywords exist, only search if anchor filters exist
+        has_anchor = any(ak.lower() in query.lower() for ak in HEADING_ANCHORS) or is_sensor_query(query)
+        if not has_anchor:
+            return []
 
     from sqlalchemy import or_
     anchor_filters = []
@@ -2221,7 +2225,6 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
     query_lower = query.lower()
     
     # Universal Sensor Anchor Routing (9025, 9026, 9027, 9030, 9031, 8536)
-    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
     if is_sensor_query(query):
         sensor_res = classify_sensor_universally(query)
         sensor_head = sensor_res["recommendedHsCode"][:4]
@@ -2312,8 +2315,7 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
                 occurrences += content_en_lower.count(eng_kw)
                 
             if occurrences > 0:
-                score += (occurrences * 12)
-                score += 30
+                score += min(occurrences * 10, 80)
                 
             # Factor D: Core keyword heavy boost to prevent irrelevant heading takeovers
             if kw_lower in CORE_KEYWORDS:
@@ -2339,15 +2341,12 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
                     score -= 8000  # Strong penalty to push below non-excluded headings
                     note.content_ko += f"\n\n[제외규정 정합성 검증알림: 해당 물품은 {ex_rule['reason']}]"
                     
-        # Factor E: Pure 4-digit heading code priority (Specific heading beats generic notes/general notes)
+        # Factor E: Suppress section/chapter general notes (_gen, _s, rules)
         if "_" in heading_raw or heading_clean.endswith("s") or heading_clean.endswith("g") or len(heading_clean) < 4:
-            score -= 5000 # Heavily suppress general notes (16_s, 48_g, etc) from overriding specific 4-digit headings
-        elif "_gen" not in heading_raw and "rules" not in heading_raw:
-            score += 1000
-        else:
-            score -= 1000
+            score -= 5000
                 
-        if score > 0:
+        # Must have genuine keyword or anchor match (threshold >= 100)
+        if score >= 100:
             matches.append((note, score))
 
     # Sort matches by calculated score in descending order

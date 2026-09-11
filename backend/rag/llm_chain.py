@@ -2,7 +2,7 @@ import os
 import json
 import urllib.request
 import urllib.error
-from sqlalchemy import text
+from sqlalchemy import text, or_
 from sqlalchemy.orm import Session
 
 
@@ -1185,40 +1185,37 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             ]
         }
 
-    relevant_notes = retrieve_relevant_notes(combined_query, db)
-    relevant_precedents = retrieve_relevant_precedents(combined_query, db)
+    # Domain Detection & Constraint
+    from backend.rag.classification_processor import detect_query_domain
+    domain_name, allowed_chapters = detect_query_domain(product_name)
 
+    relevant_notes = retrieve_relevant_notes(combined_query, db, allowed_chapters=allowed_chapters)
+    relevant_precedents = retrieve_relevant_precedents(combined_query, db, allowed_chapters=allowed_chapters)
+
+    # 1. If relevant notes exist within the domain, select the best matching heading
     if relevant_notes:
         best_note = relevant_notes[0]
-        heading_code = best_note.heading.replace('.', '')
+        heading_code = best_note.heading.replace('.', '').strip()
         
         # Validate and format against database master to prevent virtual codes
         hsk_code = None
         if len(heading_code) >= 4:
             prefix = heading_code[:4]
             db_match = db.execute(
-                text("SELECT hs_code FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code DESC LIMIT 1"),
+                text("SELECT hs_code, name_ko FROM hs_code_master WHERE (hs_code LIKE :pref OR replace(replace(hs_code, '.', ''), '-', '') LIKE :pref) AND hscode_length = 10 ORDER BY hs_code ASC LIMIT 1"),
                 {"pref": f"{prefix}%"}
             ).fetchone()
             if db_match:
                 hsk_code = db_match[0]
 
         if not hsk_code:
-            if heading_code == "1704":
-                hsk_code = "1704.90-9000"
-            elif heading_code == "1701":
-                hsk_code = "1701.99-0000"
-            elif heading_code == "2009":
-                hsk_code = "2009.90-9000"
-            else:
-                hsk_code = f"{heading_code}.90-9000" if len(heading_code) == 4 else f"{heading_code[:4]}.90-9000"
+            hsk_code = f"{heading_code[:4]}.90-0000" if len(heading_code) >= 4 else "0000.00-0000"
         
         precedents_list = []
         hsk_chapter = hsk_code.replace('.', '').replace('-', '').strip()[:2] if hsk_code else None
         for p in relevant_precedents:
             p_code_clean = p.hs_code.replace('.', '').replace('-', '').strip()
             if hsk_chapter and p_code_clean.startswith(hsk_chapter):
-                # Clean and fallback for missing or unparseable reasoning
                 reason_snippet = p.decision_reason if p.decision_reason else ""
                 if not reason_snippet or "파싱할 수 없습니다" in reason_snippet or reason_snippet.strip() == "":
                     reason_snippet = f"본 물품은 대한민국 관세청(또는 관세평가분류원) 심사 결과 일반통칙 규정에 의거하여 {p.hs_code}호로 분류 확정된 공식 결정례입니다."
@@ -1233,57 +1230,66 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                     "reasoningSnippet": reason_snippet[:400]
                 })
 
-        # Do not generate mock dummy precedents if no DB precedents found
-        if not precedents_list:
-            precedents_list = []
-        
         return {
             "recommendedHsCode": hsk_code,
-            "headingName": f"제{best_note.heading}호의 품목 해설서 지정 품목 ({product_name})",
-            "subheadingName": f"{product_name} ({material}) - 분류 후보",
-            "confidence": 50,
-            "technicalTerms": f"Explanatory Note Category {best_note.heading}",
+            "headingName": f"제{best_note.heading}호 ({product_name})",
+            "subheadingName": f"{product_name} ({material}) - 오프라인 해설서 매칭",
+            "confidence": 75,
+            "technicalTerms": f"Customs Heading {best_note.heading}",
             "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": f"본 판정은 오프라인 로컬 관세율표 해설서 DB 키워드 검색 결과(제{best_note.heading}호 매칭)에 기반한 참고용 후보입니다. AI 다단계 심층 검증을 거치지 않았으므로, 적법한 세액 신고 및 품목 분류 소명을 위해서는 해설서 주석 및 관세 전문가의 정밀 유선 확인이 필요합니다.",
+            "legalReasoning": f"본 판정은 관세율표 해설서 데이터베이스(제{best_note.heading}호) 및 통칙 제1호에 따라 도출된 분류입니다.",
             "sectionNote": best_note.section if best_note.section else "관련 부의 주석 규정을 참고하십시오.",
             "chapterNote": best_note.chapter if best_note.chapter else f"제{best_note.heading[:2] if len(best_note.heading) >= 2 else ''}류의 주석 규정을 참고하십시오.",
-            "exclusionNote": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
-            "exclusion_reason": f"해당 호({best_note.heading})의 기본 제외 규정을 우선적으로 점검하십시오.",
+            "exclusionNote": f"해당 호({best_note.heading})의 기본 제외 규정을 점검하십시오.",
+            "exclusion_reason": f"해당 호({best_note.heading})의 기본 제외 규정을 점검하십시오.",
             "headingExplanation": best_note.content_ko[:1500],
             "precedents": precedents_list,
-            "competingHsCodes": [
-                {
-                    "hsCode": "9617.00-1000",
-                    "headingName": "보온병류",
-                    "appliedGri": "통칙 제3호 다목",
-                    "reasoning": "이중벽 보온 구조 및 다른 재질과의 결합 상태에 따라 보온 용기류로 분류될 여지가 있어 경합 분석됨.",
-                    "exclusionReason": "단일벽 강화유리 본체이고 진공 단열 구조가 아니므로 보온 용기류에서 제외하여 제7013호로 최종 분류됨."
-                }
-            ] if ("유리" in input_lower or "텀블러" in input_lower) else (
-                [
-                    {
-                        "hsCode": "8479.89-9099",
-                        "headingName": "기타 기계류",
-                        "appliedGri": "통칙 " + ("제3호 다목" if "84" in hsk_code or "85" in hsk_code else "제1호"),
-                        "reasoning": "기계적 구동 장치 및 완제품의 본질적 동작 성능에 기초한 기계류 세번 경합 검토.",
-                        "exclusionReason": "해당 기계적 성능 및 장치 고유 스펙이 본질적 성격에 우선하여 타 류 제외 규정에 따라 배제됨."
-                    }
-                ] if ("84" in hsk_code or "85" in hsk_code) else []
-            )
+            "competingHsCodes": []
         }
 
-    # 매칭되는 정적 룰 및 해설서가 없으면 미분류/가이드 보류 형식으로 안전하게 리턴
+    # 2. Try direct full-text match against official HSCodeMaster table (10-digit)
+    clean_p = product_name.replace(" ", "").strip()
+    if clean_p and len(clean_p) >= 2:
+        from backend.models import HSCodeMaster
+        query_builder = db.query(HSCodeMaster).filter(
+            HSCodeMaster.name_ko.like(f"%{clean_p}%") & (HSCodeMaster.hscode_length == 10)
+        )
+        if allowed_chapters and len(allowed_chapters) < 90:
+            query_builder = query_builder.filter(
+                or_(*[HSCodeMaster.hs_code.like(f"{ch}%") for ch in allowed_chapters])
+            )
+        matched_hsk = query_builder.first()
+        if matched_hsk:
+            ch2 = matched_hsk.hs_code.replace('.', '')[:2]
+            head4 = matched_hsk.hs_code.replace('.', '')[:4]
+            return {
+                "recommendedHsCode": matched_hsk.hs_code,
+                "headingName": f"제{head4[:2]}.{head4[2:]}호 ({matched_hsk.name_ko})",
+                "subheadingName": f"{product_name} -> {matched_hsk.name_ko}",
+                "confidence": 80,
+                "technicalTerms": matched_hsk.name_en or matched_hsk.name_ko,
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"관세청 HSK 마스터 표준 품목명 매칭에 따라 본 물품 '{product_name}'은(는) 제{ch2}류의 HSK 제{matched_hsk.hs_code}호({matched_hsk.name_ko})에 분류됩니다.",
+                "sectionNote": f"관세율표 제{ch2}류 관련 부 주석",
+                "chapterNote": f"제{ch2}류 주(Note) 규정",
+                "exclusionNote": "상세 가공 형태 및 성분에 따라 타 류 제외 규정 여부를 검토하십시오.",
+                "headingExplanation": f"관세청 표준 관세율표 품명: {matched_hsk.name_ko}",
+                "precedents": [],
+                "competingHsCodes": []
+            }
+
+    # 3. 매칭되는 정적 룰 및 해설서가 없으면 미분류/가이드 보류 형식으로 안전하게 리턴
     return {
         "recommendedHsCode": "0000.00-0000",
-        "headingName": "미분류 화물 (매칭 실패)",
-        "subheadingName": f"{product_name} - 상세 사양 검토 요망",
+        "headingName": "판정 보류 (분류 불가)",
+        "subheadingName": f"{product_name} - 상세 품목 규격 및 재질 입력 요망",
         "confidence": 40,
         "technicalTerms": "Unresolved customs query",
         "appliedGris": ["통칙 제1호"],
-        "legalReasoning": f"입력하신 품명 '{product_name}'과 재질/용도 조건은 로컬 데이터베이스 내의 관세율표 해설서 및 통칙 가이드 범주에서 정확한 부합 세번을 찾지 못했습니다. 정확한 분류를 위해 재질(예: 철강제, 플라스틱제, 가죽제)을 상세히 기재해 주십시오.",
+        "legalReasoning": f"입력하신 품명 '{product_name}'과 재질/용도 조건은 관세율표 해설서 및 데이터베이스에서 특정 세번으로 단정하기에 정보가 부족합니다. 엉뚱한 오분류를 방지하기 위해 판정을 일시 보류합니다. 물품의 구체적인 물리적 상태(예: 가공 여부, 주요 재질, 형태)를 입력해 주십시오.",
         "sectionNote": "제외 조항 및 관련 부의 주석 규정을 대조하십시오.",
         "chapterNote": "관세율표 각 류의 제외 물품 리스트를 참고하십시오.",
-        "exclusionNote": "재질 및 가공 방식에 따라 제3926호(플라스틱), 제7326호(철강), 제7117호(모조신변장식용품) 등으로 분산 분류될 수 있습니다.",
+        "exclusionNote": "물품의 물리적 상태와 가공 단계에 따라 전혀 다른 류로 분류될 수 있습니다.",
         "headingExplanation": "세부 사양이 기재되지 않은 단순 제품명만으로는 품목분류 판정이 불가합니다.",
         "precedents": [],
         "competingHsCodes": []
