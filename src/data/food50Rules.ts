@@ -2304,29 +2304,58 @@ export function normalizeFoodSpelling(query: string): string {
   let q = query.toLowerCase();
   const replacements: [string, string][] = [
     ['크렌베리', '크랜베리'],
+    ['그랜베리', '크랜베리'],
+    ['그렌베리', '크랜베리'],
+    ['글랜베리', '크랜베리'],
+    ['클랜베리', '크랜베리'],
+    ['크랜배리', '크랜베리'],
+    ['그랜배리', '크랜베리'],
+    ['크렌배리', '크랜베리'],
+    ['그렌배리', '크랜베리'],
+    ['크랜베릐', '크랜베리'],
     ['불루베리', '블루베리'],
+    ['블루배리', '블루베리'],
+    ['불루배리', '블루베리'],
     ['블렉베리', '블랙베리'],
+    ['블랙배리', '블랙베리'],
+    ['블렉배리', '블랙베리'],
     ['라스베리', '라즈베리'],
+    ['라즈배리', '라즈베리'],
+    ['라스배리', '라즈베리'],
     ['링골베리', '링곤베리'],
     ['아싸이베리', '아사이베리'],
+    ['아사이배리', '아사이베리'],
+    ['아싸이배리', '아사이베리'],
     ['스트로우베리', '딸기'],
     ['스트로베리', '딸기'],
+    ['스트로배리', '딸기'],
     ['초콜렛', '초콜릿'],
     ['초코렛', '초콜릿'],
+    ['초코릿', '초콜릿'],
     ['쵸콜릿', '초콜릿'],
     ['쵸콜렛', '초콜릿'],
+    ['쵸코렛', '초콜릿'],
+    ['쵸코릿', '초콜릿'],
     ['소세지', '소시지'],
     ['쏘세지', '소시지'],
+    ['쏘시지', '소시지'],
+    ['쇼세지', '소시지'],
     ['카라멜', '캐러멜'],
     ['캬라멜', '캐러멜'],
     ['캐라멜', '캐러멜'],
+    ['카러멜', '캐러멜'],
     ['케찹', '케첩'],
+    ['케챂', '케첩'],
     ['마요네스', '마요네즈'],
+    ['마요네쓰', '마요네즈'],
     ['샤인머스켓', '샤인머스캣'],
+    ['샤인머스캇', '샤인머스캣'],
     ['아보가도', '아보카도'],
     ['브로컬리', '브로콜리'],
+    ['브로코리', '브로콜리'],
     ['카모마일', '캐모마일'],
     ['카밀레', '캐모마일'],
+    ['캐모밀', '캐모마일'],
     ['피넛버터', '땅콩버터'],
     ['피넛 버터', '땅콩버터'],
     ['핫케익', '핫케이크'],
@@ -2348,18 +2377,18 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
     return FOOD_50_RULES.find(r => r.id === 52) || null;
   }
 
-  // 1-0b-1. 크랜베리/크렌베리 전용 정밀 분기
-  if (query.includes('크랜베리') || rawQuery.includes('크렌베리') || query.includes('cranberry')) {
+  // 1-0b-1. 크랜베리/그랜베리/크렌베리 전용 정밀 분기
+  if (query.includes('크랜베리') || rawQuery.includes('크랜베리') || rawQuery.includes('그랜베리') || rawQuery.includes('크렌베리') || rawQuery.includes('그렌베리') || rawQuery.includes('글랜베리') || rawQuery.includes('클랜베리') || query.includes('cranberry')) {
     if (query.includes('주스') || query.includes('과즙') || query.includes('juice') || query.includes('농축액') || query.includes('착즙')) {
       return FOOD_50_RULES.find(r => r.id === 57) || null;
     }
     if (query.includes('건조') || query.includes('dried') || query.includes('가당') || query.includes('설탕절임') || query.includes('조제')) {
       return FOOD_50_RULES.find(r => r.id === 56) || null;
     }
-    if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리') || rawQuery.includes('생크렌베리') || rawQuery.includes('생 크렌베리')) {
+    if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리') || rawQuery.includes('생그랜베리') || rawQuery.includes('생 그랜베리') || rawQuery.includes('생크렌베리') || rawQuery.includes('생 크렌베리') || rawQuery.includes('생그렌베리') || rawQuery.includes('생 그렌베리')) {
       return FOOD_50_RULES.find(r => r.id === 55) || null;
     }
-    // 냉동 또는 일반 크랜베리/크렌베리 질의 시 0811.90-9000
+    // 냉동 또는 일반 크랜베리/그랜베리/크렌베리 질의 시 0811.90-9000
     return FOOD_50_RULES.find(r => r.id === 54) || null;
   }
 

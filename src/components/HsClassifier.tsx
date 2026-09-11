@@ -228,10 +228,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     const query = normalizeFoodSpelling(rawQuery);
 
     // 0-0a-1. 크랜베리 (Cranberry) 로컬 분기 (냉동 0811.90-9000 vs 신선 0810.40 vs 조제 2008.93 vs 주스 2009.81)
-    if (query.includes('크랜베리') || rawQuery.includes('크렌베리') || query.includes('cranberry')) {
+    if (query.includes('크랜베리') || rawQuery.includes('크랜베리') || rawQuery.includes('그랜베리') || rawQuery.includes('크렌베리') || rawQuery.includes('그렌베리') || rawQuery.includes('글랜베리') || rawQuery.includes('클랜베리') || query.includes('cranberry')) {
       if (query.includes('주스') || query.includes('juice') || query.includes('과즙') || query.includes('착즙') || query.includes('농축액')) {
         return {
-          keywordTrigger: ['크랜베리 주스', 'cranberry juice'],
+          keywordTrigger: ['크랜베리 주스', '그랜베리 주스', 'cranberry juice'],
           recommendedHsCode: "2009.81-0000",
           headingName: "제2009호 (과실 주스와 채소 주스 - 발효하지 않은 것으로서 주정을 첨가하지 않은 것)",
           subheadingName: "제2009.81-0000호 (크랜베리 주스)",
@@ -249,7 +249,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       }
       if (query.includes('건조') || query.includes('dried') || query.includes('가당') || query.includes('설탕절임') || query.includes('조제')) {
         return {
-          keywordTrigger: ['건조 크랜베리', '조제 크랜베리', 'dried cranberry'],
+          keywordTrigger: ['건조 크랜베리', '건조 그랜베리', '조제 크랜베리', 'dried cranberry'],
           recommendedHsCode: "2008.93-0000",
           headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
           subheadingName: "제2008.93-0000호 (크랜베리 - 조제하거나 저장처리한 것)",
@@ -265,9 +265,9 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
           competingHsCodes: []
         };
       }
-      if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리')) {
+      if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리') || rawQuery.includes('생그랜베리') || rawQuery.includes('생 그랜베리') || rawQuery.includes('생크렌베리') || rawQuery.includes('생 크렌베리') || rawQuery.includes('생그렌베리') || rawQuery.includes('생 그렌베리')) {
         return {
-          keywordTrigger: ['신선 크랜베리', 'fresh cranberry'],
+          keywordTrigger: ['신선 크랜베리', '신선 그랜베리', 'fresh cranberry'],
           recommendedHsCode: "0810.40-0000",
           headingName: "제0810호 (그 밖의 과실 - 신선한 것으로 한정한다)",
           subheadingName: "제0810.40-0000호 (크랜베리ㆍ빌베리와 그 밖의 박시니엄속의 과실)",
@@ -285,7 +285,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       }
       // Default: 냉동 크랜베리 (Frozen Cranberries)
       return {
-        keywordTrigger: ['냉동 크랜베리', '냉동크랜베리', '크랜베리', 'frozen cranberry'],
+        keywordTrigger: ['냉동 크랜베리', '냉동크랜베리', '냉동 그랜베리', '냉동그랜베리', '크랜베리', '그랜베리', '크렌베리', '그렌베리', 'frozen cranberry'],
         recommendedHsCode: "0811.90-9000",
         headingName: "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
         subheadingName: "제0811.90호 (기타 - 냉동 크랜베리 등 기타 냉동 과실)",

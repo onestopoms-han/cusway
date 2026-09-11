@@ -115,7 +115,7 @@ def test_cranberry_family_cases():
                 "expected": "0811.90-9000",
                 "forbidden": ["0000.00-0000", "2106"]
             },
-            # 1-a. 냉동크렌베리 (Frozen Cranberries - '렌' 음운 표기)
+            # 1-a. 냉동크렌베리 (Frozen Cranberries - '렌' 모음 변이)
             {
                 "prod": "냉동크렌베리",
                 "mat": "",
@@ -123,9 +123,48 @@ def test_cranberry_family_cases():
                 "expected": "0811.90-9000",
                 "forbidden": ["0000.00-0000", "2106"]
             },
-            # 1-b. 크렌베리 단독 질의 ('렌' 음운 표기)
+            # 1-b. 크렌베리 단독 질의 ('렌' 모음 변이)
             {
                 "prod": "크렌베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            # 1-c. 그랜베리 단독 질의 (ㄱ/ㅋ 자음 음운 변이)
+            {
+                "prod": "그랜베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            # 1-d. 냉동그랜베리 (ㄱ/ㅋ 자음 음운 변이)
+            {
+                "prod": "냉동그랜베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            # 1-e. 냉동 그랜베리 (띄어쓰기 + ㄱ/ㅋ 자음 음운 변이)
+            {
+                "prod": "냉동 그랜베리",
+                "mat": "그랜베리 100%",
+                "func": "식품",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            # 1-f. 그렌베리 / 냉동그렌베리 (ㄱ/ㅋ + ㅐ/ㅔ 복합 변이)
+            {
+                "prod": "그렌베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            {
+                "prod": "냉동그렌베리",
                 "mat": "",
                 "func": "",
                 "expected": "0811.90-9000",
@@ -139,7 +178,7 @@ def test_cranberry_family_cases():
                 "expected": "0811.90-9000",
                 "forbidden": ["0000.00-0000"]
             },
-            # 3. 신선 크랜베리 (Fresh Cranberries)
+            # 3. 신선 크랜베리 / 신선 그랜베리 (Fresh Cranberries)
             {
                 "prod": "신선 크랜베리",
                 "mat": "크랜베리 생과",
@@ -147,7 +186,14 @@ def test_cranberry_family_cases():
                 "expected": "0810.40-0000",
                 "forbidden": ["0811"]
             },
-            # 4. 건조 크랜베리 / 조제 크랜베리 (Prepared / Dried Cranberries)
+            {
+                "prod": "신선 그랜베리",
+                "mat": "그랜베리 생과",
+                "func": "생식용",
+                "expected": "0810.40-0000",
+                "forbidden": ["0811"]
+            },
+            # 4. 건조 크랜베리 / 조제 크랜베리 / 건조 그랜베리
             {
                 "prod": "건조 크랜베리",
                 "mat": "크랜베리 80%, 설탕 20%",
@@ -155,10 +201,24 @@ def test_cranberry_family_cases():
                 "expected": "2008.93-0000",
                 "forbidden": ["0811"]
             },
-            # 5. 크랜베리 주스 (Cranberry Juice)
+            {
+                "prod": "건조 그랜베리",
+                "mat": "그랜베리 80%, 설탕 20%",
+                "func": "제과용",
+                "expected": "2008.93-0000",
+                "forbidden": ["0811"]
+            },
+            # 5. 크랜베리 주스 / 그랜베리 주스
             {
                 "prod": "크랜베리 주스",
                 "mat": "크랜베리 착즙액 100%",
+                "func": "음료",
+                "expected": "2009.81-0000",
+                "forbidden": ["2202"]
+            },
+            {
+                "prod": "그랜베리 주스",
+                "mat": "그랜베리 착즙액 100%",
                 "func": "음료",
                 "expected": "2009.81-0000",
                 "forbidden": ["2202"]
