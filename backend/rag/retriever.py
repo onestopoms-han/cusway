@@ -2186,13 +2186,32 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
     # Clean query and parse/normalize text keywords
     raw_keywords = [kw.strip() for kw in re.split(r'[\s,\.\-\(\)]+', split_query) if len(kw.strip()) >= 2]
     
-    # Sub-word expansion for unspaced Korean compound nouns
-    KNOWN_SUBWORDS = ["자동차", "차량", "시트", "하중", "충격", "충돌", "크래시", "에어백", "가속도", "센서", "승객", "감지", "로드셀", "압력", "온도", "스위치", "모터", "감속기", "밸브", "펌프", "배터리", "인버터"]
+    # Sub-word expansion for unspaced Korean compound nouns across all customs domains
+    CUSTOMS_SUBWORDS_VOCAB = [
+        # 1. Food, Agri, Bio, Health, Oils & Dietary
+        "올리브오일", "올리브유", "올리브", "오일", "식물성", "동물성", "연질", "캡슐", "식이보충", "식이섬유", "영양제", "보충제", "건강기능",
+        "오메가3", "오메가", "크릴오일", "정제어유", "루테인", "지아잔틴", "프로폴리스", "유산균", "비타민", "정제", "분말", "가루", "엑기스", "추출물", "농축액",
+        "치아바타", "바게트", "식빵", "크루아상", "페이스트리", "케이크", "머핀", "스콘", "와플", "도넛", "쿠키", "비스킷", "크래커", "베이커리",
+        "요거트", "요구르트", "그릭요거트", "발효유", "아이스크림", "빙과", "젤라또", "소르베", "치즈", "버터", "유청", "분유", "원유", "우유", "연유",
+        "파스타", "스파게티", "시리얼", "그래놀라", "김치", "퓨레", "녹차", "홍차", "원두", "커피", "라떼", "밀크티", "말차", "효모", "이스트",
+        "참깨", "들깨", "참기름", "들기름", "팜유", "피마자유", "코코아", "초콜릿", "캔디", "사탕", "설탕", "시럽", "벌꿀", "로열젤리",
+        "연어", "송어", "참치", "고등어", "명태", "어묵", "맛살", "어육", "새우", "꽃게", "대게", "킹크랩", "바다가재", "문어", "낙지", "오징어", "어분",
+        "닭가슴살", "가슴살", "삼겹살", "소고기", "쇠고기", "돼지고기", "우육", "돈육", "계육", "하몽", "생햄", "소시지", "순대",
+        # 2. Tech, Electronics, Sensors, Machinery, Metals & Transport
+        "자동차", "차량", "시트", "하중", "충격", "충돌", "크래시", "에어백", "가속도", "자이로", "센서", "승객", "감지", "로드셀", "압력", "온도", "서미스터",
+        "스위치", "모터", "감속기", "밸브", "펌프", "배터리", "인버터", "반도체", "인터페이스", "펠리클", "프로브", "모듈", "변압기", "변위", "엔코더",
+        "유도형", "근접", "광전", "포토", "초음파", "유량", "진동", "음향방출", "비파괴", "두께", "결함", "점도", "파티클", "유독가스", "질량", "액위", "변류기",
+        "미세먼지", "수질", "연기", "혈당", "심전도", "포토다이오드", "집적회로", "레이저", "노광", "머시닝", "서보", "인쇄기", "연소실", "컨테이너", "수술대",
+        "지르코니아", "인공치아", "라이다", "레이더", "무빙라이트", "샤프트", "손목시계", "내화벽돌", "석영관", "이형철근", "벨로우즈", "플라이어", "육각볼트",
+        "서류캐비닛", "터보분자", "튀김기", "칩마운터", "프레스", "로봇", "전동기", "발전기", "커넥터", "커패시터", "릴레이", "프로세서", "와이어", "케이블"
+    ]
+    
     expanded = []
     for rk in raw_keywords:
         expanded.append(rk)
-        if len(rk) >= 4:
-            for sw in KNOWN_SUBWORDS:
+        if len(rk) >= 3:
+            # Substring extraction against customs vocabulary
+            for sw in CUSTOMS_SUBWORDS_VOCAB:
                 if sw in rk and sw not in expanded:
                     expanded.append(sw)
     raw_keywords = expanded
@@ -2301,11 +2320,13 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
             elif num_kw in heading_clean:
                 score += 500
         
-        # Factor B: Keyword match in heading title/code
+        # Factor B & C: Keyword match in heading title/code & content
+        matched_kw_count = 0
         for kw in keywords:
             kw_lower = kw.lower()
             if kw_lower == heading_clean or kw_lower in heading_raw:
                 score += 250
+                matched_kw_count += 1
                 
             # Factor C: Frequency score in description content (Korean & English cross frequency)
             occurrences = content_lower.count(kw_lower)
@@ -2316,6 +2337,7 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
                 
             if occurrences > 0:
                 score += min(occurrences * 10, 80)
+                matched_kw_count += 1
                 
             # Factor D: Core keyword heavy boost to prevent irrelevant heading takeovers
             if kw_lower in CORE_KEYWORDS:
@@ -2326,6 +2348,10 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
                 if kw_lower in heading_raw or kw_lower in content_lower[:300]:
                     score += 1200
                     
+        # Multi-keyword Co-occurrence Synergy Bonus:
+        if matched_kw_count >= 2:
+            score += (matched_kw_count * 50)
+
         # Factor F: Custom HS Heading Anchor Heavy Boost (Ensure 100% precision match for test queries)
         query_lower = query.lower()
         for anchor_key, allowed_headings in HEADING_ANCHORS.items():
@@ -2345,8 +2371,8 @@ def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = No
         if "_" in heading_raw or heading_clean.endswith("s") or heading_clean.endswith("g") or len(heading_clean) < 4:
             score -= 5000
                 
-        # Must have genuine keyword or anchor match (threshold >= 100)
-        if score >= 100:
+        # Genuine match threshold (>= 100 for single keyword, or >= 60 for multi-keyword combinations)
+        if score >= 100 or (matched_kw_count >= 2 and score >= 60):
             matches.append((note, score))
 
     # Sort matches by calculated score in descending order
