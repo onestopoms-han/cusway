@@ -2287,6 +2287,113 @@ FOOD_50_BACKEND_RULES = [
                 "exclusionReason": "녹차/말차 추출물이 기본 재료이므로 제2101.20호에 분류됩니다."
             }
         ]
+    },
+    {
+        "id": 60,
+        "name": "치아바타 (바게트 / 식빵 / 구운 빵 완제품)",
+        "keywords": [
+            "치아바타", "치아바타빵", "치아바타 빵", "ciabatta", "바게트", "바게뜨", "baguette",
+            "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia",
+            "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵",
+            "플랫브레드", "난", "naan", "피타브레드", "빵", "냉동 빵", "bread"
+        ],
+        "recommendedHsCode": "1905.90-1010",
+        "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품, 팽창제ㆍ효모를 함유한 것)",
+        "subheadingName": "제1905.90-1010호 (베이커리 제품 - 빵)",
+        "confidence": 99,
+        "technicalTerms": "Baked bread, Ciabatta, Baguette, Sourdough, Focaccia, Bagel (Bakers' wares)",
+        "appliedGris": ["통칙 제1호", "통칙 제6호", "제1905호 해설서"],
+        "legalReasoning": "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품(치아바타, 바게트 등)은 밀가루, 물, 효모, 소금 등을 주원료로 반죽하여 발효 후 오븐에 구워낸 베이커리 완제품(빵)입니다.\n2. 관세율표 제1905호는 '빵·파이·케이크·비스킷과 그 밖의 베이커리 제품'을 분류하며, 해설서상 일반 빵(식빵, 바게트, 치아바타, 호밀빵 등 구운 빵)은 소호 제1905.90호의 베이커리 제품 중 세부 품목번호 HSK 제1905.90-1010호(빵)에 직접 확정 분류됩니다.\n3. (구분) 미소성 냉동 생지(반죽) 상태로 수입되는 경우는 제1901.20호로 분류되나, 이미 구워진 완제품 빵은 제1905.90-1010호에 해당합니다.",
+        "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
+        "chapterNote": "제19류 곡물ㆍ고운 가루ㆍ거친 가루ㆍ전분ㆍ우유의 조제품과 베이커리 제품",
+        "exclusionNote": "⚠️ 굽지 않은 냉동 반죽 생지(dough/premix)는 제1901.20호로 분류되며, 파스타/면류는 제1902호로 분류됩니다.",
+        "headingExplanation": "WCO 제1905호 해설: 식빵, 호밀빵, 바게트, 치아바타 등 모든 종류의 구운 빵(Bread)을 본 호에 분류함.",
+        "precedents": [
+            {
+                "id": "품목분류사전회시 2021-0412",
+                "title": "냉동 치아바타 완제품 빵의 품목분류",
+                "code": "1905.90-1010",
+                "issuingBody": "관세평가분류원",
+                "date": "2021-06-15",
+                "similarity": 99,
+                "reasoningSnippet": "완전 소성된 치아바타 빵은 제1905.90-1010호에 분류함."
+            }
+        ],
+        "competingHsCodes": [
+            {
+                "hsCode": "1901.20-2000",
+                "headingName": "제1901.20호 베이커리 제품 제조용 반죽 (굽지 않은 생지)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "성형 후 굽지 않은 냉동 생지 상태일 경우 검토되는 세번입니다.",
+                "exclusionReason": "이미 구워진 완제품(소성 완료)이므로 제1905.90-1010호로 확정됩니다."
+            },
+            {
+                "hsCode": "1902.11-9000",
+                "headingName": "제1902호 파스타 (면류 조제품)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "밀가루 반죽 조제품으로 오분류 검토될 수 있습니다.",
+                "exclusionReason": "이스트 발효 후 오븐에 구운 빵(베이커리)이므로 제1902호에서 배제되고 제1905호로 분류됩니다."
+            }
+        ]
+    },
+    {
+        "id": 61,
+        "name": "크루아상 / 페이스트리 / 케이크 (고급 베이커리)",
+        "keywords": [
+            "크루아상", "크로와상", "croissant", "페이스트리", "페스츄리", "pastry",
+            "케이크", "케익", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart",
+            "파이", "pie", "와플", "waffle", "도넛", "도너츠", "donut", "doughnut"
+        ],
+        "recommendedHsCode": "1905.90-1030",
+        "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+        "subheadingName": "제1905.90-1030호 (베이커리 제품 - 페이스트리와 케이크)",
+        "confidence": 99,
+        "technicalTerms": "Pastry, Cakes, Croissants, Muffins, Scones (Bakers' wares)",
+        "appliedGris": ["통칙 제1호", "통칙 제6호"],
+        "legalReasoning": "관세율표 일반통칙 제1호 및 제6호에 따라, 버터/유지 함량이 높은 페이스트리 반죽으로 구운 크루아상, 케이크, 머핀, 파이 등은 HSK 제1905.90-1030호(페이스트리와 케이크)에 분류됩니다.",
+        "sectionNote": "제4부 조제 식료품",
+        "chapterNote": "제19류 곡물 조제품 및 베이커리 제품",
+        "exclusionNote": "⚠️ 단순 식빵/바게트는 제1905.90-1010호, 비스킷/쿠키는 제1905.90-1040호로 분류됩니다.",
+        "headingExplanation": "WCO 제1905호 해설: 버터, 설탕, 계란 등이 다량 함유된 파이, 케이크, 페이스트리, 크루아상 등을 분류함.",
+        "precedents": [],
+        "competingHsCodes": [
+            {
+                "hsCode": "1905.90-1010",
+                "headingName": "일반 빵 (식빵, 바게트)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "일반 빵류 세번 적용 검토",
+                "exclusionReason": "페이스트리/케이크류 조제품에 해당하므로 제1905.90-1030호에 분류됩니다."
+            }
+        ]
+    },
+    {
+        "id": 62,
+        "name": "쿠키 / 비스킷 / 크래커 (과자류)",
+        "keywords": [
+            "쿠키", "cookie", "cookies", "비스킷", "비스켓", "biscuit",
+            "크래커", "크랙커", "cracker", "스낵과자", "웨이퍼", "wafer"
+        ],
+        "recommendedHsCode": "1905.90-1040",
+        "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+        "subheadingName": "제1905.90-1040호 (베이커리 제품 - 비스킷, 쿠키와 크래커)",
+        "confidence": 99,
+        "technicalTerms": "Biscuits, Cookies, Crackers, Wafers",
+        "appliedGris": ["통칙 제1호", "통칙 제6호"],
+        "legalReasoning": "관세율표 일반통칙 제1호 및 제6호에 따라, 밀가루를 구워 만든 바삭한 건과자류인 쿠키, 크래커, 비스킷은 HSK 제1905.90-1040호에 분류됩니다.",
+        "sectionNote": "제4부 조제 식료품",
+        "chapterNote": "제19류 곡물 조제품 및 베이커리 제품",
+        "exclusionNote": "⚠️ 당류만으로 제조된 사탕/캔디는 제1704호, 초콜릿 과자는 제1905호 또는 제1806호로 분류됩니다.",
+        "headingExplanation": "WCO 제1905호 해설: 건조 구운 과자류인 비스킷, 쿠키, 크래커 등을 분류함.",
+        "precedents": [],
+        "competingHsCodes": [
+            {
+                "hsCode": "1704.90-9000",
+                "headingName": "설탕과자 (사탕, 젤리)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "과자류로 오분류 검토",
+                "exclusionReason": "곡분(밀가루)을 구운 베이커리 과자이므로 제1905호에 분류됩니다."
+            }
+        ]
     }
 ]
 
@@ -2354,7 +2461,14 @@ def normalize_food_spelling(query: str) -> str:
         ("팬케익", "팬케이크"),
         ("라테", "라떼"),
         ("라떼파우다", "라떼파우더"),
-        ("랃떼", "라떼")
+        ("랃떼", "라떼"),
+        ("치아바타빵", "치아바타"),
+        ("치아바타 빵", "치아바타"),
+        ("바게뜨", "바게트"),
+        ("크로와상", "크루아상"),
+        ("페스츄리", "페이스트리"),
+        ("도너츠", "도넛"),
+        ("케익", "케이크")
     ]
     for src, dst in replacements:
         q = q.replace(src, dst)
@@ -2370,6 +2484,19 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     query = normalize_food_spelling(raw_query)
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
+    # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호)
+    if any(k in pm_norm or k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
+        # 만약 프리믹스/생지/반죽인 경우
+        if any(d in pm_norm for d in ["믹스", "생지", "반죽", "dough", "mix", "프리믹스"]):
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 25)
+        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 60)
+    
+    if any(k in pm_norm or k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "파이", "pie", "와플", "waffle", "도넛", "donut", "doughnut"]):
+        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 61)
+
+    if any(k in pm_norm or k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨이퍼", "wafer"]):
+        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 62)
+
     # 1-0a. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
     if any(k in query or k in raw_query for k in ["혼합 과일", "혼합과일", "혼합 과실", "베리 믹스", "베리믹스", "mixed fruit", "mixed berries", "frozen mixed", "냉동 과일", "냉동과일", "단순 냉동 과일"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 52)
@@ -2379,19 +2506,15 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         if any(g in pm_norm or g in p_norm for g in ["녹차", "말차", "그린티", "matcha", "green tea"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 59)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 58)
-    if any(k in query or k in raw_query for k in ["혼합 과일", "혼합과일", "혼합 과실", "베리 믹스", "베리믹스", "mixed fruit", "mixed berries", "frozen mixed", "냉동 과일", "냉동과일", "단순 냉동 과일"]):
-        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 52)
 
     # 1-0b-1. 크랜베리/그랜베리/크렌베리 전용 정밀 분기
     if any(k in pm_norm or k in p_norm for k in ["크랜베리", "그랜베리", "크렌베리", "그렌베리", "글랜베리", "클랜베리", "cranberry"]):
-        # 주스인지 여부는 대상 품목명/원재료(pm_norm) 자체에 주스/착즙액이 명시된 경우로 한정 (용도에 주스 제조용이 적힌 경우는 원물 과실 0811 유지)
         if any(j in pm_norm for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 57)
         if any(d in pm_norm for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 56)
         if any(fr in pm_norm for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리", "생그랜베리", "생 그랜베리", "생크렌베리", "생 크렌베리", "생그렌베리", "생 그렌베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 55)
-        # 냉동 또는 일반 크랜베리/그랜베리/크렌베리 질의 시 0811.90-9000
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
 
     # 1-0b-2. 블루베리 / 빌베리 정밀 분기
@@ -2469,10 +2592,8 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
 
     # 2. 나머지 일반 루프 매칭
     for rule in FOOD_50_BACKEND_RULES:
-        # 벌꿀 룰(43, 44)은 사탕/과자류 질의일 경우 매칭 제외
         if rule["id"] in [43, 44] and any(ex in query for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
             continue
-        # 식용 유지 질의일 경우 종자 룰(14, 18, 19) 매칭 제외
         if rule["id"] in [14, 18, 19] and any(ex in query for ex in ["들기름", "참기름", "오일", "oil", "기름", "유지", "압착유"]):
             continue
             

@@ -19,7 +19,10 @@ FOOD_TRIGGER_PATTERNS = [
     r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
     r"와인", r"포도주", r"위스키", r"맥주", r"주류", r"라거",
     r"캐모마일", r"카모마일", r"침출차", r"허브티", r"연유", r"하몽", r"생햄", r"이베리코", r"맥아", r"몰트", r"글루텐", r"조미\s*김", r"김\s*스낵", r"조미김",
-    r"라떼", r"라테", r"밀크티", r"말차", r"그린티", r"조제커피", r"커피믹스", r"바닐라라떼", r"파우더"
+    r"라떼", r"라테", r"밀크티", r"말차", r"그린티", r"조제커피", r"커피믹스", r"바닐라라떼", r"파우더",
+    r"치아바타", r"ciabatta", r"바게트", r"baguette", r"깜빠뉴", r"깜파뉴", r"campagne", r"사워도우", r"sourdough", r"포카치아", r"focaccia",
+    r"식빵", r"구운\s*빵", r"베이글", r"bagel", r"브리오슈", r"brioche", r"호밀빵", r"통밀빵", r"플랫브레드", r"피타브레드", r"빵",
+    r"크루아상", r"croissant", r"페이스트리", r"pastry", r"케이크", r"cake", r"머핀", r"스콘", r"와플", r"도넛", r"쿠키", r"비스킷", r"크래커", r"베이커리"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -45,6 +48,38 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     Section Notes, and Chapter Notes.
     """
     combined = f"{product_name} {material} {function_use}".lower()
+
+    # 0-0. 구운 베이커리 완제품 (치아바타, 바게트, 식빵, 사워도우, 포카치아 등 - 제1905호)
+    if any(k in combined for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "사워도우", "포카치아", "식빵", "구운 빵", "베이글", "브리오슈", "호밀빵", "통밀빵", "플랫브레드", "빵"]):
+        if not any(ex in combined for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "1905.90-1010",
+                "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+                "subheadingName": f"{product_name} (구운 베이커리 완제품 - 빵)",
+                "confidence": 99,
+                "technicalTerms": "Bakers' wares / Bread, Ciabatta, Baguette, Sourdough, Focaccia",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제1905호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 곡분, 물, 효모, 식염 등을 주원료로 반죽·발효하여 오븐에 구워낸 베이커리 완제품(빵)입니다.\n나. 관세율표 분류: 관세율표 제1905호는 빵·파이·케이크 및 기타 베이커리 제품을 분류하며, 해설서상 구운 일반 빵류는 소호 제1905.90호의 세부 HSK 제1905.90-1010호(빵)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1905.90-1010호에 확정 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품 (곡물 조제품 및 베이커리)",
+                "chapterNote": "제19류 제1905호 해설서",
+                "exclusionNote": "굽지 않은 냉동 반죽 생지(제1901.20호) 및 파스타/면류(제1902호)와 구분하십시오."
+            }
+
+    if any(k in combined for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "스콘", "와플", "도넛"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1905.90-1030",
+            "headingName": "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+            "subheadingName": f"{product_name} (페이스트리와 케이크)",
+            "confidence": 99,
+            "technicalTerms": "Bakers' wares / Pastry and Cakes",
+            "appliedGris": ["통칙 제1호", "통칙 제6호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 버터/유지 배합 페이스트리 반죽으로 구워낸 케이크·페이스트리류입니다.\n나. 관세율표 분류: 제1905.90-1030호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1905.90-1030호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품",
+            "chapterNote": "제19류 제1905호",
+            "exclusionNote": "일반 빵(1905.90-1010) 및 비스킷/쿠키(1905.90-1040)와 구분하십시오."
+        }
 
     # 0-A. 생연어 원어 (통연어 라운드 - 제0302호) vs 연어 필레 (제0304호)
     if any(k in combined for k in ["생연어 원어", "연어 원어", "원어 라운드", "통연어", "신선 연어 원어"]) and not any(ex in combined for ex in ["필레", "필렛", "어육", "살코기"]):

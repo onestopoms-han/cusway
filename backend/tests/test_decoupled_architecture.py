@@ -268,8 +268,34 @@ def test_latte_family_cases():
     finally:
         db.close()
 
+def test_bakery_bread_family_cases():
+    db = SessionLocal()
+    try:
+        bakery_cases = [
+            ("치아바타", "", "", "1905.90-1010"),
+            ("치아바타 빵", "소맥분, 효모, 올리브유", "식용", "1905.90-1010"),
+            ("냉동 치아바타", "밀가루, 이스트, 소금", "샌드위치용", "1905.90-1010"),
+            ("바게트", "밀가루, 효모, 물", "베이커리", "1905.90-1010"),
+            ("사워도우", "호밀가루, 발효종", "식용 빵", "1905.90-1010"),
+            ("포카치아", "밀가루, 올리브유, 허브", "식용 빵", "1905.90-1010"),
+            ("크루아상", "밀가루, 버터, 설탕", "베이커리", "1905.90-1030"),
+            ("초코칩 쿠키", "밀가루, 버터, 초콜릿칩", "과자용", "1905.90-1040"),
+            ("냉동 치아바타 생지", "밀가루 반죽", "제빵용 생지", "1901.20-9000")
+        ]
+        print("\n=== RUNNING BAKERY / BREAD FAMILY TESTS ===")
+        for prod, mat, func, expected in bakery_cases:
+            res = AICustomsClassificationProcessor.run_classification_pipeline(prod, mat, func, db)
+            hs = res.get("recommendedHsCode", "")
+            print(f"[Bakery] {prod} -> {hs} (Expected: {expected})")
+            assert hs == expected, f"Bakery '{prod}' failed: got {hs}, expected {expected}"
+            assert not hs.startswith("8306"), f"Bakery '{prod}' contaminated with metal statuette 8306!"
+        print("=== ALL BAKERY TESTS PASSED 100% ===")
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     test_detect_query_domain()
     test_5_kakaotalk_failure_cases()
     test_cranberry_family_cases()
     test_latte_family_cases()
+    test_bakery_bread_family_cases()

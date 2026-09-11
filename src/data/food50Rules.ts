@@ -2385,6 +2385,107 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
         exclusionReason: "녹차/말차 추출물이 기본 재료이므로 제2101.20호에 분류됩니다."
       }
     ]
+  },
+  {
+    id: 60,
+    name: "치아바타 (바게트 / 식빵 / 구운 빵 완제품)",
+    material: "소맥분(밀가루), 물, 효모(이스트), 소금, 올리브유 등",
+    functionUse: "식용 베이커리 완제품 빵",
+    category: "베이커리 제품 (19류)",
+    recommendedHsCode: "1905.90-1010",
+    headingName: "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+    subheadingName: "제1905.90-1010호 (베이커리 제품 - 빵)",
+    confidence: 99,
+    technicalTerms: "Baked bread, Ciabatta, Baguette, Sourdough, Focaccia, Bagel (Bakers' wares)",
+    appliedGris: ["통칙 제1호", "통칙 제6호", "제1905호 해설서"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품(치아바타 등)은 소맥분, 효모, 식염 등을 주원료로 반죽·발효하여 오븐에 구워낸 베이커리 완제품(빵)입니다.\n2. 관세율표 제1905호는 '빵·파이·케이크·비스킷과 그 밖의 베이커리 제품'을 분류하며, 해설서상 구운 일반 빵(식빵, 바게트, 치아바타, 호밀빵 등)은 소호 제1905.90호의 세부 HSK 제1905.90-1010호(빵)에 직접 확정 분류됩니다.\n3. (구분) 미소성 냉동 생지(반죽) 상태는 제1901.20호에 해당하나, 이미 구워진 완제품 빵은 제1905.90-1010호로 확정됩니다.",
+    sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초",
+    chapterNote: "제19류 곡물ㆍ고운 가루ㆍ거친 가루ㆍ전분ㆍ우유의 조제품과 베이커리 제품",
+    exclusionNote: "⚠️ 굽지 않은 냉동 반죽 생지(dough/premix)는 제1901.20호, 파스타는 제1902호로 분류됩니다.",
+    headingExplanation: "WCO 제1905호 해설: 식빵, 바게트, 치아바타 등 모든 종류의 구운 빵(Bread)을 본 호에 분류함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2021-0412",
+        title: "냉동 치아바타 완제품 빵의 품목분류",
+        code: "1905.90-1010",
+        issuingBody: "관세평가분류원",
+        date: "2021-06-15",
+        similarity: 99,
+        reasoningSnippet: "완전 소성된 치아바타 빵은 제1905.90-1010호에 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "1901.20-2000",
+        headingName: "제1901.20호 베이커리 제품 제조용 반죽 (굽지 않은 생지)",
+        appliedGri: "통칙 제1호",
+        reasoning: "성형 후 굽지 않은 냉동 생지 상태일 경우 검토되는 세번입니다.",
+        exclusionReason: "이미 구워진 완제품(소성 완료)이므로 제1905.90-1010호로 확정됩니다."
+      },
+      {
+        hsCode: "1902.11-9000",
+        headingName: "제1902호 파스타 (면류 조제품)",
+        appliedGri: "통칙 제1호",
+        reasoning: "밀가루 반죽 조제품으로 오분류 검토될 수 있습니다.",
+        exclusionReason: "이스트 발효 후 오븐에 구운 빵(베이커리)이므로 제1902호에서 배제되고 제1905호로 분류됩니다."
+      }
+    ]
+  },
+  {
+    id: 61,
+    name: "크루아상 / 페이스트리 / 케이크 (고급 베이커리)",
+    material: "소맥분, 버터, 당류, 난황 등",
+    functionUse: "식용 케이크 및 페이스트리 과자류",
+    category: "베이커리 제품 (19류)",
+    recommendedHsCode: "1905.90-1030",
+    headingName: "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+    subheadingName: "제1905.90-1030호 (베이커리 제품 - 페이스트리와 케이크)",
+    confidence: 99,
+    technicalTerms: "Pastry, Cakes, Croissants, Muffins, Scones (Bakers' wares)",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 일반통칙 제1호 및 제6호에 따라, 버터/유지 함량이 높은 페이스트리 반죽으로 구운 크루아상, 케이크, 머핀, 파이 등은 HSK 제1905.90-1030호(페이스트리와 케이크)에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제19류 곡물 조제품 및 베이커리 제품",
+    exclusionNote: "⚠️ 단순 식빵/바게트는 제1905.90-1010호, 비스킷/쿠키는 제1905.90-1040호로 분류됩니다.",
+    headingExplanation: "WCO 제1905호 해설: 버터, 설탕, 계란 등이 다량 함유된 파이, 케이크, 페이스트리, 크루아상 등을 분류함.",
+    precedents: [],
+    competingHsCodes: [
+      {
+        hsCode: "1905.90-1010",
+        headingName: "일반 빵 (식빵, 바게트)",
+        appliedGri: "통칙 제1호",
+        reasoning: "일반 빵류 세번 적용 검토",
+        exclusionReason: "페이스트리/케이크류 조제품에 해당하므로 제1905.90-1030호에 분류됩니다."
+      }
+    ]
+  },
+  {
+    id: 62,
+    name: "쿠키 / 비스킷 / 크래커 (과자류)",
+    material: "소맥분, 당류, 식물성유지, 팽창제",
+    functionUse: "식용 건과자",
+    category: "베이커리 제품 (19류)",
+    recommendedHsCode: "1905.90-1040",
+    headingName: "제1905호 (빵ㆍ파이ㆍ케이크ㆍ비스킷과 그 밖의 베이커리 제품)",
+    subheadingName: "제1905.90-1040호 (베이커리 제품 - 비스킷, 쿠키와 크래커)",
+    confidence: 99,
+    technicalTerms: "Biscuits, Cookies, Crackers, Wafers",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 일반통칙 제1호 및 제6호에 따라, 밀가루를 구워 만든 바삭한 건과자류인 쿠키, 크래커, 비스킷은 HSK 제1905.90-1040호에 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제19류 곡물 조제품 및 베이커리 제품",
+    exclusionNote: "⚠️ 당류만으로 제조된 사탕/캔디는 제1704호, 초콜릿 과자는 제1905호 또는 제1806호로 분류됩니다.",
+    headingExplanation: "WCO 제1905호 해설: 건조 구운 과자류인 비스킷, 쿠키, 크래커 등을 분류함.",
+    precedents: [],
+    competingHsCodes: [
+      {
+        hsCode: "1704.90-9000",
+        headingName: "설탕과자 (사탕, 젤리)",
+        appliedGri: "통칙 제1호",
+        reasoning: "과자류로 오분류 검토",
+        exclusionReason: "곡분(밀가루)을 구운 베이커리 과자이므로 제1905호에 분류됩니다."
+      }
+    ]
   }
 ];
 
@@ -2451,7 +2552,14 @@ export function normalizeFoodSpelling(query: string): string {
     ['팬케익', '팬케이크'],
     ['라테', '라떼'],
     ['라떼파우다', '라떼파우더'],
-    ['랃떼', '라떼']
+    ['랃떼', '라떼'],
+    ['치아바타빵', '치아바타'],
+    ['치아바타 빵', '치아바타'],
+    ['바게뜨', '바게트'],
+    ['크로와상', '크루아상'],
+    ['페스츄리', '페이스트리'],
+    ['도너츠', '도넛'],
+    ['케익', '케이크']
   ];
   for (const [src, dst] of replacements) {
     q = q.replace(new RegExp(src, 'g'), dst);
@@ -2469,6 +2577,22 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   const query = normalizeFoodSpelling(rawQuery);
   
   // 1. 최우선 특수 품목 판정 (혼동 방지)
+  // 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호)
+  if (pmNorm.includes('치아바타') || pNorm.includes('치아바타') || pmNorm.includes('ciabatta') || pmNorm.includes('바게트') || pmNorm.includes('baguette') || pmNorm.includes('깜빠뉴') || pmNorm.includes('깜파뉴') || pmNorm.includes('사워도우') || pmNorm.includes('포카치아') || pmNorm.includes('식빵') || pmNorm.includes('구운 빵') || pmNorm.includes('베이글') || pmNorm.includes('브리오슈') || pmNorm.includes('호밀빵') || pmNorm.includes('통밀빵') || pmNorm.includes('빵')) {
+    if (pmNorm.includes('믹스') || pmNorm.includes('생지') || pmNorm.includes('반죽') || pmNorm.includes('dough') || pmNorm.includes('mix') || pmNorm.includes('프리믹스')) {
+      return FOOD_50_RULES.find(r => r.id === 25) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 60) || null;
+  }
+
+  if (pmNorm.includes('크루아상') || pNorm.includes('크루아상') || pmNorm.includes('croissant') || pmNorm.includes('페이스트리') || pmNorm.includes('pastry') || pmNorm.includes('케이크') || pmNorm.includes('cake') || pmNorm.includes('머핀') || pmNorm.includes('스콘') || pmNorm.includes('타르트') || pmNorm.includes('파이') || pmNorm.includes('와플') || pmNorm.includes('도넛')) {
+    return FOOD_50_RULES.find(r => r.id === 61) || null;
+  }
+
+  if (pmNorm.includes('쿠키') || pNorm.includes('쿠키') || pmNorm.includes('cookie') || pmNorm.includes('비스킷') || pmNorm.includes('biscuit') || pmNorm.includes('크래커') || pmNorm.includes('cracker') || pmNorm.includes('스낵과자') || pmNorm.includes('웨이퍼')) {
+    return FOOD_50_RULES.find(r => r.id === 62) || null;
+  }
+
   // 1-0a. 라떼 파우더 / 카페라떼 / 녹차라떼 정밀 분기
   if (pmNorm.includes('라떼') || pNorm.includes('라떼') || pmNorm.includes('라테') || pmNorm.includes('카페라떼') || pmNorm.includes('바닐라라떼') || pmNorm.includes('카라멜라떼') || pmNorm.includes('말차라떼') || pmNorm.includes('녹차라떼') || pmNorm.includes('밀크티') || pmNorm.includes('조제커피') || pmNorm.includes('커피믹스') || pmNorm.includes('latte')) {
     if (pmNorm.includes('녹차') || pmNorm.includes('말차') || pmNorm.includes('그린티') || pmNorm.includes('matcha') || pmNorm.includes('green tea')) {
