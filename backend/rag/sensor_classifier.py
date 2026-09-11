@@ -40,6 +40,95 @@ def classify_sensor_universally(product_name: str, material: str = "", function_
     combined = f"{product_name} {material} {function_use}".lower()
 
     # -------------------------------------------------------------------------
+    # 0-A. Priority Optical LiDAR & 3D Spatial Scanners (제9031호)
+    # -------------------------------------------------------------------------
+    if any(k in combined for k in ["라이다", "lidar", "라이다센서", "3d 포인트클라우드", "레이저 스캐너"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "9031.80-9090",
+            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기 - 광학식/라이다)",
+            "subheadingName": f"{product_name} (광학식 라이다 LiDAR 거리측정 센서)",
+            "confidence": 99,
+            "technicalTerms": "Optical LiDAR Sensor / Laser Range Finder / Time-of-Flight (ToF) 3D Scanner",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9031호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 레이저 펄스를 방출하고 피사체로부터 반사되어 돌아오는 비행시간(ToF)을 정밀 계측하여 3차원 공간 좌표 및 거리를 측정하는 광학식 라이다(LiDAR) 센서 시스템입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 본 물품은 단순 개별 반도체 수광소자(제8541호)가 아니며, 발광 다이오드, 집광 렌즈, 고속 신호처리 제어보드가 통합된 완성형 측정 기기로서 관세율표 제9031호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제9031.80-9090호에 최종 확정 분류됩니다."
+            ),
+            "sectionNote": "제18부 정밀측정기기",
+            "chapterNote": "제90류 제9031호 해설서 (광학식 측정 및 검사용 기기)",
+            "exclusionNote": "⚠️ 개별 감광 반도체 소자(제8541호)나 전파식 레이더(제8526호)와 구분하십시오.",
+            "headingExplanation": "제9031호에는 자동차 자율주행용, 로봇용, 산업용 3D LiDAR 센서 및 레이저 거리측정기가 분류됩니다."
+        }
+
+    # -------------------------------------------------------------------------
+    # 0-B. Priority Fluid Flow & Mass Flow Sensors (제9026호) - 원재료 내 RTD/온도체 간섭 방지
+    # -------------------------------------------------------------------------
+    if any(k in product_name.lower() or k in combined for k in ["유량센서", "유량 센서", "질량유량", "flow sensor", "mass flow", "기체유량", "액체유량", "공기유량"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "9026.10-1000",
+            "headingName": "제9026호 (액체나 기체의 유량 측정ㆍ검사용 기기)",
+            "subheadingName": f"{product_name} (전자식 유량 계측 센서)",
+            "confidence": 99,
+            "technicalTerms": "Mass Flow Sensor / Thermal Dispersion Flow Meter / Fluid Flow Sensor",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9026호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 배관 내를 흐르는 액체 또는 기체의 체적 유량이나 질량 유량을 측정하는 전자식 유량센서입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 열선/RTD 소자를 가열하여 방열량 변화로 유량을 측정하는 열식 질량유량센서일지라도 주기능은 온도가 아닌 '유량(Flow)' 측정이므로 제9025호(온도계)가 아닌 제9026호(유량계)에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제9026.10-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제18부 정밀기기",
+            "chapterNote": "제90류 제9026호 해설서 (액체나 기체의 유량 측정기기)",
+            "exclusionNote": "⚠️ 내부 감지 원리로 열소자(RTD)가 사용되었더라도 주 목적이 유량 측정이면 제9026호에 전용 분류됩니다."
+        }
+
+    # -------------------------------------------------------------------------
+    # 0-C. Semiconductor Wafer Defect & Surface Inspection (제9031.80-9091)
+    # -------------------------------------------------------------------------
+    if any(k in combined for k in ["웨이퍼 표면", "웨이퍼 결함", "웨이퍼 검사", "wafer inspection", "웨이퍼 패턴", "반도체 결함"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "9031.80-9091",
+            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기 - 반도체 웨이퍼 결함 검사용 기기)",
+            "subheadingName": f"{product_name} (반도체 웨이퍼 표면 결함 광학 검사기)",
+            "confidence": 99,
+            "technicalTerms": "Semiconductor Wafer Surface Defect Inspection Apparatus",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9031호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 실리콘 웨이퍼 표면의 미세 패턴 결함, 파티클, 스크래치를 광학식으로 계측 검사하는 반도체 전용 검사용 기기입니다.\n"
+                f"나. 관세율표 분류: 제9031.80호 중 반도체 웨이퍼 검사용 특게 세번인 HSK 제9031.80-9091호에 분류됩니다.\n"
+                f"다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9031.80-9091호에 분류됩니다."
+            ),
+            "sectionNote": "제18부 정밀기기",
+            "chapterNote": "제90류 제9031호 해설서",
+            "exclusionNote": "반도체 제조장비(제8486호)와 완성형 검사측정기(제9031호)를 구분하십시오."
+        }
+
+    # -------------------------------------------------------------------------
+    # 0-D. Inertial Measurement Unit (IMU), Accelerometer & Gyroscope Sensors (제9031호)
+    # -------------------------------------------------------------------------
+    if any(k in product_name.lower() or k in combined for k in ["imu", "가속도센서", "자이로센서", "가속도계", "자이로스코프", "관성측정", "자세제어센서", "6축", "3축 가속도"]) and not any(ic in product_name.lower() for ic in ["ic 칩", "ic칩", "bare die", "웨이퍼 패키징 mems"]):
+        return {
+            "is_sensor": True,
+            "recommendedHsCode": "9031.80-9090",
+            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기 - 관성/가속도/자이로 계측기)",
+            "subheadingName": f"{product_name} (6축 IMU 가속도 자이로 자세측정 센서)",
+            "confidence": 99,
+            "technicalTerms": "Inertial Measurement Unit (IMU) / 6-DOF Accelerometer & Gyroscope Sensor",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9031호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 비행체나 로봇의 3축 가속도 및 3축 각속도(자이로)를 정밀 계측하여 공간 자세를 측정하는 완성형 관성측정(IMU) 센서 시스템입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 비록 내부에 MEMS 구조체와 ASIC 신호처리 회로가 탑재되어 있더라도, 보드/모듈 형태로 결합되어 다축 물리량을 계측하는 완성형 기기로서 단일 집적회로 칩(제8542호)이 아닌 제9031호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제9031.80-9090호에 확정 분류됩니다."
+            ),
+            "sectionNote": "제18부 정밀기기",
+            "chapterNote": "제90류 제9031호 해설서 (그 밖의 측정ㆍ검사용 기기)",
+            "exclusionNote": "⚠️ 단독 반도체 칩 패키지(제8542호)와 완성형 다축 관성 센서 모듈(제9031호)을 구분하십시오."
+        }
+
+    # -------------------------------------------------------------------------
     # 0. CMOS Image Sensor CIS Module / IC (제8542호)
     # -------------------------------------------------------------------------
     if any(k in combined for k in ["cmos 이미지", "이미지 센서", "cis 모듈", "image sensor"]):

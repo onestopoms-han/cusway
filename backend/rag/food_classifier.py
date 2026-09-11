@@ -132,6 +132,47 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "얼음/천연빙(제2201호) 및 음료용 빙과 시럽(제2106호)과 구분하십시오."
         }
 
+    # 0-0d. 과실 주스 / 착즙 주스 (레몬 주스, 오렌지 주스 등 제2009호)
+    if any(k in combined for k in ["과실 주스", "과즙", "착즙 주스", "착즙", "레몬 주스", "레몬즙", "레몬주스", "오렌지 주스", "오렌지주스", "사과 주스", "포도 주스", "과실즙", "fruit juice"]):
+        if any(c in combined for c in ["레몬", "감귤", "citrus", "lemon"]):
+            hsk = "2009.39-0000"
+            desc = "제2009호 (감귤류 과실 주스 - 레몬 주스)"
+        elif any(o in combined for o in ["오렌지", "orange"]):
+            hsk = "2009.12-0000"
+            desc = "제2009호 (오렌지 주스)"
+        else:
+            hsk = "2009.89-0000"
+            desc = "제2009호 (그 밖의 단일 과실 주스)"
+        return {
+            "is_food": True,
+            "recommendedHsCode": hsk,
+            "headingName": desc,
+            "subheadingName": f"{product_name} (과실 착즙 주스)",
+            "confidence": 99,
+            "technicalTerms": "Fruit Juices, Unfermented, Not Containing Added Spirit",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2009호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 신선 과실을 착즙하여 발효시키지 않고 알코올을 첨가하지 않은 과실 주스입니다.\n나. 관세율표 분류: 관세율표 제2009호는 발효되지 않은 과실 주스를 분류합니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제{hsk}호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품",
+            "chapterNote": "제20류 제2009호 해설서",
+            "exclusionNote": "알코올 음료(제2204호~제2208호) 및 청량음료(제2202호)와 구분하십시오."
+        }
+
+    # 0-0e. 바닐라 엑기스 / 착향료 혼합물 (제3302호)
+    if any(k in combined for k in ["바닐라 엑기스", "바닐라엑기스", "바닐라 추출물", "바닐라에센스", "바닐라 에센스", "착향료 혼합물", "식품용 바닐라"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "3302.10-9000",
+            "headingName": "제3302호 (방향성 물질의 혼합물 - 음료용이나 식품공업용)",
+            "subheadingName": f"{product_name} (식품가공용 천연 바닐라 엑기스 추출물)",
+            "confidence": 99,
+            "technicalTerms": "Mixtures of Odoriferous Substances / For Food or Drink Industries",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3302호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 바닐라빈 추출물과 주정 등을 혼합하여 식품 및 음료 제조 착향용으로 사용하는 방향성 물질 혼합물입니다.\n나. 관세율표 분류: 관세율표 제3302.10호는 식품 및 음료공업용 방향성 물질의 혼합물을 분류하며, HSK 제3302.10-9000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3302.10-9000호에 확정 분류됩니다.",
+            "sectionNote": "제6부 화학공업 생산품",
+            "chapterNote": "제33류 제3302호 해설서",
+            "exclusionNote": "조미용 소스류(제2103호) 및 합성 에센스 오일(제3301호)과 구분하십시오."
+        }
+
     # 0-0c. 구운 베이커리 완제품 (치아바타, 바게트, 식빵, 사워도우, 포카치아, 파니니, 샌드위치 등 - 제1905호)
     if any(k in combined for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "사워도우", "포카치아", "식빵", "구운 빵", "베이글", "브리오슈", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "파니니", "샌드위치", "토스트", "빵"]):
         if not any(ex in combined for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루"]):

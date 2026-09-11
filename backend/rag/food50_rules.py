@@ -2491,6 +2491,35 @@ FOOD_50_BACKEND_RULES = [
                 "exclusionReason": "1회 복용량 캡슐에 충전된 조제 식료품이므로 제2106호로 분류됨."
             }
         ]
+    },
+    {
+        "id": 66,
+        "name": "천연 바닐라 엑기스 (식품공업용 방향성 물질의 혼합물)",
+        "keywords": [
+            "바닐라 엑기스", "바닐라엑기스", "바닐라 추출물", "바닐라에센스", "바닐라 에센스",
+            "착향료 혼합물", "식품용 바닐라", "vanilla extract"
+        ],
+        "recommendedHsCode": "3302.10-9000",
+        "headingName": "제3302호 (방향성 물질의 혼합물 - 음료용이나 식품공업용)",
+        "subheadingName": "제3302.10-9000호 (식품이나 음료 공업에 사용하는 종류의 방향성 물질 혼합물)",
+        "confidence": 99,
+        "technicalTerms": "Mixtures of Odoriferous Substances / Of a Kind Used in Food or Drink Industries",
+        "appliedGris": ["통칙 제1호", "통칙 제6호", "제3302호 해설서"],
+        "legalReasoning": "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 분류합니다.\n\n1. 본 물품은 바닐라빈 추출물, 알코올(주정), 천연 착향료 성분을 혼합하여 식품 및 음료 제조 착향용으로 사용하는 방향성 물질 혼합물입니다.\n2. 관세율표 제3302.10호는 식품 및 음료공업용 방향성 물질의 혼합물을 전용 분류하며, HSK 제3302.10-9000호에 확정 분류됩니다.",
+        "sectionNote": "제6부 화학공업 및 연관공업의 생산품",
+        "chapterNote": "제33류 정유와 레지노이드, 조제향료, 화장품",
+        "exclusionNote": "⚠️ 조미 소스류(제2103호) 및 합성 에센스 오일(제3301호)과 구분하십시오.",
+        "headingExplanation": "WCO 제3302.10호 해설: 음료 및 식품가공 원료용으로 사용되는 방향성 물질의 혼합물을 분류함.",
+        "precedents": [],
+        "competingHsCodes": [
+            {
+                "hsCode": "2103.90-9090",
+                "headingName": "제2103.90호 기타 소스 조제품",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "식품 조미 첨가물로 보아 제2103호 검토",
+                "exclusionReason": "착향 목적의 방향성 추출물 혼합물이므로 제3302호가 우선함."
+            }
+        ]
     }
 ]
 
@@ -2586,8 +2615,21 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     
     raw_query = f"{product_name} {material} {function_use}".lower().strip()
     query = normalize_food_spelling(raw_query)
+
+    # 0. 비식품 산업용 품목 즉시 배제 가드레일 (사파이어, 반도체 웨이퍼, 센서, 모터 등 오매칭 방지)
+    if any(ind in p_norm for ind in [
+        "사파이어", "sapphire", "잉곳", "ingot", "반도체", "semiconductor", "센서", "sensor",
+        "변압기", "transformer", "서보모터", "전동기", "motor", "펌프", "pump",
+        "igbt", "plc", "tpu", "cfrp", "동박", "copper foil", "볼트", "너트", "자켓", "등산자켓",
+        "라이다", "레이더", "엔코더", "다이오드", "트랜지스터", "집적회로", "축전지", "배터리"
+    ]):
+        return None
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
+    # 1-0-착향료. 바닐라 엑기스 / 착향료 혼합물 (제3302호)
+    if any(k in pm_norm or k in query for k in ["바닐라 엑기스", "바닐라엑기스", "바닐라 추출물", "바닐라에센스", "바닐라 에센스", "착향료 혼합물", "식품용 바닐라"]):
+        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 66)
+
     # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호 - 원재료에 올리브유/버터가 있어도 빵이 최우선)
     if any(k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
         # 만약 프리믹스/생지/반죽인 경우
@@ -2595,10 +2637,10 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 25)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 60)
     
-    if any(k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "파이", "pie", "와플", "waffle", "도넛", "donut", "doughnut"]):
+    if any(k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "애플파이", "호두파이", "피칸파이", "파이류", "와플", "waffle", "도넛", "donut", "doughnut"]) or ("파이" in p_norm and not any(ex in p_norm for ex in ["사파이어", "파이프", "스파이"])):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 61)
 
-    if any(k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨이퍼", "wafer"]):
+    if any(k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨하스"]) or ("웨이퍼" in p_norm and not any(ex in p_norm for ex in ["반도체", "실리콘", "패턴", "결함"])):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 62)
 
     # 1-0-오일캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 엑스트라 버진 올리브유 / 오메가3 (제2106호 vs 제1509호)
@@ -2633,6 +2675,8 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 57)
         if any(d in pm_norm for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 56)
+        if any(fz in pm_norm for fz in ["냉동", "frozen", "iqf", "급속냉동"]):
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
         if any(fr in pm_norm for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리", "생그랜베리", "생 그랜베리", "생크렌베리", "생 크렌베리", "생그렌베리", "생 그렌베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 55)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
