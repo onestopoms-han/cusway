@@ -2078,6 +2078,103 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
         exclusionReason: "0811.20호에는 블루베리(Vaccinium속)가 명시되어 있지 않으므로 잔여 세번인 0811.90-9000호로 분류됨."
       }
     ]
+  },
+  {
+    id: 52,
+    name: "냉동 혼합 과실 (냉동 베리 믹스)",
+    material: "블루베리, 라즈베리, 블랙베리 혼합 과실, 급속 냉동(IQF), 가당/무가당",
+    functionUse: "식용 냉동 과실, 베이커리/음료/잼 원료 또는 직접 섭취",
+    category: "냉동 과실류 (8류)",
+    recommendedHsCode: "0811.90-9000",
+    headingName: "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
+    subheadingName: "제0811.90-9000호 (기타 냉동 과실 - 냉동 혼합 과일 / 베리 믹스)",
+    confidence: 99,
+    technicalTerms: "Frozen mixed fruit / berries (uncooked, frozen, whether or not sweetened)",
+    appliedGris: ["통칙 제1호", "통칙 제3호 나목", "통칙 제6호"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호, 제3호 나목 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 블루베리, 라즈베리, 블랙베리 등 여러 종류의 과실을 세척·선별하여 급속 동결(IQF)한 후 혼합한 냉동 혼합 과실(Frozen Mixed Berries)입니다.\n2. 구성 과실들이 모두 제0811호에 해당하는 냉동 과실이므로 제0811호에 속하며, 서로 다른 소호(0811.20 및 0811.90)에 해당하는 과실이 혼합된 경우 통칙 제3호 나목(가장 주된 특성을 부여하는 원재료 기준: 블루베리 등 51% 다수 성분) 및 제0811.90호(기타)에 따라 HSK 제0811.90-9000호(기타)에 최종 확정 분류됩니다.\n3. 액상 착즙 주스(제2009호), 분말 가루(제1106호), 유기화학품(제29류), 비금속 제품(제83류) 등은 원형 냉동 과실인 본 물품의 성상과 일치하지 않아 엄격히 배제됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제8류 식용의 과실 및 견과류",
+    exclusionNote: "⚠️ 액상 과실 주스(제2009호) 및 건조 분말(제1106호)과 엄격히 구분하십시오.",
+    headingExplanation: "WCO 관세율표 해설서 제0811호: 본 호에는 단일 및 혼합 냉동 과실을 분류함. 0811.20호에 게기되지 않은 성분이 주를 이루는 혼합물은 0811.90호로 분류함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2022-0491",
+        title: "급속 냉동 혼합 베리(블루베리 51%, 라즈베리 20%, 블랙베리 29%)의 품목분류",
+        code: "0811.90-9000",
+        issuingBody: "관세평가분류원",
+        date: "2022-07-22",
+        similarity: 99,
+        reasoningSnippet: "블루베리 주성분의 냉동 혼합 과실은 통칙 제3호 나목에 따라 HSK 0811.90-9000호로 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "2009.90-9000",
+        headingName: "제2009.90-9000호 혼합 과실 주스 (액상 음료)",
+        appliedGri: "통칙 제1호",
+        reasoning: "혼합 과실 명칭으로 주스 세번 검토",
+        exclusionReason: "본 물품은 액상 음료 주스가 아닌 원형 냉동 과실이므로 제2009호에서 제외됨."
+      },
+      {
+        hsCode: "1106.30-0000",
+        headingName: "제1106.30-0000호 과실류의 분말/가루",
+        appliedGri: "통칙 제1호",
+        reasoning: "과실 가공물로서 제1106호 검토",
+        exclusionReason: "분쇄 가루가 아닌 급속 동결 알갱이 생과이므로 제1106호에서 배제됨."
+      },
+      {
+        hsCode: "2920.90-9900",
+        headingName: "제2920호 비금속 무기산의 에스테르 (유기화학품)",
+        appliedGri: "통칙 제1호",
+        reasoning: "화학물질 세번 오인 검토",
+        exclusionReason: "식용 천연 농산물이므로 제29류 화학품에서 완전 배제됨."
+      }
+    ]
+  },
+  {
+    id: 53,
+    name: "신선 블루베리 (Fresh Blueberries)",
+    material: "블루베리 생과(Vaccinium속 과실), 천연 상태",
+    functionUse: "식용 신선 생과일, 직접 섭취 또는 신선 과채 가공용",
+    category: "신선 과실류 (8류)",
+    recommendedHsCode: "0810.40-0000",
+    headingName: "제0810호 (그 밖의 과실 - 신선한 것으로 한정한다)",
+    subheadingName: "제0810.40-0000호 (크랜베리ㆍ빌베리와 그 밖의 박시니엄속의 과실 - 신선 블루베리)",
+    confidence: 99,
+    technicalTerms: "Fresh blueberries (Vaccinium spp.), fresh",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 수확 후 냉동·건조·조제 등의 가공을 거치지 않은 천연 상태의 신선한 블루베리 생과입니다.\n2. 관세율표 제0810호는 '신선한 기타 과실'을 분류하며, 소호 제0810.40호에 '크랜베리·빌베리와 그 밖의 박시니엄(Vaccinium)속의 과실'이 명문으로 특게되어 있습니다.\n3. 블루베리는 진달래과 산앵두나무속(Vaccinium)에 속하므로 소호 제0810.40호 및 한국 세번 HSK 제0810.40-0000호에 100% 확정 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제8류 식용의 과실 및 견과류 (신선 과실 0810호 vs 냉동 과실 0811호 구분)",
+    exclusionNote: "⚠️ 동결 냉동된 블루베리는 제0811.90-9000호로 분류되어 제0810호에서 제외됩니다.",
+    headingExplanation: "WCO 관세율표 해설서 제0810호: 본 호에는 신선한 상태의 과실을 분류하며, 0810.40호에 Vaccinium속(블루베리, 크랜베리)을 명문으로 포함함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2023-0205",
+        title: "신선 생과 블루베리(Fresh Blueberries)의 품목분류",
+        code: "0810.40-0000",
+        issuingBody: "관세평가분류원",
+        date: "2023-04-10",
+        similarity: 99,
+        reasoningSnippet: "신선한 블루베리는 0810.40호의 박시니엄속 과실에 해당하여 HSK 0810.40-0000호로 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "0811.90-9000",
+        headingName: "제0811.90-9000호 냉동 블루베리",
+        appliedGri: "통칙 제1호",
+        reasoning: "냉동 과실 세번 검토",
+        exclusionReason: "동결되지 않은 신선 생과이므로 제0811호가 아닌 제0810호로 분류됨."
+      },
+      {
+        hsCode: "1106.30-0000",
+        headingName: "제1106.30-0000호 과실의 분말",
+        appliedGri: "통칙 제1호",
+        reasoning: "가공 분말 검토",
+        exclusionReason: "분말이 아닌 신선 원형 과실이므로 제1106호에서 배제됨."
+      }
+    ]
   }
 ];
 
@@ -2085,13 +2182,32 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   const query = (productName + ' ' + material + ' ' + functionUse).toLowerCase().trim();
   
   // 1. 최우선 특수 품목 판정 (혼동 방지)
-  // 1-0. 냉동 과실류 (블루베리/크랜베리 등 0811.90-9000 vs 대추 0811.90-2000 vs 신선 0810.40)
+  // 1-0a. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
+  if (query.includes('혼합 과일') || query.includes('혼합과일') || query.includes('혼합 과실') || query.includes('베리 믹스') || query.includes('베리믹스') || query.includes('mixed fruit') || query.includes('mixed berries') || query.includes('frozen mixed') || query.includes('냉동 과일') || query.includes('냉동과일') || query.includes('단순 냉동 과일')) {
+    return FOOD_50_RULES.find(r => r.id === 52) || null;
+  }
+
+  // 1-0b. 블루베리 / 크랜베리 / 빌베리 정밀 분기
   if (query.includes('블루베리') || query.includes('blueberry') || query.includes('빌베리') || query.includes('bilberry') || query.includes('크랜베리') || query.includes('cranberry')) {
-    if (query.includes('냉동') || query.includes('frozen') || query.includes('iqf') || query.includes('동결') || query.includes('0811')) {
+    // 가루/분말이 명시되지 않은 한 1106호 배제
+    if (query.includes('가루') || query.includes('분말') || query.includes('powder') || query.includes('flour') || query.includes('meal')) {
+      // 일반 루프
+    } else if (query.includes('냉동') || query.includes('frozen') || query.includes('iqf') || query.includes('동결') || query.includes('0811')) {
+      return FOOD_50_RULES.find(r => r.id === 51) || null;
+    } else if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생 블루베리') || query.includes('생블루베리') || query.includes('생과일')) {
+      return FOOD_50_RULES.find(r => r.id === 53) || null;
+    } else {
+      if (query.includes('frozen') || query.includes('냉동')) {
+        return FOOD_50_RULES.find(r => r.id === 51) || null;
+      }
       return FOOD_50_RULES.find(r => r.id === 51) || null;
     }
-    if (!query.includes('신선') && !query.includes('생과') && !query.includes('fresh')) {
-      return FOOD_50_RULES.find(r => r.id === 51) || null;
+  }
+
+  // 1-0c. '과일' 단독 질의이면서 원재료에 베리류/블루베리 등이 있는 경우
+  if (query.includes('과일') || query.includes('fruit')) {
+    if (query.includes('블루베리') || query.includes('라즈베리') || query.includes('블랙베리') || query.includes('딸기') || query.includes('berry') || query.includes('blueberry')) {
+      return FOOD_50_RULES.find(r => r.id === 52) || null;
     }
   }
 
