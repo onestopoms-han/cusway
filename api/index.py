@@ -1508,42 +1508,81 @@ def hs_classify_api(req: ClassifyReq):
                 "competingHsCodes": []
             }
 
-        # 4. 용접 헬멧
-        if "용접" in prod_low and ("헬멧" in prod_low or "마스크" in prod_low or "안전모" in prod_low):
-            return {
-                "keywordTrigger": ["용접 헬멧", "안전모", "전자 차광 헬멧"],
-                "recommendedHsCode": "6506.10-0000",
-                "headingName": "제6506호 (그 밖의 모자류 - 안전모)",
-                "subheadingName": "안전모 (산업용 및 작업자 보호용 전자식 용접 헬멧)",
-                "confidence": 98,
-                "technicalTerms": "Safety headgear (Welding helmets with auto-darkening filters)",
-                "appliedGris": ["통칙 제1호", "통칙 제6호"],
-                "legalReasoning": "본 물품은 액정 차광 필터와 광센서가 장착되어 아크광을 감지하면 자동으로 차광되는 머리 착용형 용접 헬멧입니다. 관세율표 일반통칙 제1호 및 제6호에 의거하여, 머리를 보호하는 안전모(Safety headgear)의 특성이 본질적이므로 제6506.10-0000호(안전모)로 분류됩니다.",
-                "sectionNote": "제12부 신발류ㆍ모자류ㆍ우산류ㆍ지팡이류ㆍ조제 깃털 등",
-                "chapterNote": "제65류 모자류와 그 부분품 (제6506호 안전모)",
-                "exclusionNote": "⚠️ 제외규정 통제: 머리를 덮는 헬멧 구조 없이 눈 부위만 가리는 단순 고글/안경 형태는 제9004호(보호용 안경구)로 분류되며, 헬멧에 장착되는 LCD 차광 카트리지 단독 수입 시 제9002호 또는 제9013호로 분류되어 본 호에서 제외됩니다.",
-                "headingExplanation": "제6506호 해설: 이 호에는 재질을 불문하고 광산용, 소방용, 산업용 안전모(Safety headgear) 및 용접 헬멧을 포함합니다.",
-                "precedents": [
-                    {
-                        "id": "분류원-2023-0941",
-                        "title": "자동 차광 카트리지가 장착된 산업용 전자식 용접 헬멧",
-                        "code": "6506.10-0000",
-                        "issuingBody": "관세평가분류원",
-                        "date": "2023-10-18",
-                        "similarity": 98,
-                        "reasoningSnippet": "머리 및 안면부 전체를 보호하는 플라스틱 쉘 구조를 갖추고 자동 차광 렌즈가 결합된 용접 헬멧은 통칙 1호에 따라 제6506.10호 안전모로 결정함."
-                    }
-                ],
-                "competingHsCodes": [
-                    {
-                        "hsCode": "9004.90-1000",
-                        "headingName": "보호용 안경류 및 고글",
-                        "appliedGri: ": "통칙 제1호",
-                        "reasoning": "광센서 및 LCD 자동 차광 렌즈가 결합되어 눈을 보호하는 기능에 주목할 때 검토되는 세번입니다.",
-                        "exclusionReason": "머리와 안면 전체를 감싸는 헬멧 일체형 완제품 형태이므로 제65류(안전모)가 우선 적용됩니다."
-                    }
-                ]
-            }
+        # 5. 크랜베리 및 과실류 (냉동/신선/건조 및 그랜베리/크렌베리 오타 정규화)
+        if any(cb in prod_low for cb in ["크랜베리", "그랜베리", "크렌베리", "그렌베리", "글랜베리", "클랜베리", "cranberry"]):
+            is_frozen = any(fz in prod_low for fz in ["냉동", "동결", "frozen", "iqf", "급속"])
+            is_fresh = any(fs in prod_low for fs in ["신선", "생과", "생것", "fresh", "생"])
+            is_dried = any(dr in prod_low for dr in ["건조", "말린", "dried"])
+            
+            if is_dried:
+                return {
+                    "keywordTrigger": ["건조 크랜베리", "건조크랜베리", "dried cranberry"],
+                    "recommendedHsCode": "0813.40-0000",
+                    "headingName": "제0813호 (건조한 과실과 이 류의 견과류나 건조한 과실의 혼합물)",
+                    "subheadingName": "제0813.40호 (기타 과실 - 건조한 크랜베리)",
+                    "confidence": 99,
+                    "technicalTerms": "Dried cranberries, other dried fruit",
+                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                    "legalReasoning": "본 물품은 건조 가공된 크랜베리 과실로서 관세율표 제0813.40-0000호에 분류됩니다.",
+                    "sectionNote": "제2부 식물성 생산품",
+                    "chapterNote": "제8류 건조 과실",
+                    "exclusionNote": "⚠️ 당류에 침지하여 조제한 것은 제2008호로 분류됩니다.",
+                    "headingExplanation": "제0813호에는 건조 과실을 분류합니다.",
+                    "precedents": [],
+                    "competingHsCodes": []
+                }
+            elif is_fresh and not is_frozen:
+                return {
+                    "keywordTrigger": ["신선 크랜베리", "신선크랜베리", "fresh cranberry"],
+                    "recommendedHsCode": "0810.40-0000",
+                    "headingName": "제0810호 (그 밖의 과실 - 신선한 것)",
+                    "subheadingName": "제0810.40호 (크랜베리ㆍ빌베리와 바키늄속의 그 밖의 과실 - 신선한 것)",
+                    "confidence": 99,
+                    "technicalTerms": "Fresh cranberries (Vaccinium macrocarpon)",
+                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                    "legalReasoning": "본 물품은 가공되지 아니한 신선 상태의 크랜베리 생과실로서 관세율표 일반통칙 제1호 및 제6호에 따라 제0810.40-0000호에 분류됩니다.",
+                    "sectionNote": "제2부 식물성 생산품",
+                    "chapterNote": "제8류 신선 과실",
+                    "exclusionNote": "⚠️ 냉동 동결된 것은 제0811호로 분류됩니다.",
+                    "headingExplanation": "제0810호에는 신선한 과실을 분류합니다.",
+                    "precedents": [],
+                    "competingHsCodes": []
+                }
+            else:
+                return {
+                    "keywordTrigger": ["냉동 크랜베리", "냉동크랜베리", "냉동 그랜베리", "frozen cranberry"],
+                    "recommendedHsCode": "0811.90-9000",
+                    "headingName": "제0811호 (냉동 과실과 냉동 견과류)",
+                    "subheadingName": "제0811.90호 (기타 - 냉동 크랜베리 등)",
+                    "confidence": 99,
+                    "technicalTerms": "Frozen cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos)",
+                    "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                    "legalReasoning": "본 물품은 수확된 크랜베리(Vaccinium속)를 세척 선별 후 급속 동결(IQF) 처리한 냉동 과실입니다. 관세율표 제0810호(신선)에서 제외되어 제0811호에 속하며, 딸기(0811.10), 라즈베리(0811.20)에 해당하지 않는 크랜베리는 잔여 세번인 HSK 제0811.90-9000호(기타)에 최종 확정 분류됩니다.",
+                    "sectionNote": "제2부 식물성 생산품",
+                    "chapterNote": "제8류 식용 과실 (신선 0810 vs 냉동 0811)",
+                    "exclusionNote": "⚠️ 신선 크랜베리는 제0810.40호, 설탕조제 크랜베리는 제2008.93호로 분류됩니다.",
+                    "headingExplanation": "제0811호에는 동결 냉동된 과실을 분류합니다.",
+                    "precedents": [
+                        {
+                            "id": "품목분류사전회시 2023-0312",
+                            "title": "급속 냉동 크랜베리(IQF Frozen Cranberries)의 품목분류",
+                            "code": "0811.90-9000",
+                            "issuingBody": "관세평가분류원",
+                            "date": "2023-05-18",
+                            "similarity": 99,
+                            "reasoningSnippet": "냉동된 크랜베리는 0811.20호에 게기되지 아니한 기타 과실이므로 HSK 0811.90-9000호에 분류함."
+                        }
+                    ],
+                    "competingHsCodes": [
+                        {
+                            "hsCode": "0810.40-0000",
+                            "headingName": "신선 크랜베리",
+                            "appliedGri": "통칙 제1호",
+                            "reasoning": "신선 생과실 세번 검토",
+                            "exclusionReason": "동결 냉동된 물품이므로 제0810호에서 배제되어 제0811호로 분류됩니다."
+                        }
+                    ]
+                }
         raise HTTPException(status_code=500, detail=f"분류 오류: {str(e)}")
 
 @app.get("/api/valuation/precedents")
