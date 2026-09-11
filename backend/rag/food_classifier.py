@@ -918,7 +918,94 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "바닐라 추출 에센스(제3302호)와 천연 건조 빈(제0905호)을 구분하십시오."
         }
 
-    # 14. 제08류: 식용 과실 및 견과류 (두리안, 무화과)
+    # 14. 제08류, 제20류: 베리류 및 식용 과실 (크랜베리, 블루베리, 두리안, 무화과)
+    if any(k in combined for k in ["크랜베리", "cranberry"]):
+        if any(j in combined for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "2009.81-0000",
+                "headingName": "제2009호 (과실 주스와 채소 주스 - 발효하지 않은 것으로서 주정을 첨가하지 않은 것)",
+                "subheadingName": f"{product_name} (크랜베리 주스)",
+                "confidence": 99,
+                "technicalTerms": "Cranberry (Vaccinium macrocarpon, Vaccinium oxycoccos) juice, unfermented and not containing added spirit",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 크랜베리 과실을 착즙하여 여과한 액상 주스(과즙)입니다.\n나. 관세율표 분류: 발효되지 않고 주정이 첨가되지 않은 크랜베리 주스는 제2009.81호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2009.81-0000호에 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품",
+                "chapterNote": "제20류 제2009호 해설서 (과실 주스)",
+                "exclusionNote": "알코올 주정을 함유한 과실주(제22류)와 구분하십시오."
+            }
+        if any(d in combined for d in ["건조", "dried", "가당", "설탕절임", "조제", "설탕침지"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "2008.93-0000",
+                "headingName": "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+                "subheadingName": f"{product_name} (조제 또는 건조 가당 크랜베리)",
+                "confidence": 99,
+                "technicalTerms": "Prepared or preserved cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos)",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 설탕이나 감미료를 침지하거나 열풍 건조 등 추가 조제 공정을 거친 조제 크랜베리입니다.\n나. 관세율표 분류: 조제 또는 저장처리한 크랜베리는 제2008.93호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2008.93-0000호에 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품",
+                "chapterNote": "제20류 제2008호 해설서",
+                "exclusionNote": "단순 급속 냉동 과실(제0811호) 및 신선 과실(제0810호)과 구분하십시오."
+            }
+        if any(fr in combined for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "0810.40-0000",
+                "headingName": "제0810호 (그 밖의 과실 - 신선한 것으로 한정한다)",
+                "subheadingName": f"{product_name} (신선 생과 크랜베리)",
+                "confidence": 99,
+                "technicalTerms": "Fresh cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos), fresh",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 수확 후 냉동·건조·가공을 거치지 않은 천연 신선 크랜베리 생과입니다.\n나. 관세율표 분류: 신선한 크랜베리(Vaccinium속)는 제0810.40호에 명문 특게되어 있습니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0810.40-0000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제8류 제0810호 해설서",
+                "exclusionNote": "동결 냉동된 크랜베리는 제0811.90-9000호로 분류됩니다."
+            }
+        # Default for frozen or general cranberry
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0811.90-9000",
+            "headingName": "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
+            "subheadingName": f"{product_name} (급속 냉동 크랜베리)",
+            "confidence": 99,
+            "technicalTerms": "Frozen cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos), uncooked or steamed/boiled, whether or not sweetened",
+            "appliedGris": ["통칙 제1호", "통칙 제6호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 수확된 크랜베리를 세척 선별 후 급속 동결(IQF) 처리한 냉동 과실입니다.\n나. 관세율표 분류: 냉동 과실은 제0811호에 속하며, 0811.10(딸기), 0811.20(라즈베리/블랙베리)에 해당하지 않는 크랜베리는 잔여 세번인 HSK 제0811.90-9000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0811.90-9000호에 최종 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품",
+            "chapterNote": "제8류 제0811호 해설서",
+            "exclusionNote": "신선 크랜베리(제0810.40호) 및 조제 크랜베리(제2008.93호)와 구분하십시오."
+        }
+
+    if any(k in combined for k in ["블루베리", "blueberry", "빌베리", "bilberry"]):
+        if any(fr in combined for fr in ["신선", "생과", "fresh", "생블루베리", "생 블루베리"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "0810.40-0000",
+                "headingName": "제0810호 (그 밖의 과실 - 신선한 것으로 한정한다)",
+                "subheadingName": f"{product_name} (신선 생과 블루베리)",
+                "confidence": 99,
+                "technicalTerms": "Fresh blueberries (Vaccinium spp.), fresh",
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 수확 후 냉동·건조 가공하지 않은 신선 블루베리 생과입니다.\n나. 관세율표 분류: 신선한 블루베리는 0810.40호에 명문 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0810.40-0000호에 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품",
+                "chapterNote": "제8류 제0810호 해설서",
+                "exclusionNote": "냉동 블루베리는 제0811.90-9000호로 분류됩니다."
+            }
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0811.90-9000",
+            "headingName": "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
+            "subheadingName": f"{product_name} (급속 냉동 블루베리)",
+            "confidence": 99,
+            "technicalTerms": "Frozen blueberries (Vaccinium spp.), uncooked or steamed/boiled, whether or not sweetened",
+            "appliedGris": ["통칙 제1호", "통칙 제6호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 수확된 블루베리를 급속 동결(IQF) 처리한 냉동 과실입니다.\n나. 관세율표 분류: 제0811호 표제에 의해 냉동 과실로 분류되며, 0811.20호에 게기되지 않은 블루베리는 HSK 제0811.90-9000호에 확정 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0811.90-9000호에 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품",
+            "chapterNote": "제8류 제0811호 해설서",
+            "exclusionNote": "신선 블루베리(제0810.40호) 및 냉동 대추(0811.90-2000)와 구분하십시오."
+        }
+
     if any(k in combined for k in ["두리안", "durian"]):
         return {
             "is_food": True,

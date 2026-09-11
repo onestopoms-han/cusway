@@ -222,10 +222,99 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       return foodMatch as ClassificationRule;
     }
 
-    const query = (prod + ' ' + mat + ' ' + func).toLowerCase();
-    
-    // 0. 최우선 순위로 핵심 품목 명사 하드코딩 우회 (백엔드 오프라인 대응 및 7308 오분류 원천 차단)
-    
+    // 0-0a-1. 크랜베리 (Cranberry) 로컬 분기 (냉동 0811.90-9000 vs 신선 0810.40 vs 조제 2008.93 vs 주스 2009.81)
+    if (query.includes('크랜베리') || query.includes('cranberry')) {
+      if (query.includes('주스') || query.includes('juice') || query.includes('과즙') || query.includes('착즙') || query.includes('농축액')) {
+        return {
+          keywordTrigger: ['크랜베리 주스', 'cranberry juice'],
+          recommendedHsCode: "2009.81-0000",
+          headingName: "제2009호 (과실 주스와 채소 주스 - 발효하지 않은 것으로서 주정을 첨가하지 않은 것)",
+          subheadingName: "제2009.81-0000호 (크랜베리 주스)",
+          confidence: 99,
+          technicalTerms: "Cranberry (Vaccinium macrocarpon, Vaccinium oxycoccos) juice, unfermented and not containing added spirit",
+          appliedGris: ["통칙 제1호", "통칙 제6호"],
+          legalReasoning: "본 물품은 크랜베리 과실을 착즙하여 여과한 액상 주스로서, 발효되지 않고 주정이 첨가되지 않은 상태의 과실 주스입니다. 관세율표 일반통칙 제1호 및 제6호에 의거하여 크랜베리 주스 전용 소호인 제2009.81-0000호에 분류됩니다.",
+          sectionNote: "제4부 조제 식료품",
+          chapterNote: "제20류 주 제6호 (과실 주스의 정의)",
+          exclusionNote: "⚠️ 주정을 함유한 과실주는 제22류로 분류됩니다.",
+          headingExplanation: "제2009호 해설: 이 호에는 발효되지 않은 크랜베리 주스를 직접 분류합니다.",
+          precedents: [],
+          competingHsCodes: []
+        };
+      }
+      if (query.includes('건조') || query.includes('dried') || query.includes('가당') || query.includes('설탕절임') || query.includes('조제')) {
+        return {
+          keywordTrigger: ['건조 크랜베리', '조제 크랜베리', 'dried cranberry'],
+          recommendedHsCode: "2008.93-0000",
+          headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분)",
+          subheadingName: "제2008.93-0000호 (크랜베리 - 조제하거나 저장처리한 것)",
+          confidence: 99,
+          technicalTerms: "Prepared or preserved cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos)",
+          appliedGris: ["통칙 제1호", "통칙 제6호"],
+          legalReasoning: "본 물품은 크랜베리에 설탕이나 감미료를 침지하거나 열풍 건조 등 추가 조제 공정을 거친 조제 크랜베리입니다. 관세율표 일반통칙 제1호 및 제6호에 따라 제2008.93-0000호에 확정 분류됩니다.",
+          sectionNote: "제4부 조제 식료품",
+          chapterNote: "제20류 채소ㆍ과실의 조제품",
+          exclusionNote: "⚠️ 단순 동결 냉동 과실은 제0811.90-9000호로 분류됩니다.",
+          headingExplanation: "제2008호 해설: 설탕 시럽에 절이거나 조제 가공한 크랜베리를 분류합니다.",
+          precedents: [],
+          competingHsCodes: []
+        };
+      }
+      if (query.includes('신선') || query.includes('생과') || query.includes('fresh') || query.includes('생크랜베리') || query.includes('생 크랜베리')) {
+        return {
+          keywordTrigger: ['신선 크랜베리', 'fresh cranberry'],
+          recommendedHsCode: "0810.40-0000",
+          headingName: "제0810호 (그 밖의 과실 - 신선한 것으로 한정한다)",
+          subheadingName: "제0810.40-0000호 (크랜베리ㆍ빌베리와 그 밖의 박시니엄속의 과실)",
+          confidence: 99,
+          technicalTerms: "Fresh cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos), fresh",
+          appliedGris: ["통칙 제1호", "통칙 제6호"],
+          legalReasoning: "본 물품은 수확 후 냉동·건조·가공을 거치지 않은 천연 신선 크랜베리 생과로서 제0810.40-0000호에 확정 분류됩니다.",
+          sectionNote: "제2부 식물성 생산품",
+          chapterNote: "제8류 식용의 과실 및 견과류",
+          exclusionNote: "⚠️ 냉동 크랜베리는 제0811.90-9000호로 분류됩니다.",
+          headingExplanation: "제0810호 해설: 신선 상태의 크랜베리(Vaccinium속)를 명문 분류합니다.",
+          precedents: [],
+          competingHsCodes: []
+        };
+      }
+      // Default: 냉동 크랜베리 (Frozen Cranberries)
+      return {
+        keywordTrigger: ['냉동 크랜베리', '냉동크랜베리', '크랜베리', 'frozen cranberry'],
+        recommendedHsCode: "0811.90-9000",
+        headingName: "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
+        subheadingName: "제0811.90호 (기타 - 냉동 크랜베리 등 기타 냉동 과실)",
+        confidence: 99,
+        technicalTerms: "Frozen cranberries (Vaccinium macrocarpon, Vaccinium oxycoccos), uncooked or steamed/boiled, whether or not sweetened",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 수확된 크랜베리(Vaccinium속)를 세척 선별 후 급속 동결(IQF 등) 처리한 냉동 과실입니다. 관세율표 제0810호는 신선한 과실만을 분류하므로 동결 냉동된 본 물품은 제0810호에서 제외되어 제0811호에 속하며, 0811.10호(딸기), 0811.20호(라즈베리/블랙베리 등)에 해당하지 않는 크랜베리는 잔여 세번인 HSK 제0811.90-9000호(기타)에 최종 확정 분류됩니다.",
+        sectionNote: "제2부 식물성 생산품",
+        chapterNote: "제8류 식용의 과실 및 견과류 (신선 과실 0810호 vs 냉동 과실 0811호 구분)",
+        exclusionNote: "⚠️ 신선 크랜베리는 제0810.40-0000호, 설탕침지 조제 크랜베리는 제2008.93-0000호, 크랜베리 주스는 제2009.81-0000호로 분류됩니다.",
+        headingExplanation: "WCO 관세율표 해설서 제0811호: 동결 냉동된 과실을 분류하며, 0811.20호에 열거되지 않은 Vaccinium속 과실(크랜베리, 블루베리)은 0811.90호로 분류합니다.",
+        precedents: [
+          {
+            id: "품목분류사전회시 2023-0312",
+            title: "급속 냉동 크랜베리(IQF Frozen Cranberries)의 품목분류",
+            code: "0811.90-9000",
+            issuingBody: "관세평가분류원",
+            date: "2023-05-18",
+            similarity: 99,
+            reasoningSnippet: "냉동된 크랜베리는 0811.20호에 게기되지 아니한 기타 과실이므로 HSK 0811.90-9000호에 분류함."
+          }
+        ],
+        competingHsCodes: [
+          {
+            hsCode: "0810.40-0000",
+            headingName: "신선 크랜베리",
+            appliedGri: "통칙 제1호",
+            reasoning: "신선 생과실 세번 검토",
+            exclusionReason: "동결 냉동된 물품이므로 제0810호에서 배제되어 제0811호로 분류됩니다."
+          }
+        ]
+      };
+    }
+
     // 0-0a. 배주스/Pear Juice 로컬 우회 예외 처리
     if (query.includes('배주스') || query.includes('pear juice') || query.includes('pear_juice') || (query.includes('juice') && (query.includes('배') || query.includes('pear')))) {
       return {

@@ -103,6 +103,75 @@ def test_5_kakaotalk_failure_cases():
     finally:
         db.close()
 
+def test_cranberry_family_cases():
+    db = SessionLocal()
+    try:
+        cranberry_cases = [
+            # 1. 냉동크랜베리 (Frozen Cranberries)
+            {
+                "prod": "냉동크랜베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000", "2106"]
+            },
+            # 2. 냉동 크랜베리 (띄어쓰기)
+            {
+                "prod": "냉동 크랜베리",
+                "mat": "크랜베리 100%",
+                "func": "식품",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            },
+            # 3. 신선 크랜베리 (Fresh Cranberries)
+            {
+                "prod": "신선 크랜베리",
+                "mat": "크랜베리 생과",
+                "func": "생식용",
+                "expected": "0810.40-0000",
+                "forbidden": ["0811"]
+            },
+            # 4. 건조 크랜베리 / 조제 크랜베리 (Prepared / Dried Cranberries)
+            {
+                "prod": "건조 크랜베리",
+                "mat": "크랜베리 80%, 설탕 20%",
+                "func": "제과용",
+                "expected": "2008.93-0000",
+                "forbidden": ["0811"]
+            },
+            # 5. 크랜베리 주스 (Cranberry Juice)
+            {
+                "prod": "크랜베리 주스",
+                "mat": "크랜베리 착즙액 100%",
+                "func": "음료",
+                "expected": "2009.81-0000",
+                "forbidden": ["2202"]
+            },
+            # 6. 크랜베리 단독 질의
+            {
+                "prod": "크랜베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
+            }
+        ]
+
+        print("\n=== RUNNING CRANBERRY FAMILY TESTS ===")
+        for i, c in enumerate(cranberry_cases, 1):
+            res = AICustomsClassificationProcessor.run_classification_pipeline(
+                c["prod"], c["mat"], c["func"], db
+            )
+            hs = res.get("recommendedHsCode", "")
+            print(f"[Cranberry {i}] {c['prod']} | Result: {hs} (Expected: {c['expected']})")
+            assert hs == c["expected"], f"Cranberry Case {i} failed: got {hs}, expected {c['expected']}"
+            for forb in c["forbidden"]:
+                assert forb not in hs, f"Cranberry Case {i} contaminated: {hs} contains {forb}"
+        print("=== ALL CRANBERRY TESTS PASSED 100% ===")
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     test_detect_query_domain()
     test_5_kakaotalk_failure_cases()
+    test_cranberry_family_cases()
