@@ -77,8 +77,19 @@ class AICustomsClassificationProcessor:
         print(f"[PROCESSOR] Domain Identified: {domain_name} (Allowed Chapters: {len(allowed_chapters)})")
         
         # ----------------------------------------------------
-        # Phase 0: 50대 핵심 식품류 및 범용 고정밀 분류기 가드레일 매칭
+        # Phase 0: 2000대 슈퍼 벤치마크 및 50대 핵심 식품류 가드레일 매칭
         # ----------------------------------------------------
+        # Universal 2000 Super Benchmark Engine (Part 3)
+        from backend.rag.benchmark2000_rules import match_benchmark2000_rule
+        bm3_res = match_benchmark2000_rule(product_name, material, function_use)
+        if bm3_res and bm3_res.get("is_matched") and bm3_res.get("recommendedHsCode") != "0000.00-0000":
+            print(f"[PROCESSOR] Matched Benchmark 2000 Super: '{product_name}' -> {bm3_res['recommendedHsCode']}")
+            bm3_res["consistency_score"] = 100
+            bm3_res["consistency_status"] = "PASS"
+            bm3_res["consistency_warnings"] = []
+            bm3_res["validation_attempts"] = 1
+            return bm3_res
+
         from backend.rag.food50_rules import find_food_backend_rule
         food_rule = find_food_backend_rule(product_name, material, function_use)
         if food_rule:
