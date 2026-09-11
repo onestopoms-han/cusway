@@ -25,7 +25,8 @@ FOOD_TRIGGER_PATTERNS = [
     r"크루아상", r"croissant", r"페이스트리", r"pastry", r"케이크", r"cake", r"머핀", r"스콘", r"와플", r"도넛", r"쿠키", r"비스킷", r"크래커", r"베이커리",
     r"요거트", r"요구르트", r"그릭\s*요거트", r"발효유", r"yogurt", r"아이스크림", r"ice\s*cream", r"빙과", r"젤라또", r"소르베",
     r"마들렌", r"madeleine", r"피낭시에", r"휘낭시에", r"financier", r"파운드케이크", r"카스텔라", r"카스테라",
-    r"파니니", r"panini", r"샌드위치", r"sandwich", r"핫도그", r"햄버거", r"토스트", r"웨이퍼", r"전병"
+    r"파니니", r"panini", r"샌드위치", r"sandwich", r"핫도그", r"햄버거", r"토스트", r"웨이퍼", r"전병",
+    r"올리브", r"올리브오일", r"올리브유", r"olive\s*oil", r"캡슐", r"capsule", r"식물성\s*캡슐", r"오메가", r"omega", r"크릴오일", r"루테인", r"프로폴리스"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -51,6 +52,53 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     Section Notes, and Chapter Notes.
     """
     combined = f"{product_name} {material} {function_use}".lower()
+
+    # 0-0-캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 오메가3 캡슐 / 기능성 유지 캡슐 (제2106호 vs 제1509호)
+    if any(k in combined for k in ["올리브오일", "올리브유", "올리브", "olive oil", "olive"]):
+        if any(c in combined for c in ["캡슐", "capsule", "연질", "식물성", "식이보충", "영양제", "보충제", "정제"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "2106.90-9099",
+                "headingName": "제2106호 (따로 분류되지 않은 조제 식료품)",
+                "subheadingName": f"{product_name} (올리브유 충전 식물성 캡슐 - 식이보충제)",
+                "confidence": 99,
+                "technicalTerms": "Food preparations not elsewhere specified / Olive oil in vegetable capsules, Dietary supplements",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 엑스트라 버진 올리브유 등을 식물성 연질 캡슐 기제에 1회 분량 단위로 충전하여 건강 유지 및 영양 공급 목적으로 소매 포장한 캡슐형 조제 식료품입니다.\n나. 관세율표 부/류 주 및 해설서 검토: 관세율표 제1509호는 병·드럼 등에 포장된 순수 액상 올리브유를 분류하나, WCO 관세율표 해설서 제2106호 총설(16) 규정에 따라 '식물성 유지 및 어유 등을 1회 섭취량 단위의 캡슐(젤라틴 또는 식물성 캡슐)에 봉입한 물품'은 제15류에서 제외되고 제2106호(기타 조제 식료품)로 분류됩니다.\n다. 결론: 따라서 일반통칙 제1호 및 제6호에 따라 HSK 제2106.90-9099호에 최종 확정 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
+                "chapterNote": "제21류 각종 조제 식료품 (제2106호 해설서 식이보충제 규정)",
+                "exclusionNote": "⚠️ 벌크/병 포장된 순수 액상 식용 올리브유는 제1509호에 분류되나, 1회 복용량 캡슐에 충전된 제품은 제2106호로 분류됩니다."
+            }
+        # 순수 액상 올리브유
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1509.20-0000",
+            "headingName": "제1509호 (올리브유와 그 분획물 - 화학적으로 변성 가공하지 않은 것)",
+            "subheadingName": f"{product_name} (엑스트라 버진 올리브유)",
+            "confidence": 99,
+            "technicalTerms": "Olive oil and its fractions / Extra virgin olive oil",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1509호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 올리브 열매를 물리적·기계적 압착 방식으로 추출한 순수 엑스트라 버진 올리브유입니다.\n나. 관세율표 분류: 관세율표 제1509호는 올리브유를 분류하며, 산도 0.8% 이하의 순수 압착유는 HSK 제1509.20-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1509.20-0000호에 분류됩니다.",
+            "sectionNote": "제3부 동물성ㆍ식물성ㆍ미생물성 지방과 기름",
+            "chapterNote": "제15류 동ㆍ식물성 유지 (제1509호)",
+            "exclusionNote": "1회 복용량 단위 캡슐 충전 제품은 제2106호로 분류됩니다."
+        }
+
+    if any(om in combined for om in ["오메가3", "오메가-3", "omega-3", "omega 3", "크릴오일", "krill oil", "정제어유", "루테인", "지아잔틴", "프로폴리스"]):
+        if any(c in combined for c in ["캡슐", "capsule", "연질", "정제", "식이보충", "영양제", "보충제"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "2106.90-9099",
+                "headingName": "제2106호 (따로 분류되지 않은 조제 식료품)",
+                "subheadingName": f"{product_name} (캡슐형 건강기능식품 - 식이보충제)",
+                "confidence": 99,
+                "technicalTerms": "Food preparations not elsewhere specified / Dietary supplements in capsules",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 1회 복용량 단위의 캡슐/정제 형태로 포장된 식이보충용 조제 식료품입니다.\n나. 관세율표 분류: WCO 제2106호 해설서에 따라 제2106.90-9099호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2106.90-9099호에 확정 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품",
+                "chapterNote": "제21류 제2106호 해설서",
+                "exclusionNote": "의약품(제30류) 및 벌크 상태의 원유(제15류)와 구분하십시오."
+            }
 
     # 0-0a. 발효유 / 요거트 / 요구르트 / 그릭 요거트 (제0403호)
     if any(k in combined for k in ["요거트", "요구르트", "그릭 요거트", "그릭요거트", "발효유", "yogurt", "플레인 요거트", "플레인요거트", "드링크 요거트"]):

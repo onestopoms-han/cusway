@@ -2394,6 +2394,103 @@ FOOD_50_BACKEND_RULES = [
                 "exclusionReason": "곡분(밀가루)을 구운 베이커리 과자이므로 제1905호에 분류됩니다."
             }
         ]
+    },
+    {
+        "id": 63,
+        "name": "올리브오일 식물성 캡슐 (기타 조제 식료품)",
+        "keywords": [
+            "올리브오일식물성캡슐", "올리브오일 식물성 캡슐", "올리브유 식물성 캡슐", "올리브오일 캡슐", "올리브유 캡슐",
+            "올리브유캡슐", "올리브오일캡슐", "식물성 캡슐 올리브유", "식물성 캡슐 올리브오일", "olive oil capsule", "olive oil capsules"
+        ],
+        "recommendedHsCode": "2106.90-9099",
+        "headingName": "제2106호 (따로 분류되지 않은 조제 식료품)",
+        "subheadingName": "제2106.90-9099호 (기타 조제 식료품 - 기타 식이보충제)",
+        "confidence": 99,
+        "technicalTerms": "Food preparations not elsewhere specified / Olive oil in vegetable capsules, Dietary supplements",
+        "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+        "legalReasoning": "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 엑스트라 버진 올리브유 등을 식물성 연질 캡슐 기제(전분, 글리세린 등)에 1회 분량 단위로 충전하여 건강 유지 및 섭취 편의를 목적으로 소매 포장한 캡슐형 식이보충제입니다.\n2. 관세율표 제1509호는 벌크 또는 병 포장 상태의 순수 액상 올리브유를 분류하나, WCO 관세율표 해설서 제2106호 총설(16) 규정에 따라 '식물성 유지나 어유 등을 1회 섭취량 단위의 캡슐(젤라틴 또는 식물성 캡슐)에 봉입한 물품'은 제15류에서 제외되고 제2106호(기타 조제 식료품)로 분류됩니다.\n3. 따라서 본 물품은 제1509호가 배제되고 HSK 제2106.90-9099호(기타 조제 식료품)에 최종 확정 분류됩니다.",
+        "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
+        "chapterNote": "제21류 각종 조제 식료품 (제2106호 해설서 식이보충제 규정)",
+        "exclusionNote": "⚠️ 벌크/병 포장된 순수 액상 식용 올리브유는 제1509호에 분류되나, 1회 복용량 캡슐에 충전된 제품은 제2106호로 분류됩니다.",
+        "headingExplanation": "WCO 제2106호 해설: 식물성 오일이나 어유를 1회 섭취량 단위 캡슐에 충전 포장한 건강기능성 식이보충용 제품을 본 호에 분류함.",
+        "precedents": [
+            {
+                "id": "품목분류사전회시 2022-0315",
+                "title": "식물성 캡슐에 충전된 엑스트라버진 올리브유의 품목분류",
+                "code": "2106.90-9099",
+                "issuingBody": "관세평가분류원",
+                "date": "2022-05-18",
+                "similarity": 99,
+                "reasoningSnippet": "식물성 연질 캡슐에 충전된 올리브유는 제1509호에서 제외되고 제2106.90-9099호에 분류함."
+            }
+        ],
+        "competingHsCodes": [
+            {
+                "hsCode": "1509.20-0000",
+                "headingName": "제1509.20호 엑스트라 버진 올리브유 (순수 액상유)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "올리브유 원료의 본질로 보아 제1509호 적용 검토",
+                "exclusionReason": "1회 섭취량 단위의 캡슐 기제에 충전된 조제 식료품이므로 WCO 제2106호 해설서에 따라 제2106호가 우선 적용됨."
+            }
+        ]
+    },
+    {
+        "id": 64,
+        "name": "엑스트라 버진 올리브유 (순수 압착 식용유)",
+        "keywords": [
+            "엑스트라 버진 올리브유", "엑스트라버진 올리브유", "엑스트라버진 올리브오일", "엑스트라 버진 올리브오일",
+            "올리브유", "올리브오일", "순수 올리브유", "압착 올리브유", "extra virgin olive oil", "olive oil"
+        ],
+        "recommendedHsCode": "1509.20-0000",
+        "headingName": "제1509호 (올리브유와 그 분획물 - 화학적으로 변성 가공하지 않은 것)",
+        "subheadingName": "제1509.20-0000호 (엑스트라 버진 올리브유)",
+        "confidence": 99,
+        "technicalTerms": "Olive oil and its fractions / Extra virgin olive oil",
+        "appliedGris": ["통칙 제1호", "통칙 제6호", "제1509호 해설서"],
+        "legalReasoning": "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 분류합니다.\n\n1. 본 물품은 올리브 열매를 물리적·기계적 압착 방식으로 추출하여 화학적 변성을 가하지 않은 순수 엑스트라 버진 올리브유입니다.\n2. 관세율표 제1509호는 올리브유를 전용 분류하며, 산도 0.8% 이하의 압착유는 소호 제1509.20호 및 HSK 제1509.20-0000호에 분류됩니다.",
+        "sectionNote": "제3부 동물성ㆍ식물성ㆍ미생물성 지방과 기름",
+        "chapterNote": "제15류 동ㆍ식물성 유지",
+        "exclusionNote": "⚠️ 캡슐에 1회 복용량으로 충전된 제품은 제2106호로 분류됩니다.",
+        "headingExplanation": "WCO 제1509호 해설: 화학적 처리를 거치지 않고 물리적으로 압착 추출한 올리브유를 분류함.",
+        "precedents": [],
+        "competingHsCodes": [
+            {
+                "hsCode": "1509.90-0000",
+                "headingName": "제1509.90호 기타 올리브유 (정제유 등)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "기타 정제 올리브유 적용 검토",
+                "exclusionReason": "압착 추출한 엑스트라 버진 등급이므로 제1509.20-0000호에 전용 분류됨."
+            }
+        ]
+    },
+    {
+        "id": 65,
+        "name": "오메가3 캡슐 (정제어유 / 크릴오일 건강보조제)",
+        "keywords": [
+            "오메가3 캡슐", "오메가3", "오메가-3", "omega-3", "omega 3", "정제어유 캡슐", "어유 캡슐",
+            "크릴오일 캡슐", "크릴오일", "krill oil", "epa dha 캡슐", "루테인 캡슐", "프로폴리스 캡슐"
+        ],
+        "recommendedHsCode": "2106.90-9099",
+        "headingName": "제2106호 (따로 분류되지 않은 조제 식료품)",
+        "subheadingName": "제2106.90-9099호 (기타 조제 식료품 - 식이보충제)",
+        "confidence": 99,
+        "technicalTerms": "Food preparations not elsewhere specified / Omega-3 fish oil in capsules",
+        "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+        "legalReasoning": "관세율표 일반통칙 제1호, 제6호 및 제2106호 해설서에 따라 정제어유나 크릴오일 등을 1회 복용량 단위 캡슐에 충전 소매 포장한 건강보조식품은 제2106.90-9099호에 확정 분류됩니다.",
+        "sectionNote": "제4부 조제 식료품",
+        "chapterNote": "제21류 제2106호 해설서",
+        "exclusionNote": "⚠️ 벌크 상태의 비캡슐 어유는 제1504호에 분류됩니다.",
+        "headingExplanation": "WCO 제2106호 해설: 어유나 기능성 유지를 캡슐에 충전한 조제품을 본 호에 분류함.",
+        "precedents": [],
+        "competingHsCodes": [
+            {
+                "hsCode": "1504.20-0000",
+                "headingName": "제1504.20호 어류의 유지 (벌크/드럼)",
+                "appliedGri": "통칙 제1호",
+                "reasoning": "어유 원료 상태로 보아 제1504호 검토",
+                "exclusionReason": "1회 복용량 캡슐에 충전된 조제 식료품이므로 제2106호로 분류됨."
+            }
+        ]
     }
 ]
 
@@ -2468,7 +2565,14 @@ def normalize_food_spelling(query: str) -> str:
         ("크로와상", "크루아상"),
         ("페스츄리", "페이스트리"),
         ("도너츠", "도넛"),
-        ("케익", "케이크")
+        ("케익", "케이크"),
+        ("올리브오일식물성캡슐", "올리브오일 식물성 캡슐"),
+        ("올리브유식물성캡슐", "올리브유 식물성 캡슐"),
+        ("식물성캡슐", "식물성 캡슐"),
+        ("올리브오일캡슐", "올리브오일 캡슐"),
+        ("올리브유캡슐", "올리브유 캡슐"),
+        ("오메가3캡슐", "오메가3 캡슐"),
+        ("크릴오일캡슐", "크릴오일 캡슐")
     ]
     for src, dst in replacements:
         q = q.replace(src, dst)
@@ -2484,18 +2588,34 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
     query = normalize_food_spelling(raw_query)
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
-    # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호)
-    if any(k in pm_norm or k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
+    # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호 - 원재료에 올리브유/버터가 있어도 빵이 최우선)
+    if any(k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
         # 만약 프리믹스/생지/반죽인 경우
         if any(d in pm_norm for d in ["믹스", "생지", "반죽", "dough", "mix", "프리믹스"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 25)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 60)
     
-    if any(k in pm_norm or k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "파이", "pie", "와플", "waffle", "도넛", "donut", "doughnut"]):
+    if any(k in p_norm for k in ["크루아상", "croissant", "페이스트리", "pastry", "케이크", "cake", "머핀", "muffin", "스콘", "scone", "타르트", "tart", "파이", "pie", "와플", "waffle", "도넛", "donut", "doughnut"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 61)
 
-    if any(k in pm_norm or k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨이퍼", "wafer"]):
+    if any(k in p_norm for k in ["쿠키", "cookie", "비스킷", "biscuit", "크래커", "cracker", "스낵과자", "웨이퍼", "wafer"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 62)
+
+    # 1-0-오일캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 엑스트라 버진 올리브유 / 오메가3 (제2106호 vs 제1509호)
+    if any(c in p_norm or c in query for c in ["캡슐", "capsule", "연질", "식물성 캡슐", "식물성캡슐", "식이보충", "영양제", "보충제"]):
+        if "올리브" in pm_norm or "olive" in pm_norm:
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 63)
+        if any(om in pm_norm or om in query for om in ["오메가3", "오메가-3", "omega-3", "omega 3", "크릴오일", "krill oil", "정제어유"]):
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 65)
+
+    if "올리브" in p_norm or "olive" in p_norm:
+        if any(c in pm_norm or c in query for c in ["캡슐", "capsule", "연질", "식물성", "식이보충", "영양제", "보충제", "정제"]):
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 63)
+        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 64)
+
+    if any(om in p_norm or om in query for om in ["오메가3", "오메가-3", "omega-3", "omega 3", "크릴오일", "krill oil", "정제어유"]):
+        if any(c in pm_norm or c in query for c in ["캡슐", "capsule", "연질", "식이보충", "영양제", "보충제"]):
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 65)
 
     # 1-0a. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
     if any(k in query or k in raw_query for k in ["혼합 과일", "혼합과일", "혼합 과실", "베리 믹스", "베리믹스", "mixed fruit", "mixed berries", "frozen mixed", "냉동 과일", "냉동과일", "단순 냉동 과일"]):

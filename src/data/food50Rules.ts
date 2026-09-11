@@ -2486,6 +2486,100 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
         exclusionReason: "곡분(밀가루)을 구운 베이커리 과자이므로 제1905호에 분류됩니다."
       }
     ]
+  },
+  {
+    id: 63,
+    name: "올리브오일 식물성 캡슐 (기타 조제 식료품)",
+    material: "엑스트라 버진 올리브유 100%, 식물성 캡슐 기제(변성전분, 글리세린 등)",
+    functionUse: "건강 유지 및 영양 보충을 위한 1회 복용량 단위 식이보충용 캡슐",
+    category: "조제 식료품 (21류)",
+    recommendedHsCode: "2106.90-9099",
+    headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+    subheadingName: "제2106.90-9099호 (기타 조제 식료품 - 기타 식이보충제)",
+    confidence: 99,
+    technicalTerms: "Food preparations not elsewhere specified / Olive oil in vegetable capsules, Dietary supplements",
+    appliedGris: ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 엑스트라 버진 올리브유 등을 식물성 연질 캡슐 기제에 1회 분량 단위로 충전하여 건강 유지 및 섭취 편의를 목적으로 소매 포장한 캡슐형 식이보충제입니다.\n2. 관세율표 제1509호는 벌크 또는 병 포장 상태의 순수 액상 올리브유를 분류하나, WCO 관세율표 해설서 제2106호 총설(16) 규정에 따라 '식물성 유지나 어유 등을 1회 섭취량 단위의 캡슐(젤라틴 또는 식물성 캡슐)에 봉입한 물품'은 제15류에서 제외되고 제2106호(기타 조제 식료품)로 분류됩니다.\n3. 따라서 본 물품은 제1509호가 배제되고 HSK 제2106.90-9099호(기타 조제 식료품)에 최종 확정 분류됩니다.",
+    sectionNote: "제4부 조제 식료품, 음료, 주류 및 식초",
+    chapterNote: "제21류 각종 조제 식료품 (제2106호 해설서 식이보충제 규정)",
+    exclusionNote: "⚠️ 벌크/병 포장된 순수 액상 식용 올리브유는 제1509호에 분류되나, 1회 복용량 캡슐에 충전된 제품은 제2106호로 분류됩니다.",
+    headingExplanation: "WCO 제2106호 해설: 식물성 오일이나 어유를 1회 섭취량 단위 캡슐에 충전 포장한 건강기능성 식이보충용 제품을 본 호에 분류함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2022-0315",
+        title: "식물성 캡슐에 충전된 엑스트라버진 올리브유의 품목분류",
+        code: "2106.90-9099",
+        issuingBody: "관세평가분류원",
+        date: "2022-05-18",
+        similarity: 99,
+        reasoningSnippet: "식물성 연질 캡슐에 충전된 올리브유는 제1509호에서 제외되고 제2106.90-9099호에 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "1509.20-0000",
+        headingName: "제1509.20호 엑스트라 버진 올리브유 (순수 액상유)",
+        appliedGri: "통칙 제1호",
+        reasoning: "올리브유 원료의 본질로 보아 제1509호 적용 검토",
+        exclusionReason: "1회 섭취량 단위의 캡슐 기제에 충전된 조제 식료품이므로 WCO 제2106호 해설서에 따라 제2106호가 우선 적용됨."
+      }
+    ]
+  },
+  {
+    id: 64,
+    name: "엑스트라 버진 올리브유 (순수 압착 식용유)",
+    material: "올리브 열매 100% 압착유",
+    functionUse: "식용 조리 및 드레싱용 식물성 유지",
+    category: "동식물성 유지 (15류)",
+    recommendedHsCode: "1509.20-0000",
+    headingName: "제1509호 (올리브유와 그 분획물 - 화학적으로 변성 가공하지 않은 것)",
+    subheadingName: "제1509.20-0000호 (엑스트라 버진 올리브유)",
+    confidence: 99,
+    technicalTerms: "Olive oil and its fractions / Extra virgin olive oil",
+    appliedGris: ["통칙 제1호", "통칙 제6호", "제1509호 해설서"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 분류합니다.\n\n1. 본 물품은 올리브 열매를 물리적·기계적 압착 방식으로 추출하여 화학적 변성을 가하지 않은 순수 엑스트라 버진 올리브유입니다.\n2. 관세율표 제1509호는 올리브유를 전용 분류하며, 산도 0.8% 이하의 압착유는 소호 제1509.20호 및 HSK 제1509.20-0000호에 분류됩니다.",
+    sectionNote: "제3부 동물성ㆍ식물성ㆍ미생물성 지방과 기름",
+    chapterNote: "제15류 동ㆍ식물성 유지",
+    exclusionNote: "⚠️ 캡슐에 1회 복용량으로 충전된 제품은 제2106호로 분류됩니다.",
+    headingExplanation: "WCO 제1509호 해설: 화학적 처리를 거치지 않고 물리적으로 압착 추출한 올리브유를 분류함.",
+    precedents: [],
+    competingHsCodes: [
+      {
+        hsCode: "1509.90-0000",
+        headingName: "제1509.90호 기타 올리브유 (정제유 등)",
+        appliedGri: "통칙 제1호",
+        reasoning: "기타 정제 올리브유 적용 검토",
+        exclusionReason: "압착 추출한 엑스트라 버진 등급이므로 제1509.20-0000호에 전용 분류됨."
+      }
+    ]
+  },
+  {
+    id: 65,
+    name: "오메가3 캡슐 (정제어유 / 크릴오일 건강보조제)",
+    material: "정제어유(EPA/DHA), 크릴오일, 연질 캡슐(젤라틴/식물성)",
+    functionUse: "혈행 개선 및 영양 보충용 1회 복용량 캡슐제",
+    category: "조제 식료품 (21류)",
+    recommendedHsCode: "2106.90-9099",
+    headingName: "제2106호 (따로 분류되지 않은 조제 식료품)",
+    subheadingName: "제2106.90-9099호 (기타 조제 식료품 - 식이보충제)",
+    confidence: 99,
+    technicalTerms: "Food preparations not elsewhere specified / Omega-3 fish oil in capsules",
+    appliedGris: ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+    legalReasoning: "관세율표 일반통칙 제1호, 제6호 및 제2106호 해설서에 따라 정제어유나 크릴오일 등을 1회 복용량 단위 캡슐에 충전 소매 포장한 건강보조식품은 제2106.90-9099호에 확정 분류됩니다.",
+    sectionNote: "제4부 조제 식료품",
+    chapterNote: "제21류 제2106호 해설서",
+    exclusionNote: "⚠️ 벌크 상태의 비캡슐 어유는 제1504호에 분류됩니다.",
+    headingExplanation: "WCO 제2106호 해설: 어유나 기능성 유지를 캡슐에 충전한 조제품을 본 호에 분류함.",
+    precedents: [],
+    competingHsCodes: [
+      {
+        hsCode: "1504.20-0000",
+        headingName: "제1504.20호 어류의 유지 (벌크/드럼)",
+        appliedGri: "통칙 제1호",
+        reasoning: "어유 원료 상태로 보아 제1504호 검토",
+        exclusionReason: "1회 복용량 캡슐에 충전된 조제 식료품이므로 제2106호로 분류됨."
+      }
+    ]
   }
 ];
 
@@ -2559,7 +2653,14 @@ export function normalizeFoodSpelling(query: string): string {
     ['크로와상', '크루아상'],
     ['페스츄리', '페이스트리'],
     ['도너츠', '도넛'],
-    ['케익', '케이크']
+    ['케익', '케이크'],
+    ['올리브오일식물성캡슐', '올리브오일 식물성 캡슐'],
+    ['올리브유식물성캡슐', '올리브유 식물성 캡슐'],
+    ['식물성캡슐', '식물성 캡슐'],
+    ['올리브오일캡슐', '올리브오일 캡슐'],
+    ['올리브유캡슐', '올리브유 캡슐'],
+    ['오메가3캡슐', '오메가3 캡슐'],
+    ['크릴오일캡슐', '크릴오일 캡슐']
   ];
   for (const [src, dst] of replacements) {
     q = q.replace(new RegExp(src, 'g'), dst);
@@ -2577,20 +2678,43 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   const query = normalizeFoodSpelling(rawQuery);
   
   // 1. 최우선 특수 품목 판정 (혼동 방지)
-  // 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호)
-  if (pmNorm.includes('치아바타') || pNorm.includes('치아바타') || pmNorm.includes('ciabatta') || pmNorm.includes('바게트') || pmNorm.includes('baguette') || pmNorm.includes('깜빠뉴') || pmNorm.includes('깜파뉴') || pmNorm.includes('사워도우') || pmNorm.includes('포카치아') || pmNorm.includes('식빵') || pmNorm.includes('구운 빵') || pmNorm.includes('베이글') || pmNorm.includes('브리오슈') || pmNorm.includes('호밀빵') || pmNorm.includes('통밀빵') || pmNorm.includes('빵')) {
+  // 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호 - 원재료에 올리브유/버터가 있어도 빵이 최우선)
+  if (pNorm.includes('치아바타') || pNorm.includes('ciabatta') || pNorm.includes('바게트') || pNorm.includes('baguette') || pNorm.includes('깜빠뉴') || pNorm.includes('깜파뉴') || pNorm.includes('사워도우') || pNorm.includes('포카치아') || pNorm.includes('식빵') || pNorm.includes('구운 빵') || pNorm.includes('베이글') || pNorm.includes('브리오슈') || pNorm.includes('호밀빵') || pNorm.includes('통밀빵') || pNorm.includes('빵')) {
     if (pmNorm.includes('믹스') || pmNorm.includes('생지') || pmNorm.includes('반죽') || pmNorm.includes('dough') || pmNorm.includes('mix') || pmNorm.includes('프리믹스')) {
       return FOOD_50_RULES.find(r => r.id === 25) || null;
     }
     return FOOD_50_RULES.find(r => r.id === 60) || null;
   }
 
-  if (pmNorm.includes('크루아상') || pNorm.includes('크루아상') || pmNorm.includes('croissant') || pmNorm.includes('페이스트리') || pmNorm.includes('pastry') || pmNorm.includes('케이크') || pmNorm.includes('cake') || pmNorm.includes('머핀') || pmNorm.includes('스콘') || pmNorm.includes('타르트') || pmNorm.includes('파이') || pmNorm.includes('와플') || pmNorm.includes('도넛')) {
+  if (pNorm.includes('크루아상') || pNorm.includes('croissant') || pNorm.includes('페이스트리') || pNorm.includes('pastry') || pNorm.includes('케이크') || pNorm.includes('cake') || pNorm.includes('머핀') || pNorm.includes('스콘') || pNorm.includes('타르트') || pNorm.includes('파이') || pNorm.includes('와플') || pNorm.includes('도넛')) {
     return FOOD_50_RULES.find(r => r.id === 61) || null;
   }
 
-  if (pmNorm.includes('쿠키') || pNorm.includes('쿠키') || pmNorm.includes('cookie') || pmNorm.includes('비스킷') || pmNorm.includes('biscuit') || pmNorm.includes('크래커') || pmNorm.includes('cracker') || pmNorm.includes('스낵과자') || pmNorm.includes('웨이퍼')) {
+  if (pNorm.includes('쿠키') || pNorm.includes('cookie') || pNorm.includes('비스킷') || pNorm.includes('biscuit') || pNorm.includes('크래커') || pNorm.includes('cracker') || pNorm.includes('스낵과자') || pNorm.includes('웨이퍼')) {
     return FOOD_50_RULES.find(r => r.id === 62) || null;
+  }
+
+  // 1-0-오일캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 엑스트라 버진 올리브유 / 오메가3 (제2106호 vs 제1509호)
+  if (pNorm.includes('캡슐') || query.includes('캡슐') || pNorm.includes('capsule') || pNorm.includes('연질') || pNorm.includes('식물성 캡슐') || pNorm.includes('식물성캡슐') || pNorm.includes('식이보충') || pNorm.includes('영양제') || pNorm.includes('보충제')) {
+    if (pmNorm.includes('올리브') || pmNorm.includes('olive')) {
+      return FOOD_50_RULES.find(r => r.id === 63) || null;
+    }
+    if (pmNorm.includes('오메가3') || pmNorm.includes('오메가-3') || pmNorm.includes('omega-3') || pmNorm.includes('크릴오일') || pmNorm.includes('정제어유')) {
+      return FOOD_50_RULES.find(r => r.id === 65) || null;
+    }
+  }
+
+  if (pNorm.includes('올리브') || pNorm.includes('olive')) {
+    if (pmNorm.includes('캡슐') || query.includes('캡슐') || pmNorm.includes('capsule') || pmNorm.includes('연질') || pmNorm.includes('식물성') || pmNorm.includes('식이보충') || pmNorm.includes('영양제') || pmNorm.includes('보충제')) {
+      return FOOD_50_RULES.find(r => r.id === 63) || null;
+    }
+    return FOOD_50_RULES.find(r => r.id === 64) || null;
+  }
+
+  if (pNorm.includes('오메가3') || pNorm.includes('오메가-3') || pNorm.includes('omega-3') || pNorm.includes('크릴오일') || pNorm.includes('정제어유')) {
+    if (pmNorm.includes('캡슐') || query.includes('캡슐') || pmNorm.includes('capsule') || pmNorm.includes('연질') || pmNorm.includes('식이보충') || pmNorm.includes('영양제') || pmNorm.includes('보충제')) {
+      return FOOD_50_RULES.find(r => r.id === 65) || null;
+    }
   }
 
   // 1-0a. 라떼 파우더 / 카페라떼 / 녹차라떼 정밀 분기
