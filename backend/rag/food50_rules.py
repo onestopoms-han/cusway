@@ -2200,30 +2200,69 @@ FOOD_50_BACKEND_RULES = [
     }
 ]
 
+def normalize_food_spelling(query: str) -> str:
+    if not query:
+        return ""
+    q = query.lower()
+    replacements = [
+        ("크렌베리", "크랜베리"),
+        ("불루베리", "블루베리"),
+        ("블렉베리", "블랙베리"),
+        ("라스베리", "라즈베리"),
+        ("링골베리", "링곤베리"),
+        ("아싸이베리", "아사이베리"),
+        ("스트로우베리", "딸기"),
+        ("스트로베리", "딸기"),
+        ("초콜렛", "초콜릿"),
+        ("초코렛", "초콜릿"),
+        ("쵸콜릿", "초콜릿"),
+        ("쵸콜렛", "초콜릿"),
+        ("소세지", "소시지"),
+        ("쏘세지", "소시지"),
+        ("카라멜", "캐러멜"),
+        ("캬라멜", "캐러멜"),
+        ("캐라멜", "캐러멜"),
+        ("케찹", "케첩"),
+        ("마요네스", "마요네즈"),
+        ("샤인머스켓", "샤인머스캣"),
+        ("아보가도", "아보카도"),
+        ("브로컬리", "브로콜리"),
+        ("카모마일", "캐모마일"),
+        ("카밀레", "캐모마일"),
+        ("피넛버터", "땅콩버터"),
+        ("피넛 버터", "땅콩버터"),
+        ("핫케익", "핫케이크"),
+        ("팬케익", "팬케이크")
+    ]
+    for src, dst in replacements:
+        q = q.replace(src, dst)
+    return q
+
 def find_food_backend_rule(product_name: str, material: str = "", function_use: str = "") -> dict:
-    query = f"{product_name} {material} {function_use}".lower().strip()
+    raw_query = f"{product_name} {material} {function_use}".lower().strip()
+    query = normalize_food_spelling(raw_query)
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
     # 1-0a. 냉동 혼합 과실 / 베리 믹스 / 혼합 과일 (0811.90-9000)
-    if any(k in query for k in ["혼합 과일", "혼합과일", "혼합 과실", "베리 믹스", "베리믹스", "mixed fruit", "mixed berries", "frozen mixed", "냉동 과일", "냉동과일", "단순 냉동 과일"]):
+    if any(k in query or k in raw_query for k in ["혼합 과일", "혼합과일", "혼합 과실", "베리 믹스", "베리믹스", "mixed fruit", "mixed berries", "frozen mixed", "냉동 과일", "냉동과일", "단순 냉동 과일"]):
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 52)
 
-    # 1-0b-1. 크랜베리 전용 정밀 분기
-    if any(k in query for k in ["크랜베리", "cranberry"]):
+    # 1-0b-1. 크랜베리/크렌베리 전용 정밀 분기
+    if any(k in query or k in raw_query for k in ["크랜베리", "크렌베리", "cranberry"]):
         if any(j in query for j in ["주스", "과즙", "juice", "농축액", "착즙"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 57)
         if any(d in query for d in ["건조", "dried", "가당", "설탕절임", "조제"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 56)
-        if any(fr in query for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리"]):
+        if any(fr in query for fr in ["신선", "생과", "fresh", "생크랜베리", "생 크랜베리", "생크렌베리", "생 크렌베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 55)
-        # 냉동 또는 일반 크랜베리 질의 시 0811.90-9000
+        # 냉동 또는 일반 크랜베리/크렌베리 질의 시 0811.90-9000
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 54)
 
     # 1-0b-2. 블루베리 / 빌베리 정밀 분기
-    if any(k in query for k in ["블루베리", "blueberry", "빌베리", "bilberry"]):
+    if any(k in query or k in raw_query for k in ["블루베리", "불루베리", "blueberry", "빌베리", "bilberry"]):
         if any(f in query for f in ["가루", "분말", "powder", "flour", "meal"]):
             pass
-        elif any(fr in query for fr in ["신선", "생과", "fresh", "생 블루베리", "생블루베리"]):
+        elif any(fr in query for fr in ["신선", "생과", "fresh", "생 블루베리", "생블루베리", "생 불루베리"]):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 53)
         else:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 51)

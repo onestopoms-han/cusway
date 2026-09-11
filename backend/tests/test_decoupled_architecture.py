@@ -107,13 +107,29 @@ def test_cranberry_family_cases():
     db = SessionLocal()
     try:
         cranberry_cases = [
-            # 1. 냉동크랜베리 (Frozen Cranberries)
+            # 1. 냉동크랜베리 (Frozen Cranberries - 표준 표기)
             {
                 "prod": "냉동크랜베리",
                 "mat": "",
                 "func": "",
                 "expected": "0811.90-9000",
                 "forbidden": ["0000.00-0000", "2106"]
+            },
+            # 1-a. 냉동크렌베리 (Frozen Cranberries - '렌' 음운 표기)
+            {
+                "prod": "냉동크렌베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000", "2106"]
+            },
+            # 1-b. 크렌베리 단독 질의 ('렌' 음운 표기)
+            {
+                "prod": "크렌베리",
+                "mat": "",
+                "func": "",
+                "expected": "0811.90-9000",
+                "forbidden": ["0000.00-0000"]
             },
             # 2. 냉동 크랜베리 (띄어쓰기)
             {

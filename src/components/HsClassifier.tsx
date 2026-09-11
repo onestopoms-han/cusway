@@ -81,7 +81,7 @@ export interface ClassificationRule {
 }
 
 import { KOREAN_HS_RULES } from '../data/rules';
-import { findFoodRuleMatch } from '../data/food50Rules';
+import { findFoodRuleMatch, normalizeFoodSpelling } from '../data/food50Rules';
 
 
 
@@ -110,12 +110,14 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [material, setMaterial] = useState('');
   const [functionUse, setFunctionUse] = useState('');
   const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState<'reasoning' | 'precedents' | 'originalText' | 'originMarking'>('reasoning');
-  const [approvedStatus, setApprovedStatus] = useState<boolean | null>(null);
-  const [isBackendOffline, setIsBackendOffline] = useState(false);
   
-  const [openaiKey, setOpenaiKey] = useState<string>(() => localStorage.getItem('openai_key') || '');
+  const [openaiKey, setOpenaiKey] = useState<string>(() => {
+    return localStorage.getItem('openai_key') || '';
+  });
+  const [analyzing, setAnalyzing] = useState(false);
+  const [approvedStatus, setApprovedStatus] = useState<string | null>(null);
+  const [isBackendOffline, setIsBackendOffline] = useState(false);
   
   // RAG 매칭 결과 상태
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
@@ -222,8 +224,11 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
       return foodMatch as ClassificationRule;
     }
 
+    const rawQuery = (prod + ' ' + mat + ' ' + func).toLowerCase();
+    const query = normalizeFoodSpelling(rawQuery);
+
     // 0-0a-1. 크랜베리 (Cranberry) 로컬 분기 (냉동 0811.90-9000 vs 신선 0810.40 vs 조제 2008.93 vs 주스 2009.81)
-    if (query.includes('크랜베리') || query.includes('cranberry')) {
+    if (query.includes('크랜베리') || rawQuery.includes('크렌베리') || query.includes('cranberry')) {
       if (query.includes('주스') || query.includes('juice') || query.includes('과즙') || query.includes('착즙') || query.includes('농축액')) {
         return {
           keywordTrigger: ['크랜베리 주스', 'cranberry juice'],
