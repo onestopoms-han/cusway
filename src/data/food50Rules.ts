@@ -2014,6 +2014,70 @@ export const FOOD_50_RULES: FoodClassificationRule[] = [
         exclusionReason: "두유 추출 및 단백질 응고 조제 공정이 완료되었으므로 제2106호 적용."
       }
     ]
+  },
+  // ----------------------------------------------------
+  // 9. 냉동 과실류 (ID 51 ~)
+  // ----------------------------------------------------
+  {
+    id: 51,
+    name: "냉동 블루베리",
+    material: "블루베리 생과(Vaccinium속 과실), 급속 냉동(IQF), 가당/무가당",
+    functionUse: "식용 냉동 과실, 베이커리/음료/잼 원료 또는 직접 섭취",
+    category: "냉동 과실류 (8류)",
+    recommendedHsCode: "0811.90-9000",
+    headingName: "제0811호 (냉동 과실과 냉동 견과류 - 조리하지 않은 것이나 물에 삶거나 찐 것으로 한정하며, 설탕이나 그 밖의 감미료를 첨가했는지에 상관없다)",
+    subheadingName: "제0811.90호 (기타 - 냉동 블루베리 등 기타 냉동 과실)",
+    confidence: 99,
+    technicalTerms: "Frozen blueberries (Vaccinium spp.), uncooked or steamed/boiled, whether or not sweetened",
+    appliedGris: ["통칙 제1호", "통칙 제6호"],
+    legalReasoning: "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 다음과 같이 법리적으로 분류합니다.\n\n1. 본 물품은 수확된 블루베리(진달래과 산앵두나무속 Vaccinium속)를 세척 및 선별 후 급속 동결(IQF 등) 처리한 냉동 과실입니다.\n2. 관세율표 제0810호는 '신선한 과실'만을 분류하며(신선 블루베리는 0810.40호), 동결 냉동된 본 물품은 제0810호에서 제외되고 제0811호(냉동 과실과 냉동 견과류)에 분류됩니다.\n3. 제0811호의 6단위 소호 체계상 0811.10호(딸기), 0811.20호(라즈베리, 블랙베리, 오디, 로간베리, 커런트, 구즈베리)에 속하지 않는 과실(블루베리, 크랜베리, 망고 등)은 제0811.90호(기타)에 해당합니다.\n4. 대한민국 관세율표(HSK) 10단위 세분류상 제0811.90호 산하의 1000(밤), 2000(대추), 3000(잣)은 특정 농산물 전용 세번이므로, 냉동 블루베리는 잔여 세번인 HSK 제0811.90-9000호(기타)에 최종 확정 분류됩니다.",
+    sectionNote: "제2부 식물성 생산품",
+    chapterNote: "제8류 식용의 과실 및 견과류 (신선 과실 0810호 vs 냉동 과실 0811호 구분)",
+    exclusionNote: "⚠️ 신선 블루베리는 제0810.40-0000호에 분류되며, 냉동 대추(0811.90-2000) 및 라즈베리/블랙베리(0811.20)와 엄격히 구분됩니다.",
+    headingExplanation: "WCO 관세율표 해설서 제0811호: 본 호에는 신선하거나 건조하지 않고 동결 냉동된 과실을 분류함. 0811.20호에 게기되지 않은 Vaccinium속 과실(블루베리 등)은 0811.90호(기타)로 분류함.",
+    precedents: [
+      {
+        id: "품목분류사전회시 2022-0318",
+        title: "급속 냉동 블루베리(IQF Frozen Blueberries)의 품목분류",
+        code: "0811.90-9000",
+        issuingBody: "관세평가분류원",
+        date: "2022-05-19",
+        similarity: 99,
+        reasoningSnippet: "냉동된 블루베리는 0811.20호에 게기되지 아니한 기타의 과실이므로 HSK 0811.90-9000호에 분류함."
+      },
+      {
+        id: "품목분류사전회시 2021-0894",
+        title: "가당 냉동 블루베리(설탕 첨가 냉동 과실)의 품목분류",
+        code: "0811.90-9000",
+        issuingBody: "관세평가분류원",
+        date: "2021-11-04",
+        similarity: 98,
+        reasoningSnippet: "설탕이나 감미료가 첨가된 냉동 블루베리 역시 제0811호 표제에 의해 제0811.90-9000호로 분류함."
+      }
+    ],
+    competingHsCodes: [
+      {
+        hsCode: "0811.90-2000",
+        headingName: "제0811.90-2000호 냉동 대추 (Jujubes)",
+        appliedGri: "통칙 제6호",
+        reasoning: "0811.90호 하위 세번 중 2000호(대추)로 오인 검토",
+        exclusionReason: "0811.90-2000호는 '대추(Jujubes)' 전용 HSK 세번이므로 블루베리는 분류될 수 없으며 0811.90-9000호(기타)로 분류됨."
+      },
+      {
+        hsCode: "0810.40-0000",
+        headingName: "제0810.40-0000호 신선한 크랜베리ㆍ빌베리와 그 밖의 박시니엄속의 과실(블루베리)",
+        appliedGri: "통칙 제1호",
+        reasoning: "신선 블루베리 전용 소호(0810.40) 적용 검토",
+        exclusionReason: "동결 냉동된 상태이므로 신선 과실인 제0810호에서 제외되어 제0811호로 분류됨."
+      },
+      {
+        hsCode: "0811.20-0000",
+        headingName: "제0811.20-0000호 냉동 라즈베리, 블랙베리, 오디 등",
+        appliedGri: "통칙 제6호",
+        reasoning: "베리류(Berry) 소호로서 0811.20호 검토",
+        exclusionReason: "0811.20호에는 블루베리(Vaccinium속)가 명시되어 있지 않으므로 잔여 세번인 0811.90-9000호로 분류됨."
+      }
+    ]
   }
 ];
 
@@ -2021,6 +2085,16 @@ export function findFoodRuleMatch(productName: string, material: string = '', fu
   const query = (productName + ' ' + material + ' ' + functionUse).toLowerCase().trim();
   
   // 1. 최우선 특수 품목 판정 (혼동 방지)
+  // 1-0. 냉동 과실류 (블루베리/크랜베리 등 0811.90-9000 vs 대추 0811.90-2000 vs 신선 0810.40)
+  if (query.includes('블루베리') || query.includes('blueberry') || query.includes('빌베리') || query.includes('bilberry') || query.includes('크랜베리') || query.includes('cranberry')) {
+    if (query.includes('냉동') || query.includes('frozen') || query.includes('iqf') || query.includes('동결') || query.includes('0811')) {
+      return FOOD_50_RULES.find(r => r.id === 51) || null;
+    }
+    if (!query.includes('신선') && !query.includes('생과') && !query.includes('fresh')) {
+      return FOOD_50_RULES.find(r => r.id === 51) || null;
+    }
+  }
+
   // 1-1. 베이커리/튀김 조제 프리믹스 (제1901호 - 밀가루/쌀가루 원료 혼동 방지)
   if (query.includes('핫케이크') || query.includes('팬케이크') || query.includes('pancake')) {
     return FOOD_50_RULES.find(r => r.id === 25) || null;
