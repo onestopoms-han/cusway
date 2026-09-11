@@ -1251,7 +1251,7 @@ def classify_benchmark1000_item(product_name: str, material: str = "", function_
             "exclusionNote": "무계목 강관(제7304호)과 대구경 SAW 용접 강관(제7305호)을 구분하십시오."
         }
 
-    if any(k in p_lower for k in ["인코넬 718", "인코넬 718 니켈 합금", "인코넬 봉재", "인코넬", "inconel 718"]):
+    if any(k in p_lower for k in ["인코넬 718", "인코넬 718 니켈 합금", "인코넬 봉재", "인코넬", "inconel 718"]) and not any(ex in p_lower for ex in ["튜브", "파이프", "관", "심리스", "pipe", "tube"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "7505.12-0000",

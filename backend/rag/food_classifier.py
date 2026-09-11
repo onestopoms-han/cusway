@@ -227,7 +227,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
 
     # 0-0c. 구운 베이커리 완제품 (치아바타, 바게트, 식빵, 사워도우, 포카치아, 파니니, 샌드위치 등 - 제1905호)
     if any(k in combined for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "사워도우", "포카치아", "식빵", "구운 빵", "베이글", "브리오슈", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "파니니", "샌드위치", "토스트", "빵"]):
-        if not any(ex in p_lower_clean for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루", "효모", "이스트", "yeast"]):
+        if not any(ex in p_lower_clean for ex in ["생지", "반죽", "프리믹스", "dough", "mix", "튀김", "가루", "효모", "이스트", "yeast", "밀가루", "소맥분", "강력분", "박력분", "중력분", "flour", "곡분"]):
             return {
                 "is_food": True,
                 "recommendedHsCode": "1905.90-1010",

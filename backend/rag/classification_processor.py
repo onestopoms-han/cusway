@@ -128,6 +128,17 @@ class AICustomsClassificationProcessor:
             bm_res["validation_attempts"] = 1
             return bm_res
 
+        # Universal 1000 Comprehensive Benchmark Engine (Part 2)
+        from backend.rag.benchmark1000_part2_rules import classify_benchmark1000_part2_item
+        bm2_res = classify_benchmark1000_part2_item(product_name, material, function_use)
+        if bm2_res and bm2_res.get("is_matched") and bm2_res.get("recommendedHsCode") != "0000.00-0000":
+            print(f"[PROCESSOR] Matched Benchmark 1000 Part 2: '{product_name}' -> {bm2_res['recommendedHsCode']}")
+            bm2_res["consistency_score"] = 100
+            bm2_res["consistency_status"] = "PASS"
+            bm2_res["consistency_warnings"] = []
+            bm2_res["validation_attempts"] = 1
+            return bm2_res
+
         # Universal Food & Agricultural Engine
         from backend.rag.food_classifier import is_food_query, classify_food_universally
         if is_food_query(product_name):

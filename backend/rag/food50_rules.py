@@ -2637,7 +2637,7 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
 
     # 1-0-빵. 베이커리 완제품 (치아바타 / 바게트 / 크루아상 / 쿠키 등 제1905호 - 원재료에 올리브유/버터가 있어도 빵이 최우선)
     if any(k in p_norm for k in ["치아바타", "ciabatta", "바게트", "baguette", "깜빠뉴", "깜파뉴", "campagne", "사워도우", "sourdough", "포카치아", "focaccia", "식빵", "구운 빵", "베이글", "bagel", "브리오슈", "brioche", "호밀빵", "통밀빵", "플랫브레드", "피타브레드", "빵"]):
-        if any(y in pm_norm for y in ["효모", "이스트", "yeast"]):
+        if any(y in pm_norm for y in ["효모", "이스트", "yeast", "밀가루", "소맥분", "강력분", "박력분", "중력분", "flour", "곡분", "글루텐", "gluten"]):
             return None
         # 만약 프리믹스/생지/반죽인 경우
         if any(d in pm_norm for d in ["믹스", "생지", "반죽", "dough", "mix", "프리믹스"]):
@@ -2726,7 +2726,9 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 21)
 
     # 1-4. 참깨 / 들깨 정밀 분기
-    if "참깨" in pm_norm:
+    if any(k in pm_norm for k in ["참기름", "들기름", "기름", "오일", "oil", "압착유", "유지"]):
+        pass
+    elif "참깨" in pm_norm:
         if "고운" in pm_norm or "미세" in pm_norm or "고운분말" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 17)
         if "거친가루" in pm_norm or "파쇄" in pm_norm or "1.25mm" in pm_norm or "cracked" in pm_norm:
@@ -2737,7 +2739,7 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 13)
         return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 14)
 
-    if "들기름" in pm_norm or "참기름" in pm_norm or "오일" in pm_norm or "기름" in pm_norm:
+    if any(k in pm_norm for k in ["참기름", "들기름", "기름", "오일", "oil", "압착유", "유지"]):
         # 식용유지(15류)는 12류 종자 룰을 건너뜀
         pass
     elif "들깨" in pm_norm:
@@ -2747,9 +2749,12 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
 
     # 1-5. 커피 (원두 0901 vs 인스턴트 2101)
     if "커피" in pm_norm:
-        if "인스턴트" in pm_norm or "동결건조" in pm_norm or "추출물" in pm_norm or "분말" in pm_norm:
+        if any(cr in pm_norm for cr in ["크리머", "프림", "creamer"]):
+            pass
+        elif "인스턴트" in pm_norm or "동결건조" in pm_norm or "추출물" in pm_norm or "분말" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 40)
-        return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 39)
+        else:
+            return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 39)
 
     # 1-6. 카레 (레토르트 2103 vs 분말 0910)
     if "카레" in pm_norm:
@@ -2776,7 +2781,7 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
             continue
         if rule["id"] == 61 and any(ex in query for ex in ["파이버", "광파이버", "레이저", "파이프", "절단기", "cnc", "금속", "metal", "fiber"]):
             continue
-        if rule["id"] == 60 and any(ex in query for ex in ["효모", "이스트", "yeast"]):
+        if rule["id"] == 60 and any(ex in query for ex in ["효모", "이스트", "yeast", "밀가루", "소맥분", "강력분", "박력분", "중력분", "flour", "곡분", "반죽", "생지", "글루텐", "gluten"]):
             continue
         if rule["id"] == 56 and any(ex in query for ex in ["무가당", "무설탕", "비가당", "unsweetened"]):
             continue
