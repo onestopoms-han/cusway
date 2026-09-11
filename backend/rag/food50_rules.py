@@ -2712,7 +2712,7 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
 
     # 1-2. 벌꿀 (사양벌꿀 2106 vs 천연벌꿀 0409) - 캔디/사탕/과자류는 제1704호로 배제
     if not any(ex in pm_norm for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
-        if "사양" in pm_norm or "설탕급여" in pm_norm or "sugar-fed" in pm_norm:
+        if ("사양벌꿀" in pm_norm or "사양꿀" in pm_norm or ("사양" in pm_norm and any(h in pm_norm for h in ["벌꿀", "꿀", "honey"])) or "설탕급여" in pm_norm or "sugar-fed" in pm_norm):
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 44)
         if "천연 벌꿀" in pm_norm or "천연벌꿀" in pm_norm or "아카시아꿀" in pm_norm or "벌꿀" in pm_norm or "꿀" in pm_norm:
             return next(r for r in FOOD_50_BACKEND_RULES if r["id"] == 43)

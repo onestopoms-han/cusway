@@ -28,7 +28,7 @@ if sys.stdout.encoding != 'utf-8':
 from backend.db import SessionLocal
 db = SessionLocal()
 
-from backend.rag.llm_chain import run_local_fallback_match
+from backend.rag.classification_processor import AICustomsClassificationProcessor
 
 NEW_500_TEST_CASES = [
     # =========================================================================
@@ -576,7 +576,7 @@ def run_all_new_500_benchmarks():
 
     for idx, (name, exp_hsk, exp_head, desc) in enumerate(NEW_500_TEST_CASES, 1):
         try:
-            res = run_local_fallback_match(name, "", desc, db)
+            res = AICustomsClassificationProcessor.run_classification_pipeline(name, "", desc, db)
             got_hsk = res.get("recommendedHsCode", "")
             got_head = re.sub(r'[^\d]', '', got_hsk)[:4]
 

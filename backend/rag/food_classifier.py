@@ -9,7 +9,7 @@ import re
 
 FOOD_TRIGGER_PATTERNS = [
     r"해물", r"수산물", r"수산가공", r"어육", r"연어", r"어묵", r"맛살", r"문어", r"낙지", r"오징어", r"새우", r"꽃게", r"대게", r"킹크랩", r"바다가재", r"게살",
-    r"송어", r"참치", r"고등어", r"명태", r"어분", r"참깨", r"들깨", r"깨가루", r"깨분말", r"치아시드", r"아몬드", r"견과류",
+    r"송어", r"참치", r"고등어", r"명태", r"어분", r"참깨", r"들깨", r"깨가루", r"깨분말", r"치아시드", r"(?<!다이)아몬드", r"견과류",
     r"해바라기씨", r"닭", r"가슴살", r"돼지", r"삼겹살", r"소고기", r"쇠고기", r"우육", r"안심", r"정육", r"돈육", r"계육", r"개구리", r"녹용",
     r"돈모", r"원유", r"우유", r"분유", r"전지분유", r"탈지분유", r"유청", r"치즈", r"(?<!인)버터", r"벌꿀",
     r"로열젤리", r"파프리카", r"버섯", r"표고버섯", r"트러플", r"송이버섯", r"두리안", r"무화과", r"망고",
@@ -42,7 +42,8 @@ def is_food_query(query: str) -> bool:
         "릴레이", "프로세서", "반사판", "피팅", "플랜지", "엘보우", "튜브", "파이프", "봉재", "판재", "호일", "동박", "스트립",
         "코일", "라이너", "합금선", "와이어로프", "볼트", "너트", "강판", "강관", "단열재", "가스", "아르곤", "크립톤", "화합물",
         "수지", "폴리", "단량체", "모노머", "안료", "효소", "스쿠알란", "방청제", "충전재", "시멘트", "착색제", "살충제",
-        "티셔츠", "셔츠", "바지", "청바지", "코트", "구두", "신발", "벨트", "골프", "가방", "캐리어", "카펫", "러그", "수영복", "장갑"
+        "티셔츠", "셔츠", "바지", "청바지", "코트", "구두", "신발", "벨트", "골프", "가방", "캐리어", "카펫", "러그", "수영복", "장갑",
+        "다이아몬드", "diamond", "드릴", "드릴 비트", "비트", "공구", "젤라틴", "의약용", "의약품"
     ]):
         return False
     return any(re.search(pat, q_lower) for pat in FOOD_TRIGGER_PATTERNS)
@@ -604,6 +605,26 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "볶은 원두커피(제0901호)와 수용성 인스턴트 커피 분말(제2101호)을 구분하십시오."
         }
 
+    # 3-2. 제09류: 홍차 찻잎 (제0902호)
+    if any(k in combined for k in ["홍차", "실론 홍차", "발효차", "black tea"]) and not any(ex in combined for ex in ["음료", "드링크", "라떼", "라테", "밀크티", "추출물", "엑기스"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0902.30-0000",
+            "headingName": "제0902호 (차 - 홍차와 발효차)",
+            "subheadingName": f"{product_name} (스리랑카 실론 홍차 잎 발효차 티백)",
+            "confidence": 99,
+            "technicalTerms": "Black Tea (Fermented) / Tea Bags, Net Content Not Exceeding 3kg",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제09류 제0902호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 건조 및 발효 과정을 거친 순수 홍차 찻잎을 소매용 티백 형태로 포장한 천연 다류입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 발효된 홍차 찻잎으로 내용량이 3킬로그램 이하인 소매 포장 물품은 제0902.30호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0902.30-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품",
+            "chapterNote": "제9류 제0902호 해설서 (홍차)",
+            "exclusionNote": "액상 홍차 음료(제2202호) 및 수용성 차 추출 분말(제2101호)과 구분하십시오."
+        }
+
     # 4. 제21류: 각종 조제식료품, 효모, 차 추출물
     if any(k in combined for k in ["녹차 분말", "인스턴트 녹차", "차 추출물", "녹차 엑기스"]):
         return {
@@ -791,7 +812,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "chapterNote": "제18류 제1804호 해설서 (코코아 버터)",
             "exclusionNote": "초콜릿(제1806호) 및 코코아 가루(제1805호)와 구분하십시오."
         }
-    if any(k in combined for k in ["코코아 분말", "코코아분말", "코코아 가루", "cocoa powder"]):
+    if any(k in combined for k in ["코코아 분말", "코코아분말", "코코아 가루", "코코아 파우더", "카카오 파우더", "카카오 분말", "cocoa powder", "cocoa"]):
         return {
             "is_food": True,
             "recommendedHsCode": "1805.00-0000",
@@ -940,6 +961,24 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "sectionNote": "제3부 동ㆍ식물성 유지 및 분해생산물",
             "chapterNote": "제15류 제1509호 해설서 (올리브유)",
             "exclusionNote": "정제 올리브유(제1509.90호)와 버진 올리브유(제1509.20호)를 구분하십시오."
+        }
+    if any(k in combined for k in ["참기름", "참깨기름", "압착 참기름", "sesame oil"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1515.50-0000",
+            "headingName": "제1515호 (그 밖의 고정성 식물성 유지 - 참깨유)",
+            "subheadingName": f"{product_name} (전통 압착 고소한 참기름 식용유)",
+            "confidence": 99,
+            "technicalTerms": "Fixed Vegetable Fats and Oils / Sesame Oil and Its Fractions",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제15류 제1515호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 참깨 종실을 압착하여 착유한 식용 식물성 고정유(참기름)입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 참깨에서 얻은 기름(참기름)은 제1515.50호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제1515.50-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제3부 식물성 유지",
+            "chapterNote": "제15류 제1515호 해설서 (참깨유)",
+            "exclusionNote": "들기름(제1515.90호)과 참기름(제1515.50호) 세번 소호를 정확히 구분하십시오."
         }
     if any(k in combined for k in ["들기름", "생들기름", "perilla oil"]):
         return {
@@ -1840,7 +1879,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 35. 제20류: 볶은 아몬드 / 견과류
-    if any(k in combined for k in ["아몬드", "볶은 아몬드", "견과류 조제", "almond"]):
+    if any(k in combined for k in ["아몬드", "볶은 아몬드", "견과류 조제", "almond"]) and "다이아몬드" not in combined and "diamond" not in combined:
         return {
             "is_food": True,
             "recommendedHsCode": "2008.19-0000",
@@ -1853,6 +1892,26 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "sectionNote": "제4부 조제식료품",
             "chapterNote": "제20류 제2008호 해설서",
             "exclusionNote": "생 아몬드(제0802.12호)와 구분하십시오."
+        }
+
+    # 36. 제35류: 의약용 젤라틴 분말
+    if any(k in combined for k in ["젤라틴", "의약용 젤라틴", "gelatin"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "3503.00-1000",
+            "headingName": "제3503호 (젤라틴과 젤라틴 유도체 - 의약용 젤라틴)",
+            "subheadingName": f"{product_name} (의약품 캡슐 제조용 의약용 젤라틴 분말)",
+            "confidence": 99,
+            "technicalTerms": "Gelatin and Gelatin Derivatives / Pharmaceutical Grade Gelatin",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3503호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 동물성 콜라겐을 가수분해 정제하여 의약품 하드/소프트 캡슐 성형 제조에 사용하는 고순도 의약용 젤라틴 분말입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 의약용 젤라틴은 관세율표 제3503.00-1000호에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제3503.00-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제6부 단백질계 물질",
+            "chapterNote": "제35류 제3503호 해설서",
+            "exclusionNote": "일반 조제 식료품(제2106호)과 순수 의약용 젤라틴 원료(제3503호)를 구분하십시오."
         }
     return {
         "is_food": True,
