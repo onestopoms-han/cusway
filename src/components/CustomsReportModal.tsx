@@ -56,7 +56,9 @@ export interface ReportData {
     material?: string;
     functionUse?: string;
     originCountry?: string;
+    imageUrl?: string;
   };
+  attachedImageUrl?: string;
   rates?: {
     baseRate?: number | string;
     wtoRate?: number | string;
@@ -320,7 +322,8 @@ export default function CustomsReportModal({
         hsCode: rawHs,
         material: koreanDescription || analysisData?.material || '제품 사양서 및 원료 배합비 기준',
         functionUse: analysisData?.functionUse || '산업 및 상업용 전용',
-        originCountry: analysisData?.originCountry || '콜롬비아 (CO) / 중국 (CN)'
+        originCountry: analysisData?.originCountry || '콜롬비아 (CO) / 중국 (CN)',
+        imageUrl: reportData?.targetItem?.imageUrl || reportData?.attachedImageUrl || analysisData?.imageUrl || analysisData?.attachedImageUrl || undefined
       },
       rates: {
         baseRate: analysisData?.baseRate || '8.0%',
@@ -377,13 +380,14 @@ export default function CustomsReportModal({
   const [refInput, setRefInput] = useState(initialData.referenceName || '통관·무역·수출입 총괄 담당자 귀하');
   const [brokerContactName, setBrokerContactName] = useState(branding.brokerName || '홍길동 공인관세사');
 
-  // Item Specs
+  // Item Specs & Attached Photo
   const [prodName, setProdName] = useState(initialData.targetItem.productName);
   const [originCountry, setOriginCountry] = useState(initialData.targetItem.originCountry || '콜롬비아 (CO)');
   const [material, setMaterial] = useState(initialData.targetItem.material || '제품 사양서 및 원료 배합비 기준');
   const [functionUse, setFunctionUse] = useState(initialData.targetItem.functionUse || '산업 및 상업용 전용');
   const [targetHsCode, setTargetHsCode] = useState(initialData.targetItem.hsCode || '0901.21-0000');
   const [rateComment, setRateComment] = useState(buildDefaultRateComment(initialData.rates));
+  const [itemImageUrl, setItemImageUrl] = useState<string | null>(() => reportData?.targetItem?.imageUrl || reportData?.attachedImageUrl || initialData.targetItem?.imageUrl || null);
 
   // Executive Summary Highlights (Page 1)
   const [summaryHighlight, setSummaryHighlight] = useState(initialData.summaryHighlightText);
@@ -447,6 +451,7 @@ export default function CustomsReportModal({
       setRequirementsList(fresh.requirements || []);
       setCustomMemo(fresh.customMemo || '■ 종합 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.');
       setSummaryHighlight(fresh.summaryHighlightText);
+      setItemImageUrl(reportData?.targetItem?.imageUrl || reportData?.attachedImageUrl || fresh.targetItem?.imageUrl || null);
     }
   }, [isOpen, reportData, productName, hsCode]);
 
@@ -472,6 +477,7 @@ export default function CustomsReportModal({
     setRequirementsList(fresh.requirements || []);
     setCustomMemo(fresh.customMemo || '■ 종합 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.');
     setSummaryHighlight(fresh.summaryHighlightText);
+    setItemImageUrl(reportData?.targetItem?.imageUrl || reportData?.attachedImageUrl || fresh.targetItem?.imageUrl || null);
     
     setSaveToast(true);
     setTimeout(() => setSaveToast(false), 2000);
@@ -1109,70 +1115,158 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Ⅱ. Item Specifications Table */}
+              {/* Ⅱ. Item Specifications Table & Attached Photo */}
               <div className="print-avoid-break" style={{ marginBottom: '13px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                  <div style={{ width: '4px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
-                  <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 900, color: '#0f172a' }}>
-                    Ⅱ. 검토 대상 물품 기본 사양 및 용도 (Item Specifications)
-                  </h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '4px', height: '14px', background: '#0284c7', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 900, color: '#0f172a' }}>
+                      Ⅱ. 검토 대상 물품 기본 사양 및 실물 성상 (Item Specifications & Physical Appearance)
+                    </h3>
+                  </div>
+
+                  {isEditMode && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <label style={{
+                        fontSize: '0.68rem',
+                        color: '#0284c7',
+                        fontWeight: 750,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        padding: '2px 7px',
+                        background: '#f0f9ff',
+                        border: '1px dashed #0284c7',
+                        borderRadius: '4px'
+                      }}>
+                        <span>📷 {itemImageUrl ? '사진 변경' : '물품 사진 첨부'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e: any) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (ev) => setItemImageUrl(ev.target?.result as string);
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </label>
+                      {itemImageUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setItemImageUrl(null)}
+                          style={{
+                            fontSize: '0.68rem',
+                            color: '#ef4444',
+                            background: '#fef2f2',
+                            border: '1px solid #fecaca',
+                            borderRadius: '4px',
+                            padding: '2px 6px',
+                            cursor: 'pointer',
+                            fontWeight: 700
+                          }}
+                        >
+                          ✕ 사진 삭제
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <table style={{
-                  width: '100%',
-                  borderCollapse: 'collapse',
-                  fontSize: '0.76rem',
-                  border: '1px solid #94a3b8'
-                }}>
-                  <tbody>
-                    <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ width: '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
-                        원재료 및 성상
-                      </th>
-                      <td style={{ width: '30%', padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a' }}>
-                        {isEditMode ? (
-                          <input
-                            type="text"
-                            value={material}
-                            onChange={(e) => setMaterial(e.target.value)}
-                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.74rem' }}
-                          />
-                        ) : (
-                          material
-                        )}
-                      </td>
-                      <th style={{ width: '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
-                        주요 기능 및 용도
-                      </th>
-                      <td style={{ width: '30%', padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a' }}>
-                        {isEditMode ? (
-                          <input
-                            type="text"
-                            value={functionUse}
-                            onChange={(e) => setFunctionUse(e.target.value)}
-                            style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.74rem' }}
-                          />
-                        ) : (
-                          functionUse
-                        )}
-                      </td>
-                    </tr>
-                    <tr>
-                      <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', background: '#f8fafc', fontWeight: 800 }}>
-                        적용 일반통칙
-                      </th>
-                      <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a', fontWeight: 700 }}>
-                        {generalRule}
-                      </td>
-                      <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', background: '#f8fafc', fontWeight: 800 }}>
-                        2차 경합세번 배제
-                      </th>
-                      <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#b91c1c', fontWeight: 700 }}>
-                        {competingList.length > 0 ? `${competingList.map(c => c.hsCode).join(', ')} 배제` : '단일 확정 세번'}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
+                  <table style={{
+                    flex: itemImageUrl ? '1 1 calc(100% - 130px)' : '1 1 100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '0.76rem',
+                    border: '1px solid #94a3b8'
+                  }}>
+                    <tbody>
+                      <tr style={{ background: '#f1f5f9' }}>
+                        <th style={{ width: itemImageUrl ? '22%' : '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                          원재료 및 성상
+                        </th>
+                        <td style={{ width: itemImageUrl ? '28%' : '30%', padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a' }}>
+                          {isEditMode ? (
+                            <input
+                              type="text"
+                              value={material}
+                              onChange={(e) => setMaterial(e.target.value)}
+                              style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.74rem' }}
+                            />
+                          ) : (
+                            material
+                          )}
+                        </td>
+                        <th style={{ width: itemImageUrl ? '22%' : '20%', padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', fontWeight: 800 }}>
+                          주요 기능 및 용도
+                        </th>
+                        <td style={{ width: itemImageUrl ? '28%' : '30%', padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a' }}>
+                          {isEditMode ? (
+                            <input
+                              type="text"
+                              value={functionUse}
+                              onChange={(e) => setFunctionUse(e.target.value)}
+                              style={{ width: '100%', padding: '2px 4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '0.74rem' }}
+                            />
+                          ) : (
+                            functionUse
+                          )}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', background: '#f8fafc', fontWeight: 800 }}>
+                          적용 일반통칙
+                        </th>
+                        <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#0f172a', fontWeight: 700 }}>
+                          {generalRule}
+                        </td>
+                        <th style={{ padding: '5px 8px', border: '1px solid #cbd5e1', textAlign: 'left', color: '#334155', background: '#f8fafc', fontWeight: 800 }}>
+                          2차 경합세번 배제
+                        </th>
+                        <td style={{ padding: '5px 8px', border: '1px solid #cbd5e1', color: '#b91c1c', fontWeight: 700 }}>
+                          {competingList.length > 0 ? `${competingList.map(c => c.hsCode).join(', ')} 배제` : '단일 확정 세번'}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  {/* Attached Physical Photo Box on Sheet 1 */}
+                  {itemImageUrl && (
+                    <div style={{
+                      width: '120px',
+                      flexShrink: 0,
+                      border: '1px solid #94a3b8',
+                      borderRadius: '4px',
+                      background: '#f8fafc',
+                      padding: '4px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      position: 'relative'
+                    }}>
+                      <img
+                        src={itemImageUrl}
+                        alt="물품 실물 성상"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '74px',
+                          objectFit: 'contain',
+                          borderRadius: '2px',
+                          border: '1px solid #e2e8f0',
+                          background: '#ffffff'
+                        }}
+                      />
+                      <span style={{ fontSize: '0.62rem', fontWeight: 800, color: '#334155', marginTop: '3px', textAlign: 'center' }}>
+                        [사진 1] 실물·성상 사진
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Ⅲ. Clearance & Regulatory Checklist Summary */}
@@ -1663,12 +1757,63 @@ export default function CustomsReportModal({
                 </div>
               </div>
 
-              {/* Section 4: Post-Clearance Audit & Risk Defense Strategy */}
+              {/* Section 4: Physical Sample & Image Evidence (when photo is attached) */}
+              {itemImageUrl && (
+                <div className="print-avoid-break" style={{ marginBottom: '13px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                    <div style={{ width: '4px', height: '14px', background: '#059669', borderRadius: '2px' }} />
+                    <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 900, color: '#0f172a' }}>
+                      4. 물품 실물 성상 및 도면/증빙 사진 (Physical Evidence & Technical Photograph)
+                    </h3>
+                  </div>
+                  <div style={{
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    background: '#f8fafc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '14px'
+                  }}>
+                    <div style={{
+                      width: '130px',
+                      height: '95px',
+                      background: '#ffffff',
+                      border: '1px solid #94a3b8',
+                      borderRadius: '4px',
+                      padding: '3px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <img
+                        src={itemImageUrl}
+                        alt="물품 실물 증빙 사진"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          objectFit: 'contain'
+                        }}
+                      />
+                    </div>
+                    <div style={{ fontSize: '0.73rem', color: '#334155', lineHeight: 1.45 }}>
+                      <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '2px' }}>
+                        🔍 [실물 성상 감정 및 라벨 표시 대조 검토]
+                      </div>
+                      <div>• 제출된 물품 실물 사진 및 외관 사양을 확인한 결과, 제품의 가공 성상 및 포장 라벨 정보가 관세율표상 <strong>제{targetHsCode.slice(0, 4)}호</strong>의 호의 용어 및 WCO 해설서상 분류 요건에 부합함을 입증함.</div>
+                      <div>• 본 물품은 추가적인 임의 가공 없이 현 상태 그대로 최종 용도로 직접 소비·공급되는 완제품 규격임을 확인함.</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Section 5 (or 4): Post-Clearance Audit & Risk Defense Strategy */}
               <div className="print-avoid-break" style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
                   <div style={{ width: '4px', height: '14px', background: '#0d9488', borderRadius: '2px' }} />
                   <h3 style={{ margin: 0, fontSize: '0.86rem', fontWeight: 900, color: '#0f172a' }}>
-                    4. 관세사 사후 심사(세무조사) 리스크 방어 전략 및 실무 가이드 (Audit Defense Strategy)
+                    {itemImageUrl ? '5' : '4'}. 관세사 사후 심사(세무조사) 리스크 방어 전략 및 실무 가이드 (Audit Defense Strategy)
                   </h3>
                 </div>
 

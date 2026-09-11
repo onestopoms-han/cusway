@@ -2916,8 +2916,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               hsCode: matchedRule?.recommendedHsCode || '8517.62-6090',
               material: material || '제품 사양서 및 원료 배합비 기준',
               functionUse: functionUse || '산업 및 상업용 전용',
-              originCountry: '수입신고 원산지 기준 (협정세율 검토)'
+              originCountry: '수입신고 원산지 기준 (협정세율 검토)',
+              imageUrl: attachedPreview || undefined
             },
+            attachedImageUrl: attachedPreview || undefined,
             legalBasis: {
               generalRule: (matchedRule?.appliedGris && matchedRule.appliedGris.length > 0 ? matchedRule.appliedGris : ['통칙 제1호', '통칙 제6호']).join(', '),
               rationaleSummary: matchedRule?.legalReasoning || '관세율표 품목분류 원칙 및 부·류·호의 주규정에 의거 본 세번으로 분류가 타당함',
