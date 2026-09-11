@@ -2166,9 +2166,33 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     marginTop: '4px' 
                   }}>
                     {matchedRule.recommendedHsCode === "0000.00-0000" ? (
-                      <h3 style={{ fontSize: isMobile ? '1.6rem' : '2rem', fontWeight: 800, letterSpacing: '1px', color: 'var(--accent-red)' }}>
-                        판정 보류 (분류 불가)
-                      </h3>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                        <h3 style={{ fontSize: isMobile ? '1.6rem' : '2rem', fontWeight: 800, letterSpacing: '1px', color: 'var(--accent-red)' }}>
+                          판정 보류 (분류 불가)
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={() => handleStartAnalysis(productName, material, functionUse ? functionUse + " [심층 재분석]" : "관세율표 통칙 제1호 심층 정밀 재분석")}
+                          style={{
+                            background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '6px 14px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <Sparkles size={14} />
+                          <span>⚡ AI 심층 정밀 재분석 실행</span>
+                        </button>
+                      </div>
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                         <h3 style={{ fontSize: isMobile ? '1.6rem' : '2rem', fontWeight: 800, letterSpacing: '1px' }} className="text-gradient">
