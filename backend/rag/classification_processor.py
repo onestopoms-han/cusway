@@ -5,7 +5,6 @@ import re
 from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_precedents
 from backend.rag.llm_chain import query_rag_hs_classification
 from backend.rag.hs_validator import HSConsistencyValidator
-from backend.rag.risk_assessor import CustomsRiskAssessor
 
 def detect_query_domain(product_name: str) -> tuple:
     """
@@ -62,7 +61,7 @@ class AICustomsClassificationProcessor:
     1. RAG Document Retrieval with Domain Isolation Gate
     2. GRI Step-by-Step Chain-of-Thought (CoT) Classification (2-Pass Decoupled)
     3. Note Exclusions and GRI Validation
-    4. Post-Clearance Audit Tax Risk Evaluation
+    4. Deterministic 10-Digit HSK Master Resolution
     """
     
     @classmethod
@@ -102,8 +101,6 @@ class AICustomsClassificationProcessor:
                 "consistency_warnings": [],
                 "validation_attempts": 1
             }
-            assessor = CustomsRiskAssessor()
-            result_dict["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
             return result_dict
 
         # Universal Sensors Engine
@@ -116,8 +113,6 @@ class AICustomsClassificationProcessor:
                 s_res["consistency_status"] = "PASS"
                 s_res["consistency_warnings"] = []
                 s_res["validation_attempts"] = 1
-                assessor = CustomsRiskAssessor()
-                s_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
                 return s_res
 
         # Universal Food & Agricultural Engine
@@ -130,8 +125,6 @@ class AICustomsClassificationProcessor:
                 f_res["consistency_status"] = "PASS"
                 f_res["consistency_warnings"] = []
                 f_res["validation_attempts"] = 1
-                assessor = CustomsRiskAssessor()
-                f_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
                 return f_res
 
         # Universal Industry Engine (기계, 화학, 반도체, 소재 등)
@@ -143,8 +136,6 @@ class AICustomsClassificationProcessor:
             ind_res["consistency_status"] = "PASS"
             ind_res["consistency_warnings"] = []
             ind_res["validation_attempts"] = 1
-            assessor = CustomsRiskAssessor()
-            ind_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
             return ind_res
 
         # Universal Local Heuristics & Anchor Matcher (오프라인 / 빠른 처리)
@@ -159,8 +150,6 @@ class AICustomsClassificationProcessor:
                 fb_res["consistency_status"] = "PASS"
                 fb_res["consistency_warnings"] = []
                 fb_res["validation_attempts"] = 1
-                assessor = CustomsRiskAssessor()
-                fb_res["tax_risk"] = assessor.calculate_audit_risk(30000000.0, 365, [])
                 return fb_res
 
         # ----------------------------------------------------
@@ -271,34 +260,7 @@ class AICustomsClassificationProcessor:
         result_dict["validation_attempts"] = attempt + 1
 
         # ----------------------------------------------------
-        # Phase 4: Post-Clearance Audit (PCA) Tax Risk Assessment
-        # ----------------------------------------------------
-        # Identify risk keys by scanning keywords in inputs & reasoning
-        risk_keys = []
-        combined_query = f"{product_name} {material} {function_use}".strip()
-        lower_query = combined_query.lower() + " " + result_dict.get("legalReasoning", "").lower()
-        
-        if any(w in lower_query for w in ["로열티", "상표권", "라이선스", "royalty", "licence"]):
-            risk_keys.append("ART-ROYALTY")
-        if any(w in lower_query for w in ["생산지원", "무상제공", "도면", "금형", "assists"]):
-            risk_keys.append("ART-ASSISTS")
-        if any(w in lower_query for w in ["특수관계", "본지사", "지사", "본사", "계열사", "relation"]):
-            risk_keys.append("ART-RELATION")
-        if any(w in lower_query for w in ["간접지급", "의무대행", "광고비", "사후귀속", "indirect"]):
-            risk_keys.append("ART-INDIRECT")
-
-        # Calculate estimated risk exposure assuming a baseline duty shortfall sample of $25,000 (~3,000만원)
-        # for risk simulation and analysis report
-        duty_shortfall = 30000000.0  # Default simulated shortfall of 30,000,000 KRW
-        delay_days = 365  # Default simulated delay of 1 year
-        
-        assessor = CustomsRiskAssessor()
-        risk_results = assessor.calculate_audit_risk(duty_shortfall, delay_days, risk_keys)
-        
-        result_dict["tax_risk"] = risk_results
-
-        # ----------------------------------------------------
-        # Phase 5: Build unified legal classification structure
+        # Phase 4: Build unified legal classification structure
         # ----------------------------------------------------
         # If the consistency validator flags complete contradiction, adjust code and status
         if validation_results["consistency_score"] < 40:
