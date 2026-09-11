@@ -19,6 +19,11 @@ FEEDS = [
     ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EA%B3%A0%EC%8B%9C+%EA%B0%9C%EC%A0%95&hl=ko&gl=KR&ceid=KR:ko", "고시/지침"),
     ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%86%B5%EA%B4%80+%EB%B3%B4%EB%8F%84%EC%9E%90%EB%A3%8C&hl=ko&gl=KR&ceid=KR:ko", "통관 소식"),
     ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+FTA+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "품목 분류"),
+    ("https://news.google.com/rss/search?q=%EC%8B%9D%ED%92%88%EC%9D%98%EC%95%BD%ED%92%88%EC%95%88%EC%A0%84%EC%B2%98+%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EA%B2%80%EC%82%AC+%EA%B3%A0%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
+    ("https://news.google.com/rss/search?q=%EB%85%88%EB%A6%BC%EC%B6%95%EC%82%B0%EA%B2%80%EC%97%AD%EB%B3%B8%EB%B6%80+%EC%88%98%EC%9E%85+%EC%8B%9D%EB%AC%BC%EA%B2%80%EC%97%AD+%EC%B6%95%EC%82%B0%EB%AC%BC&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
+    ("https://news.google.com/rss/search?q=%EA%B5%AD%EB%A6%BD%EC%88%98%EC%82%B0%EB%AC%BC%ED%92%88%EC%A7%88%EA%B4%80%EB%A6%AC%EC%9B%90+%EC%88%98%EC%82%B0%EB%AC%BC+%EC%88%98%EC%9E%85%EA%B2%80%EC%97%AD&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
+    ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EB%85%88%EC%88%98%EC%82%B0%EB%AC%BC+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80+%ED%95%A0%EB%8B%B9%EA%B4%80%EC%84%B8&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
+    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EB%B6%80%EC%A0%81%ED%95%A9+%EC%B0%A8%EB%8B%A8+%EA%B2%80%EC%97%AD&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
     ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EC%82%AC%ED%9B%84%EC%84%B8%EC%95%A1+%EA%B8%B0%EC%97%85%EC%8B%AC%EC%82%AC&hl=ko&gl=KR&ceid=KR:ko", "기업 심사")
 ]
 
@@ -67,7 +72,9 @@ def crawl_and_sync():
                         continue
 
                     tag = default_tag
-                    if "고시" in clean_title or "개정" in clean_title:
+                    if any(k in clean_title for k in ["검역", "식약처", "수입식품", "식물방역", "축산물", "수산물", "농수산", "잔류농약", "PLS", "부적합", "위생", "검역본부", "수품원", "양허관세", "TRQ"]):
+                        tag = "농수산·식품검역"
+                    elif "고시" in clean_title or "개정" in clean_title:
                         tag = "고시/지침"
                     elif "FTA" in clean_title or "원산지" in clean_title:
                         tag = "FTA/원산지"

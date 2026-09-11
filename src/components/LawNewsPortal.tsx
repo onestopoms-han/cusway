@@ -185,11 +185,98 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     }
   ];
 
+  // 4 Major Quarantine & Food Import Regulations (농수산물·식품 4대 수입검역 법령)
+  const quarantineLaws = [
+    {
+      title: '수입식품안전관리 특별법 (식약처)',
+      desc: '해외에서 국내로 수입되는 모든 가공식품, 농축수산물, 건강기능식품, 식품첨가물 및 식품용 기구·용기포장의 안전성 확보 및 수입검사를 관장하는 기본법.',
+      points: ['제5조 (해외제조업소 등록)', '제20조 (수입신고 및 정밀검사)', '잔류농약 PLS 일괄적용', '한글표시사항 의무'],
+      articles: [
+        {
+          num: '제5조 (해외제조업소의 등록)',
+          content: '수입식품등을 수입하려는 자 또는 해외제조업소의 설치·운영자는 해당 수입식품등의 수입신고 7일 전까지 해외제조업소의 명칭, 소재지, 생산품목 등을 식품의약품안전처장에게 등록하여야 한다. 등록되지 아니한 해외제조업소에서 생산된 식품은 수입신고가 수리되지 아니한다.'
+        },
+        {
+          num: '제20조 (수입신고 및 검사)',
+          content: '① 수입식품등을 수입하려는 자는 식약처장에게 수입신고를 하여야 한다.\n② 검사의 종류는 서류검사, 현장검사, 정밀검사, 무작위표본검사로 구분한다.\n③ 최초로 수입되는 식품등은 물리·화학·미생물학적 정밀검사를 실시하며, 부적합 시 전량 반송 또는 폐기 조치된다.'
+        },
+        {
+          num: '잔류농약 허용물질목록관리제도 (PLS)',
+          content: '국내외 잔류허용기준(MRL)이 설정되지 않은 모든 농약 성분은 불검출(일률기준 0.01mg/kg 이하)을 적용하여 엄격히 통제함.'
+        },
+        {
+          num: '식품등의 표시기준 (한글표시사항)',
+          content: '수입식품등은 통관 전 보세구역에서 제품명, 식품유형, 수입업소명 및 소재지, 제조일자/소비기한, 원재료명 및 함량, 영양성분 등이 기재된 한글표시 라벨을 적법하게 부착해야 함.'
+        }
+      ]
+    },
+    {
+      title: '식물방역법 (농림축산검역본부)',
+      desc: '외래 식물병해충(과수화상병, 붉은불개미, 소나무재선충 등)의 국내 유입을 차단하여 국내 농림업 생산 및 자연환경을 보호하는 식물검역법.',
+      points: ['제8조 (수입금지품 및 금지지역)', '제12조 (식물검역증명서 첨부)', '제16조 (현장소독 및 폐기명령)'],
+      articles: [
+        {
+          num: '제8조 (수입금지품)',
+          content: '① 다음 각 호의 어느 하나에 해당하는 물품은 수입할 수 없다.\n1. 금지병해충이 붙어 있거나 붙어 있다고 인정되는 식물등\n2. 금지병해충이 발생하는 지역에서 생산·발송되거나 그 지역을 경유한 식물등\n3. 흙 또는 흙이 붙어 있는 식물\n② 단순 냉동(-18℃ 이하) 또는 가열/건조/당침 등 병해충 사멸 가공공정이 입증된 물품은 제외될 수 있다.'
+        },
+        {
+          num: '제12조 (식물검역증명서 첨부)',
+          content: '수입 식물류는 수출국 정부기관이 발행한 식물검역증명서(Phytosanitary Certificate) 원본을 입항지 검역본부에 제출하여야 하며, 미첨부 시 즉시 폐기 또는 반송된다.'
+        },
+        {
+          num: '제16조 (검역 및 소독처분)',
+          content: '수입검역 과정에서 규제 병해충이 발견된 경우 검역관은 화주에게 훈증 소독(메틸브로마이드, 포스핀 등)을 명할 수 있으며, 소독이 불가능한 경우 전량 소각 또는 반송 처분한다.'
+        }
+      ]
+    },
+    {
+      title: '가축전염병 예방법 (농림축산검역본부)',
+      desc: '아프리카돼지열병(ASF), 구제역(FMD), 고병원성 조류인플루엔자(HPAI) 등 악성 가축전염병의 해외 유입을 방지하는 동물/축산물 검역법.',
+      points: ['제31조 (지정검역물의 수입금지)', '제34조 (수입위생조건 및 증명서)', '휴대축산물 과태료 1천만원'],
+      articles: [
+        {
+          num: '제31조 (지정검역물의 수입금지)',
+          content: '가축전염병 발생 국가 또는 지역에서 생산·제조된 우육, 돈육, 가금육 및 가공품(햄, 소시지, 육포, 만두, 피자, 축산물 함유 제품)은 국내 수입이 엄격히 금지된다.'
+        },
+        {
+          num: '제34조 (수입위생조건 및 검역증명서)',
+          content: '수입 허용 국가라 하더라도 농식품부 장관이 지정·고시한 수출국 정부 승인 도축장/가공장에서 생산되고 정부 수의관이 발행한 검역증명서가 첨부된 경우에 한하여 통관이 허용된다.'
+        },
+        {
+          num: '휴대축산물 불법 반입 처벌',
+          content: '여행자 휴대품 또는 특송화물로 돈육 가공품 등을 미신고 반입하다 적발 시 1차 500만원, 최고 1,000만원의 과태료가 즉시 부과된다.'
+        }
+      ]
+    },
+    {
+      title: '수산생물질병 관리법 (국립수산물품질관리원)',
+      desc: '수산생물전염병(IHNV, WSSV 등) 유입 방지 및 활어/패류/냉동수산물의 안전성, 방사능·중금속 검역을 관장하는 수산물 검역법.',
+      points: ['제22조 (수산생물 수입검역)', '제24조 (수출국 검역증명서)', '방사능·중금속 전수검사'],
+      articles: [
+        {
+          num: '제22조 (수산생물의 수입검역)',
+          content: '살아있는 수산동물(활어, 활패류, 활갑각류) 및 냉동·냉장 감수성 품목을 수입하려는 자는 입항 즉시 국립수산물품질관리원에 검역을 신청하고 지정 계류장에서 임상검사 및 정밀검사를 받아야 한다.'
+        },
+        {
+          num: '방사능 및 중금속 안전성 조사',
+          content: '수입 수산물에 대해 방사성 물질(세슘 134+137, 요오드 131) 및 수은, 납, 카드뮴 등 유해 중금속 전수 정밀검사를 실시하여 적합 판정 시 세관 통관을 허용함.'
+        },
+        {
+          num: '이식승인 수산생물',
+          content: '양식용 종자 또는 방류 목적 수산생물은 사전에 해양수산부 및 지자체의 이식승인을 득해야 수입검역이 진행됨.'
+        }
+      ]
+    }
+  ];
+
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string>('all');
+  const [activeLawCategory, setActiveLawCategory] = useState<'customs' | 'quarantine'>('customs');
+
   const externalLinks = [
     { name: '관세청 전자통관 UNIPASS', url: 'https://unipass.customs.go.kr/', desc: '수출입 통관 및 세관장확인 승인 신청 포털' },
-    { name: '관세법령정보포털 CLIP', url: 'https://unipass.customs.go.kr/clip/index.do', desc: '공식 관세율표, 해설서, 품목분류 사례 조회' },
-    { name: '국가법령정보센터', url: 'https://www.law.go.kr/', desc: '대한민국 모든 법령, 판례, 행정규칙 통합 검색' },
-    { name: '관세청 공식 홈페이지', url: 'https://www.customs.go.kr/', desc: '관세청 공식 보도자료 및 공지사항 바로가기' }
+    { name: '식약처 수입식품정보마루', url: 'https://impfood.mfds.go.kr/', desc: '수입식품 해외제조업소 등록 및 정밀검사 조회' },
+    { name: '농림축산검역본부 PQIS', url: 'https://www.qia.go.kr/', desc: '수입 식물·동물·축산물 검역정보 통합포털' },
+    { name: '국립수산물품질관리원', url: 'https://www.nfqs.go.kr/', desc: '수산물 수입검역 및 방사능 안전성 검사 정보' }
   ];
 
   const getNaverNewsUrl = (title: string) => {
@@ -214,13 +301,31 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
     return `https://search.daum.net/search?w=news&q=${encodeURIComponent(searchKeyword)}`;
   };
 
-  const filteredNotices = notices.filter(n => 
-    (n.title || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (n.summary || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (n.tag || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredNotices = notices.filter(n => {
+    const titleLower = (n.title || '').toLowerCase();
+    const summaryLower = (n.summary || '').toLowerCase();
+    const tagLower = (n.tag || '').toLowerCase();
+    const agencyLower = (n.agency || '').toLowerCase();
+    const searchLower = searchTerm.toLowerCase();
 
-  const filteredLaws = laws.filter(l => 
+    const matchesSearch = titleLower.includes(searchLower) || 
+                          summaryLower.includes(searchLower) ||
+                          tagLower.includes(searchLower) ||
+                          agencyLower.includes(searchLower);
+
+    if (!matchesSearch) return false;
+
+    if (selectedTagFilter === 'all') return true;
+    if (selectedTagFilter === '농수산·식품검역') {
+      return tagLower.includes('검역') || tagLower.includes('식품') || tagLower.includes('농수산') ||
+             titleLower.includes('검역') || titleLower.includes('식약처') || titleLower.includes('식물방역') || titleLower.includes('축산물') || titleLower.includes('수산물');
+    }
+    return tagLower.includes(selectedTagFilter.toLowerCase());
+  });
+
+  const activeLawsList = activeLawCategory === 'customs' ? laws : quarantineLaws;
+
+  const filteredLaws = activeLawsList.filter(l => 
     (l.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (l.desc || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     l.points.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -388,17 +493,81 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
       {/* Two Column Layout for Laws & Notices */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '24px' }}>
         
-        {/* Left Column: 4 Major Laws */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={18} color="#06b6d4" />
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>실무 필수 4대 관세법령</h3>
+        {/* Left Column: 4 Major Laws & Quarantine Regulations */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* Law Category Switcher Tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            background: 'rgba(15, 23, 42, 0.6)',
+            padding: '4px',
+            borderRadius: '10px',
+            border: '1px solid rgba(148, 163, 184, 0.2)'
+          }}>
+            <button
+              onClick={() => setActiveLawCategory('customs')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeLawCategory === 'customs' ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : 'transparent',
+                color: activeLawCategory === 'customs' ? '#ffffff' : '#94a3b8',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.2s'
+              }}
+            >
+              <FileText size={15} /> 실무 필수 4대 관세법령
+            </button>
+            <button
+              onClick={() => setActiveLawCategory('quarantine')}
+              style={{
+                flex: 1.2,
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                background: activeLawCategory === 'quarantine' ? 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' : 'transparent',
+                color: activeLawCategory === 'quarantine' ? '#ffffff' : '#94a3b8',
+                fontSize: '0.82rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.2s'
+              }}
+            >
+              🌾 농수산물·식품 4대 수입검역 법령
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+              {activeLawCategory === 'customs' ? '세관 통관 및 과세·FTA·환급 핵심 법률' : '식약처·농림축산검역본부·국립수산물품질관리원 4대 수입검역 법령'}
+            </span>
+            <span style={{
+              background: activeLawCategory === 'quarantine' ? 'rgba(5, 150, 105, 0.15)' : 'rgba(2, 132, 199, 0.15)',
+              color: activeLawCategory === 'quarantine' ? '#34d399' : '#38bdf8',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '0.72rem',
+              fontWeight: 800
+            }}>
+              {activeLawCategory === 'customs' ? '관세 4법' : '검역 4법 (식약처·검역본부·수품원)'}
+            </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {filteredLaws.length === 0 ? (
               <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                검색 조건과 일치하는 관세 법령이 없습니다.
+                검색 조건과 일치하는 법령이 없습니다.
               </div>
             ) : (
               filteredLaws.map((law, idx) => (
@@ -426,10 +595,10 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                         alignItems: 'center',
                         gap: '4px',
                         fontSize: '0.78rem',
-                        color: '#0284c7',
+                        color: activeLawCategory === 'quarantine' ? '#059669' : '#0284c7',
                         padding: '5px 10px',
-                        background: '#f0f9ff',
-                        border: '1px solid #bae6fd',
+                        background: activeLawCategory === 'quarantine' ? '#ecfdf5' : '#f0f9ff',
+                        border: `1px solid ${activeLawCategory === 'quarantine' ? '#a7f3d0' : '#bae6fd'}`,
                         borderRadius: '6px',
                         cursor: 'pointer',
                         fontWeight: 700,
@@ -451,7 +620,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                         onClick={() => setSelectedLawModal(law)}
                         style={{
                           background: '#f8fafc',
-                          color: '#0369a1',
+                          color: activeLawCategory === 'quarantine' ? '#065f46' : '#0369a1',
                           padding: '4px 10px',
                           borderRadius: '6px',
                           fontSize: '0.75rem',
@@ -464,8 +633,8 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                           transition: 'all 0.15s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#0284c7';
-                          e.currentTarget.style.background = '#f0f9ff';
+                          e.currentTarget.style.borderColor = activeLawCategory === 'quarantine' ? '#059669' : '#0284c7';
+                          e.currentTarget.style.background = activeLawCategory === 'quarantine' ? '#ecfdf5' : '#f0f9ff';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = '#cbd5e1';
@@ -486,7 +655,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           
           {/* Section: News & Notices */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Bell size={18} color="var(--accent-cyan)" />
@@ -496,7 +665,7 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                 <button
                   onClick={handleSync}
                   disabled={isSyncing}
-                  title="관세청 최신 고시 실시간 새로고침"
+                  title="관세청 및 검역기관 최신 고시 실시간 새로고침"
                   style={{
                     background: '#f0f9ff',
                     border: '1px solid #bae6fd',
@@ -532,6 +701,64 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
               </div>
             </div>
 
+            {/* Category Filter Chips Bar */}
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '6px',
+              padding: '8px 12px',
+              background: 'rgba(15, 23, 42, 0.6)',
+              borderRadius: '8px',
+              border: '1px solid rgba(148, 163, 184, 0.15)'
+            }}>
+              {[
+                { id: 'all', label: `전체 (${notices.length})` },
+                { 
+                  id: '농수산·식품검역', 
+                  label: `🌾 농수산·식품검역 (${notices.filter(n => {
+                    const t = (n.tag || '').toLowerCase();
+                    const tit = (n.title || '').toLowerCase();
+                    return t.includes('검역') || t.includes('식품') || t.includes('농수산') ||
+                           tit.includes('검역') || tit.includes('식약처') || tit.includes('식물방역') || tit.includes('축산물') || tit.includes('수산물');
+                  }).length})` 
+                },
+                { id: '고시', label: '📜 고시/지침' },
+                { id: '품목분류', label: '🔍 품목분류' },
+                { id: 'FTA', label: '🌐 FTA/원산지' },
+                { id: '세관단속', label: '🚨 세관 단속' },
+                { id: '관세평가', label: '⚖️ 관세평가' }
+              ].map(chip => {
+                const isSelected = selectedTagFilter === chip.id;
+                const isQuarantineChip = chip.id === '농수산·식품검역';
+                return (
+                  <button
+                    key={chip.id}
+                    onClick={() => {
+                      setSelectedTagFilter(chip.id);
+                      setCurrentPage(1);
+                    }}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      border: isSelected 
+                        ? (isQuarantineChip ? '1px solid #10b981' : '1px solid #38bdf8')
+                        : '1px solid rgba(148, 163, 184, 0.2)',
+                      background: isSelected
+                        ? (isQuarantineChip ? 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)')
+                        : 'rgba(30, 41, 59, 0.6)',
+                      color: isSelected ? '#ffffff' : '#94a3b8',
+                      fontSize: '0.74rem',
+                      fontWeight: isSelected ? 800 : 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
+            </div>
+
             <div 
               className="glass-panel"
               style={{
@@ -563,6 +790,9 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
 
                   {filteredNotices.slice((currentPage - 1) * 5, currentPage * 5).map((notice, idx) => {
                     const itemGlobalIndex = (currentPage - 1) * 5 + idx + 1;
+                    const isQuarantineTag = notice.tag && (notice.tag.includes('검역') || notice.tag.includes('식품') || notice.tag.includes('농수산'));
+                    const isGosiTag = notice.tag && notice.tag.includes('고시');
+
                     return (
                       <div 
                         key={notice.id || idx}
@@ -587,8 +817,17 @@ export default function LawNewsPortal({ currentUser }: LawNewsPortalProps) {
                               No. {itemGlobalIndex}
                             </span>
                             <span style={{
-                              background: notice.tag && notice.tag.includes('고시') ? 'rgba(20, 184, 166, 0.15)' : 'rgba(99, 102, 241, 0.15)',
-                              color: notice.tag && notice.tag.includes('고시') ? '#0d9488' : '#4f46e5',
+                              background: isQuarantineTag
+                                ? 'rgba(16, 185, 129, 0.15)'
+                                : isGosiTag
+                                ? 'rgba(20, 184, 166, 0.15)'
+                                : 'rgba(99, 102, 241, 0.15)',
+                              color: isQuarantineTag
+                                ? '#059669'
+                                : isGosiTag
+                                ? '#0d9488'
+                                : '#4f46e5',
+                              border: isQuarantineTag ? '1px solid rgba(16, 185, 129, 0.3)' : 'none',
                               padding: '2px 8px',
                               borderRadius: '4px',
                               fontSize: '0.72rem',
