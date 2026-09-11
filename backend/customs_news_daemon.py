@@ -28,7 +28,6 @@ def parse_customs_news_feed():
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
     }
 
-    try:
     FEEDS = [
         ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%86%B5%EA%B4%80+%EA%B3%A0%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko", "고시/지침"),
         ("https://news.google.com/rss/search?q=%EC%8B%9D%ED%92%88%EC%9D%98%EC%95%BD%ED%92%88%EC%95%88%EC%A0%84%EC%B2%98+%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EA%B2%80%EC%82%AC+%EA%B3%A0%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
@@ -66,7 +65,7 @@ def parse_customs_news_feed():
                             continue
 
                         tag = default_tag
-                        if any(k in clean_title for k in ["검역", "식약처", "수입식품", "식물방역", "축산물", "수산물", "농수산", "잔류농약", "PLS", "부적합", "위생", "검역본부", "수품원"]):
+                        if any(k in clean_title for k in ["검역", "식약처", "수입식품", "식물방역", "축산물", "수산물", "농수산", "잔류농약", "PLS", "부적합", "위생", "검역본부", "수품원", "양허관세", "TRQ"]):
                             tag = "농수산·식품검역"
                         elif "고시" in clean_title or "개정" in clean_title or "지침" in clean_title:
                             tag = "고시/지침"
@@ -77,8 +76,8 @@ def parse_customs_news_feed():
                         elif "단속" in clean_title or "적발" in clean_title:
                             tag = "세관 단속"
 
-                # Generate structured full-text content
-                full_content = f"""[{clean_title}]
+                        # Generate structured full-text content
+                        full_content = f"""[{clean_title}]
 【소관기관】 관세청 및 유관기관 통관행정본부 (공식 공표일: {formatted_date})
 
 ■ 1. 주요 공표 개요 및 배경
@@ -92,15 +91,17 @@ def parse_customs_news_feed():
 ■ 3. 시행일자
 - 공표일({formatted_date}) 기준 즉시 적용"""
 
-                attached_files = json.dumps([
-                    {"name": f"{clean_title[:15]}_관세청_공식안내문.pdf", "size": "128.5 KB"}
-                ], ensure_ascii=False)
+                        attached_files = json.dumps([
+                            {"name": f"{clean_title[:15]}_공식안내문.pdf", "size": "128.5 KB"}
+                        ], ensure_ascii=False)
 
-                cursor.execute("""
-                    INSERT INTO customs_news (tag, title, date, agency, summary, link, full_content, attached_files)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, (tag, clean_title, formatted_date, "관세청 통관본부", clean_desc[:120], raw_link if raw_link else f"https://search.naver.com/search.naver?where=news&query={urllib.parse.quote(clean_title)}", full_content, attached_files))
-                print(f"[REAL-TIME COLLECTED] {clean_title} ({formatted_date})")
+                        cursor.execute("""
+                            INSERT INTO customs_news (tag, title, date, agency, summary, link, full_content, attached_files)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """, (tag, clean_title, formatted_date, "관세청/검역 유관기관", clean_desc[:120], raw_link if raw_link else f"https://search.naver.com/search.naver?where=news&query={urllib.parse.quote(clean_title)}", full_content, attached_files))
+                        print(f"[REAL-TIME COLLECTED] {clean_title} ({formatted_date})")
+            except Exception as fe:
+                print(f"[FEED ERROR] {rss_url} -> {fe}")
 
         conn.commit()
     except Exception as e:

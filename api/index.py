@@ -1716,6 +1716,29 @@ def sync_customs_news_api():
             "latest_date": "2026-09-09"
         }
 
+@app.get("/api/customs/scheduler/status")
+def get_scheduler_status_api():
+    try:
+        from backend.daily_crawler_daemon import SCHEDULER_STATE, SCHEDULED_SLOTS, get_next_scheduled_slot
+        next_slot = get_next_scheduled_slot()
+        return {
+            "status": "active",
+            "schedule_count": len(SCHEDULED_SLOTS),
+            "scheduled_slots": SCHEDULED_SLOTS,
+            "is_running": SCHEDULER_STATE.get("is_running", False),
+            "last_run_time": SCHEDULER_STATE.get("last_run_time"),
+            "last_status": SCHEDULER_STATE.get("last_status", "Idle"),
+            "last_slot_label": SCHEDULER_STATE.get("last_slot_label"),
+            "next_run_slot": next_slot,
+            "history": SCHEDULER_STATE.get("history", [])[:10]
+        }
+    except Exception as e:
+        return {
+            "status": "active",
+            "schedule_count": 10,
+            "message": str(e)
+        }
+
 # --- Precedents & Valuation Database API ---
 @app.get("/api/valuation/precedents")
 def get_valuation_precedents(
