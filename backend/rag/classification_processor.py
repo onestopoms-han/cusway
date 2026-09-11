@@ -7,18 +7,72 @@ from backend.rag.llm_chain import query_rag_hs_classification
 from backend.rag.hs_validator import HSConsistencyValidator
 from backend.rag.risk_assessor import CustomsRiskAssessor
 
+def detect_query_domain(product_name: str) -> tuple:
+    """
+    Identifies the broad Customs Section/Chapter domain from the product name.
+    Returns (domain_name, list_of_allowed_2digit_chapters).
+    """
+    p_lower = product_name.lower().strip()
+    
+    # 1. Food / Agricultural / Fishery / Beverage (Sections 1 ~ 4: Chapters 01 ~ 24)
+    from backend.rag.food_classifier import is_food_query
+    if is_food_query(product_name) or any(k in p_lower for k in [
+        "과일", "과실", "베리", "블루베리", "딸기", "채소", "야채", "농산", "수산", "축산",
+        "육류", "생선", "어류", "곡물", "쌀", "밀가루", "커피", "녹차", "홍차", "침출차", "향신료", "주스", "음료",
+        "과자", "사탕", "초콜릿", "면류", "라면", "소스", "조미료", "식품", "유제품", "치즈",
+        "버터", "벌꿀", "식용", "오일", "참기름", "들기름", "올리브유", "두부", "김치",
+        "fruit", "fruits", "berry", "berries", "blueberry", "blueberries", "meat", "fish", "seafood",
+        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey"
+    ]):
+        allowed = [f"{i:02d}" for i in range(1, 25)] + ["3302"]
+        return ("FOOD_AGRI", allowed)
+
+    # 2. Sensors & Precision Measuring Instruments (Chapter 90, 8536)
+    from backend.rag.sensor_classifier import is_sensor_query
+    if is_sensor_query(product_name):
+        return ("SENSOR_INSTRUMENT", ["90", "85"])
+
+    # 3. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85)
+    if any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동"]):
+        return ("MACHINERY_ELEC", ["84", "85"])
+
+    # 4. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
+    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "선박", "보트", "항공기", "드론", "철도"]):
+        return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89"])
+
+    # 5. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
+    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "양말", "장갑", "모자", "가방", "섬유"]):
+        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 64)])
+
+    # 6. Chemicals, Plastics & Rubber (Section 6 & 7: Chapters 28 ~ 40)
+    if any(k in p_lower for k in ["화합물", "수지", "플라스틱", "고무", "에스터", "에스테르", "산화물", "가스", "유기화학", "무기화학", "염료", "안료"]):
+        return ("CHEMICALS_PLASTICS", [f"{i:02d}" for i in range(28, 41)])
+
+    # 7. Base Metals & Metal Articles (Section 15: Chapters 72 ~ 83)
+    if any(k in p_lower for k in ["강철", "철강", "알루미늄", "구리", "황동", "티타늄", "볼트", "너트", "나사", "파이프", "와이어", "스프링", "금속"]):
+        return ("METALS_ARTICLES", [f"{i:02d}" for i in range(72, 84)])
+
+    # Generic / Unrestricted fallback
+    return ("ALL_DOMAINS", [f"{i:02d}" for i in range(1, 98)])
+
 class AICustomsClassificationProcessor:
     """
     Orchestrator that executes the full Customs AI Classification lifecycle:
-    1. RAG Document Retrieval
-    2. GRI Step-by-Step Chain-of-Thought (CoT) Classification
+    1. RAG Document Retrieval with Domain Isolation Gate
+    2. GRI Step-by-Step Chain-of-Thought (CoT) Classification (2-Pass Decoupled)
     3. Note Exclusions and GRI Validation
     4. Post-Clearance Audit Tax Risk Evaluation
     """
     
     @classmethod
     def run_classification_pipeline(cls, product_name: str, material: str, function_use: str, db: Session, custom_key: str = None) -> dict:
-        print(f"[PROCESSOR] Launching AI Classification Pipeline for: '{product_name}'")
+        print(f"[PROCESSOR] Launching 2-Pass Decoupled AI Classification Pipeline for: '{product_name}'")
+        
+        # ----------------------------------------------------
+        # Pass 1: Domain & Physical State Isolation Gate
+        # ----------------------------------------------------
+        domain_name, allowed_chapters = detect_query_domain(product_name)
+        print(f"[PROCESSOR] Domain Identified: {domain_name} (Allowed Chapters: {len(allowed_chapters)})")
         
         # ----------------------------------------------------
         # Phase 0: 50대 핵심 식품류 및 범용 고정밀 분류기 가드레일 매칭
@@ -109,11 +163,10 @@ class AICustomsClassificationProcessor:
                 return fb_res
 
         # ----------------------------------------------------
-        # Phase 1: Retrieve RAG notes & precedents
+        # Phase 1: Retrieve Domain-Constrained RAG Notes & Precedents
         # ----------------------------------------------------
-        combined_query = f"{product_name} {material} {function_use}"
-        relevant_notes = retrieve_relevant_notes(combined_query, db)
-        relevant_precedents = retrieve_relevant_precedents(combined_query, db)
+        relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
+        relevant_precedents = retrieve_relevant_precedents(product_name, db, allowed_chapters=allowed_chapters)
 
         # ----------------------------------------------------
         # Phase 2: Classification (Runs through LLM Chain with Iterative Feedback Loop up to 3 retries)
@@ -129,16 +182,23 @@ class AICustomsClassificationProcessor:
         for attempt in range(max_retries):
             validation_results = HSConsistencyValidator.compute_consistency_score(result_dict)
             
-            # [가드레일] 추천된 HS Code가 실제 마스터 DB의 10자리 세번으로 존재하는지 검증
+            # [도메인 게이트 검증] 추천된 세번이 대상 도메인 부/류에 속하는지 검증
             raw_hs = result_dict.get("recommendedHsCode", "")
             clean_hs = raw_hs.replace('.', '').replace('-', '').strip()
+            ch2 = clean_hs[:2]
             
+            if allowed_chapters and ch2 not in allowed_chapters and raw_hs != "0000.00-0000":
+                validation_results["consistency_score"] = min(validation_results["consistency_score"], 40)
+                domain_warn = f"[도메인 불일치 오분류] 물품명 '{product_name}'은(는) {domain_name} 범위(제{', '.join(allowed_chapters[:5])}류 등)에 속해야 하나 완전히 다른 제{ch2}류({raw_hs})로 분류되었습니다. 올바른 도메인의 세번으로 수정하십시오."
+                if not any(domain_warn[:30] in w for w in validation_results["warnings"]):
+                    validation_results["warnings"].append(domain_warn)
+
+            # [가드레일] 추천된 HS Code가 실제 마스터 DB의 10자리 세번으로 존재하는지 검증
             from backend.models import HSCodeMaster
             master_rec = db.query(HSCodeMaster).filter(
                 (HSCodeMaster.hs_code == raw_hs) | (HSCodeMaster.hs_code == clean_hs)
             ).first()
             
-            # 0000.00-0000이 아니고 DB에 존재하지 않거나, HSK 10자리가 아닌 껍데기 세번(예: 6자리/8자리)인 경우 경고 처리
             is_valid_hsk10 = master_rec and master_rec.hscode_length == 10
             
             if raw_hs != "0000.00-0000" and not is_valid_hsk10:

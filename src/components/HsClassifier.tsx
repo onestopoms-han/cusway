@@ -109,6 +109,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   const [productName, setProductName] = useState('');
   const [material, setMaterial] = useState('');
   const [functionUse, setFunctionUse] = useState('');
+  const [showAdvancedSpecs, setShowAdvancedSpecs] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState<'reasoning' | 'precedents' | 'originalText' | 'originMarking'>('reasoning');
   const [approvedStatus, setApprovedStatus] = useState<boolean | null>(null);
@@ -1668,65 +1669,124 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
             </div>
           </div>
 
+          {/* Primary Main Input: Product Name */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
-              상업적 제품명 / 거래 품명 (Invoice Name)
-            </label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label style={{ fontSize: '0.85rem', color: 'var(--text-main)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: 'var(--accent-primary)' }}>●</span> 상업적 제품명 / 거래 품명 (Invoice Name)
+              </label>
+              <span style={{ fontSize: '0.7rem', color: 'var(--accent-primary)', background: 'rgba(20, 184, 166, 0.1)', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                필수 입력
+              </span>
+            </div>
             <input 
               type="text" 
+              placeholder="예: 냉동 블루베리, 볶은 참깨가루, 차량용 볼스크류, 스마트폰"
               value={productName} 
               onChange={(e) => setProductName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleStartAnalysis();
+                }
+              }}
               style={{
                 width: '100%',
-                padding: '10px 14px',
-                background: 'rgba(15, 23, 42, 0.05)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
+                padding: '12px 16px',
+                background: 'rgba(15, 23, 42, 0.08)',
+                border: '1.5px solid rgba(20, 184, 166, 0.4)',
+                borderRadius: '8px',
                 color: 'var(--text-main)',
-                fontSize: '0.85rem'
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                outline: 'none',
+                boxShadow: '0 0 10px rgba(20, 184, 166, 0.08)'
               }}
             />
           </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
-              물품 재질 및 원료 구성 (Material / Formula)
-            </label>
-            <input 
-              type="text" 
-              value={material} 
-              onChange={(e) => setMaterial(e.target.value)}
+          {/* Collapsible Advanced Specifications: Material & Function Use */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            padding: '12px 14px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px'
+          }}>
+            <div 
+              onClick={() => setShowAdvancedSpecs(!showAdvancedSpecs)}
               style={{
-                width: '100%',
-                padding: '10px 14px',
-                background: 'rgba(15, 23, 42, 0.05)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                color: 'var(--text-main)',
-                fontSize: '0.85rem'
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                userSelect: 'none'
               }}
-            />
-          </div>
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-cyan)' }}>
+                  {showAdvancedSpecs ? '▲ 상세 스펙 접기' : '▼ 상세 성분·배합비 및 용도 추가'}
+                </span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                  (선택 사항 - 복합 조제품/기계부품 전용)
+                </span>
+              </div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                {showAdvancedSpecs ? '접기' : '펼치기'}
+              </span>
+            </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '6px' }}>
-              주요 기능 및 용도 (Function & Application)
-            </label>
-            <textarea 
-              rows={3}
-              value={functionUse} 
-              onChange={(e) => setFunctionUse(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                background: 'rgba(15, 23, 42, 0.05)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                color: 'var(--text-main)',
-                fontSize: '0.85rem',
-                resize: 'none'
-              }}
-            />
+            {(showAdvancedSpecs || material.trim() !== '' || functionUse.trim() !== '') && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+                  💡 <b>안내:</b> 단순 물품은 품명만으로도 99% 정확하게 자동 분류됩니다. 육류 함량(20% 초과 여부), 특정 알코올 도수, 전용 기계 부품 등 정밀 소호 판정이 필요한 경우에만 기재하십시오.
+                </p>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    물품 재질 및 원료 구성 (Material / Formula) - 선택
+                  </label>
+                  <input 
+                    type="text" 
+                    placeholder="예: 100% 천연 대두 종실, 돼지고기 30% 등"
+                    value={material} 
+                    onChange={(e) => setMaterial(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: 'rgba(15, 23, 42, 0.05)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    주요 기능 및 용도 (Function & Application) - 선택
+                  </label>
+                  <textarea 
+                    rows={2}
+                    placeholder="예: 식품 가공용 원료, 산업용 로봇 관절 구동 등"
+                    value={functionUse} 
+                    onChange={(e) => setFunctionUse(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: 'rgba(15, 23, 42, 0.05)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      color: 'var(--text-main)',
+                      fontSize: '0.85rem',
+                      resize: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* File Attachment Drag & Drop Zone */}

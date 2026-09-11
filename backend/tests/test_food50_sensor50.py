@@ -6,6 +6,7 @@ Target: 0% Error Rate (100% Pass Rate).
 import sys
 import io
 import os
+sys.path.insert(0, os.path.abspath('.'))
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

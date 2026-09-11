@@ -2163,10 +2163,11 @@ def normalize_korean_keyword(kw: str) -> str:
                 break
     return kw
 
-def retrieve_relevant_notes(query: str, db: Session):
+def retrieve_relevant_notes(query: str, db: Session, allowed_chapters: list = None):
     """
     Analyzes the query and performs a keyword match across ExplanatoryNote database table.
     Prioritizes HS Heading codes, filters out stopwords, and applies a multi-factor score.
+    If allowed_chapters is provided, strictly filters notes to match only the allowed 2-digit chapters.
     """
     if not query:
         return []
@@ -2271,6 +2272,17 @@ def retrieve_relevant_notes(query: str, db: Session):
             
     if not notes:
         return []
+
+    # 4. Strictly apply allowed_chapters domain filter if provided
+    if allowed_chapters:
+        filtered_notes = []
+        for n in notes:
+            clean_head = n.heading.replace('.', '').strip()
+            # Check if 2-digit chapter is in allowed_chapters
+            if any(clean_head.startswith(ch) for ch in allowed_chapters):
+                filtered_notes.append(n)
+        if filtered_notes:
+            notes = filtered_notes
     
     matches = []
     for note in notes:
@@ -2347,9 +2359,10 @@ def retrieve_relevant_notes(query: str, db: Session):
 
 
 
-def retrieve_relevant_precedents(query: str, db: Session):
+def retrieve_relevant_precedents(query: str, db: Session, allowed_chapters: list = None):
     """
     Retrieves matching official customs precedents from the database.
+    If allowed_chapters is provided, strictly filters precedents to match only the allowed chapters.
     """
     if not query:
         return []
@@ -2380,6 +2393,15 @@ def retrieve_relevant_precedents(query: str, db: Session):
         
     precedents = db.query(CustomsPrecedent).filter(or_(*filters)).limit(20).all()
     
+    if allowed_chapters:
+        filtered_precs = []
+        for p in precedents:
+            hs_clean = p.hs_code.replace('.', '').replace('-', '').strip()
+            if any(hs_clean.startswith(ch) for ch in allowed_chapters):
+                filtered_precs.append(p)
+        if filtered_precs:
+            precedents = filtered_precs
+
     matches = []
     for prec in precedents:
         score = 0
@@ -2405,6 +2427,7 @@ def retrieve_relevant_precedents(query: str, db: Session):
             
     matches.sort(key=lambda x: x[1], reverse=True)
     return [item[0] for item in matches[:2]]
+
 
 
 

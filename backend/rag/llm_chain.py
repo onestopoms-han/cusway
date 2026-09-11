@@ -91,9 +91,10 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
     with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.
     """
-    combined_query = f"{product_name} {material} {function_use}"
-    relevant_notes = retrieve_relevant_notes(combined_query, db)
-    relevant_precedents = retrieve_relevant_precedents(combined_query, db)
+    from backend.rag.classification_processor import detect_query_domain
+    domain_name, allowed_chapters = detect_query_domain(product_name)
+    relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
+    relevant_precedents = retrieve_relevant_precedents(product_name, db, allowed_chapters=allowed_chapters)
     
     from backend.rag.retriever import clean_korean_explanatory_note
     references_text = ""
