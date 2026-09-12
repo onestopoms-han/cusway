@@ -1798,14 +1798,14 @@ export default function ClearanceWizard({
             ];
           }
 
-          const precedentsData = [
-            {
-              caseNumber: `사전심사-2026-${cleanDigits.slice(0, 4)}`,
-              title: `[관세평가분류원 품목분류 결정례] ${keyword || initialKeyword || '신청 물품'}`,
-              authority: '관세평가분류원',
-              keyPoint: `본 물품은 성상·제조공정·주기능 분석 결과 관세율표 일반통칙 제1호 및 제6호에 의거 HSK ${cleanHsCode}호로 분류함이 타당함.`
-            }
-          ];
+          const precedentsData = (confirmedData?.precedents && confirmedData.precedents.length > 0)
+            ? confirmedData.precedents.filter((p: any) => p && (p.caseNumber || p.id) && !String(p.caseNumber || p.id).startsWith('사전심사-2026')).map((p: any) => ({
+                caseNumber: p.caseNumber || p.id,
+                title: p.title || `[품목분류 결정례] ${keyword || initialKeyword || '신청 물품'}`,
+                authority: p.authority || p.issuingBody || '관세평가분류원',
+                keyPoint: p.keyPoint || p.reasoningSnippet || '물품 성상 및 주기능 일치 판정'
+              }))
+            : [];
           
           return (
             <CustomsReportModal

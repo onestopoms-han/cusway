@@ -3222,11 +3222,14 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               exclusionReason: c.exclusionReason
             })) || [],
             exclusionNote: matchedRule?.exclusionNote || '',
-            precedents: (matchedRule?.precedents || []).slice(0, 3).map((p: any) => ({
-              caseNumber: p.id || p.caseNumber || '사전심사-2026',
-              title: p.title || '유사 품목분류 사전회시',
-              authority: p.issuingBody || '관세평가분류원',
-              keyPoint: p.reasoningSnippet || '물품 성상 및 주기능 일치 판정'
+            precedents: ((matchedRule?.precedent_cases && matchedRule.precedent_cases.length > 0)
+              ? matchedRule.precedent_cases
+              : (matchedRule?.precedents || []).filter((p: any) => p && (p.id || p.caseNumber) && !String(p.id || p.caseNumber).startsWith('사전심사-2026'))
+            ).slice(0, 3).map((p: any) => ({
+              caseNumber: p.case_number || p.caseNumber || p.id,
+              title: p.product_name ? `[품목분류사전심사] ${p.product_name}` : (p.title || '유사 품목분류 사전회시'),
+              authority: p.issuing_body || p.issuingBody || p.authority || '관세평가분류원',
+              keyPoint: p.decision_reason || p.reasoningSnippet || p.keyPoint || '물품 성상 및 주기능 일치 판정'
             })),
             customMemo: matchedRule?.exclusionNote
               ? `■ 관세사 2차 심층 검토의견:\n본 물품은 관세율표 해석 통칙 및 WCO 해설서 규정에 부합하므로 제시된 HSK 세번으로 수입신고를 진행하시기 바랍니다.\n\n■ 주석 및 제외규정 확인:\n${matchedRule.exclusionNote}`

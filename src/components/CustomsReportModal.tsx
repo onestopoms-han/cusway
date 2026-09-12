@@ -256,33 +256,27 @@ export default function CustomsReportModal({
             ];
 
       defaultPrecedents = (reportData?.precedents && reportData.precedents.length > 0)
-        ? reportData.precedents.map(p => ({
+        ? reportData.precedents.filter(p => p && p.caseNumber && !p.caseNumber.startsWith('사전심사-2026')).map(p => ({
             caseNumber: p.caseNumber,
             title: p.title,
             authority: p.authority || '관세평가분류원',
             keyPoint: p.keyPoint || '물품 성상 및 주기능 일치 판정'
           }))
-        : (analysisData?.precedents && analysisData.precedents.length > 0)
-          ? analysisData.precedents.map((p: any) => ({
-              caseNumber: p.id || p.caseNumber || `사전심사-2026-${cleanHsDigits.slice(0, 4)}`,
-              title: p.title || `${pName} 품목분류 사전심사 결정례`,
-              authority: p.issuingBody || p.authority || '관세평가분류원',
-              keyPoint: p.reasoningSnippet || p.keyPoint || p.holding || '물품 성상, 가공도 및 기능 일치 판정'
+        : (analysisData?.precedent_cases && analysisData.precedent_cases.length > 0)
+          ? analysisData.precedent_cases.map((p: any) => ({
+              caseNumber: p.case_number || p.caseNumber,
+              title: p.product_name ? `[품목분류사전심사] ${p.product_name}` : p.title,
+              authority: p.issuing_body || p.authority || '관세평가분류원',
+              keyPoint: p.decision_reason || p.keyPoint || p.reasoningSnippet
             }))
-          : [
-              {
-                caseNumber: `품목분류사전회시 2023-${cleanHsDigits.slice(0, 4) || '0852'}`,
-                title: `${pName} 품목분류 사전심사 결정례`,
-                authority: '관세평가분류원',
-                keyPoint: '물품의 물리적 성상, 제조공정 및 주요 기능 분석 결과 관세율표 일반통칙 제1호 및 제6호에 따라 본 호로 결정함.'
-              },
-              {
-                caseNumber: `조심 2021관0${cleanHsDigits.slice(0, 3) || '189'}`,
-                title: `${pName}의 품목분류 및 적용세율 적법성 쟁점`,
-                authority: '조세심판원',
-                keyPoint: '통칙 및 주규정의 우선순위에 따라 타 류의 배제 사유가 명확하므로 신청 세번으로 분류함이 정당함.'
-              }
-            ];
+          : (analysisData?.precedents && analysisData.precedents.length > 0)
+            ? analysisData.precedents.filter((p: any) => p && (p.id || p.caseNumber) && !String(p.id || p.caseNumber).startsWith('사전심사-2026')).map((p: any) => ({
+                caseNumber: p.id || p.caseNumber,
+                title: p.title || `${pName} 품목분류 결정례`,
+                authority: p.issuingBody || p.authority || '관세평가분류원',
+                keyPoint: p.reasoningSnippet || p.keyPoint || p.holding
+              }))
+            : [];
 
       defaultRequirements = (reportData?.requirements && reportData.requirements.length > 0)
         ? reportData.requirements
@@ -1729,31 +1723,45 @@ export default function CustomsReportModal({
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {precedentsList.map((prec, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '4px',
-                        padding: '6px 9px',
-                        fontSize: '0.74rem'
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
-                          <span style={{ color: '#0284c7', fontWeight: 900 }}>[{prec.caseNumber}]</span>
-                          <strong style={{ color: '#0f172a' }}>{prec.title}</strong>
+                  {precedentsList.length > 0 ? (
+                    precedentsList.map((prec, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '4px',
+                          padding: '6px 9px',
+                          fontSize: '0.74rem'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+                            <span style={{ color: '#0284c7', fontWeight: 900 }}>[{prec.caseNumber}]</span>
+                            <strong style={{ color: '#0f172a' }}>{prec.title}</strong>
+                          </div>
+                          <span style={{ fontSize: '0.68rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 5px', borderRadius: '2px', fontWeight: 700 }}>
+                            {prec.authority || '관세평가분류원'}
+                          </span>
                         </div>
-                        <span style={{ fontSize: '0.68rem', color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 5px', borderRadius: '2px', fontWeight: 700 }}>
-                          {prec.authority || '관세평가분류원'}
-                        </span>
+                        <div style={{ color: '#475569', fontSize: '0.72rem', lineHeight: 1.35 }}>
+                          <strong>판시 요지:</strong> {prec.keyPoint}
+                        </div>
                       </div>
-                      <div style={{ color: '#475569', fontSize: '0.72rem', lineHeight: 1.35 }}>
-                        <strong>판시 요지:</strong> {prec.keyPoint}
-                      </div>
+                    ))
+                  ) : (
+                    <div style={{
+                      padding: '8px 12px',
+                      background: '#f8fafc',
+                      border: '1px dashed #cbd5e1',
+                      borderRadius: '4px',
+                      color: '#64748b',
+                      fontSize: '0.74rem',
+                      lineHeight: 1.4
+                    }}>
+                      <strong>ℹ️ 선행 사전심사 결정례 없음 (신규 품목):</strong> 본 물품은 관세청 사전심사 DB에 등록된 선행 결정사례가 없는 신규 품목으로, 관세율표 일반통칙(GRI 제1호, 제6호) 및 해당 류 주규정/해설서 규정에 의거하여 직접 법리 분류되었습니다.
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
