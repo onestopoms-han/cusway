@@ -160,20 +160,7 @@ export default function CustomsReportModal({
           exclusionReason: '설탕, 유가공품, 식물성 크리머 등의 부원료가 첨가되지 않은 순수 커피 추출물 100%이므로 조제품(2101.12) 소호가 배제되고 제2101.11호(단일 추출물)로 최종 확정.'
         }
       ];
-      defaultPrecedents = [
-        {
-          caseNumber: '품목분류사전회시 2022-0941',
-          title: '동결건조 인스턴트 커피 분말의 품목분류 판정',
-          authority: '관세평가분류원',
-          keyPoint: '원두에서 커피 고형분을 열수 추출하여 동결건조한 가용성 분말은 제0901호에서 제외되어 제2101.11-1000호의 커피 추출물로 분류함.'
-        },
-        {
-          caseNumber: '조심 2020관0312',
-          title: '가공 커피 추출 농축액 분말의 제0901호 vs 제2101호 적용 쟁점',
-          authority: '조세심판원',
-          keyPoint: '추출 공정을 거쳐 얻은 수용성 커피 고형물 분말은 제9류 원형 농산물이 아닌 제2101호 조제식료품으로 분류함이 타당함.'
-        }
-      ];
+      defaultPrecedents = [];
       defaultRequirements = [
         '[수입식품안전관리특별법] 식품의약품안전처: 영업등록 및 수입식품 등의 수입신고서 제출 (정밀검사: 곰팡이독소/오크라톡신 A 5.0㎍/㎏ 이하 및 납/카드뮴 중금속 검사)',
         '[식품 등의 표시·광고에 관한 법률] 한글표시사항 스티커(제품명, 식품유형: 인스턴트커피, 내용량, 원재료명, 영업소 소재지, 소비기한 등) 부착'
@@ -201,20 +188,7 @@ export default function CustomsReportModal({
           exclusionReason: '원두 표면 열풍 로스팅(볶음 열처리) 공정이 완료되었으므로 생두(0901.11) 소호가 배제되고 제0901.21(볶은 것) 소호로 최종 확정.'
         }
       ];
-      defaultPrecedents = [
-        {
-          caseNumber: '품목분류사전회시 2023-0418',
-          title: '수입산 아라비카 다크 로스팅 원두의 품목분류 판정',
-          authority: '관세평가분류원',
-          keyPoint: '생두를 220℃에서 열풍 로스팅한 원두는 제0901호 호 용어 "볶았는지에 상관없다"에 명확히 포섭되어 제0901.21-0000호로 결정.'
-        },
-        {
-          caseNumber: '조심 2021관0189',
-          title: '원두 로스팅 및 분쇄 원두의 제21류 가공식품 해당 여부 쟁점',
-          authority: '조세심판원',
-          keyPoint: '추출 공정을 거치지 않은 단순 로스팅 원두는 제21류 조제식료품이 아닌 제9류 제0901호에 잔류 분류함이 타당함.'
-        }
-      ];
+      defaultPrecedents = [];
       defaultRequirements = [
         '[수입식품안전관리특별법] 식품의약품안전처: 영업등록 및 수입식품 등의 수입신고서 제출 (정밀검사: 곰팡이독소/오크라톡신 A 및 잔류농약 검사)',
         '[식물방역법] 농림축산검역본부: 고온 열풍 볶음(Roasting) 가공 완료 물품으로 병해충 잠복 우려가 없어 가공품 확인 후 통관'
@@ -255,22 +229,28 @@ export default function CustomsReportModal({
               }
             ];
 
+      const isFakeNumber = (numStr: string) => {
+        if (!numStr) return true;
+        const s = String(numStr).trim();
+        return s.startsWith('사전심사-') || s.startsWith('PREC-') || s.startsWith('심판-') || s.startsWith('DUMMY-');
+      };
+
       defaultPrecedents = (reportData?.precedents && reportData.precedents.length > 0)
-        ? reportData.precedents.filter(p => p && p.caseNumber && !p.caseNumber.startsWith('사전심사-2026')).map(p => ({
+        ? reportData.precedents.filter(p => p && p.caseNumber && !isFakeNumber(p.caseNumber)).map(p => ({
             caseNumber: p.caseNumber,
             title: p.title,
             authority: p.authority || '관세평가분류원',
             keyPoint: p.keyPoint || '물품 성상 및 주기능 일치 판정'
           }))
         : (analysisData?.precedent_cases && analysisData.precedent_cases.length > 0)
-          ? analysisData.precedent_cases.map((p: any) => ({
+          ? analysisData.precedent_cases.filter((p: any) => !isFakeNumber(p.case_number || p.caseNumber)).map((p: any) => ({
               caseNumber: p.case_number || p.caseNumber,
               title: p.product_name ? `[품목분류사전심사] ${p.product_name}` : p.title,
               authority: p.issuing_body || p.authority || '관세평가분류원',
               keyPoint: p.decision_reason || p.keyPoint || p.reasoningSnippet
             }))
           : (analysisData?.precedents && analysisData.precedents.length > 0)
-            ? analysisData.precedents.filter((p: any) => p && (p.id || p.caseNumber) && !String(p.id || p.caseNumber).startsWith('사전심사-2026')).map((p: any) => ({
+            ? analysisData.precedents.filter((p: any) => p && (p.id || p.caseNumber) && !isFakeNumber(p.id || p.caseNumber)).map((p: any) => ({
                 caseNumber: p.id || p.caseNumber,
                 title: p.title || `${pName} 품목분류 결정례`,
                 authority: p.issuingBody || p.authority || '관세평가분류원',
@@ -518,10 +498,10 @@ export default function CustomsReportModal({
     setPrecedentsList([
       ...precedentsList,
       {
-        caseNumber: `심판-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+        caseNumber: '[직접입력] 공식 결정례/사건번호',
         title: '신규 관련 결정례 / 행정심판 인용 사례',
-        authority: '조세심판원',
-        keyPoint: '동일 물품에 대한 세법상 품목분류 및 과세가격 인정 판정'
+        authority: '관세평가분류원',
+        keyPoint: '물품 성상 및 법리 검토 요지 입력'
       }
     ]);
   };

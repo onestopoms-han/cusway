@@ -3049,7 +3049,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "전자 소자가 실장된 인쇄회로조립품(PCBA - 제8473/8517/8538호 등)과 미실장 베어 기판(제8534호)을 구분하십시오."
         }
 
-    if any(k in combined for k in ["bldc 모터", "직류 전동기", "dc 모터", "브러시리스 모터", "직류전동기"]):
+    if (any(k in combined for k in ["bldc 모터", "직류 전동기", "dc 모터", "브러시리스 모터", "직류전동기"]) and not any(ex in p_lower for ex in ["자전거", "e-bike", "ebike", "전기자전거", "스쿠터", "차량", "자동차", "선풍기", "조끼", "드론", "로봇", "청소기"])):
         hsk = "8501.31-2000" if "bldc" in combined or "직류" in combined or "dc" in combined else "8501.31-2000"
         return {
             "is_matched": True,
@@ -3062,7 +3062,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전기에너지를 회전 기계에너지로 변환하는 정밀 직류 구동 전동기입니다.\n나. 관세율표 분류: 제8501호는 모든 종류의 전동기를 전용 분류하며, 출력 사양에 따라 소호가 결정됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제{hsk}호에 분류됩니다.",
             "sectionNote": "제16부 전동기",
             "chapterNote": "제85류 제8501호 해설서",
-            "exclusionNote": "감속 기어박스가 일체화된 기어드 모터의 경우에도 제8501호로 분류됩니다."
+            "exclusionNote": "완제품 차량/기기(제87류/84류) 및 감속 기어박스가 일체화된 기어드 모터의 구분을 확인하십시오."
         }
 
     if any(k in combined for k in ["리니어 액추에이터", "햅틱 모터", "진동 모터", "마이크로 액추에이터"]):
@@ -3517,7 +3517,8 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "백신(제3002.41호) 및 합성 화학신약(제3004호)과 단일클론항체(제3002.15호)를 구분하십시오."
         }
 
-    if any(k in combined for k in ["글리세린", "글리세롤", "glycerol", "glycerin"]):
+    # 글리세린 단일 원료 (2905.45-0000) - 화장품/식품 등 조제품 배제
+    if (any(k in combined for k in ["글리세린", "글리세롤", "glycerol", "glycerin"]) and not any(ex in combined for ex in ["앰플", "에센스", "세럼", "크림", "로션", "화장품", "스킨", "선크림", "마스크팩", "비누", "시럽", "음료", "식품"])):
         return {
             "is_matched": True,
             "recommendedHsCode": "2905.45-0000",
@@ -3529,7 +3530,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 식물성 유지의 가수분해 정제를 통해 얻어진 고순도 3가 알코올 화합물(글리세롤)입니다.\n나. 관세율표 분류: 화학적으로 단일한 고순도 글리세롤은 제2905.45호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2905.45-0000호에 분류됩니다.",
             "sectionNote": "제6부 유기화학품 (다가 알코올)",
             "chapterNote": "제29류 제2905호 해설서",
-            "exclusionNote": "조 글리세린(제1520호)과 화학적으로 정제된 글리세롤(제2905.45호)을 구분하십시오."
+            "exclusionNote": "조 글리세린(제1520호) 및 글리세린이 함유된 화장품 조제품(제3304호)과 화학적으로 정제된 단일 글리세롤(제2905.45호)을 구분하십시오."
         }
 
     if any(k in combined for k in ["에폭시 수지", "epoxy resin", "에폭시 바인더"]):
@@ -4509,19 +4510,36 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "비석유계 합성 조제 윤활유(제3403호)와 석유계 탄화수소 윤활유(제2710호)를 구분하십시오."
         }
 
-    if any(k in combined for k in ["필러 겔", "히알루론산", "피부 필러"]):
+    # 1. 피부 주입용 필러 / 의료용 겔 (3006.70-0000)
+    if (any(k in combined for k in ["필러", "filler", "피부 필러", "주사용 겔", "의료용 겔", "초음파 겔", "윤활 겔", "더말 필러"]) and not any(ex in combined for ex in ["앰플", "에센스", "세럼", "크림", "로션", "화장품", "스킨", "선크림", "마스크팩"])):
         return {
             "is_matched": True,
             "recommendedHsCode": "3006.70-0000",
-            "headingName": "제3006호 (의료용 겔 조제품 - 피부 필러)",
-            "subheadingName": f"{product_name} (피부 재생용 가교 히알루론산 나트륨 피부 필러 겔)",
+            "headingName": "제3006호 (의료용 겔 조제품 - 피부 필러/의료용 겔)",
+            "subheadingName": f"{product_name} (피부 재생 및 주름 개선용 멸균 가교 히알루론산 나트륨 피부 필러 겔)",
             "confidence": 99,
-            "technicalTerms": "Gel Preparations Designed to be Used in Human or Veterinary Medicine",
-            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3006호 해설서"],
-            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 주름 개선 및 볼륨 증대를 위해 피하에 주입하는 멸균 가교 히알루론산 나트륨 겔 조제품입니다.\n나. 관세율표 분류: 인체 주입/도포용 의료용 겔 조제품은 제3006.70호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3006.70-0000호에 분류됩니다.",
-            "sectionNote": "제6부 의료용품",
-            "chapterNote": "제30류 제3006호 해설서",
-            "exclusionNote": "일반 기초 화장품(제3304호)과 주사용 멸균 의료용 겔(제3006호)을 엄격히 구분하십시오."
+            "technicalTerms": "Gel Preparations Designed to be Used in Human or Veterinary Medicine / Dermal Fillers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제30류 주 제4호 자목", "제3006호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 주름 개선 및 안면 볼륨 확대를 위해 피하/진피층에 주입하는 멸균 가교 히알루론산 나트륨 겔(Dermal Filler) 조제품입니다.\n나. 관세율표 분류: 인체 주입/도포용 의료용 겔 조제품은 관세율표 제30류 주 제4호 자목 및 제3006.70호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3006.70-0000호에 분류됩니다.",
+            "sectionNote": "제6부 화학공업이나 연관공업의 생산품 (의료용품)",
+            "chapterNote": "제30류 의료용품 (제30류 주 제4호 자목, 제3006호 해설서)",
+            "exclusionNote": "피부에 단순 도포하는 기초 화장품 앰플/에센스(제3304호) 및 1차 형상 원료 분말(제3913호)과 엄격히 구분하십시오."
+        }
+
+    # 2. 기초 화장품 (앰플, 에센스, 세럼, 수분크림 등 - 3304.99-1000)
+    if any(k in combined for k in ["앰플", "에센스", "세럼", "수분크림", "보습크림", "스킨케어", "로션", "토너", "화장수", "마스크팩", "아이크림", "영양크림"]) or (any(h in combined for h in ["히알루론", "콜라겐", "펩타이드", "비타민c", "레티놀", "나이아신아마이드"]) and any(c in combined for c in ["화장품", "보습", "수분", "피부", "스킨", "앰플", "에센스", "세럼", "미용", "바르는"])):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3304.99-1000",
+            "headingName": "제3304호 (미용이나 메이크업용 제품류와 기초화장용 제품류 - 기초화장용 제품류)",
+            "subheadingName": f"{product_name} (기초화장용 수분 앰플 에센스/세럼)",
+            "confidence": 99,
+            "technicalTerms": "Beauty or Make-up Preparations and Preparations for the Care of the Skin / Basic Skin Care Ampoule & Essence",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3304호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 피부 보습과 수분 공급을 위해 히알루론산, 글리세린, 식물추출물 등을 배합하여 소매 포장한 기초화장용 스킨케어 앰플/에센스 완제품입니다.\n나. 관세율표 분류: 피부 미용 및 보습용 기초화장품 완제품은 관세율표 제3304.99-1000호(기초화장용 제품류)에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3304.99-1000호에 분류됩니다.",
+            "sectionNote": "제6부 화학공업이나 연관공업의 생산품",
+            "chapterNote": "제33류 정유와 레지노이드, 조제향료와 화장품ㆍ화장용품 (제3304호 해설서)",
+            "exclusionNote": "의료용 피하 주사용 필러 겔(제3006.70호) 및 단순 화학 원료 분말(제3913호 또는 제29류)과 구분하십시오."
         }
 
     if any(k in combined for k in ["고흡수성", "sap", "아크릴산 중합체"]):
@@ -4950,7 +4968,24 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "로봇 암 매니퓰레이터(제8479호)와 주행 모빌리티 섀시(제8708호)를 구분하십시오."
         }
 
-    if any(k in combined for k in ["센터드라이브", "전기 자전거", "구동 모터 키트", "자전거용 전동"]):
+    # 1. 완제품 전기자전거 (8711.60-0000)
+    if (any(k in combined for k in ["전기자전거", "전기 자전거", "e-bike", "ebike", "전동자전거", "페달보조", "페달 보조형"]) and not any(ex in p_lower for ex in ["키트", "모터 키트", "구동 키트", "부품", "부분품", "센터드라이브"])):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8711.60-0000",
+            "headingName": "제8711호 (모터사이클과 보조원동기를 갖춘 자전거 - 전동기 구동식)",
+            "subheadingName": f"{product_name} (전기자전거 E-Bike - 배터리 및 전기모터 구동식)",
+            "confidence": 99,
+            "technicalTerms": "Motorcycles (including mopeds) and cycles fitted with an auxiliary motor / With electric motor for propulsion",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8711호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 전기 모터와 충전식 배터리가 장착되어 라이더의 페달링을 보조하거나 모터 동력으로 주행하는 완성품 전기자전거(E-Bike)입니다.\n나. 관세율표 분류: 전동기를 구동용 원동기로 사용하는 보조원동기 장착 자전거는 관세율표 제8711.60호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8711.60-0000호에 분류됩니다.",
+            "sectionNote": "제17부 수송기기 (차량)",
+            "chapterNote": "제87류 철도나 궤도용 외의 차량과 그 부분품ㆍ부속품 (제8711호 해설서)",
+            "exclusionNote": "보조원동기가 없는 일반 무동력 자전거(제8712호) 및 개별 모터/부품 단독(제8714호 또는 제8501호)과 구분하십시오."
+        }
+
+    # 2. 전기자전거 전용 모터 키트 / 부분품 (8714.99-0000)
+    if any(k in combined for k in ["센터드라이브", "구동 모터 키트", "자전거용 전동 키트", "전기자전거 변환 키트"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "8714.99-0000",
@@ -4962,7 +4997,23 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 자전거 바텀브라켓에 장착되어 체인을 직접 구동 보조하는 전기자전거 전용 센터 모터 키트입니다.\n나. 관세율표 분류: 자전거의 전용 부분품은 제8714.99호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8714.99-0000호에 분류됩니다.",
             "sectionNote": "제17부 자전거 부분품",
             "chapterNote": "제87류 제8714호 해설서",
-            "exclusionNote": "범용 전동기(제8501호)와 자전거 전용 일체형 구동 부품(제8714호)을 구분하십시오."
+            "exclusionNote": "완제품 전기자전거(제8711.60호)와 개별 전동기 모터(제8501호)를 구분하십시오."
+        }
+
+    # 3. 자가점착성 플라스틱 판/시트/필름 (3919.90-0000)
+    if any(k in combined for k in ["자가점착", "점착 필름", "점착성 필름", "보호 필름", "보호필름", "점착 시트", "점착 테이프", "optical film", "protection film"]) and any(p in combined for p in ["pet", "플라스틱", "폴리에스터", "아크릴", "디스플레이", "표면 보호", "광학"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "3919.90-0000",
+            "headingName": "제3919호 (플라스틱으로 만든 스스로 접착하는 판ㆍ시트ㆍ필름ㆍ박ㆍ테이프ㆍ스트립과 이와 유사한 평면 모양의 것 - 기타)",
+            "subheadingName": f"{product_name} (디스플레이 표면 보호용 자가점착성 광학 PET 보호 필름)",
+            "confidence": 99,
+            "technicalTerms": "Self-Adhesive Plates, Sheets, Film, Foil, Tape, Strip and Other Flat Shapes, of Plastics / Other",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제3919호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, PET(폴리에틸렌 테레프탈레이트) 기재 필름 일면에 아크릴계 점착제를 도포하여 디스플레이 및 정밀 전자 패널 표면 스크래치를 방지하는 롤 형태의 자가점착성 플라스틱 필름입니다.\n나. 관세율표 분류: 플라스틱제의 자가점착성 평면 모양의 필름은 관세율표 제3919호에 분류되며, 소호 제3919.90호(HSK 3919.90-0000)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제3919.90-0000호에 분류됩니다.",
+            "sectionNote": "제7부 플라스틱과 그 제품",
+            "chapterNote": "제39류 플라스틱과 그 제품 (제3919호 해설서)",
+            "exclusionNote": "점착제가 도포되지 않은 비점착 플라스틱 필름(제3920호) 및 광학 편광판(제9001호)과 구분하십시오."
         }
 
     if any(k in combined for k in ["삼원촉매", "촉매 변환기", "catalytic converter"]):

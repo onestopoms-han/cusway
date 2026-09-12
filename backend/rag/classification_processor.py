@@ -35,13 +35,13 @@ def detect_query_domain(product_name: str) -> tuple:
     if is_sensor_query(product_name) or any(k in p_lower for k in ["렌즈", "안경", "현미경", "내시경", "도플러", "ct", "mri", "진단기", "측정기", "오실로스코프", "게이지", "유량계", "온습도"]):
         return ("PRECISION_OPTICAL", ["90", "91", "85", "84"])
 
-    # 3. Chemicals, Polymers, Mineral Products & Raw Materials (Sections 5, 6, 7: Chapters 25 ~ 40)
+    # 3. Chemicals, Polymers, Cosmetics, Mineral Products & Raw Materials (Sections 5, 6, 7: Chapters 25 ~ 40)
     if any(k in p_lower for k in [
         "과산화수소", "불산", "불화수소", "수산화리튬", "흑연", "실란", "에폭시", "수지", "폴리", "화합물", 
         "산화물", "유기화학", "무기화학", "염료", "안료", "용제", "알코올", "에탄올", "ipa", "촉매", "바닐린",
         "글리세린", "모노머", "펠릿", "계면활성제", "가소제", "바이오디젤", "왁스", "윤활유", "엔진오일",
-        "필러", "히알루론", "단백질 제제", "독소", "의약품", "항암", "봉합사", "비료"
-    ]):
+        "필러", "히알루론", "단백질 제제", "독소", "의약품", "항암", "봉합사", "비료", "화장품", "앰플", "에센스", "세럼", "크림", "로션", "스킨케어"
+    ]) or (any(pl in p_lower for pl in ["필름", "시트", "테이프", "점착", "pet", "플라스틱", "합성수지"]) and not any(m in p_lower for m in ["원심분리기", "모터", "엔진", "절단기", "가공기"])):
         return ("CHEMICALS_PLASTICS", [f"{i:02d}" for i in range(25, 41)] + ["27"])
 
     # 4. Base Metals & Structural Materials (Section 15: Chapters 72 ~ 83)
@@ -49,16 +49,17 @@ def detect_query_domain(product_name: str) -> tuple:
         return ("METALS_ARTICLES", [f"{i:02d}" for i in range(70, 84)] + ["68"])
 
     # 5. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
-    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "선박", "보트", "항공기", "드론", "철도차량", "헬리콥터", "요트"]):
+    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "전기자전거", "e-bike", "선박", "보트", "항공기", "드론", "철도차량", "헬리콥터", "요트"]):
         return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89", "84", "85"])
 
     # 6. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85, 90)
-    if any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동", "광섬유", "광케이블", "광통신"]):
+    if (any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동", "광섬유", "광케이블", "광통신"]) 
+        and not any(ex in p_lower for ex in ["필름", "필름 롤", "점착", "스티커", "보호필름", "조끼", "의류", "자전거", "자전거용"])):
         return ("MACHINERY_ELEC", ["84", "85", "90"])
 
     # 7. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
-    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "양말", "장갑", "모자", "가방"]) or ("섬유" in p_lower and not any(ex in p_lower for ex in ["광섬유", "유리섬유", "탄소섬유", "광케이블"])):
-        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 65)] + ["42"])
+    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "조끼", "팬조끼", "양말", "장갑", "모자", "가방"]) or ("섬유" in p_lower and not any(ex in p_lower for ex in ["광섬유", "유리섬유", "탄소섬유", "광케이블"])):
+        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 65)] + ["42", "84", "85"])
 
     # Generic / Unrestricted fallback
     return ("ALL_DOMAINS", [f"{i:02d}" for i in range(1, 98)])
