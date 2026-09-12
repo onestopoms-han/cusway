@@ -1472,26 +1472,41 @@ def hs_manual_search_api(keyword: str, email: Optional[str] = None, db: Session 
                 ]
             }
 
-        clean_digits = keyword.replace(".", "").replace("-", "").strip()
-        from backend.models import ExplanatoryNote
-        best_note = db.query(ExplanatoryNote).filter(ExplanatoryNote.heading.like(f"%{clean_digits[:4]}%")).first()
+        # 4. 숫자 코드 직접 검색 vs 텍스트 품목명 검색 분기
+        clean_digits = re.sub(r'[^\d]', '', keyword)
+        if len(clean_digits) >= 4 and len(clean_digits) == len(keyword.replace('.', '').replace('-', '').strip()):
+            # 순수 숫자 HS Code 검색인 경우
+            from backend.models import ExplanatoryNote, HSCodeMaster
+            best_note = db.query(ExplanatoryNote).filter(ExplanatoryNote.heading.like(f"%{clean_digits[:4]}%")).first()
+            master_rec = db.query(HSCodeMaster).filter(HSCodeMaster.hs_code.like(f"{clean_digits}%")).first()
+            heading_name = master_rec.name_ko if master_rec else f"제{clean_digits[:4]}호"
 
-        return {
-            "keywordTrigger": [keyword],
-            "recommendedHsCode": clean_digits if len(clean_digits) == 10 else f"{clean_digits[:4]}.{clean_digits[4:6]}-0000" if len(clean_digits) >= 6 else f"{clean_digits[:4]}.00-0000",
-            "headingName": f"제{clean_digits[:4]}호",
-            "subheadingName": f"제{clean_digits}호 관련 품목",
-            "confidence": 85,
-            "technicalTerms": keyword,
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": f"관세율표 및 WCO 해설서 제{clean_digits[:4]}호에 따라 분류됩니다.",
-            "sectionNote": best_note.section if best_note and hasattr(best_note, 'section') and best_note.section else "관련 부 및 류의 해설 총설 규정 참고",
-            "chapterNote": best_note.chapter if best_note and hasattr(best_note, 'chapter') and best_note.chapter else f"제{clean_digits[:2]}류 주석 규정 대조 필요",
-            "exclusionNote": "가공 상태(단순 건조 여부, 조미/추가 조리 가공 여부)에 따른 제외 조항 저촉 여부를 대조하십시오.",
-            "headingExplanation": (best_note.content_ko[:500] if best_note and hasattr(best_note, 'content_ko') and best_note.content_ko else ""),
-            "precedents": [],
-            "competingHsCodes": []
-        }
+            return {
+                "keywordTrigger": [keyword],
+                "recommendedHsCode": clean_digits if len(clean_digits) == 10 else f"{clean_digits[:4]}.{clean_digits[4:6]}-0000" if len(clean_digits) >= 6 else f"{clean_digits[:4]}.00-0000",
+                "headingName": heading_name,
+                "subheadingName": f"제{clean_digits}호 관련 품목",
+                "confidence": 85,
+                "technicalTerms": keyword,
+                "appliedGris": ["통칙 제1호", "통칙 제6호"],
+                "legalReasoning": f"관세율표 및 WCO 해설서 제{clean_digits[:4]}호에 따라 분류됩니다.",
+                "sectionNote": best_note.section if best_note and hasattr(best_note, 'section') and best_note.section else "관련 부 및 류의 해설 총설 규정 참고",
+                "chapterNote": best_note.chapter if best_note and hasattr(best_note, 'chapter') and best_note.chapter else f"제{clean_digits[:2]}류 주석 규정 대조 필요",
+                "exclusionNote": "가공 상태(단순 건조 여부, 조미/추가 조리 가공 여부)에 따른 제외 조항 저촉 여부를 대조하십시오.",
+                "headingExplanation": (best_note.content_ko[:500] if best_note and hasattr(best_note, 'content_ko') and best_note.content_ko else ""),
+                "precedents": [],
+                "competingHsCodes": []
+            }
+        else:
+            # 텍스트 품목명 검색인 경우 정통 AI 품목분류 파이프라인 호출
+            from backend.rag.classification_processor import AICustomsClassificationProcessor
+            result = AICustomsClassificationProcessor.run_classification_pipeline(
+                product_name=keyword,
+                material="",
+                function_use="",
+                db=db
+            )
+            return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"수동 데이터베이스 해설서 조회 오류: {str(e)}")
 
