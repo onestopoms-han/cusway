@@ -246,6 +246,75 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     const rawQuery = (prod + ' ' + mat + ' ' + func).toLowerCase();
     const query = normalizeFoodSpelling(rawQuery);
 
+    // 0-0a-0. 요거트 코팅 과실 (Yogurt Coated Fruits) vs 동결건조 요거트 바이트 (제4류 주 제2호 단서 배제 적용)
+    if (
+      query.includes('요거트 코팅') || query.includes('요구르트 코팅') || query.includes('코팅 과일') || query.includes('피복 과일') ||
+      rawQuery.includes('yogurt coated') || rawQuery.includes('yogurt-coated') || rawQuery.includes('yogurt dipping') || rawQuery.includes('yogurt dipped') ||
+      rawQuery.includes('yogurt covered') || rawQuery.includes('yogurt-covered') || rawQuery.includes('coated with yogurt') || rawQuery.includes('covered in yogurt')
+    ) {
+      if (query.includes('딸기') || rawQuery.includes('strawberry') || rawQuery.includes('strawberries')) {
+        return {
+          keywordTrigger: ['요거트 코팅 딸기', 'yogurt coated strawberry', 'yogurt-covered strawberry'],
+          recommendedHsCode: "2008.80-0000",
+          headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실ㆍ견과류와 그 밖의 식물의 부분 - 딸기)",
+          subheadingName: "제2008.80-0000호 (조제 딸기 - 요거트 코팅 딸기)",
+          confidence: 99,
+          technicalTerms: "Strawberries, otherwise prepared or preserved / Yogurt coated dried strawberries",
+          appliedGris: ["통칙 제1호", "통칙 제6호", "제2008호 해설서"],
+          legalReasoning: "본 물품은 건조 딸기 생과 원물을 본체(주체)로 하여 겉면에 요거트 컴파운드를 얇게 코팅(피복)한 가공 과실입니다. 관세율표 제4류 주 제2호는 '요구르트에 과실 등을 첨가할 수 있으나 전체 물품은 요구르트의 본질적 특성을 유지해야 한다'고 규정합니다. 본 물품은 과실 원물이 물품의 핵심 본체이고 요구르트는 겉면의 피복층에 불과하여 요구르트의 본질적 특성을 상실하였으므로 제0403호(요구르트)에서 법리적으로 배제되고, 통칙 제1호 및 제6호에 따라 제2008호(조제 딸기, HSK 2008.80-0000호)에 확정 분류됩니다.",
+          sectionNote: "제4부 조제 식료품 (제20류 채소ㆍ과실의 조제품)",
+          chapterNote: "제4류 주 제2호 배제 규정 및 제20류 제2008호 해설서",
+          exclusionNote: "⚠️ 요구르트 발효액이 물품의 본체인 동결건조 요거트 바이트(제0403.20-9000호) 및 당류 위주의 캔디형 설탕과자(제1704호)와 구분하십시오.",
+          headingExplanation: "제2008호 해설: 과실 원물에 요구르트/초콜릿 등을 코팅하여 조제 가공한 과실을 분류합니다.",
+          precedents: [],
+          competingHsCodes: [
+            {
+              hsCode: "0403.20-9000",
+              headingName: "요구르트 (발효유)",
+              appliedGri: "통칙 제1호",
+              reasoning: "요거트 성분이 포함되어 있어 제0403호 검토",
+              exclusionReason: "제4류 주 제2호 단서에 의해 과실 원물에 요구르트를 덧입혀 요구르트의 본질적 특성을 상실한 물품은 제0403호에서 법리적으로 배제되고 제2008호로 분류됩니다."
+            }
+          ]
+        };
+      }
+      if (query.includes('크랜베리') || rawQuery.includes('cranberry')) {
+        return {
+          keywordTrigger: ['요거트 코팅 크랜베리', 'yogurt coated cranberry'],
+          recommendedHsCode: "2008.93-0000",
+          headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실 - 크랜베리)",
+          subheadingName: "제2008.93-0000호 (조제 크랜베리 - 요거트 코팅 크랜베리)",
+          confidence: 99,
+          technicalTerms: "Cranberries, otherwise prepared or preserved / Yogurt coated dried cranberries",
+          appliedGris: ["통칙 제1호", "통칙 제6호"],
+          legalReasoning: "본 물품은 건조 크랜베리 원물에 요거트 피복층을 덧입힌 조제 과실로서 제4류 주 제2호에 따라 제0403호에서 배제되어 제2008.93-0000호에 확정 분류됩니다.",
+          sectionNote: "제4부 조제 식료품",
+          chapterNote: "제20류 채소ㆍ과실의 조제품",
+          exclusionNote: "⚠️ 동결건조 요거트 바이트(0403.20-9000)와 구분하십시오.",
+          headingExplanation: "제2008호 해설: 요거트 코팅 크랜베리를 조제 과실로 분류합니다.",
+          precedents: [],
+          competingHsCodes: []
+        };
+      }
+      // 기타 요거트 코팅 과실
+      return {
+        keywordTrigger: ['요거트 코팅 과일', 'yogurt coated fruit'],
+        recommendedHsCode: "2008.99-9000",
+        headingName: "제2008호 (그 밖의 방법으로 조제하거나 저장처리한 과실 - 기타)",
+        subheadingName: "제2008.99-9000호 (기타 조제 과실 - 요거트 코팅 과일)",
+        confidence: 99,
+        technicalTerms: "Fruits, otherwise prepared or preserved / Yogurt coated fruits",
+        appliedGris: ["통칙 제1호", "통칙 제6호"],
+        legalReasoning: "본 물품은 건조 과실 원물에 요거트 피복층을 덧입힌 조제 과실로서 제4류 주 제2호에 따라 제0403호에서 배제되어 제2008.99-9000호에 확정 분류됩니다.",
+        sectionNote: "제4부 조제 식료품",
+        chapterNote: "제20류 채소ㆍ과실의 조제품",
+        exclusionNote: "⚠️ 동결건조 요거트 바이트(0403.20-9000)와 구분하십시오.",
+        headingExplanation: "제2008호 해설: 요거트 코팅 과실을 분류합니다.",
+        precedents: [],
+        competingHsCodes: []
+      };
+    }
+
     // 0-0a-1. 크랜베리 (Cranberry) 로컬 분기 (냉동 0811.90-9000 vs 신선 0810.40 vs 조제 2008.93 vs 주스 2009.81)
     if (query.includes('크랜베리') || rawQuery.includes('크랜베리') || rawQuery.includes('그랜베리') || rawQuery.includes('크렌베리') || rawQuery.includes('그렌베리') || rawQuery.includes('글랜베리') || rawQuery.includes('클랜베리') || query.includes('cranberry')) {
       if (query.includes('주스') || query.includes('juice') || query.includes('과즙') || query.includes('착즙') || query.includes('농축액')) {
