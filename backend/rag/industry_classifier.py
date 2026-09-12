@@ -249,20 +249,68 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "홀더에 장착된 절삭공구(제8207호) 및 기계용 칼날(제8208호)과 장착되지 않은 인서트 팁(제8209호)을 구분하십시오."
         }
 
-    # 0-15. 금속가공 기계용 절삭 칼날 및 밀링 인서트 (제8208.10-0000)
-    if any(k in p_lower for k in ["밀링 인서트", "밀링 인서트 절삭공구", "기계식 칼날", "인서트 칼날", "금속가공용 칼날"]):
+    # 0-16. 반도체 웨이퍼 세정용 초고순도 과산화수소 (제2847.00-0000)
+    if any(k in p_lower for k in ["과산화수소", "과산화수소수", "hydrogen peroxide"]):
         return {
             "is_matched": True,
-            "recommendedHsCode": "8208.10-0000",
-            "headingName": "제8208호 (기계용이나 기계장치용의 칼과 회전 날 - 금속가공용)",
-            "subheadingName": f"{product_name} (공작기계용 초경합금 밀링 인서트 절삭공구)",
+            "recommendedHsCode": "2847.00-0000",
+            "headingName": "제2847호 (과산화수소 - 요소를 첨가하여 고체화했는지에 상관없다)",
+            "subheadingName": f"{product_name} (반도체 웨이퍼 세정용 초고순도 과산화수소)",
             "confidence": 99,
-            "technicalTerms": "Knives and Cutting Blades, for Machines or for Mechanical Appliances / For Metal Working",
-            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8208호 해설서"],
-            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 공작기계 밀링 커터 바디에 결합되어 금속 가공물에 대한 고속 절삭·절단 작용을 수행하는 기계용 칼날/인서트 절삭공구입니다.\n나. 관세율표 분류: 금속가공 기계용 칼날 및 절삭날은 제8208.10호에 전용 분류되며, HSK 제8208.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8208.10-0000호에 확정 분류됩니다.",
-            "sectionNote": "제15부 비금속 공구",
-            "chapterNote": "제82류 제8208호 해설서",
-            "exclusionNote": "장착되지 않은 단순 소결 팁(제8209호)과 기계용 절삭 날/칼날(제8208호)을 구분하십시오."
+            "technicalTerms": "Hydrogen Peroxide, Whether or Not Solidified with Urea",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2847호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 반도체 웨이퍼 표면의 유기물 세정 및 산화제거 공정에 사용되는 초고순도 무기화합물 과산화수소(H2O2) 수용액입니다.\n나. 관세율표 분류: 관세율표 제2847.00호는 과산화수소를 전용 분류하며, HSK 제2847.00-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2847.00-0000호에 확정 분류됩니다.",
+            "sectionNote": "제6부 화학공업 생산품",
+            "chapterNote": "제28류 제2847호 해설서",
+            "exclusionNote": "유기 세정제 조제품(제3402/3814호)과 화학적으로 단일한 무기화합물 과산화수소(제2847호)를 구분하십시오."
+        }
+
+    # 0-17. 이차전지 음극재용 천연 구형 흑연 분말 (제2504.10-0000)
+    if any(k in p_lower for k in ["천연 흑연", "천연흑연", "천연 구형 흑연", "natural graphite"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2504.10-0000",
+            "headingName": "제2504호 (천연 흑연 - 분이나 플레이크 모양인 것)",
+            "subheadingName": f"{product_name} (이차전지 음극재용 천연 구형 흑연 분말)",
+            "confidence": 99,
+            "technicalTerms": "Natural Graphite / In Powder or in Flakes",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2504호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 천연 광석에서 채굴·정제하여 구형화 가공한 천연 흑연 분말(Natural Graphite Powder)입니다.\n나. 관세율표 분류: 관세율표 제2504.10호는 분 모양의 천연 흑연을 전용 분류하며, HSK 제2504.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2504.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제5부 광물성 생산품",
+            "chapterNote": "제25류 제2504호 해설서",
+            "exclusionNote": "인조 흑연(제3801호)과 천연 광물 유래 천연 흑연(제2504호)을 구분하십시오."
+        }
+
+    # 0-18. 시력 보정용 플라스틱 안경 렌즈 미장착 (제9001.50-0000)
+    if any(k in p_lower for k in ["안경 렌즈", "안경렌즈", "spectacle lens", "안경 렌즈 미장착"]) and any(x in p_lower for x in ["플라스틱", "시력", "미장착"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9001.50-0000",
+            "headingName": "제9001호 (광섬유ㆍ광학렌즈ㆍ프리즘ㆍ거울 등 광학용품 - 그 밖의 재료로 만든 안경 렌즈)",
+            "subheadingName": f"{product_name} (시력 보정용 플라스틱 안경 렌즈 미장착)",
+            "confidence": 99,
+            "technicalTerms": "Optical Fibres and Optical Elements / Spectacle Lenses of Other Materials (Plastics)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9001호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 시력 교정 안경에 장착하기 전 가공된 광학용 플라스틱 재질의 안경 렌즈(Spectacle lens)입니다.\n나. 관세율표 분류: 플라스틱제 안경 렌즈는 관세율표 제9001.50호에 전용 분류되며, HSK 제9001.50-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제9001.50-0000호에 확정 분류됩니다.",
+            "sectionNote": "제18부 광학기기ㆍ정밀기기",
+            "chapterNote": "제90류 제9001호 해설서 (안경 렌즈)",
+            "exclusionNote": "일반 플라스틱 판(제3920/3921호)이나 안경테 완성품(제9003/9004호)과 미장착 광학 안경 렌즈(제9001호)를 구분하십시오."
+        }
+
+    # 0-19. 철도 레일용 탄소강 압연 중궤조 레일 (제7302.10-0000)
+    if any(k in p_lower for k in ["철도 레일", "철도레일", "중궤조", "궤조 레일", "철도용 레일", "railway rail"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "7302.10-0000",
+            "headingName": "제7302호 (철도나 궤도용 철강 건축재료 - 레일)",
+            "subheadingName": f"{product_name} (철도 레일용 탄소강 압연 중궤조 레일)",
+            "confidence": 99,
+            "technicalTerms": "Railway or Tramway Track Construction Material of Iron or Steel / Rails",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7302호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 열차 차륜을 지지 유도하기 위해 탄소강을 열간 압연하여 제작한 철도 궤도용 중궤조 레일(Rails)입니다.\n나. 관세율표 분류: 철도용 레일은 관세율표 제7302.10호에 전용 분류되며, HSK 제7302.10-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제7302.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제15부 비금속과 그 제품",
+            "chapterNote": "제73류 제7302호 해설서",
+            "exclusionNote": "철도차량 자체(제86류)와 철강제 궤도용 레일 건축재료(제7302호)를 구분하십시오."
         }
 
     # 1. 태양광 발전 모듈 / 단결정 실리콘 태양전지 (제8541.43호) - 유리/프레임 원재료 간섭 방지
@@ -489,7 +537,41 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "기계 전용 부분품이 아닌 범용성 비금속 결합 체결구(제7318호)로 분류됩니다."
         }
 
-    # 14. 공작기계용 초경 엔드밀 절삭공구 (제8207호)
+    # 14. 공작기계용 초경 엔드밀 절삭공구 (제8207호) / 밀링 인서트 (제8208호)
+    if any(k in p_lower for k in ["인서트", "insert", "밀링 인서트", "절삭 인서트"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8208.10-0000",
+            "headingName": "제8208호 (기계용이나 기계기구용의 칼과 날 - 금속가공용)",
+            "subheadingName": f"{product_name} (공작기계 밀링 홀더 장착용 초경합금 절삭 인서트)",
+            "confidence": 99,
+            "technicalTerms": "Knives and Cutting Blades for Machines / Milling Inserts",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8208호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 공작기계 커터 바디에 장착되어 금속 모재를 밀링 절삭 가공하는 교체형 텅스텐 카바이드 절삭날 인서트입니다.\n나. 관세율표 분류: 금속가공 기계용 날과 칼은 제8208.10호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제8208.10-0000호에 분류됩니다.",
+            "sectionNote": "제15부 비금속제 도구 (절삭날)",
+            "chapterNote": "제82류 제8208호 해설서",
+            "exclusionNote": "홀더 공구 몸체(제8207호)와 탈착형 절삭날 인서트(제8208호)를 구분하십시오."
+        }
+
+    if any(k in p_lower for k in ["무수에탄올", "무수 에탄올", "에탄올", "에틸알코올", "ethanol", "ethyl alcohol"]) and not any(k in p_lower for k in ["변성", "denatured"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "2207.10-0000",
+            "headingName": "제2207호 (비변성 에틸알코올 - 알코올분 80% 이상)",
+            "subheadingName": f"{product_name} (순수 비변성 무수에탄올 80% 이상)",
+            "confidence": 99,
+            "technicalTerms": "Undenatured Ethyl Alcohol / Anhydrous Ethanol 80% vol or Higher",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제22류 제2207호", "제29류 주 제2호 나목"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 변성제를 첨가하지 않은 순도 80% 이상(99.5% 이상 등)의 비변성 무수에탄올(에틸알코올)입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제29류 주 제2호 나목에 따라 에틸알코올은 화학적으로 순수한 것이라도 제29류에서 제외되어 제2207호에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제2207.10-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 음료, 주류 및 조제식료품",
+            "chapterNote": "제22류 제2207호 해설서 및 제29류 주 제2호 나목 (에틸알코올 제외 규정)",
+            "exclusionNote": "변성제가 첨가된 변성 에틸알코올(제2207.20호) 및 기타 비환식 알코올(제2905호)과 엄격히 구분하십시오."
+        }
+
     if any(k in p_lower for k in ["엔드밀", "절삭공구", "밀링커터", "바이트", "드릴비트", "end mill", "carbide tool"]):
         return {
             "is_matched": True,

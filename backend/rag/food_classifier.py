@@ -16,7 +16,7 @@ FOOD_TRIGGER_PATTERNS = [
     r"크랜베리", r"크렌베리", r"그랜베리", r"그렌베리", r"과실", r"정향", r"바닐라", r"향신료", r"후추", r"계피", r"퀴노아", r"전분", r"밀가루",
     r"올리브유", r"들기름", r"참기름", r"팜유", r"코코아", r"초콜릿", r"초콜렛", r"초코렛", r"캔디", r"사탕", r"설탕", r"백설탕", r"시럽",
     r"파스타", r"스파게티", r"면류", r"그래놀라", r"시리얼", r"김치", r"퓨레", r"녹차", r"홍차", r"커피", r"원두",
-    r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
+    r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"에탄올", r"무수에탄올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
     r"와인", r"포도주", r"위스키", r"맥주", r"주류", r"라거",
     r"캐모마일", r"카모마일", r"침출차", r"허브티", r"연유", r"하몽", r"생햄", r"이베리코", r"맥아", r"몰트", r"글루텐", r"조미\s*김", r"김\s*스낵", r"조미김",
     r"라떼", r"라테", r"밀크티", r"말차", r"그린티", r"조제커피", r"커피믹스", r"바닐라라떼", r"파우더",
@@ -27,7 +27,8 @@ FOOD_TRIGGER_PATTERNS = [
     r"마들렌", r"madeleine", r"피낭시에", r"휘낭시에", r"financier", r"파운드케이크", r"카스텔라", r"카스테라",
     r"파니니", r"panini", r"샌드위치", r"sandwich", r"핫도그", r"햄버거", r"토스트", r"웨이퍼", r"전병",
     r"올리브", r"올리브오일", r"올리브유", r"olive\s*oil", r"캡슐", r"capsule", r"식물성\s*캡슐", r"오메가", r"omega", r"크릴오일", r"루테인", r"프로폴리스",
-    r"식초", r"발사믹", r"포도\s*식초", r"vinegar", r"balsamic", r"다시마", r"미역", r"해조류", r"톳", r"모자반", r"kelp", r"seaweed"
+    r"식초", r"발사믹", r"포도\s*식초", r"vinegar", r"balsamic", r"다시마", r"미역", r"해조류", r"톳", r"모자반", r"kelp", r"seaweed",
+    r"아이스티", r"iced\s*tea", r"ice\s*tea", r"복숭아\s*아이스티", r"레몬\s*아이스티"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -62,6 +63,53 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     )
     if is_compound_or_mixture:
         return {"is_matched": False, "recommendedHsCode": "0000.00-0000"}
+
+    # 0-0-아이스티. 아이스티 (액상 음료 vs 분말 파우더 믹스 vs 티백)
+    if any(k in combined for k in ["아이스티", "iced tea", "ice tea", "아이스 티", "복숭아 아이스티", "레몬 아이스티"]):
+        # 1. 분말 / 파우더 / 믹스 형태
+        if any(p in combined for p in ["분말", "파우더", "powder", "믹스", "스틱", "가루", "인스턴트", "instant"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "2101.20-1000",
+                "headingName": "제2101호 (차나 마테의 추출물ㆍ에센스ㆍ농축물이나 이들을 기본 재료로 한 조제품 - 인스턴트 티)",
+                "subheadingName": f"{product_name} (인스턴트 아이스티 분말 믹스)",
+                "confidence": 99,
+                "technicalTerms": "Extracts, essences and concentrates of tea or mate, and preparations with a basis of these / Instant tea",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제2101호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 차(홍차) 추출물을 기본 재료로 하여 설탕, 과즙 분말, 구연산 등을 배합한 인스턴트 분말형 아이스티 믹스 조제품입니다.\n나. 관세율표 분류: 차의 추출물·에센스를 기본 재료로 한 조제품(인스턴트 티)은 관세율표 제2101.20호에 전용 분류되며, HSK 제2101.20-1000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2101.20-1000호에 확정 분류됩니다.",
+                "sectionNote": "제4부 조제 식료품 (커피ㆍ차 조제품)",
+                "chapterNote": "제21류 각종 조제 식료품 (제2101호 해설서)",
+                "exclusionNote": "액상 음료 완제품(제2202호) 및 단순 가공 찻잎(제0902호)과 구분하십시오."
+            }
+        # 2. 티백 / 찻잎 침출차 형태
+        if any(t in combined for t in ["티백", "tea bag", "침출차", "찻잎", "잎차", "냉침"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "0902.30-0000",
+                "headingName": "제0902호 (차 - 홍차와 부분 발효차 - 직접 포장한 것의 한 개의 내용량이 3킬로그램 이하인 것)",
+                "subheadingName": f"{product_name} (소매포장 냉침용 아이스티 홍차 티백)",
+                "confidence": 99,
+                "technicalTerms": "Tea, whether or not flavoured / Black tea (fermented) in immediate packings <= 3kg",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제0902호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 발효 찻잎(홍차)을 냉수에 우려 마실 수 있도록 소매포장(티백)한 냉침용 침출차입니다.\n나. 관세율표 분류: 소매포장 3kg 이하의 발효 홍차는 제0902.30호에 분류되며, HSK 제0902.30-0000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0902.30-0000호에 확정 분류됩니다.",
+                "sectionNote": "제2부 식물성 생산품 (커피, 차, 향신료)",
+                "chapterNote": "제9류 제0902호 해설서",
+                "exclusionNote": "추출 가공 분말(제2101호) 및 액상 청량음료(제2202호)와 구분하십시오."
+            }
+        # 3. 기본 액상 음료 완제품 (캔, 페트병, RTD 음료)
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2202.10-9000",
+            "headingName": "제2202호 (설탕이나 그 밖의 감미료나 맛이나 향을 첨가한 물 - 기타)",
+            "subheadingName": f"{product_name} (액상 아이스티 청량음료)",
+            "confidence": 99,
+            "technicalTerms": "Waters, including mineral waters and aerated waters, containing added sugar or other sweetening matter or flavoured / Other iced tea beverages",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2202호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 정제수에 설탕 또는 감미료, 홍차 추출물, 과일향(복숭아/레몬 등)을 첨가하여 즉석 음용할 수 있도록 캔 또는 페트병에 포장된 액상 아이스티 음료입니다.\n나. 관세율표 분류: 관세율표 제2202.10호는 설탕이나 감미료 또는 맛·향을 첨가한 음용수를 분류하며, 해설서상 향미를 첨가한 액상 아이스티 음료는 HSK 제2202.10-9000호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2202.10-9000호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
+            "chapterNote": "제22류 음료ㆍ주류 및 식초 (제2202호 해설서)",
+            "exclusionNote": "분말 믹스 제품(제2101.20호) 및 알코올 함유 주류(제2208호)와 구분하십시오."
+        }
 
     # 0-0-생지. 굽지 않은 냉동 반죽 생지 / 베이커리 제조용 믹스와 반죽 (제1901.20호)
     if any(k in combined for k in ["생지", "반죽", "dough", "프리믹스", "베이커리 믹스"]) and any(b in combined for b in ["치아바타", "바게트", "크루아상", "식빵", "피자", "도우", "베이글", "와플", "쿠키", "페이스트리", "빵"]):

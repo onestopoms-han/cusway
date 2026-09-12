@@ -17,11 +17,11 @@ def detect_query_domain(product_name: str) -> tuple:
     from backend.rag.food_classifier import is_food_query
     if is_food_query(product_name) or any(k in p_lower for k in [
         "과일", "과실", "베리", "블루베리", "불루베리", "크랜베리", "크렌베리", "그랜베리", "그렌베리", "글랜베리", "클랜베리", "라즈베리", "블랙베리", "딸기", "채소", "야채", "농산", "수산", "축산",
-        "육류", "생선", "어류", "곡물", "쌀", "밀가루", "커피", "녹차", "홍차", "침출차", "향신료", "주스", "음료",
+        "육류", "생선", "어류", "곡물", "쌀", "밀가루", "커피", "녹차", "홍차", "침출차", "향신료", "주스", "음료", "아이스티", "iced tea", "ice tea",
         "과자", "사탕", "초콜릿", "초콜렛", "초코렛", "면류", "라면", "소스", "조미료", "식품", "유제품", "치즈",
         "버터", "벌꿀", "식용", "오일", "참기름", "들기름", "올리브유", "두부", "김치",
         "라떼", "라테", "밀크티", "말차", "그린티", "조제커피", "커피믹스", "음료베이스", "바닐라라떼", "파우더",
-        "치아바타", "바게트", "포카치아", "깜빠뉴", "사워도우", "베이글", "브리오슈", "식빵", "크루아상", "페이스트리", "케이크", "머핀", "스콘", "와플", "도넛", "쿠키", "비스킷", "크래커", "빵", "베이커리",
+        "치아바타", "바게트", "포카치아", "깜빠뉴", "사워도우", "베이글", "브리오슈", "식빵", "크루아상", "페이스트리", "케이크", "머핀", "스콘", "와플", "도넛", "쿠키", "비스킷", "크래커", "빵", "베리", "베이커리",
         "요거트", "요구르트", "발효유", "아이스크림", "빙과", "마들렌", "파니니", "샌드위치", "피자", "생크림", "연유",
         "fruit", "fruits", "berry", "berries", "blueberry", "blueberries", "cranberry", "cranberries", "meat", "fish", "seafood",
         "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey", "latte", "matcha", "ciabatta", "bread", "bakery", "yogurt", "ice cream"
@@ -29,30 +29,35 @@ def detect_query_domain(product_name: str) -> tuple:
         allowed = [f"{i:02d}" for i in range(1, 25)] + ["3302"]
         return ("FOOD_AGRI", allowed)
 
-    # 2. Sensors & Precision Measuring Instruments (Chapter 90, 8536)
+    # 2. Optical, Medical & Precision Measuring Instruments (Chapter 90, 91)
     from backend.rag.sensor_classifier import is_sensor_query
-    if is_sensor_query(product_name):
-        return ("SENSOR_INSTRUMENT", ["90", "85"])
+    if is_sensor_query(product_name) or any(k in p_lower for k in ["렌즈", "안경", "현미경", "내시경", "도플러", "ct", "mri", "진단기", "측정기", "오실로스코프", "게이지", "유량계", "온습도"]):
+        return ("PRECISION_OPTICAL", ["90", "91", "85", "84"])
 
-    # 3. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85, 90)
+    # 3. Chemicals, Polymers, Mineral Products & Raw Materials (Sections 5, 6, 7: Chapters 25 ~ 40)
+    if any(k in p_lower for k in [
+        "과산화수소", "불산", "불화수소", "수산화리튬", "흑연", "실란", "에폭시", "수지", "폴리", "화합물", 
+        "산화물", "유기화학", "무기화학", "염료", "안료", "용제", "알코올", "에탄올", "ipa", "촉매", "바닐린",
+        "글리세린", "모노머", "펠릿", "계면활성제", "가소제", "바이오디젤", "왁스", "윤활유", "엔진오일",
+        "필러", "히알루론", "단백질 제제", "독소", "의약품", "항암", "봉합사", "비료"
+    ]):
+        return ("CHEMICALS_PLASTICS", [f"{i:02d}" for i in range(25, 41)] + ["27"])
+
+    # 4. Base Metals & Structural Materials (Section 15: Chapters 72 ~ 83)
+    if any(k in p_lower for k in ["레일", "강관", "강판", "형강", "동박", "티타늄", "니켈", "합금", "볼트", "너트", "와이어로프", "텅스텐", "서멧", "플랜지", "유리"]):
+        return ("METALS_ARTICLES", [f"{i:02d}" for i in range(70, 84)] + ["68"])
+
+    # 5. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
+    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "선박", "보트", "항공기", "드론", "철도차량", "헬리콥터", "요트"]):
+        return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89", "84", "85"])
+
+    # 6. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85, 90)
     if any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동", "광섬유", "광케이블", "광통신"]):
         return ("MACHINERY_ELEC", ["84", "85", "90"])
 
-    # 4. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
-    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "선박", "보트", "항공기", "드론", "철도"]):
-        return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89"])
-
-    # 5. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
+    # 7. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
     if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "양말", "장갑", "모자", "가방"]) or ("섬유" in p_lower and not any(ex in p_lower for ex in ["광섬유", "유리섬유", "탄소섬유", "광케이블"])):
-        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 64)])
-
-    # 6. Chemicals, Plastics & Rubber (Section 6 & 7: Chapters 28 ~ 40)
-    if any(k in p_lower for k in ["화합물", "수지", "플라스틱", "고무", "에스터", "에스테르", "산화물", "가스", "유기화학", "무기화학", "염료", "안료"]):
-        return ("CHEMICALS_PLASTICS", [f"{i:02d}" for i in range(28, 41)])
-
-    # 7. Base Metals & Metal Articles (Section 15: Chapters 72 ~ 83)
-    if any(k in p_lower for k in ["강철", "철강", "알루미늄", "구리", "황동", "티타늄", "볼트", "너트", "나사", "파이프", "와이어", "스프링", "금속"]):
-        return ("METALS_ARTICLES", [f"{i:02d}" for i in range(72, 84)])
+        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 65)] + ["42"])
 
     # Generic / Unrestricted fallback
     return ("ALL_DOMAINS", [f"{i:02d}" for i in range(1, 98)])
