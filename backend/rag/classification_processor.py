@@ -24,7 +24,8 @@ def detect_query_domain(product_name: str) -> tuple:
         "치아바타", "바게트", "포카치아", "깜빠뉴", "사워도우", "베이글", "브리오슈", "식빵", "크루아상", "페이스트리", "케이크", "머핀", "스콘", "와플", "도넛", "쿠키", "비스킷", "크래커", "빵", "베리", "베이커리",
         "요거트", "요구르트", "발효유", "아이스크림", "빙과", "마들렌", "파니니", "샌드위치", "피자", "생크림", "연유",
         "fruit", "fruits", "berry", "berries", "blueberry", "blueberries", "cranberry", "cranberries", "meat", "fish", "seafood",
-        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey", "latte", "matcha", "ciabatta", "bread", "bakery", "yogurt", "ice cream"
+        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey", "latte", "matcha", "ciabatta", "bread", "bakery", "yogurt", "ice cream",
+        "mango", "mangosteen", "guava", "avocado", "dates", "figs", "pineapple", "freeze dried", "dried fruit", "alor"
     ]):
         allowed = [f"{i:02d}" for i in range(1, 25)] + ["3302"]
         return ("FOOD_AGRI", allowed)

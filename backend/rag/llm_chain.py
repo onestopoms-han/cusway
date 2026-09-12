@@ -159,6 +159,22 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
     with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.
     """
+    # 0-A. Universal Sensor / Precision Classifier
+    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
+    if is_sensor_query(product_name):
+        return classify_sensor_universally(product_name, material, function_use)
+
+    # 0-B. Universal Food & Agricultural Classification Engine
+    from backend.rag.food_classifier import is_food_query, classify_food_universally
+    if is_food_query(product_name):
+        return classify_food_universally(product_name, material, function_use)
+
+    # 0-C. Universal Industry Classification Engine
+    from backend.rag.industry_classifier import classify_industry_item
+    ind_res = classify_industry_item(product_name, material, function_use)
+    if ind_res.get("is_matched"):
+        return ind_res
+
     from backend.rag.classification_processor import detect_query_domain
     domain_name, allowed_chapters = detect_query_domain(product_name)
     relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
@@ -228,8 +244,9 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
   - 식품/음료 제조용 바닐라 엑기스, 천연 착향료 및 방향성 물질의 혼합물은 제2106호가 아닌 제3302호(제3302.10호)로 분류됩니다.
   - 배추김치를 발효 후 동결건조한 김치 분말은 수프 조제품(제2104호)이 아니라 조제 채소인 제2005호(제2005.99-0000호)로 분류됩니다.
   - 마누카 꿀이나 프로폴리스를 함유한 목보호용 캔디/사탕 조제품은 파스타(제1902호)나 의약품이 아닌 설탕과자 제1704호(제1704.90-0000호)로 분류됩니다.
-  - 설탕이나 알코올을 첨가하지 않고 단순 동결건조(Freeze-dried)한 두리안/딸기 등 과실은 제2008호가 아닌 제0813호(제0813.40호)로 분류됩니다 (제8류 총설).
-  - 열수로 단순 데친(자숙) 후 급속 냉동한 문어/오징어 등 연체동물은 조미/조제품(제1605호)이 아닌 제0307호(제0307.52호)로 분류됩니다 (제3류 주 제1호).
+  - [열대과실 및 건조/동결건조 과실 분류 지침 (제0804호 vs 제0813호)]:
+    * ① 제0804호 품목(망고, 망고스틴, 구아바, 아보카도, 파인애플, 무화과, 대추야자)은 '신선하거나 건조한 것'이 모두 제0804호에 분류됩니다. 따라서 설탕을 첨가하지 않고 단순 건조/동결건조(Freeze Dried)한 망고는 HSK 제0804.50-2000호, 망고스틴은 HSK 제0804.50-3000호, 구아바는 제0804.50-1000호, 아보카도는 제0804.40-0000호, 파인애플은 제0804.30-0000호에 분류되며, 제0813호(제0801호~제0806호 제외 규정)나 제2008호로 오분류하지 마십시오.
+    * ② 제0801호~제0806호에 열거되지 않은 기타 과실(사과, 살구, 자두 등)을 단순 건조한 것은 제0813호로 분류됩니다.
   - 사탕수수 즙 농축액, 액상 흑당 시럽, 유기농 아가베 시럽 등 액체 상태의 당류는 고체 설탕(제1701호)이 아닌 제1702호(제1702.90호/제1702.60호)로 분류됩니다.
   - 비가열 저온 압착 식물성 아보카도 오일은 제1516호(경화유)가 아닌 제1515호(제1515.90호)로 분류됩니다.
   - 우유에서 분리/농축한 분무 건조 유청 단백질 분말은 제2106호가 아닌 제0404호(제0404.10호)로 분류됩니다.

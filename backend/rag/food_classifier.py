@@ -15,6 +15,7 @@ FOOD_TRIGGER_PATTERNS = [
     r"로열젤리", r"파프리카", r"버섯", r"표고버섯", r"트러플", r"송이버섯", r"두리안", r"무화과", r"망고",
     r"크랜베리", r"크렌베리", r"그랜베리", r"그렌베리", r"과실", r"정향", r"바닐라", r"향신료", r"후추", r"계피", r"퀴노아", r"전분", r"밀가루",
     r"올리브유", r"들기름", r"참기름", r"팜유", r"코코아", r"초콜릿", r"초콜렛", r"초코렛", r"캔디", r"사탕", r"설탕", r"백설탕", r"시럽",
+    r"젤리", r"구미", r"gummy", r"jelly", r"젤리과자", r"설탕과자", r"젤리빈",
     r"파스타", r"스파게티", r"면류", r"그래놀라", r"시리얼", r"김치", r"퓨레", r"녹차", r"홍차", r"커피", r"원두",
     r"효모", r"이스트", r"맥주박", r"대두박", r"주정", r"에틸알코올", r"에탄올", r"무수에탄올", r"미네랄워터", r"탄산수", r"생수", r"음료", r"주스",
     r"와인", r"포도주", r"위스키", r"맥주", r"주류", r"라거",
@@ -28,7 +29,11 @@ FOOD_TRIGGER_PATTERNS = [
     r"파니니", r"panini", r"샌드위치", r"sandwich", r"핫도그", r"햄버거", r"토스트", r"웨이퍼", r"전병",
     r"올리브", r"올리브오일", r"올리브유", r"olive\s*oil", r"캡슐", r"capsule", r"식물성\s*캡슐", r"오메가", r"omega", r"크릴오일", r"루테인", r"프로폴리스",
     r"식초", r"발사믹", r"포도\s*식초", r"vinegar", r"balsamic", r"다시마", r"미역", r"해조류", r"톳", r"모자반", r"kelp", r"seaweed",
-    r"아이스티", r"iced\s*tea", r"ice\s*tea", r"복숭아\s*아이스티", r"레몬\s*아이스티"
+    r"아이스티", r"iced\s*tea", r"ice\s*tea", r"복숭아\s*아이스티", r"레몬\s*아이스티",
+    r"된장", r"메주", r"간장", r"고추장", r"장류", r"소스", r"sauce", r"드레싱", r"마요네즈", r"케첩", r"조미료",
+    r"망고스틴", r"mangosteen", r"망고", r"mango", r"mangoes", r"구아바", r"guava", r"아보카도", r"avocado",
+    r"파인애플", r"pineapple", r"대추야자", r"dates", r"무화과", r"figs", r"fig",
+    r"동결\s*건조", r"freeze\s*dried", r"freeze-dried", r"dried\s*fruit", r"건조\s*과실", r"건조\s*과일"
 ]
 
 def is_food_query(query: str) -> bool:
@@ -44,7 +49,8 @@ def is_food_query(query: str) -> bool:
         "코일", "라이너", "합금선", "와이어로프", "볼트", "너트", "강판", "강관", "단열재", "가스", "아르곤", "크립톤", "화합물",
         "수지", "폴리", "단량체", "모노머", "안료", "효소", "스쿠알란", "방청제", "충전재", "시멘트", "착색제", "살충제",
         "티셔츠", "셔츠", "바지", "청바지", "코트", "구두", "신발", "벨트", "골프", "가방", "캐리어", "카펫", "러그", "수영복", "장갑",
-        "다이아몬드", "diamond", "드릴", "드릴 비트", "비트", "공구", "젤라틴", "의약용", "의약품"
+        "다이아몬드", "diamond", "드릴", "드릴 비트", "비트", "공구", "젤라틴", "의약용", "의약품",
+        "석유젤리", "석유 젤리", "petroleum jelly", "바세린"
     ]):
         return False
     return any(re.search(pat, q_lower) for pat in FOOD_TRIGGER_PATTERNS)
@@ -174,20 +180,90 @@ def classify_food_universally(product_name: str, material: str = "", function_us
                 "exclusionNote": "의약품(제30류) 및 벌크 상태의 원유(제15류)와 구분하십시오."
             }
 
-    # 0-0a. 발효유 / 요거트 / 요구르트 / 그릭 요거트 (제0403호)
+    # 0-00. 요거트 코팅 과실 / 피복 과일 (제2008호 또는 제1704호 - 제4류 주 제2호 단서 배제 적용)
+    if any(k in combined for k in [
+        "요거트 코팅", "요구르트 코팅", "코팅 과일", "코팅과일", "피복 과일", "요거트 피복", "요구르트 피복", "요거트초코 딸기", "요거트 초코",
+        "yogurt coated", "yogurt-coated", "yogurt dipping", "yogurt dipped", "yogurt covered", "yogurt-covered",
+        "coated with yogurt", "covered in yogurt", "yogurt coating", "yogurt glaze", "yogurt glazed"
+    ]):
+        if any(s in combined for s in ["딸기", "strawberry", "strawberries"]):
+            hsk_code = "2008.80-0000"
+            heading_desc = "제2008호 (그 밖의 방법으로 조제하거나 보존처리한 과실 - 딸기)"
+            sub_desc = f"{product_name} (요거트 코팅 건조 딸기 조제품)"
+        elif any(c in combined for c in ["크랜베리", "크렌베리", "cranberry", "cranberries"]):
+            hsk_code = "2008.93-0000"
+            heading_desc = "제2008호 (그 밖의 방법으로 조제하거나 보존처리한 과실 - 크랜베리)"
+            sub_desc = f"{product_name} (요거트 코팅 건조 크랜베리 조제품)"
+        elif any(b in combined for b in ["블루베리", "blueberry", "blueberries"]):
+            hsk_code = "2008.99-9000"
+            heading_desc = "제2008호 (그 밖의 방법으로 조제하거나 보존처리한 과실 - 블루베리/기타)"
+            sub_desc = f"{product_name} (요거트 코팅 건조 블루베리 조제품)"
+        elif any(r in combined for r in ["건포도", "포도", "raisin", "raisins", "grape"]):
+            hsk_code = "2008.99-9000"
+            heading_desc = "제2008호 (그 밖의 방법으로 조제하거나 보존처리한 과실 - 건포도/기타)"
+            sub_desc = f"{product_name} (요거트 코팅 건포도 조제품)"
+        else:
+            hsk_code = "2008.99-9000"
+            heading_desc = "제2008호 (그 밖의 방법으로 조제하거나 보존처리한 과실 - 기타 조제 과실)"
+            sub_desc = f"{product_name} (요거트 코팅 건조 과실 조제품)"
+
+        return {
+            "is_food": True,
+            "recommendedHsCode": hsk_code,
+            "headingName": heading_desc,
+            "subheadingName": sub_desc,
+            "confidence": 99,
+            "technicalTerms": "Fruit, otherwise prepared or preserved / Yogurt coated dried fruits",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2008호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 물리적 성상 분석: 본 물품은 [{product_name}]으로, 건조 과실(딸기, 크랜베리, 블루베리, 건포도 등) 원물을 주체(본체)로 하여 겉면에 요거트/초콜릿 컴파운드를 얇게 코팅(피복)한 가공 과실 스낵입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제4류 주 제2호는 '요구르트에 과실 등을 첨가할 수 있으나 전체 물품은 요구르트의 본질적 특성을 유지해야 한다'고 규정합니다. 본 물품은 과실 원물이 물품의 핵심 본체이고 요구르트는 겉면의 피복층에 불과하여 요구르트의 본질적 특성을 상실하였으므로 제0403호(요구르트)에서 법리적으로 배제됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 일반통칙 제1호 및 제3호 (나)목(물품에 본질적 특성을 부여하는 원재료 기준)에 따라 과실의 특성을 적용하여 제2008호(그 밖의 방법으로 조제하거나 보존처리한 과실) 산하 HSK {hsk_code}호에 확정 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제 식료품 (제20류 채소ㆍ과실 조제품)",
+            "chapterNote": "제4류 주 제2호 배제 규정 및 제20류 제2008호 해설서",
+            "exclusionNote": "요구르트 발효액이 물품의 본체인 동결건조 요거트 바이트(제0403.20-9000호) 및 당류 위주의 캔디형 설탕과자(제1704호)와 구분하십시오.",
+            "competingHsCodes": [
+                {
+                    "hs_code": "0403.20-9000",
+                    "reason": "제4류 주 제2호 단서: 과실 원물에 요구르트를 덧입혀 요구르트의 본질적 특성을 상실한 물품은 제0403호에서 법리적으로 배제되고 제2008호로 분류됨."
+                },
+                {
+                    "hs_code": "1704.90-9000",
+                    "reason": "과실 함량이 극히 미미하고 당류 코팅층이 대부분인 캔디형 과자류인 경우에만 제1704호로 고려됨."
+                }
+            ]
+        }
+
+    # 0-0a. 발효유 / 요거트 / 요구르트 / 그릭 요거트 / 동결건조 요거트 바이트 (제0403호)
     if any(k in combined for k in ["요거트", "요구르트", "그릭 요거트", "그릭요거트", "발효유", "yogurt", "플레인 요거트", "플레인요거트", "드링크 요거트"]):
         return {
             "is_food": True,
             "recommendedHsCode": "0403.20-9000",
             "headingName": "제0403호 (요구르트ㆍ버터밀크ㆍ응고유와 케피어ㆍ그 밖의 발효유나 산패유)",
-            "subheadingName": f"{product_name} (발효유 및 요구르트)",
+            "subheadingName": f"{product_name} (발효유 및 요구르트 / 동결건조 고형 요거트)",
             "confidence": 99,
-            "technicalTerms": "Yogurt, Fermented Milk / Greek Yogurt, Plain Yogurt",
-            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0403호 해설서"],
-            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 원유 또는 유가공품에 젖산균을 접종하여 발효시킨 요구르트/발효유 제품입니다.\n나. 관세율표 분류: 관세율표 제0403호는 요구르트, 버터밀크, 응고유 및 기타 발효유를 분류하며, 소호 제0403.20호 및 HSK 제0403.20-9000호에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0403.20-9000호에 확정 분류됩니다.",
-            "sectionNote": "제1부 동물성 생산품 (낙농품)",
-            "chapterNote": "제4류 제0403호 해설서",
-            "exclusionNote": "신선 밀크/크림(제0401호), 치즈(제0406호) 및 유청(제0404호)과 구분하십시오."
+            "technicalTerms": "Yogurt, Fermented Milk / Freeze Dried Yogurt Bites, Greek Yogurt",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제4류 주 제2호", "제0403호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 물리적 성상 분석: 본 물품은 [{product_name}]으로, 원유/유가공품에 젖산균을 접종하여 발효시킨 요구르트 베이스에 과일 성분 또는 향미를 첨가하여 동결건조 성형한 고형 요구르트 바이트/발효유 제품입니다.\n"
+                f"나. 관세율표 부/류 주 및 WCO 해설서 규정 검토: 관세율표 제4류 주 제2호는 '제0403호의 요구르트는 농축하거나 향을 첨가할 수 있으며 설탕·과실·견과류·코코아·초콜릿 등을 함유할 수 있다'고 규정합니다. 본 물품은 요구르트 발효 고형분이 물품의 본체로서 요구르트의 본질적 특성을 유지하고 있으므로 제0403호에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 일반통칙 제1호 및 제6호에 따라 액상(-1000)이나 냉동(-2000)이 아닌 기타 고형 요구르트로서 HSK 제0403.20-9000호에 확정 분류됩니다.\n"
+                f"라. ⚠️ [실무 관세사 쟁점 검토 (제4류 주 제2호 단서)]: 만약 본 물품이 요구르트 베이스 스낵이 아니라, '건조 과일 원물에 요구르트를 외피로 코팅(피복)한 물품(Yogurt Coated Fruit)'이라면 제4류 주 제2호에 따라 제0403호에서 배제되고 조제 과실(제2008호)로 분류되므로 수입 통관 시 실제 물품의 성분비 및 코팅 제조공정을 확인하십시오."
+            ),
+            "sectionNote": "제1부 동물성 생산품 (제4류 낙농품)",
+            "chapterNote": "제4류 주 제2호 및 제0403호 해설서",
+            "exclusionNote": "⚠️ [제4류 주 제2호 단서 주의]: 과실 원물에 요구르트를 외피로 코팅(덧입힌) 물품(Yogurt Coated Fruit)은 요구르트의 본질적 특성을 상실하므로 제0403호에서 제외되어 제2008호(조제 과실) 또는 제1704호(설탕과자)로 분류됩니다.",
+            "competingHsCodes": [
+                {
+                    "hs_code": "2008.99-9000",
+                    "reason": "과실 원형에 요구르트를 얇게 코팅한 물품(Yogurt Coated Fruit)인 경우 제4류 주 제2호 단서에 의해 제0403호에서 배제되고 조제 과실(제2008호)로 분류됨."
+                },
+                {
+                    "hs_code": "1704.90-9000",
+                    "reason": "과실 함량이 극히 미미하고 당류 코팅층이 대부분인 캔디형 설탕과자류인 경우 제1704호로 분류됨."
+                }
+            ]
         }
 
     # 0-0b. 아이스크림 및 빙과류 (제2105호)
@@ -207,7 +283,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 0-0d. 과실 주스 / 착즙 주스 (레몬 주스, 오렌지 주스 등 제2009호)
-    if any(k in combined for k in ["과실 주스", "과즙", "착즙 주스", "착즙", "레몬 주스", "레몬즙", "레몬주스", "오렌지 주스", "오렌지주스", "사과 주스", "포도 주스", "과실즙", "fruit juice"]):
+    if any(k in combined for k in ["과실 주스", "과즙", "착즙 주스", "착즙", "레몬 주스", "레몬즙", "레몬주스", "오렌지 주스", "오렌지주스", "사과 주스", "포도 주스", "과실즙", "fruit juice"]) and not any(ex in combined for ex in ["젤리", "과자", "캔디", "사탕", "candy", "gummy", "jelly"]):
         if any(c in combined for c in ["레몬", "감귤", "citrus", "lemon"]):
             hsk = "2009.39-0000"
             desc = "제2009호 (감귤류 과실 주스 - 레몬 주스)"
@@ -924,7 +1000,29 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "chapterNote": "제17류 제1702호 해설서 (당시럽)",
             "exclusionNote": "착향 또는 착색된 향미 시럽(제2106호)과 순수 당류 시럽(제1702호)을 구분하십시오."
         }
-    if any(k in combined for k in ["캔디", "하드 캔디", "하드캔디", "드롭스", "젤리과자", "설탕과자", "candy", "롤리팝"]) or ("사탕" in combined and "사탕수수" not in combined):
+    if (
+        any(k in combined for k in ["캔디", "하드 캔디", "하드캔디", "드롭스", "젤리과자", "설탕과자", "candy", "롤리팝", "젤리", "설탕젤리", "구미", "구미젤리", "젤리빈", "gummy", "과즙젤리", "과일젤리", "소프트젤리", "하리보", "마이구미"])
+        or ("사탕" in combined and "사탕수수" not in combined)
+    ) and not any(ex in combined for ex in ["로열젤리", "로얄젤리", "석유젤리", "석유 젤리", "petroleum jelly", "바세린", "초콜릿", "초코"]):
+        # 젤리/구미 계열 세부 분기 -> HSK 1704.90-2090 (캔디류 기타 - 젤리과자)
+        if any(j in combined for j in ["젤리", "구미", "gummy", "젤리빈", "젤리과자", "설탕젤리"]) and not any(ex in combined for ex in ["곤약", "워터젤리", "디저트"]):
+            return {
+                "is_food": True,
+                "recommendedHsCode": "1704.90-2090",
+                "headingName": "제1704호 (설탕과자 - 캔디류 기타 / 젤리 과자)",
+                "subheadingName": f"{product_name} (설탕과자형 젤리 및 구미 과자)",
+                "confidence": 98,
+                "technicalTerms": "Sugar Confectionery / Jellies and Gummy Candies",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제17류 제1704호"],
+                "legalReasoning": (
+                    f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 당류와 겔화제(젤라틴/펙틴/한천), 과즙 및 향미료를 배합 성형한 씹어먹는 젤리 과자(구미)입니다.\n"
+                    f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제1704호 해설서 (8)목에 따라 설탕과자의 모양으로 만든 과실 젤리 및 구미 캔디류는 제1704호(설탕과자)에 분류됩니다.\n"
+                    f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제1704.90-2090호에 분류됩니다."
+                ),
+                "sectionNote": "제4부 당류와 설탕과자",
+                "chapterNote": "제17류 제1704호 해설서 (설탕과자류 - 젤리 및 구미)",
+                "exclusionNote": "코코아가 첨가된 초콜릿 과자(제1806호), 식탁용 디저트 젤리(제2106호), 조리한 과실젤리 잼(제2007호) 및 천연 로열젤리(제0410호)와 구분하십시오."
+            }
         return {
             "is_food": True,
             "recommendedHsCode": "1704.90-1000",
@@ -1361,6 +1459,121 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "chapterNote": "제8류 제0810호 해설서 (두리안)",
             "exclusionNote": "설탕에 절인 과실 조제품(제2008호)과 순수 동결건조 과실(제0810호)을 구분하십시오."
         }
+    # 제0804호: 대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고ㆍ망고스틴 (신선하거나 건조한 것)
+    if any(k in combined for k in ["망고스틴", "mangosteen", "mangosteens"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.50-3000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 망고스틴)",
+            "subheadingName": f"{product_name} (신선 또는 건조 망고스틴)",
+            "confidence": 99,
+            "technicalTerms": "Mangosteens, fresh or dried / Freeze dried mangosteen",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 천연 망고스틴(Mangosteen) 과육을 수확 후 동결건조(Freeze Dried) 또는 건조/신선 처리한 식용 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804호는 '대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴(신선하거나 건조한 것에 한정한다)'을 분류하며, 설탕이나 시럽 등 감미료를 첨가하지 않고 단순 건조/동결건조한 망고스틴은 제0804.50호의 HSK 제0804.50-3000호(망고스틴)에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 HSK 제0804.50-3000호에 확정 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류 식용 과실)",
+            "chapterNote": "제8류 제0804호 해설서 (망고스틴 - 신선하거나 건조한 것)",
+            "exclusionNote": "망고(0804.50-2000), 구아바(0804.50-1000) 및 가당 과실 조제품(제2008호)과 명확히 구분하십시오."
+        }
+
+    if any(k in combined for k in ["망고", "mango", "mangoes"]) and not any(k in combined for k in ["퓨레", "puree", "주스", "juice", "음료", "시럽"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.50-2000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 망고)",
+            "subheadingName": f"{product_name} (신선 또는 건조 망고)",
+            "confidence": 99,
+            "technicalTerms": "Mangoes, fresh or dried / Freeze dried mango",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 천연 망고(Mango) 과육을 수확 후 동결건조(Freeze Dried) 또는 건조/신선 처리한 식용 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804호는 '대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴(신선하거나 건조한 것에 한정한다)'을 분류하며, 설탕이나 감미료를 첨가하지 않고 단순 건조/동결건조한 망고는 제0804.50호의 HSK 제0804.50-2000호(망고)에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 HSK 제0804.50-2000호에 확정 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류 식용 과실)",
+            "chapterNote": "제8류 제0804호 해설서 (망고 - 신선하거나 건조한 것)",
+            "exclusionNote": "망고스틴(0804.50-3000), 냉동 망고(제0811.90-9000호), 가당 망고 퓨레(제2007호) 및 과실 조제품(제2008호)과 구분하십시오."
+        }
+
+    if any(k in combined for k in ["구아바", "guava", "guavas"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.50-1000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 구아바)",
+            "subheadingName": f"{product_name} (신선 또는 건조 구아바)",
+            "confidence": 99,
+            "technicalTerms": "Guavas, fresh or dried",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 신선 또는 건조 상태의 천연 구아바(Guava) 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804.50-1000호는 구아바(신선 또는 건조)를 전용 분류합니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0804.50-1000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류)",
+            "chapterNote": "제8류 제0804호 해설서 (구아바)",
+            "exclusionNote": "망고(0804.50-2000) 및 망고스틴(0804.50-3000)과 구분하십시오."
+        }
+
+    if any(k in combined for k in ["아보카도", "avocado", "avocados"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.40-0000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 아보카도)",
+            "subheadingName": f"{product_name} (신선 또는 건조 아보카도)",
+            "confidence": 99,
+            "technicalTerms": "Avocados, fresh or dried",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 신선 또는 건조 가공된 아보카도(Avocado) 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804.40호는 아보카도를 전용 분류합니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0804.40-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류)",
+            "chapterNote": "제8류 제0804호 해설서 (아보카도)",
+            "exclusionNote": "조제 또는 보존처리한 아보카도 과실 조제품(제2008호)과 구분하십시오."
+        }
+
+    if any(k in combined for k in ["파인애플", "pineapple", "pineapples"]) and not any(k in combined for k in ["통조림", "can", "canned", "주스", "juice"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.30-0000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 파인애플)",
+            "subheadingName": f"{product_name} (신선 또는 건조 파인애플)",
+            "confidence": 99,
+            "technicalTerms": "Pineapples, fresh or dried",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 천연 파인애플(Pineapple)을 신선 또는 동결건조/건조한 식용 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804.30호는 파인애플(신선하거나 건조한 것)을 전용 분류합니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0804.30-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류)",
+            "chapterNote": "제8류 제0804호 해설서 (파인애플)",
+            "exclusionNote": "설탕 시럽에 절인 파인애플 통조림 조제품(제2008.20호)과 신선/건조 파인애플(제0804.30호)을 구분하십시오."
+        }
+
+    if any(k in combined for k in ["대추야자", "dates", "date palm"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0804.10-0000",
+            "headingName": "제0804호 (대추야자ㆍ무화과ㆍ파인애플ㆍ아보카도ㆍ구아바ㆍ망고 및 망고스틴 - 대추야자)",
+            "subheadingName": f"{product_name} (신선 또는 건조 대추야자)",
+            "confidence": 99,
+            "technicalTerms": "Dates, fresh or dried",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8류 제0804호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 종려과 대추야자 나무의 열매를 수확 후 신선 또는 건조한 과실입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0804.10호는 대추야자(Dates)를 전용 분류합니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제0804.10-0000호에 분류됩니다."
+            ),
+            "sectionNote": "제2부 식물성 생산품 (제8류)",
+            "chapterNote": "제8류 제0804호 해설서 (대추야자)",
+            "exclusionNote": "일반 건대추(제0813.40-2000호) 및 냉동대추(0811.90-2000)와 대추야자(0804.10)를 명확히 구분하십시오."
+        }
+
     if any(k in combined for k in ["무화과", "건조 무화과", "fig", "figs"]):
         return {
             "is_food": True,
