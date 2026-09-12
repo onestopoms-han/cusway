@@ -426,7 +426,7 @@ class AICustomsClassificationProcessor:
                     else:
                         return "1207.40-0000", "참깨", []
 
-        text_words = [w for w in re.findall(r'[\w가-힣]+', full_text) if w not in generic_stopwords]
+        text_words = [w for w in re.findall(r'[a-zA-Z가-힣]+', full_text) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit()]
         
         # Extract key morphemes / subwords for Korean (e.g., 참깨가루 -> 참깨, 가루)
         expanded_words = set(text_words)
@@ -435,7 +435,7 @@ class AICustomsClassificationProcessor:
                 for sub_len in range(2, len(w)):
                     for i in range(len(w) - sub_len + 1):
                         sub_w = w[i:i+sub_len]
-                        if sub_w not in generic_stopwords:
+                        if sub_w not in generic_stopwords and not sub_w.isdigit():
                             expanded_words.add(sub_w)
                         
         scored_candidates = []
