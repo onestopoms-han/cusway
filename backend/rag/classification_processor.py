@@ -82,103 +82,6 @@ class AICustomsClassificationProcessor:
         print(f"[PROCESSOR] Domain Identified: {domain_name} (Allowed Chapters: {len(allowed_chapters)})")
         
         # ----------------------------------------------------
-        # Phase 0: 2000대 슈퍼 벤치마크 및 50대 핵심 식품류 가드레일 매칭
-        # ----------------------------------------------------
-        # Universal 2000 Super Benchmark Engine (Part 3)
-        from backend.rag.benchmark2000_rules import match_benchmark2000_rule
-        bm3_res = match_benchmark2000_rule(product_name, material, function_use)
-        if bm3_res and bm3_res.get("is_matched") and bm3_res.get("recommendedHsCode") != "0000.00-0000":
-            print(f"[PROCESSOR] Matched Benchmark 2000 Super: '{product_name}' -> {bm3_res['recommendedHsCode']}")
-            bm3_res["consistency_score"] = 100
-            bm3_res["consistency_status"] = "PASS"
-            bm3_res["consistency_warnings"] = []
-            bm3_res["validation_attempts"] = 1
-            return bm3_res
-
-        from backend.rag.food50_rules import find_food_backend_rule
-        food_rule = find_food_backend_rule(product_name, material, function_use)
-        if food_rule:
-            print(f"[PROCESSOR] Matched Food 50 Rule: '{food_rule['name']}' -> {food_rule['recommendedHsCode']}")
-            result_dict = {
-                "keywordTrigger": [product_name],
-                "recommendedHsCode": food_rule["recommendedHsCode"],
-                "headingName": food_rule["headingName"],
-                "subheadingName": food_rule["subheadingName"],
-                "confidence": food_rule.get("confidence", 99),
-                "technicalTerms": food_rule.get("technicalTerms", ""),
-                "appliedGris": food_rule.get("appliedGris", ["통칙 제1호", "통칙 제6호"]),
-                "legalReasoning": food_rule["legalReasoning"],
-                "sectionNote": food_rule.get("sectionNote", ""),
-                "chapterNote": food_rule.get("chapterNote", ""),
-                "exclusionNote": food_rule.get("exclusionNote", ""),
-                "headingExplanation": food_rule.get("headingExplanation", ""),
-                "precedents": food_rule.get("precedents", []),
-                "competingHsCodes": food_rule.get("competingHsCodes", []),
-                "consistency_score": 100,
-                "consistency_status": "PASS",
-                "consistency_warnings": [],
-                "validation_attempts": 1
-            }
-            return result_dict
-
-        # Universal Sensors Engine
-        from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
-        if is_sensor_query(product_name):
-            s_res = classify_sensor_universally(product_name, material, function_use)
-            if s_res and s_res.get("recommendedHsCode") != "0000.00-0000":
-                print(f"[PROCESSOR] Matched Universal Sensor: '{product_name}' -> {s_res['recommendedHsCode']}")
-                s_res["consistency_score"] = 100
-                s_res["consistency_status"] = "PASS"
-                s_res["consistency_warnings"] = []
-                s_res["validation_attempts"] = 1
-                return s_res
-
-        # Universal 1000 Comprehensive Benchmark Engine
-        from backend.rag.benchmark1000_rules import classify_benchmark1000_item
-        bm_res = classify_benchmark1000_item(product_name, material, function_use)
-        if bm_res and bm_res.get("is_matched") and bm_res.get("recommendedHsCode") != "0000.00-0000":
-            print(f"[PROCESSOR] Matched Benchmark 1000 Industrial: '{product_name}' -> {bm_res['recommendedHsCode']}")
-            bm_res["consistency_score"] = 100
-            bm_res["consistency_status"] = "PASS"
-            bm_res["consistency_warnings"] = []
-            bm_res["validation_attempts"] = 1
-            return bm_res
-
-        # Universal 1000 Comprehensive Benchmark Engine (Part 2)
-        from backend.rag.benchmark1000_part2_rules import classify_benchmark1000_part2_item
-        bm2_res = classify_benchmark1000_part2_item(product_name, material, function_use)
-        if bm2_res and bm2_res.get("is_matched") and bm2_res.get("recommendedHsCode") != "0000.00-0000":
-            print(f"[PROCESSOR] Matched Benchmark 1000 Part 2: '{product_name}' -> {bm2_res['recommendedHsCode']}")
-            bm2_res["consistency_score"] = 100
-            bm2_res["consistency_status"] = "PASS"
-            bm2_res["consistency_warnings"] = []
-            bm2_res["validation_attempts"] = 1
-            return bm2_res
-
-        # Universal Food & Agricultural Engine
-        from backend.rag.food_classifier import is_food_query, classify_food_universally
-        if is_food_query(product_name):
-            f_res = classify_food_universally(product_name, material, function_use)
-            if f_res and f_res.get("recommendedHsCode") != "0000.00-0000":
-                print(f"[PROCESSOR] Matched Universal Food: '{product_name}' -> {f_res['recommendedHsCode']}")
-                f_res["consistency_score"] = 100
-                f_res["consistency_status"] = "PASS"
-                f_res["consistency_warnings"] = []
-                f_res["validation_attempts"] = 1
-                return f_res
-
-        # Universal Industry Engine (기계, 화학, 반도체, 소재 등)
-        from backend.rag.industry_classifier import classify_industry_item
-        ind_res = classify_industry_item(product_name, material, function_use)
-        if ind_res and ind_res.get("is_matched") and ind_res.get("recommendedHsCode") != "0000.00-0000":
-            print(f"[PROCESSOR] Matched Universal Industry: '{product_name}' -> {ind_res['recommendedHsCode']}")
-            ind_res["consistency_score"] = 100
-            ind_res["consistency_status"] = "PASS"
-            ind_res["consistency_warnings"] = []
-            ind_res["validation_attempts"] = 1
-            return ind_res
-
-        # ----------------------------------------------------
         # Phase 1: Retrieve Domain-Constrained RAG Notes & Precedents
         # ----------------------------------------------------
         relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
@@ -376,10 +279,13 @@ class AICustomsClassificationProcessor:
             else:
                 result_dict["subheadingName"] = ""
 
-            if master_rec or heading_rec or subheading_rec:
-                print(f"[PROCESSOR] Matched official master names: {result_dict.get('headingName')} ({result_dict.get('subheadingName')})")
-            else:
-                print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
+            try:
+                if master_rec or heading_rec or subheading_rec:
+                    print(f"[PROCESSOR] Matched official master names: {result_dict.get('headingName')}")
+                else:
+                    print(f"[PROCESSOR] Warning: recommendedHsCode {raw_hs} not found in hs_code_master DB.")
+            except Exception:
+                pass
 
             # ----------------------------------------------------
             # Phase 5-3: Match real customs precedents by exact 10-digit HS Code
@@ -553,7 +459,7 @@ class AICustomsClassificationProcessor:
             
             # Exact clean match baseline
             if clean_cand == clean_digits:
-                score += 5.0
+                score += 150.0
                 match_reasons.append("기존 제안 세번 기본점수")
                 
             # 1. Exact phrase / word match (excluding generic stopwords)
@@ -570,7 +476,7 @@ class AICustomsClassificationProcessor:
             # 3. High-weight domain keywords matching (Bidirectional Korean & English)
             keyword_boosts = [
                 ("가루", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
-                ("참깨", ["참깨", "볶음참깨", "sesamum", "sesame", "흰깨", "검은깨", "흑임자"]),
+                ("참깨", ["참깨", "볶음참깨", "sesamum", "sesame", "흰깨", "검은깨", "흑임자", "통깨"]),
                 ("들깨", ["들깨", "perilla"]),
                 ("볶은", ["볶은", "구운", "roasted", "heat-treated", "toasted"]),
                 ("콩나물", ["콩나물", "sprout", "sprouting", "yellow soybean"]),
@@ -596,13 +502,8 @@ class AICustomsClassificationProcessor:
             ]
             
             for kw_name, target_terms in keyword_boosts:
-                # Handle special case: '깨' alone without '들깨'
-                if kw_name == "참깨":
-                    input_has_kw = any(t in full_text for t in target_terms) or ("깨" in full_text and "들깨" not in full_text)
-                    cand_has_kw = any(t in cand_lower for t in target_terms) or ("깨" in cand_lower and "들깨" not in cand_lower)
-                else:
-                    input_has_kw = any(t in full_text for t in target_terms)
-                    cand_has_kw = any(t in cand_lower for t in target_terms)
+                input_has_kw = any(t in full_text for t in target_terms)
+                cand_has_kw = any(t in cand_lower for t in target_terms)
                 
                 if input_has_kw and cand_has_kw:
                     score += 300.0
@@ -610,7 +511,7 @@ class AICustomsClassificationProcessor:
                 elif not input_has_kw and cand_has_kw:
                     # Penalty if candidate is specific to another item not mentioned in input
                     if kw_name in ["참깨", "밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
-                        score -= 300.0
+                        score -= 800.0
                         match_reasons.append(f"타 품목 전용 세번 감점: '{kw_name}' 미포함")
 
             # 4. Domain Specific Mutual Exclusion Penalties
@@ -620,8 +521,8 @@ class AICustomsClassificationProcessor:
                     match_reasons.append("들깨 품목으로 참깨 세번 배제")
 
             # 5. Fallback "기타 (Other)" base score
-            if "기타" in cand_name_ko or "other" in cand_lower:
-                score += 1.0
+            if "기타" in cand_name_ko or "other" in cand_lower or clean_cand.endswith("9000"):
+                score += 50.0
                 
             scored_candidates.append({
                 "code": formatted_code,
