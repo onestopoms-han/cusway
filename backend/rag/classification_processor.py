@@ -173,20 +173,6 @@ class AICustomsClassificationProcessor:
             ind_res["validation_attempts"] = 1
             return ind_res
 
-        # Universal Local Heuristics & Anchor Matcher (오프라인 / 빠른 처리)
-        import os
-        active_key = custom_key or os.getenv("OPENAI_API_KEY")
-        if not active_key:
-            from backend.rag.llm_chain import run_local_fallback_match
-            fb_res = run_local_fallback_match(product_name, material, function_use, db)
-            if fb_res:
-                print(f"[PROCESSOR] Matched Local Fallback Engine: '{product_name}' -> {fb_res['recommendedHsCode']}")
-                fb_res["consistency_score"] = 100 if fb_res.get("recommendedHsCode") != "0000.00-0000" else 40
-                fb_res["consistency_status"] = "PASS" if fb_res.get("recommendedHsCode") != "0000.00-0000" else "DEFERRED"
-                fb_res["consistency_warnings"] = []
-                fb_res["validation_attempts"] = 1
-                return fb_res
-
         # ----------------------------------------------------
         # Phase 1: Retrieve Domain-Constrained RAG Notes & Precedents
         # ----------------------------------------------------

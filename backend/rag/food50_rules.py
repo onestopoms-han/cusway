@@ -2625,6 +2625,14 @@ def find_food_backend_rule(product_name: str, material: str = "", function_use: 
         "라이다", "레이더", "엔코더", "다이오드", "트랜지스터", "집적회로", "축전지", "배터리"
     ]):
         return None
+
+    # 0-1. 복합 견과류/건과류 믹스 및 세트물품 질의는 단일 단순식품 하드코딩 룰을 배제하고 RAG DB + LLM 심층 추론(CoT)으로 전달
+    is_compound_or_mixture = (
+        any(k in pm_norm or k in p_norm for k in ["견과류세트", "견과류 세트", "견과세트", "견과 세트", "하루견과", "믹스넛", "혼합견과", "혼합 견과", "mixed nuts", "nut mix", "nuts mix", "견과 믹스", "견과류 믹스"]) or
+        (any(n in pm_norm for n in ["아몬드", "땅콩", "호두", "캐슈넛", "피스타치오", "헤이즐넛", "견과"]) and any(b in pm_norm for b in ["블루베리", "크랜베리", "크렌베리", "라즈베리", "베리"]))
+    )
+    if is_compound_or_mixture:
+        return None
     
     # 1. 최우선 특수 품목 판정 (혼동 방지)
     # 1-0-효모. 활성/건조 효모 및 이스트 (제2102호 - 제빵용 빵 매칭 간섭 방지)

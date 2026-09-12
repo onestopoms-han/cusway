@@ -55,6 +55,14 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     """
     combined = f"{product_name} {material} {function_use}".lower()
 
+    # 0-0. 복합 견과류/건과류 믹스 및 세트물품 질의는 단일 단순식품 하드코딩 룰을 배제하고 RAG DB + LLM 심층 추론(CoT)으로 전달
+    is_compound_or_mixture = (
+        any(k in combined for k in ["견과류세트", "견과류 세트", "견과세트", "견과 세트", "하루견과", "믹스넛", "혼합견과", "혼합 견과", "mixed nuts", "nut mix", "nuts mix", "견과 믹스", "견과류 믹스"]) or
+        (any(n in combined for n in ["아몬드", "땅콩", "호두", "캐슈넛", "피스타치오", "헤이즐넛", "견과"]) and any(b in combined for b in ["블루베리", "크랜베리", "크렌베리", "라즈베리", "베리"]))
+    )
+    if is_compound_or_mixture:
+        return {"is_matched": False, "recommendedHsCode": "0000.00-0000"}
+
     # 0-0-생지. 굽지 않은 냉동 반죽 생지 / 베이커리 제조용 믹스와 반죽 (제1901.20호)
     if any(k in combined for k in ["생지", "반죽", "dough", "프리믹스", "베이커리 믹스"]) and any(b in combined for b in ["치아바타", "바게트", "크루아상", "식빵", "피자", "도우", "베이글", "와플", "쿠키", "페이스트리", "빵"]):
         return {

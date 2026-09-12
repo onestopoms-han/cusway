@@ -10,11 +10,79 @@ from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_pre
 from backend.rag.rules import KOREAN_HS_RULES
 from backend.rag.hs_validator import HSConsistencyValidator
 
-def normalize_llm_response(res: dict) -> dict:
+def resolve_hsk10_from_master(raw_code: str, db: Session, product_name: str = "") -> str:
+    import re
+    from backend.models import HSCodeMaster
+    if not raw_code:
+        return "0000.00-0000"
+    raw_str = str(raw_code).strip()
+    clean_digits = re.sub(r'[^\d]', '', raw_str)
+    if not clean_digits:
+        return raw_str
+    
+    # 1. Exact 10-digit match in DB
+    formatted_cand = f"{clean_digits[:4]}.{clean_digits[4:6]}-{clean_digits[6:10]}" if len(clean_digits) >= 10 else raw_str
+    exact = db.query(HSCodeMaster).filter(
+        (HSCodeMaster.hs_code == raw_str) |
+        (HSCodeMaster.hs_code == formatted_cand) |
+        (HSCodeMaster.hs_code == clean_digits)
+    ).filter(HSCodeMaster.hscode_length == 10).first()
+    
+    if exact:
+        d = re.sub(r'[^\d]', '', exact.hs_code)
+        if len(d) >= 10:
+            return f"{d[:4]}.{d[4:6]}-{d[6:10]}"
+        return exact.hs_code
+
+    # 2. 6-digit prefix search in DB
+    prefix6 = clean_digits[:6]
+    if len(prefix6) >= 6:
+        subs = db.query(HSCodeMaster).filter(
+            (HSCodeMaster.hs_code.like(f"{prefix6[:4]}.{prefix6[4:6]}%")) |
+            (HSCodeMaster.hs_code.like(f"{prefix6}%")),
+            HSCodeMaster.hscode_length == 10
+        ).all()
+        if subs:
+            # Check if any sub matches the product keywords
+            p_lower = product_name.lower()
+            matched_sub = None
+            for s in subs:
+                if s.name_ko and any(kw in p_lower for kw in s.name_ko.split() if len(kw) >= 2):
+                    matched_sub = s
+                    break
+            if not matched_sub:
+                # Default to 9000 (기타) or first
+                matched_sub = next((s for s in subs if s.hs_code.endswith("9000") or s.hs_code.endswith("-9000")), subs[0])
+            d = re.sub(r'[^\d]', '', matched_sub.hs_code)
+            if len(d) >= 10:
+                return f"{d[:4]}.{d[4:6]}-{d[6:10]}"
+            return matched_sub.hs_code
+            
+    # 3. 4-digit heading search in DB
+    if len(clean_digits) >= 4:
+        head4 = clean_digits[:4]
+        subs = db.query(HSCodeMaster).filter(
+            (HSCodeMaster.hs_code.like(f"{head4}%")),
+            HSCodeMaster.hscode_length == 10
+        ).all()
+        if subs:
+            matched_sub = next((s for s in subs if s.hs_code.endswith("9000") or s.hs_code.endswith("-9000")), subs[0])
+            d = re.sub(r'[^\d]', '', matched_sub.hs_code)
+            if len(d) >= 10:
+                return f"{d[:4]}.{d[4:6]}-{d[6:10]}"
+            return matched_sub.hs_code
+
+    return raw_str
+
+def normalize_llm_response(res: dict, db: Session = None, product_name: str = "") -> dict:
     if not isinstance(res, dict):
         return res
     if "recommendedHsCode" in res:
-        res["recommendedHsCode"] = str(res["recommendedHsCode"]).strip()
+        raw_code = str(res["recommendedHsCode"]).strip()
+        if db:
+            res["recommendedHsCode"] = resolve_hsk10_from_master(raw_code, db, product_name)
+        else:
+            res["recommendedHsCode"] = raw_code
     if "legalReasoning" in res:
         lr = res["legalReasoning"]
         if isinstance(lr, dict):
@@ -38,7 +106,7 @@ def query_rag_hs_classification(product_name: str, material: str, function_use: 
     """
     # 1. First Classification Attempt
     result_dict = _query_rag_hs_classification_raw(product_name, material, function_use, db, custom_key, feedback_prompt)
-    result_dict = normalize_llm_response(result_dict)
+    result_dict = normalize_llm_response(result_dict, db, product_name)
     
     # Inject variables for validator context
     result_dict["product_name"] = product_name
@@ -168,6 +236,11 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
   - 차 잎의 열수 추출 분말(인스턴트 녹차 분말 등)은 차 잎(제0902호)이 아닌 제2101호(제2101.20호)로 분류됩니다.
   - 올리브 열매의 물리적 저온 압착유(엑스트라 버진 올리브유 등)는 용매추출유(제1510호)가 아닌 제1509호(제1509.20호 또는 제1509.10호)로 분류됩니다.
   - 단순 냉훈/온훈 가공된 훈제 연어, 염장 생선 등은 가공 조제 어류(제1604호)가 아닌 제0305호(제0305.41호)로 분류됩니다 (제3류 주 제1호).
+  - [혼합물(Mixtures), 세트 물품 및 견과류/건과류 믹스 분류 지침 (통칙 제3호 나목)]:
+    * 아몬드, 땅콩, 호두, 캐슈넛 등 견과류와 블루베리, 크랜베리 등 건조 과실의 혼합물(견과류세트, 하루견과, 믹스넛 등)은:
+      ① 가공 상태가 볶음(Roasted) 또는 가당/조제 처리된 경우: 제20류 주 제1호 및 통칙 제3호 나목에 따라 다수 성분(견과류 합계 70% 등)의 본질적 특성을 적용하여 HSK 제2008.19-9000호(기타 조제 견과류 및 혼합물)로 최종 분류됩니다.
+      ② 가공 상태가 볶지 않은 단순 건조(Dried) 및 생(Raw) 견과·과실 혼합물인 경우: 제0813.50호 표제에 따라 HSK 제0813.50-0000호(제8류의 견과류나 건조 과실의 혼합물)로 분류됩니다.
+      ③ ⚠️ 주의: 제0811호는 영하의 온도에서 급속 동결된 '냉동(Frozen)' 과실·견과류에만 적용되는 세번이므로 상온 견과류 믹스나 세트에 절대로 오적용해서는 안 됩니다.
 
 * [소재 원자재 및 1차제품 vs 가공품/완제품 엄격 구분 (절대 오적용 금지)]:
   - 보툴리눔 독소(Botulinum toxin) 치료용 주사제는 의료용품(제3006호)이 아닌 독소/면역물품 제3002호(제3002.49-0000호 또는 제3002.90-0000호)로 분류됩니다.
@@ -383,113 +456,55 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 }}
 """
 
-    # 0. Try Local Free AI Engines First (LM Studio on port 1234, Ollama on port 11434)
-    # 0-A. LM Studio (Local Free OpenAI-Compatible Engine)
-    try:
-        lm_url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234/v1/chat/completions")
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "messages": [
-                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.0
-        }
-        req = urllib.request.Request(lm_url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=5) as response:
-            res_body = response.read().decode("utf-8")
-            res_json = json.loads(res_body)
-            lm_output = res_json["choices"][0]["message"]["content"].strip()
-            if lm_output.startswith("```json"):
-                lm_output = lm_output.split("```json")[1].split("```")[0].strip()
-            elif lm_output.startswith("```"):
-                lm_output = lm_output.split("```")[1].split("```")[0].strip()
-            print("[RAG-LLM] Successfully processed via Free Local LM Studio Engine!")
-            return json.loads(lm_output)
-    except Exception as lm_err:
-        pass
-
-    # 0-B. Ollama (Local Free Engine)
-    try:
-        ollama_url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434/v1/chat/completions")
-        headers = {"Content-Type": "application/json"}
-        data = {
-            "model": os.environ.get("OLLAMA_MODEL", "llama3.2:latest"),
-            "messages": [
-                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.0
-        }
-        req = urllib.request.Request(ollama_url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=6) as response:
-            res_body = response.read().decode("utf-8")
-            res_json = json.loads(res_body)
-            ol_output = res_json["choices"][0]["message"]["content"].strip()
-            if ol_output.startswith("```json"):
-                ol_output = ol_output.split("```json")[1].split("```")[0].strip()
-            elif ol_output.startswith("```"):
-                ol_output = ol_output.split("```")[1].split("```")[0].strip()
-            print("[RAG-LLM] Successfully processed via Free Local Ollama Engine!")
-            return json.loads(ol_output)
-    except Exception as ol_err:
-        pass
-
-    # 1. Try OpenAI Cloud Engine (ONLY in Test Environment or when user explicitly supplies custom key)
-    is_test_env = bool(os.environ.get("PYTEST_CURRENT_TEST") or os.environ.get("CUSWAY_ENV") == "test" or os.environ.get("RUN_PAID_TESTS") == "1")
-    is_user_explicit_key = bool(custom_key and custom_key.strip().startswith("sk-"))
-    allow_paid_cloud = is_test_env or is_user_explicit_key
-
-    if allow_paid_cloud:
-        api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
-        if not api_key:
-            parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            key_path = os.path.join(parent_dir, "openai.key")
-            key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
+    # 1. Try OpenAI Cloud Engine (1st Priority: High precision GPT-4o-mini)
+    api_key = custom_key if (custom_key and custom_key.strip()) else os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        key_path = os.path.join(parent_dir, "openai.key")
+        key_root_path = os.path.join(os.path.dirname(parent_dir), "openai.key")
+        
+        target_path = None
+        if os.path.exists(key_path):
+            target_path = key_path
+        elif os.path.exists(key_root_path):
+            target_path = key_root_path
             
-            target_path = None
-            if os.path.exists(key_path):
-                target_path = key_path
-            elif os.path.exists(key_root_path):
-                target_path = key_root_path
-                
-            if target_path:
-                with open(target_path, "r", encoding="utf-8") as kf:
-                    api_key = kf.read().strip()
+        if target_path:
+            with open(target_path, "r", encoding="utf-8") as kf:
+                api_key = kf.read().strip()
 
-        if api_key and api_key.strip():
-            try:
-                url = "https://api.openai.com/v1/chat/completions"
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}"
-                }
-                data = {
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.0
-                }
+    if api_key and api_key.strip():
+        try:
+            url = "https://api.openai.com/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key.strip()}"
+            }
+            data = {
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.0
+            }
+            
+            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=12) as response:
+                res_body = response.read().decode("utf-8")
+                res_json = json.loads(res_body)
+                gpt_output = res_json["choices"][0]["message"]["content"].strip()
                 
-                req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-                with urllib.request.urlopen(req, timeout=12) as response:
-                    res_body = response.read().decode("utf-8")
-                    res_json = json.loads(res_body)
-                    gpt_output = res_json["choices"][0]["message"]["content"].strip()
+                if gpt_output.startswith("```json"):
+                    gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
+                elif gpt_output.startswith("```"):
+                    gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
                     
-                    if gpt_output.startswith("```json"):
-                        gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
-                    elif gpt_output.startswith("```"):
-                        gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
-                        
-                    print(f"[RAG-LLM] Successfully processed via OpenAI (Test/Explicit Key Mode).")
-                    return json.loads(gpt_output)
-            except Exception as e:
-                print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to free backup.")
-    else:
-        print("[RAG-LLM] Production runtime: Paid cloud API disabled (Free local AI & RAG mode active).")
+                print(f"[RAG-LLM] Successfully processed via OpenAI Engine.")
+                parsed_res = json.loads(gpt_output)
+                return normalize_llm_response(parsed_res, db, product_name)
+        except Exception as e:
+            print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to backup.")
 
     # 2. Try Gemini Engine Second (2nd Priority: Backup)
     gemini_key = os.environ.get("GEMINI_API_KEY")
@@ -532,9 +547,63 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                     output = output.split("```json")[1].split("```")[0].strip()
                 elif output.startswith("```"):
                     output = output.split("```")[1].split("```")[0].strip()
-                return json.loads(output)
+                print(f"[RAG-LLM] Successfully processed via Google Gemini Engine.")
+                parsed_res = json.loads(output)
+                return normalize_llm_response(parsed_res, db, product_name)
         except Exception as gem_err:
-            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to Groq.")
+            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to Groq/Local.")
+
+    # 3. Try Local Free AI Engines (LM Studio / Ollama)
+    # 3-A. LM Studio (Local Free OpenAI-Compatible Engine)
+    try:
+        lm_url = os.environ.get("LMSTUDIO_URL", "http://127.0.0.1:1234/v1/chat/completions")
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "messages": [
+                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0
+        }
+        req = urllib.request.Request(lm_url, data=json.dumps(data).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=5) as response:
+            res_body = response.read().decode("utf-8")
+            res_json = json.loads(res_body)
+            lm_output = res_json["choices"][0]["message"]["content"].strip()
+            if lm_output.startswith("```json"):
+                lm_output = lm_output.split("```json")[1].split("```")[0].strip()
+            elif lm_output.startswith("```"):
+                lm_output = lm_output.split("```")[1].split("```")[0].strip()
+            print("[RAG-LLM] Successfully processed via Free Local LM Studio Engine!")
+            return normalize_llm_response(json.loads(lm_output), db, product_name)
+    except Exception as lm_err:
+        pass
+
+    # 3-B. Ollama (Local Free Engine)
+    try:
+        ollama_url = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434/v1/chat/completions")
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "model": os.environ.get("OLLAMA_MODEL", "llama3.2:latest"),
+            "messages": [
+                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON with key recommendedHsCode, headingName, subheadingName, confidence, appliedGris, legalReasoning, sectionNote, chapterNote, exclusionNote, headingExplanation, precedents, competingHsCodes."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0
+        }
+        req = urllib.request.Request(ollama_url, data=json.dumps(data).encode("utf-8"), headers=headers)
+        with urllib.request.urlopen(req, timeout=6) as response:
+            res_body = response.read().decode("utf-8")
+            res_json = json.loads(res_body)
+            ol_output = res_json["choices"][0]["message"]["content"].strip()
+            if ol_output.startswith("```json"):
+                ol_output = ol_output.split("```json")[1].split("```")[0].strip()
+            elif ol_output.startswith("```"):
+                ol_output = ol_output.split("```")[1].split("```")[0].strip()
+            print("[RAG-LLM] Successfully processed via Free Local Ollama Engine!")
+            return normalize_llm_response(json.loads(ol_output), db, product_name)
+    except Exception as ol_err:
+        pass
 
     # 3. Try Groq LPU Engine Third (3rd Priority: Backup)
     groq_key = os.environ.get("GROQ_API_KEY")
