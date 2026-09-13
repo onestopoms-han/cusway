@@ -146,6 +146,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     question: string;
     chips: string[];
   } | null>(null);
+  const [customClarificationInput, setCustomClarificationInput] = useState<string>('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
@@ -1988,6 +1989,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                 </strong>
               </div>
               
+              {/* Smart Suggested Chips */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {clarificationPrompt.chips.map((chip, idx) => (
                   <button
@@ -2022,6 +2024,97 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                     ✨ {chip}
                   </button>
                 ))}
+              </div>
+
+              {/* Direct Custom Input & Skip Option */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'center',
+                paddingTop: '10px',
+                borderTop: '1px solid rgba(6, 182, 212, 0.2)',
+                flexWrap: 'wrap'
+              }}>
+                <input
+                  type="text"
+                  placeholder="✍️ 위 칩에 없거나 원하는 배합/스펙 직접 입력 (예: 말차 20%, 설탕 50%, 탈지분유 30%)"
+                  value={customClarificationInput}
+                  onChange={(e) => setCustomClarificationInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && customClarificationInput.trim()) {
+                      const typed = customClarificationInput.trim();
+                      if (clarificationPrompt.type === 'MATERIAL') {
+                        setMaterial(typed);
+                        handleStartAnalysis(productName, typed, functionUse, true);
+                      } else {
+                        setFunctionUse(typed);
+                        handleStartAnalysis(productName, material, typed, true);
+                      }
+                      setCustomClarificationInput('');
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    minWidth: '220px',
+                    padding: '8px 12px',
+                    background: 'rgba(15, 23, 42, 0.65)',
+                    border: '1px solid rgba(6, 182, 212, 0.4)',
+                    borderRadius: '6px',
+                    color: '#ffffff',
+                    fontSize: '0.82rem',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (customClarificationInput.trim()) {
+                      const typed = customClarificationInput.trim();
+                      if (clarificationPrompt.type === 'MATERIAL') {
+                        setMaterial(typed);
+                        handleStartAnalysis(productName, typed, functionUse, true);
+                      } else {
+                        setFunctionUse(typed);
+                        handleStartAnalysis(productName, material, typed, true);
+                      }
+                      setCustomClarificationInput('');
+                    } else {
+                      alert('직접 입력할 성분이나 스펙 내용을 작성해주세요.');
+                    }
+                  }}
+                  style={{
+                    padding: '8px 14px',
+                    background: 'linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-primary) 100%)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#000000',
+                    fontWeight: 800,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  직접 입력 적용 ➔
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleStartAnalysis(productName, material, functionUse, true);
+                  }}
+                  title="추가 스펙 선택 없이 현재 정보로 기본 AI 판정 진행"
+                  style={{
+                    padding: '8px 12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '6px',
+                    color: 'var(--text-muted)',
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  ⏩ 건너뛰기
+                </button>
               </div>
             </div>
           )}

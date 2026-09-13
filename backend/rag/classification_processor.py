@@ -486,29 +486,136 @@ class AICustomsClassificationProcessor:
     def probe_clarification_needs(cls, product_name: str, db: Session) -> dict:
         """
         2-Step Progressive Classification Gate:
-        Analyzes the initial product name to determine whether:
-        1. It is a well-defined finished article (Direct Resolution) -> needs_clarification=False
-        2. It depends primarily on material/composition (e.g. pipe, plate, powder, sheet, resin) -> needs_clarification=True, type="MATERIAL"
-        3. It depends primarily on function/application (e.g. motor, valve, pump, sensor) -> needs_clarification=True, type="FUNCTION"
+        Domain-Aware Probing to prevent domain mismatch (e.g. asking plastic/steel for food/tea/beverages).
+        1. Food / Tea / Beverage / Agri / Supplements -> Food specific composition / processing chips
+        2. Cosmetics / Toiletries -> Skin / Cleansing / Makeup chips
+        3. Chemicals / Polymers -> Resin / Pigment / Compound chips
+        4. Hardware / Industrial raw materials -> Plastic / Steel / Aluminum / Copper / Glass chips
+        5. Machinery / Electronics -> Industrial / Auto / Home / Medical chips
+        6. Fully specified or unambiguous items -> Direct resolution (needs_clarification=False)
         """
         p_clean = product_name.strip()
         p_lower = p_clean.lower()
         
-        # Keywords that strongly demand MATERIAL clarification (재질에 따라 류/호가 분기되는 물품)
+        # ----------------------------------------------------
+        # Domain 1: Food, Beverages, Tea, Coffee, Dairy, Agriculture, Supplements
+        # ----------------------------------------------------
+        food_indicators = [
+            "말차", "녹차", "홍차", "라떼", "밀크티", "커피", "원두", "생두", "코코아", "초콜릿", "카카오",
+            "음료", "식품", "분유", "유청", "단백질", "프로틴", "콜라겐", "치즈", "버터", "크림", "크리머",
+            "시럽", "소스", "드레싱", "조미료", "양념", "향신료", "참깨", "들깨", "고춧가루", "마늘", "양파",
+            "과일", "과실", "채소", "야채", "스프", "주스", "스무디", "밀가루", "전분", "당면", "설탕", "당류",
+            "스낵", "과자", "사탕", "젤리", "잼", "효모", "유산균", "영양제", "비타민", "식용", "농축액",
+            "tea", "latte", "coffee", "matcha", "whey", "protein", "collagen", "dairy", "cacao", "cocoa"
+        ]
+        is_food_domain = any(fi in p_lower for fi in food_indicators)
+
+        if is_food_domain:
+            # Sub-case 1-1: Tea / Matcha / Latte / Coffee / Beverage Mixes
+            if any(k in p_lower for k in ["말차", "녹차", "홍차", "라떼", "밀크티", "티", "tea", "latte", "음료", "커피믹스", "음료용"]):
+                has_spec = any(s in p_lower for s in ["100%", "순수", "무가당", "가당", "분유", "유성분", "설탕", "포도당", "크리머"])
+                if not has_spec:
+                    return {
+                        "needs_clarification": True,
+                        "clarification_type": "MATERIAL",
+                        "question": f"'{p_clean}'은(는) 차(말차/녹차) 함량, 유성분(분유/크리머), 가당 여부에 따라 세번(제0902호 vs 제1901호 vs 제2106호)이 달라집니다. 어떤 성분 구성인가요?",
+                        "suggested_chips": [
+                            "말차/녹차 100% 순수 무가당 분말 (제0902호)",
+                            "설탕·감미료 첨가 조제분말 (가당 음료용, 제2106호)",
+                            "분유·유성분(1.5% 초과) 함유 라떼 조제품 (제1901호)",
+                            "코코아/초콜릿 함유 조제품 (제1806호)"
+                        ],
+                        "direct_result": None
+                    }
+
+            # Sub-case 1-2: Protein / Collagen / Health Supplements
+            if any(k in p_lower for k in ["단백질", "프로틴", "콜라겐", "유청", "protein", "collagen", "whey", "영양제"]):
+                has_spec = any(s in p_lower for s in ["wpc", "wpi", "유청", "대두", "식물성", "동물성", "콜라겐", "비타민"])
+                if not has_spec:
+                    return {
+                        "needs_clarification": True,
+                        "clarification_type": "MATERIAL",
+                        "question": f"'{p_clean}'은(는) 주원료 단백질원 및 배합 성분에 따라 관세율과 세번이 달라집니다. 어떤 성분 구성인가요?",
+                        "suggested_chips": [
+                            "유청단백질 농축 분말 (제0404호 / 제3502호)",
+                            "대두단백 / 식물성 분리단백 조제품 (제2106호)",
+                            "콜라겐 펩타이드 조제품 (제3503호 / 제2106호)",
+                            "비타민·미네랄 영양 복합 조제품 (제2106호)"
+                        ],
+                        "direct_result": None
+                    }
+
+            # Sub-case 1-3: Sesame / Perilla / Agricultural & Spices powders
+            if any(k in p_lower for k in ["참깨", "들깨", "곡물", "고춧가루", "향신료", "분말", "가루", "파우더"]):
+                has_spec = any(s in p_lower for s in ["볶은", "미볶", "구운", "생", "100%", "조제", "가공", "조미"])
+                if not has_spec:
+                    return {
+                        "needs_clarification": True,
+                        "clarification_type": "MATERIAL",
+                        "question": f"'{p_clean}'은(는) 열처리(볶음/가열) 여부 및 조미 첨가물 배합에 따라 세번이 달라집니다. 어떤 상태인가요?",
+                        "suggested_chips": [
+                            "볶은 열처리 가공품 (제2008호 / 제2106호)",
+                            "미가공 단순 건조 및 분쇄물 (제12류 / 제09류)",
+                            "식염·당류·향신료 배합 복합 조미분말 (제2103호 / 제2106호)"
+                        ],
+                        "direct_result": None
+                    }
+
+            # Other well-defined food items: proceed directly
+            res = cls.run_classification_pipeline(product_name=p_clean, material="", function_use="", db=db)
+            return {
+                "needs_clarification": False,
+                "clarification_type": "NONE",
+                "question": "",
+                "suggested_chips": [],
+                "direct_result": res
+            }
+
+        # ----------------------------------------------------
+        # Domain 2: Cosmetics & Toiletries
+        # ----------------------------------------------------
+        cosmetic_indicators = ["화장품", "파우더 팩트", "루스 파우더", "페이스 파우더", "아이섀도우", "블러셔", "클렌징 파우더", "선크림", "로션", "세럼", "마스크팩"]
+        if any(ci in p_lower for ci in cosmetic_indicators):
+            return {
+                "needs_clarification": True,
+                "clarification_type": "FUNCTION",
+                "question": f"'{p_clean}'의 사용 목적과 화장품 제형은 무엇인가요?",
+                "suggested_chips": [
+                    "피부 메이크업용 페이스 파우더 / 팩트 (제3304호)",
+                    "세안 및 세척용 클렌징 파우더 (제3401호 / 제3307호)",
+                    "스킨케어 기초 화장품 제형 (제3304호)"
+                ],
+                "direct_result": None
+            }
+
+        # ----------------------------------------------------
+        # Domain 3: Chemicals & Polymers
+        # ----------------------------------------------------
+        chemical_indicators = ["레진", "합성수지", "폴리머", "안료", "염료", "시약", "화합물", "촉매", "용제"]
+        if any(ci in p_lower for ci in chemical_indicators):
+            return {
+                "needs_clarification": True,
+                "clarification_type": "MATERIAL",
+                "question": f"'{p_clean}'의 화학적 조성 및 용도는 무엇인가요?",
+                "suggested_chips": [
+                    "플라스틱 / 합성수지 1차 분말 (제39류)",
+                    "착색제 / 유·무기 안료 및 염료 (제32류)",
+                    "단일 화학 성분 유기/무기 화합물 (제28류 / 제29류)",
+                    "산업용 화학 조제품 및 촉매 (제38류)"
+                ],
+                "direct_result": None
+            }
+
+        # ----------------------------------------------------
+        # Domain 4: Hardware & Industrial Materials (Non-food)
+        # ----------------------------------------------------
         material_ambiguity_patterns = [
             r"파이프", r"배관", r"관$", r"튜브", r"호스", r"플레이트", r"판재", r"시트", r"필름", r"박판", r"포일",
-            r"분말", r"파우더", r"가루", r"펠릿", r"레진", r"수지", r"원단", r"직물", r"원사", r"실$",
+            r"펠릿", r"원단", r"직물", r"원사", r"실$",
             r"가스켓", r"패킹", r"o링", r"실링", r"용기", r"탱크", r"보틀", r"병$", r"단열재", r"패널",
-            r"와이어", r"철선", r"봉$", r"환봉", r"형강", r"단조품", r"주물", r"도가니"
+            r"와이어", r"철선", r"봉$", r"환봉", r"형강", r"단조품", r"주물", r"도가니", r"볼트", r"너트", r"나사", r"스프링"
         ]
         
-        # Keywords that strongly demand FUNCTION/APPLICATION clarification (용도/기능에 따라 분기되는 물품)
-        function_ambiguity_patterns = [
-            r"모터", r"전동기", r"엔진", r"펌프", r"컴프레셔", r"압축기", r"밸브", r"센서", r"감지기",
-            r"변환기", r"어댑터", r"컨트롤러", r"제어기", r"장치", r"설비", r"추출물", r"화합물", r"시약"
-        ]
-        
-        # 1. Check if it requires Material Clarification
         has_specific_material = any(m in p_lower for m in [
             "스테인리스", "플라스틱", "알루미늄", "티타늄", "실리콘", "고무", "유리", "세라믹", "목재",
             "실크", "면", "울", "가죽", "탄소섬유", "카본", "구리", "동", "철강", "불소수지", "ptfe",
@@ -520,19 +627,25 @@ class AICustomsClassificationProcessor:
             return {
                 "needs_clarification": True,
                 "clarification_type": "MATERIAL",
-                "question": f"'{p_clean}'은(는) 구성 재질 및 성분에 따라 관세율과 세번이 달라집니다. 어떤 재질로 제작되었나요?",
+                "question": f"'{p_clean}'은(는) 구성 재질에 따라 관세율과 세번이 달라집니다. 어떤 재질로 제작되었나요?",
                 "suggested_chips": [
                     "플라스틱 / 합성수지",
                     "철강 / 스테인리스",
                     "알루미늄 / 경합금",
                     "가황 고무 / 실리콘",
                     "동 / 구리 / 황동",
-                    "유리 / 세라믹"
+                    "유리 / 세라믹 / 석재"
                 ],
                 "direct_result": None
             }
-            
-        # 2. Check if it requires Function Clarification
+
+        # ----------------------------------------------------
+        # Domain 5: Machinery & Electronic Equipment
+        # ----------------------------------------------------
+        function_ambiguity_patterns = [
+            r"모터", r"전동기", r"엔진", r"펌프", r"컴프레셔", r"압축기", r"밸브", r"센서", r"감지기",
+            r"변환기", r"어댑터", r"컨트롤러", r"제어기", r"장치", r"설비"
+        ]
         has_specific_function = any(f in p_lower for f in [
             "차량용", "자동차용", "산업용", "가정용", "의료용", "연구용", "스마트폰용", "반도체용", "선박용", "항공용", "농업용"
         ])
@@ -552,7 +665,9 @@ class AICustomsClassificationProcessor:
                 "direct_result": None
             }
 
-        # 3. Direct Classification for Finished Articles or fully-specified items
+        # ----------------------------------------------------
+        # Domain 6: Direct Resolution for Unambiguous Goods
+        # ----------------------------------------------------
         res = cls.run_classification_pipeline(
             product_name=p_clean,
             material="",
