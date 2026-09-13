@@ -8,61 +8,10 @@ from backend.rag.hs_validator import HSConsistencyValidator
 
 def detect_query_domain(product_name: str) -> tuple:
     """
-    Identifies the broad Customs Section/Chapter domain from the product name.
-    Returns (domain_name, list_of_allowed_2digit_chapters).
+    Identifies the broad Customs Section/Chapter domain from the product name for RAG prioritization.
+    Universal Architecture: Returns all 1-97 chapters to prevent premature chapter pruning bottlenecks.
     """
-    p_lower = product_name.lower().strip()
-    
-    # 1. Food / Agricultural / Fishery / Beverage (Sections 1 ~ 4: Chapters 01 ~ 24)
-    from backend.rag.food_classifier import is_food_query
-    if is_food_query(product_name) or any(k in p_lower for k in [
-        "과일", "과실", "베리", "블루베리", "불루베리", "크랜베리", "크렌베리", "그랜베리", "그렌베리", "글랜베리", "클랜베리", "라즈베리", "블랙베리", "딸기", "채소", "야채", "농산", "수산", "축산",
-        "육류", "생선", "어류", "곡물", "쌀", "밀가루", "커피", "녹차", "홍차", "침출차", "향신료", "주스", "음료", "아이스티", "iced tea", "ice tea",
-        "과자", "사탕", "초콜릿", "초콜렛", "초코렛", "면류", "라면", "소스", "조미료", "식품", "유제품", "치즈",
-        "버터", "벌꿀", "식용", "오일", "참기름", "들기름", "올리브유", "두부", "김치",
-        "라떼", "라테", "밀크티", "말차", "그린티", "조제커피", "커피믹스", "음료베이스", "바닐라라떼", "파우더",
-        "치아바타", "바게트", "포카치아", "깜빠뉴", "사워도우", "베이글", "브리오슈", "식빵", "크루아상", "페이스트리", "케이크", "머핀", "스콘", "와플", "도넛", "쿠키", "비스킷", "크래커", "빵", "베리", "베이커리",
-        "요거트", "요구르트", "발효유", "아이스크림", "빙과", "마들렌", "파니니", "샌드위치", "피자", "생크림", "연유",
-        "fruit", "fruits", "berry", "berries", "blueberry", "blueberries", "cranberry", "cranberries", "meat", "fish", "seafood",
-        "coffee", "tea", "juice", "candy", "chocolate", "sugar", "sauce", "cheese", "butter", "honey", "latte", "matcha", "ciabatta", "bread", "bakery", "yogurt", "ice cream",
-        "mango", "mangosteen", "guava", "avocado", "dates", "figs", "pineapple", "freeze dried", "dried fruit", "alor"
-    ]):
-        allowed = [f"{i:02d}" for i in range(1, 25)] + ["3302"]
-        return ("FOOD_AGRI", allowed)
-
-    # 2. Optical, Medical & Precision Measuring Instruments (Chapter 90, 91)
-    from backend.rag.sensor_classifier import is_sensor_query
-    if is_sensor_query(product_name) or any(k in p_lower for k in ["렌즈", "안경", "현미경", "내시경", "도플러", "ct", "mri", "진단기", "측정기", "오실로스코프", "게이지", "유량계", "온습도"]):
-        return ("PRECISION_OPTICAL", ["90", "91", "85", "84"])
-
-    # 3. Chemicals, Polymers, Cosmetics, Mineral Products & Raw Materials (Sections 5, 6, 7: Chapters 25 ~ 40)
-    if any(k in p_lower for k in [
-        "과산화수소", "불산", "불화수소", "수산화리튬", "흑연", "실란", "에폭시", "수지", "폴리", "화합물", 
-        "산화물", "유기화학", "무기화학", "염료", "안료", "용제", "알코올", "에탄올", "ipa", "촉매", "바닐린",
-        "글리세린", "모노머", "펠릿", "계면활성제", "가소제", "바이오디젤", "왁스", "윤활유", "엔진오일",
-        "필러", "히알루론", "단백질 제제", "독소", "의약품", "항암", "봉합사", "비료", "화장품", "앰플", "에센스", "세럼", "크림", "로션", "스킨케어"
-    ]) or (any(pl in p_lower for pl in ["필름", "시트", "테이프", "점착", "pet", "플라스틱", "합성수지"]) and not any(m in p_lower for m in ["원심분리기", "모터", "엔진", "절단기", "가공기"])):
-        return ("CHEMICALS_PLASTICS", [f"{i:02d}" for i in range(25, 41)] + ["27"])
-
-    # 4. Base Metals & Structural Materials (Section 15: Chapters 72 ~ 83)
-    if any(k in p_lower for k in ["레일", "강관", "강판", "형강", "동박", "티타늄", "니켈", "합금", "볼트", "너트", "와이어로프", "텅스텐", "서멧", "플랜지", "유리"]):
-        return ("METALS_ARTICLES", [f"{i:02d}" for i in range(70, 84)] + ["68"])
-
-    # 5. Vehicles & Transport Equipment (Section 17: Chapters 86 ~ 89)
-    if any(k in p_lower for k in ["차량", "자동차", "트럭", "오토바이", "자전거", "전기자전거", "e-bike", "선박", "보트", "항공기", "드론", "철도차량", "헬리콥터", "요트"]):
-        return ("VEHICLES_TRANSPORT", ["86", "87", "88", "89", "84", "85"])
-
-    # 6. Machinery, Electronics & Appliances (Section 16: Chapters 84, 85, 90)
-    if (any(k in p_lower for k in ["기계", "모터", "엔진", "펌프", "컴프레셔", "반도체", "인터페이스", "전자", "디스플레이", "스마트폰", "컴퓨터", "전기", "전동", "광섬유", "광케이블", "광통신"]) 
-        and not any(ex in p_lower for ex in ["필름", "필름 롤", "점착", "스티커", "보호필름", "조끼", "의류", "자전거", "자전거용"])):
-        return ("MACHINERY_ELEC", ["84", "85", "90"])
-
-    # 7. Textiles & Apparel (Section 11: Chapters 50 ~ 63)
-    if any(k in p_lower for k in ["의류", "직물", "원단", "셔츠", "바지", "자켓", "재킷", "코트", "조끼", "팬조끼", "양말", "장갑", "모자", "가방"]) or ("섬유" in p_lower and not any(ex in p_lower for ex in ["광섬유", "유리섬유", "탄소섬유", "광케이블"])):
-        return ("TEXTILES_APPAREL", [f"{i:02d}" for i in range(50, 65)] + ["42", "84", "85"])
-
-    # Generic / Unrestricted fallback
-    return ("ALL_DOMAINS", [f"{i:02d}" for i in range(1, 98)])
+    return ("UNIVERSAL_ALL_DOMAINS", [f"{i:02d}" for i in range(1, 98)])
 
 class AICustomsClassificationProcessor:
     """
@@ -103,16 +52,9 @@ class AICustomsClassificationProcessor:
         for attempt in range(max_retries):
             validation_results = HSConsistencyValidator.compute_consistency_score(result_dict)
             
-            # [도메인 게이트 검증] 추천된 세번이 대상 도메인 부/류에 속하는지 검증
             raw_hs = result_dict.get("recommendedHsCode", "")
             clean_hs = raw_hs.replace('.', '').replace('-', '').strip()
             ch2 = clean_hs[:2]
-            
-            if allowed_chapters and ch2 not in allowed_chapters and raw_hs != "0000.00-0000":
-                validation_results["consistency_score"] = min(validation_results["consistency_score"], 40)
-                domain_warn = f"[도메인 불일치 오분류] 물품명 '{product_name}'은(는) {domain_name} 범위(제{', '.join(allowed_chapters[:5])}류 등)에 속해야 하나 완전히 다른 제{ch2}류({raw_hs})로 분류되었습니다. 올바른 도메인의 세번으로 수정하십시오."
-                if not any(domain_warn[:30] in w for w in validation_results["warnings"]):
-                    validation_results["warnings"].append(domain_warn)
 
             # [가드레일] 추천된 HS Code가 실제 마스터 DB의 10자리 세번으로 존재하는지 검증
             from backend.models import HSCodeMaster
@@ -539,4 +481,89 @@ class AICustomsClassificationProcessor:
         best = scored_candidates[0]
         
         return best["code"], best["name_ko"], scored_candidates
+
+    @classmethod
+    def probe_clarification_needs(cls, product_name: str, db: Session) -> dict:
+        """
+        2-Step Progressive Classification Gate:
+        Analyzes the initial product name to determine whether:
+        1. It is a well-defined finished article (Direct Resolution) -> needs_clarification=False
+        2. It depends primarily on material/composition (e.g. pipe, plate, powder, sheet, resin) -> needs_clarification=True, type="MATERIAL"
+        3. It depends primarily on function/application (e.g. motor, valve, pump, sensor) -> needs_clarification=True, type="FUNCTION"
+        """
+        p_clean = product_name.strip()
+        p_lower = p_clean.lower()
+        
+        # Keywords that strongly demand MATERIAL clarification (재질에 따라 류/호가 분기되는 물품)
+        material_ambiguity_patterns = [
+            r"파이프", r"배관", r"관$", r"튜브", r"호스", r"플레이트", r"판재", r"시트", r"필름", r"박판", r"포일",
+            r"분말", r"파우더", r"가루", r"펠릿", r"레진", r"수지", r"원단", r"직물", r"원사", r"실$",
+            r"가스켓", r"패킹", r"o링", r"실링", r"용기", r"탱크", r"보틀", r"병$", r"단열재", r"패널",
+            r"와이어", r"철선", r"봉$", r"환봉", r"형강", r"단조품", r"주물", r"도가니"
+        ]
+        
+        # Keywords that strongly demand FUNCTION/APPLICATION clarification (용도/기능에 따라 분기되는 물품)
+        function_ambiguity_patterns = [
+            r"모터", r"전동기", r"엔진", r"펌프", r"컴프레셔", r"압축기", r"밸브", r"센서", r"감지기",
+            r"변환기", r"어댑터", r"컨트롤러", r"제어기", r"장치", r"설비", r"추출물", r"화합물", r"시약"
+        ]
+        
+        # 1. Check if it requires Material Clarification
+        has_specific_material = any(m in p_lower for m in [
+            "스테인리스", "플라스틱", "알루미늄", "티타늄", "실리콘", "고무", "유리", "세라믹", "목재",
+            "실크", "면", "울", "가죽", "탄소섬유", "카본", "구리", "동", "철강", "불소수지", "ptfe",
+            "금", "은", "백금", "니켈", "아연", "주석", "나일론", "폴리에스터", "아크릴"
+        ])
+        
+        is_material_ambiguous = any(re.search(pat, p_lower) for pat in material_ambiguity_patterns)
+        if is_material_ambiguous and not has_specific_material:
+            return {
+                "needs_clarification": True,
+                "clarification_type": "MATERIAL",
+                "question": f"'{p_clean}'은(는) 구성 재질 및 성분에 따라 관세율과 세번이 달라집니다. 어떤 재질로 제작되었나요?",
+                "suggested_chips": [
+                    "플라스틱 / 합성수지",
+                    "철강 / 스테인리스",
+                    "알루미늄 / 경합금",
+                    "가황 고무 / 실리콘",
+                    "동 / 구리 / 황동",
+                    "유리 / 세라믹"
+                ],
+                "direct_result": None
+            }
+            
+        # 2. Check if it requires Function Clarification
+        has_specific_function = any(f in p_lower for f in [
+            "차량용", "자동차용", "산업용", "가정용", "의료용", "연구용", "스마트폰용", "반도체용", "선박용", "항공용", "농업용"
+        ])
+        is_function_ambiguous = any(re.search(pat, p_lower) for pat in function_ambiguity_patterns)
+        if is_function_ambiguous and not has_specific_function:
+            return {
+                "needs_clarification": True,
+                "clarification_type": "FUNCTION",
+                "question": f"'{p_clean}'은(는) 주요 사용 목적과 적용 분야에 따라 관세율과 세번이 달라집니다. 어떤 용도로 사용되나요?",
+                "suggested_chips": [
+                    "산업용 공장 / 생산설비 라인",
+                    "자동차 / 전기차 / 모빌리티용",
+                    "가정용 / 개인 소비재용",
+                    "의료 / 병원 / 헬스케어용",
+                    "연구 / 실험실용"
+                ],
+                "direct_result": None
+            }
+
+        # 3. Direct Classification for Finished Articles or fully-specified items
+        res = cls.run_classification_pipeline(
+            product_name=p_clean,
+            material="",
+            function_use="",
+            db=db
+        )
+        return {
+            "needs_clarification": False,
+            "clarification_type": "NONE",
+            "question": "",
+            "suggested_chips": [],
+            "direct_result": res
+        }
 

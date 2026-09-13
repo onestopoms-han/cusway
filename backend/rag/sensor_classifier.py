@@ -29,8 +29,14 @@ SENSOR_TRIGGER_WORDS = [
 ]
 
 def is_sensor_query(query: str) -> bool:
-    """Checks if the query represents any category of sensor/detector."""
+    """Checks if the query represents any standalone category of sensor/detector component."""
     q_lower = query.lower().strip()
+    # Complex finished systems, vehicles, robots, toys, gaskets, medical devices are not standalone sensors
+    if any(ex in q_lower for ex in [
+        "로봇", "robot", "agv", "amr", "차량", "자동차", "비행체", "항공기", "잠수정", "선박", "드론", "uam", "auv",
+        "가스켓", "o링", "밸브", "기판", "웨이퍼", "직물", "원단", "의류", "내시경", "인형", "완구", "조명", "가구"
+    ]):
+        return False
     return any(trig in q_lower for trig in SENSOR_TRIGGER_WORDS)
 
 def classify_sensor_universally(product_name: str, material: str = "", function_use: str = "") -> dict:

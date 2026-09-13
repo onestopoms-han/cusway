@@ -1822,9 +1822,9 @@ export default function CustomsReportModal({
                       </p>
                     </div>
                     <div>
-                      <strong style={{ color: '#0369a1' }}>② 품목분류 오류 세액추징 방어:</strong>
+                      <strong style={{ color: '#b91c1c' }}>② 법적 면책 및 관세사 최종 검증 필수 (Disclaimer):</strong>
                       <p style={{ margin: '2px 0 0 0', color: '#475569' }}>
-                        본 사전심사 소명서를 수입신고 필증과 함께 보관 시, 관세법 제38조의2에 따른 선의의 가산세 감면 사유로 인정받을 수 있습니다.
+                        본 AI 소명서는 사전 의사결정 참고용 자료이며 공적 구속력이 없습니다. 실제 수입신고 전 관세사의 정밀 검증을 필히 거치시기 바라며, 공적 효력 확보를 위해서는 관세청 사전심사(관세법 제86조) 신청을 권고합니다.
                       </p>
                     </div>
                   </div>

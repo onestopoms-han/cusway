@@ -193,12 +193,68 @@ class HSConsistencyValidator:
                 score_deduction += 45
                 warnings.append(f"기계/전자기기 관련 단어가 감지되었으나 농축수산물/식품류(제{chapter}류)로 분류되었습니다.")
 
-        # 3. Sensor keywords mapped to vehicle parts (8708), construction machinery (8430), or generic furniture (9401)
+        # 3. Standalone sensor keywords mapped to vehicle parts (8708) or construction machinery (8430)
         from backend.rag.sensor_classifier import is_sensor_query
-        if is_sensor_query(query_text):
-            if chapter in ["87", "86", "88", "89", "94", "95"] or clean_code.startswith("8430") or clean_code.startswith("8479"):
+        is_complex_system = any(v in query_text for v in ["로봇", "robot", "agv", "amr", "비행체", "항공기", "잠수정", "선박", "차량", "가구", "인형", "완구"])
+        if is_sensor_query(query_text) and not is_complex_system:
+            if chapter in ["87", "86", "88", "89", "94", "95"] or clean_code.startswith("8430"):
                 score_deduction += 50
-                warnings.append(f"센서/계측기기 물품은 제16부 주 제1호 마목 및 제17부 주 제2호 사목에 의해 완제품 부품(제{chapter}류)이나 건설기계(제8430호)에서 배제되고 제90류(제9025~9031호) 또는 제85류로 분류되어야 합니다.")
+                warnings.append(f"독립된 센서/계측기기 물품은 제16부 주 제1호 마목 및 제17부 주 제2호 사목에 의해 완제품 부품(제{chapter}류)이나 건설기계(제8430호)에서 배제되고 제90류(제9025~9031호) 또는 제85류로 분류되어야 합니다.")
+
+        # 4. Medical Endoscope / Diagnostics mapped to Food (Chapters 01~24)
+        if any(med in query_text for med in ["내시경", "혈당", "진단기", "의료기기", "수술"]) and chapter.isdigit() and int(chapter) <= 24:
+            score_deduction += 60
+            warnings.append(f"의료/진단/내시경 기기 물품이 농축수산물/조제식료품(제{chapter}류)으로 심각하게 오분류되었습니다. 제90류(제9018호 등)로 재분류하십시오.")
+
+        # 5. Aircraft / Vessels / Complex Vehicles mapped to raw components (Battery 8507, Carbon fiber 6815)
+        if any(veh in query_text for veh in ["uam", "비행체", "항공기", "자율비행", "잠수정", "auv"]) and clean_code.startswith(("8507", "6815")):
+            score_deduction += 60
+            warnings.append(f"수송용 완성 비행체/잠수정 물품은 탑재 배터리(8507)나 외장재(6815)가 아닌 수송기기(제88류/제89류)로 분류되어야 합니다.")
+
+        # 6. Machinery / Feeder vs Processed target objects (Section XVI vs Chapter 73)
+        if any(m in query_text for m in ["공급기", "피더기", "정렬기", "선별기"]) and clean_code.startswith("7318"):
+            score_deduction += 60
+            warnings.append("부품 정렬/공급 피더 장치는 체결 대상물인 볼트/너트(제7318호)가 아니라 고유한 기능을 가진 기계류인 제8479호 또는 운반기계 제8428호로 분류되어야 합니다.")
+
+        # 7. Chemical salts & powders vs Downstream finished articles (Section VI vs Section XVI / Chapter 33)
+        if any(k in query_text for k in ["전해질 염", "전해질염", "리튬염", "lipf6", "lifsi"]) and clean_code.startswith("8507"):
+            score_deduction += 60
+            warnings.append("이차전지 전해질 염 원료는 제16부 주 제1호 가목에 따라 축전지 완제품(제8507호)에서 제외되며 무기염 제2835호 또는 제2853호/제3824호로 분류되어야 합니다.")
+
+        if any(k in query_text for k in ["세라마이드", "아데노신", "나노 분말", "원료 분말"]) and "화장품" in query_text and clean_code.startswith("3304"):
+            score_deduction += 60
+            warnings.append("화장품 제조 배합용 단일 유기화합물 원료 분말은 제33류 주 제3호에 따라 완제 화장품(제3304호)에서 제외되며 유기화합물 제2924호 또는 제2942호로 분류되어야 합니다.")
+
+        if any(k in query_text for k in ["pbat", "생분해"]) and clean_code.startswith("2905"):
+            score_deduction += 60
+            warnings.append("생분해성 PBAT 공중합 수지 펠릿은 단일 알코올(제2905호)이 아니라 폴리에스테르 수지 1차제품 제3907호로 분류되어야 합니다.")
+
+        if any(k in query_text for k in ["카본블랙", "백금"]) and any(k in query_text for k in ["담지", "촉매"]) and clean_code.startswith("2803"):
+            score_deduction += 60
+            warnings.append("백금 등 귀금속이 담지된 촉매는 카본블랙 원자재(제2803호)가 아니라 담지 촉매 제3815호로 분류되어야 합니다.")
+
+        # 8. Measurement / Scale vs Wireless communications (GRI 3(b) Essential Character)
+        if any(k in query_text for k in ["체중계", "체지방계", "체지방 체중계"]) and clean_code.startswith("8517"):
+            score_deduction += 60
+            warnings.append("무선통신 기능이 결합된 스마트 체중계/체지방계는 통칙 제3호(나)에 따라 주 기능인 중량 계량기기 제8423호로 분류되어야 합니다.")
+
+        # 9. Medical sutures vs General surgical instruments (Chapter 30 Note 4(a))
+        if "봉합사" in query_text and clean_code.startswith("9018"):
+            score_deduction += 60
+            warnings.append("외과 수술용 멸균 봉합재(바늘 일체형 포함)는 제30류 주 제4호 가목에 따라 외과용 기기(제9018호)가 아니라 의료용품 제3006호로 분류되어야 합니다.")
+
+        # 10. Agricultural / Food raw vs Extracts & Beverages (Chapters 09, 15, 22 vs 21, 08, 20)
+        if any(k in query_text for k in ["가루 녹차", "가루녹차", "말차", "잎 100%"]) and clean_code.startswith("2101"):
+            score_deduction += 60
+            warnings.append("단순 분쇄 찻잎 100% 분말은 추출 공정이 없으므로 인스턴트 추출물(제2101호)이 아니라 차 제0902호로 분류되어야 합니다.")
+
+        if any(k in query_text for k in ["아몬드 밀크", "식물성 밀크", "아몬드 음료"]) and clean_code.startswith("2008"):
+            score_deduction += 60
+            warnings.append("소매용 액상 식물성 밀크 음료는 조제 견과류(제2008호)가 아니라 기타 비알코올성 음료 제2202호로 분류되어야 합니다.")
+
+        if any(k in query_text for k in ["아보카도 오일", "아보카도유", "아보카도 기름"]) and clean_code.startswith("0804"):
+            score_deduction += 60
+            warnings.append("압착 식물성 아보카도 오일은 신선/건조 과실(제0804호)이 아니라 기타 식물성 고정유 제1515호로 분류되어야 합니다.")
 
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 

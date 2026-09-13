@@ -1193,6 +1193,28 @@ class HsClassifyRequest(BaseModel):
     api_key: Optional[str] = None
     email: Optional[str] = None
 
+class HsProbeRequest(BaseModel):
+    product_name: str
+    api_key: Optional[str] = None
+    email: Optional[str] = None
+
+@app.post("/api/hs/probe")
+def hs_probe_rag_api(req: HsProbeRequest, db: Session = Depends(get_db)):
+    """
+    1-Step Rapid Probe Gate:
+    Determines whether the product can be directly resolved as a finished article,
+    or if it requires interactive clarification on Material vs Function.
+    """
+    from backend.rag.classification_processor import AICustomsClassificationProcessor
+    try:
+        result = AICustomsClassificationProcessor.probe_clarification_needs(
+            product_name=req.product_name,
+            db=db
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"1차 점진적 품목 분석 도중 오류가 발생했습니다: {str(e)}")
+
 @app.post("/api/hs/classify")
 def hs_classify_rag_api(req: HsClassifyRequest, db: Session = Depends(get_db)):
     # Log the search query in database

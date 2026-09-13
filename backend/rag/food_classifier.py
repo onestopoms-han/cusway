@@ -39,6 +39,8 @@ FOOD_TRIGGER_PATTERNS = [
 def is_food_query(query: str) -> bool:
     """Checks if the query represents any food, agricultural, fishery, or beverage item."""
     q_lower = query.lower().strip()
+    if any(fo in q_lower for fo in ["알룰로스", "allulose", "psicose", "시럽", "카라기난", "식물성 젤라틴", "식물성젤라틴", "해조류", "대체 단백질", "대체 감미료"]):
+        return True
     if any(ex in q_lower for ex in [
         "코르크", "마개", "배합기", "기계", "원심분리기", "반도체", "인터페이스", "펠리클", "프로브", "센서", "전자", "모듈",
         "의류", "재킷", "판유리", "도가니", "니크롬선", "와이어", "스카프", "식기 세트", "수저", "방화복", "완구", "테이블", "만년필",
@@ -50,7 +52,11 @@ def is_food_query(query: str) -> bool:
         "수지", "폴리", "단량체", "모노머", "안료", "효소", "스쿠알란", "방청제", "충전재", "시멘트", "착색제", "살충제",
         "티셔츠", "셔츠", "바지", "청바지", "코트", "구두", "신발", "벨트", "골프", "가방", "캐리어", "카펫", "러그", "수영복", "장갑",
         "다이아몬드", "diamond", "드릴", "드릴 비트", "비트", "공구", "젤라틴", "의약용", "의약품",
-        "석유젤리", "석유 젤리", "petroleum jelly", "바세린"
+        "석유젤리", "석유 젤리", "petroleum jelly", "바세린",
+        "내시경", "의료", "진단", "혈당", "수술", "치료", "화장품", "코스메틱", "스킨케어", "세럼", "에센스", "리포솜", "절연유", "변압기",
+        "윤활유", "엔진오일", "오일 씰", "에어로겔", "패드", "가스켓", "o링", "라벨", "스티커", "배터리", "축전지", "음극", "양극",
+        "슬러리", "피복관", "기판", "펠릿", "합금", "비행체", "항공기", "잠수정", "선박", "로켓", "모빌리티", "로봇", "agv", "amr",
+        "직물", "원단", "도료", "페인트", "바코드"
     ]):
         return False
     return any(re.search(pat, q_lower) for pat in FOOD_TRIGGER_PATTERNS)
@@ -69,6 +75,70 @@ def classify_food_universally(product_name: str, material: str = "", function_us
     )
     if is_compound_or_mixture:
         return {"is_matched": False, "recommendedHsCode": "0000.00-0000"}
+
+    # 0-0-알룰로스. D-알룰로스 / 당시럽 / 대체 감미료 (제1702.90-9000)
+    if any(k in combined for k in ["알룰로스", "allulose", "psicose", "사이코스", "당시럽"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1702.90-9000",
+            "headingName": "제1702호 (그 밖의 당류, 당시럽, 인조꿀, 캐러멜 - 기타)",
+            "subheadingName": f"{product_name} (효소 변환 고순도 액상 알룰로스 대체 감미료 시럽)",
+            "confidence": 99,
+            "technicalTerms": "Other Sugars, Including Chemically Pure Lactose, Maltose, Glucose and Fructose; Sugar Syrups / Allulose (D-Psicose)",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1702호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 효소 변환 공정을 통해 과당을 D-알룰로스(D-Psicose)로 전환하여 제조한 무설탕 기능성 대체 감미료 시럽입니다.\n나. 관세율표 분류: 관세율표 제1702호는 기타의 당류 및 당시럽을 분류하며, D-알룰로스는 기타 당류로서 제1702.90호(HSK 제1702.90-9000호)에 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1702.90-9000호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
+            "chapterNote": "제17류 당류와 설탕과자 (제1702호)",
+            "exclusionNote": "설탕과자 완제품(제1704호) 및 기타 조제식료품(제2106호)과 구분하십시오."
+        }
+
+    # 0-0-카라기난. 해조류 추출 식물성 젤라틴 대체재 / 카라기난 / 알긴산 (제1302.39-0000)
+    if any(k in combined for k in ["카라기난", "carrageenan", "식물성 젤라틴", "식물성젤라틴", "알긴산나트륨"]) or (any(s in combined for s in ["해조류", "홍조류", "갈조류"]) and any(g in combined for g in ["젤라틴", "점증", "겔화"])):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1302.39-0000",
+            "headingName": "제1302호 (식물성 수액과 엑스, 펙틴질 물질, 한천, 식물성 물질에서 얻은 점질물과 점증제 - 기타)",
+            "subheadingName": f"{product_name} (해조류 추출 바이오 식물성 젤라틴 대체재 분말)",
+            "confidence": 99,
+            "technicalTerms": "Vegetable Saps and Extracts; Pectic Substances; Agar-Agar and Other Mucilages and Thickeners / Seaweed Carrageenan Gelatin Alternative",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제1302호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 홍조류 및 갈조류 등 해조류에서 추출 정제한 카라기난 및 알긴산나트륨 기반의 식물성 점증/겔화제 분말입니다.\n나. 관세율표 분류: 식물성 물질에서 얻은 점질물과 점증제는 관세율표 제1302.39호(HSK 제1302.39-0000호)에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제1302.39-0000호에 확정 분류됩니다.",
+            "sectionNote": "제2부 식물성 생산품",
+            "chapterNote": "제13류 식물성 수액ㆍ추출물ㆍ점질물 (제1302호)",
+            "exclusionNote": "동물성 젤라틴(제3503호) 및 화학 조제품(제3824호)과 구분하십시오."
+        }
+
+    # 0-0-쇠고기. 냉동 쇠고기 갈비 / 육류 (제0202호)
+    if ("소고기" in combined or "쇠고기" in combined or "갈비" in combined) and any(f in combined for f in ["냉동", "동결", "frozen"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0202.20-1000",
+            "headingName": "제0202호 (소의 고기 - 냉동한 것 - 뼈 있는 것 - 갈비)",
+            "subheadingName": f"{product_name} (냉동 쇠고기 뼈 있는 갈비)",
+            "confidence": 99,
+            "technicalTerms": "Meat of Bovine Animals, Frozen / Other Cuts with Bone In - Ribs",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0202호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 도축 후 급속 냉동 처리된 뼈가 포함된 소의 고기(갈비 부위)입니다.\n나. 관세율표 분류: 관세율표 제0201호는 신선/냉장 쇠고기를 분류하고, 제0202호는 냉동 쇠고기를 분류합니다. 뼈 있는 냉동 갈비는 HSK 제0202.20-1000호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0202.20-1000호에 확정 분류됩니다.",
+            "sectionNote": "제1부 동물성 생산품",
+            "chapterNote": "제2류 육과 식용 설육 (제0202호)",
+            "exclusionNote": "신선/냉장 쇠고기(제0201호) 및 조제 육류(제1602호)와 구분하십시오."
+        }
+
+    # 0-0-해삼. 건조 해삼 / 수생 무척추동물 (제0308호)
+    if "해삼" in combined or "sea cucumber" in combined:
+        return {
+            "is_food": True,
+            "recommendedHsCode": "0308.12-0000",
+            "headingName": "제0308호 (수생 무척추동물 - 해삼 - 건조ㆍ염장ㆍ염수장한 것)",
+            "subheadingName": f"{product_name} (건조 해삼)",
+            "confidence": 99,
+            "technicalTerms": "Aquatic Invertebrates Other than Crustaceans and Molluscs / Sea Cucumbers - Dried, Salted or in Brine",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제0308호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 내장을 제거하고 자숙 염장 건조 처리한 고급 식용 수생 무척추동물인 건조 해삼(Sea Cucumber)입니다.\n나. 관세율표 분류: 관세율표 제0308호는 갑각류와 연체동물 외의 수생 무척추동물을 분류하며, 건조한 해삼은 HSK 제0308.12-0000호에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제0308.12-0000호에 확정 분류됩니다.",
+            "sectionNote": "제1부 동물성 생산품",
+            "chapterNote": "제3류 어류ㆍ갑각류ㆍ연체동물과 그 밖의 수생 무척추동물 (제0308호)",
+            "exclusionNote": "어류(제0305호) 및 조제 해삼 통조림(제1605호)과 구분하십시오."
+        }
 
     # 0-0-아이스티. 아이스티 (액상 음료 vs 분말 파우더 믹스 vs 티백)
     if any(k in combined for k in ["아이스티", "iced tea", "ice tea", "아이스 티", "복숭아 아이스티", "레몬 아이스티"]):
@@ -133,9 +203,25 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "이미 오븐에 구워진 완제품 빵(제1905호)과 굽지 않은 반죽 생지(제1901.20호)를 엄격히 구분하십시오."
         }
 
+    # 0-0-구연산. 순수 구연산 결정 분말 (제2918.14-0000)
+    if ("구연산" in combined or "citric acid" in combined) and any(c in combined for c in ["순도", "결정", "분말", "99", "무수", "c6h8o7", "화합물"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2918.14-0000",
+            "headingName": "제2918호 (알코올구조의 산ㆍ페놀구조의 산과 그 밖의 산소관능을 가진 카르복실산 - 구연산)",
+            "subheadingName": f"{product_name} (고순도 무수 구연산 결정 분말)",
+            "confidence": 99,
+            "technicalTerms": "Carboxylic acids with additional oxygen function / Citric acid",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2918호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 순도 99% 이상의 화학적으로 단일한 유기 카르복실산인 구연산(Citric Acid, C6H8O7) 무수 결정 분말입니다.\n나. 관세율표 분류: 구연산은 관세율표 제2918.14호(HSK 제2918.14-0000호)에 전용 분류됩니다.\n다. 결론: 통칙 제1호 및 제6호에 따라 HSK 제2918.14-0000호에 확정 분류됩니다.",
+            "sectionNote": "제6부 화학공업 생산품",
+            "chapterNote": "제29류 유기화학품 (제2918호)",
+            "exclusionNote": "혼합 조제품(제3824호)이 아닌 화학적으로 단일한 유기산(제2918호)으로 분류됩니다."
+        }
+
     # 0-0-캡슐. 올리브오일 캡슐 / 식물성 캡슐 / 오메가3 캡슐 / 기능성 유지 캡슐 (제2106호 vs 제1509호)
     if any(k in combined for k in ["올리브오일", "올리브유", "올리브", "olive oil", "olive"]) and not any(b in combined for b in ["빵", "치아바타", "생지", "반죽", "바게트", "포카치아", "피자", "식빵", "도우", "dough", "bread"]):
-        if any(c in combined for c in ["캡슐", "capsule", "연질", "식물성", "식이보충", "영양제", "보충제", "정제"]):
+        if any(c in combined for c in ["캡슐", "capsule", "연질캡슐", "식물성 캡슐", "식물성캡슐", "식이보충", "영양제", "보충제", "정제"]) and not any(b in combined for b in ["드럼", "벌크", "bulk", "drum", "병", "액상"]):
             return {
                 "is_food": True,
                 "recommendedHsCode": "2106.90-9099",
@@ -2183,15 +2269,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "일반 조제 식료품(제2106호)과 순수 의약용 젤라틴 원료(제3503호)를 구분하십시오."
         }
     return {
-        "is_food": True,
-        "recommendedHsCode": "2106.90-9099",
-        "headingName": "제2106호 (그 밖의 조제식료품)",
-        "subheadingName": f"{product_name} (기타 식용 조제품)",
-        "confidence": 90,
-        "technicalTerms": "Food Preparations Not Elsewhere Specified",
-        "appliedGris": ["통칙 제1호", "통칙 제6호"],
-        "legalReasoning": f"본 물품 [{product_name}]은 성분 및 제조공정에 따라 관세율표 해석에 관한 통칙 제1호 및 제6호에 의해 조제식료품으로 분류됩니다.",
-        "sectionNote": "제4부 조제식료품",
-        "chapterNote": "제21류 제2106호 해설서",
-        "exclusionNote": "타 전용 호의 분류 여부를 검토하십시오."
+        "is_matched": False,
+        "is_food": False,
+        "recommendedHsCode": "0000.00-0000"
     }

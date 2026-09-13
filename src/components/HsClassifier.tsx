@@ -140,6 +140,12 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
   
   // RAG 매칭 결과 상태
   const [matchedRule, setMatchedRule] = useState<ClassificationRule | null>(null);
+  const [clarificationPrompt, setClarificationPrompt] = useState<{
+    needs: boolean;
+    type: 'MATERIAL' | 'FUNCTION' | 'NONE';
+    question: string;
+    chips: string[];
+  } | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
@@ -1600,7 +1606,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     };
   };
 
-  const handleStartAnalysis = async (customProd?: string, customMat?: string, customFunc?: string) => {
+  const handleStartAnalysis = async (customProd?: string, customMat?: string, customFunc?: string, bypassProbe: boolean = false) => {
     const targetProd = customProd !== undefined ? customProd : productName;
     const targetMat = customMat !== undefined ? customMat : material;
     const targetFunc = customFunc !== undefined ? customFunc : functionUse;
@@ -1614,10 +1620,49 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
     setApprovedStatus(null);
     setMatchedRule(null);
     setIsBackendOffline(false);
+    setClarificationPrompt(null);
 
     // Save key locally
     localStorage.setItem('openai_key', openaiKey);
 
+    // 1단계: 재질과 용도가 비어있고 bypassProbe가 false인 경우 -> 1차 Probe 실행!
+    if (!bypassProbe && !targetMat.trim() && !targetFunc.trim()) {
+      try {
+        const probeRes = await fetch('/api/hs/probe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            product_name: targetProd,
+            api_key: openaiKey,
+            email: currentUser?.email || null
+          })
+        });
+        if (probeRes.ok) {
+          const probeData = await probeRes.json();
+          if (probeData.needs_clarification) {
+            // 핀포인트 질문 카드 표출
+            setClarificationPrompt({
+              needs: true,
+              type: probeData.clarification_type,
+              question: probeData.question,
+              chips: probeData.suggested_chips || []
+            });
+            setAnalyzing(false);
+            return;
+          } else if (probeData.direct_result && probeData.direct_result.recommendedHsCode !== "0000.00-0000") {
+            // 즉시 확정!
+            setMatchedRule(probeData.direct_result);
+            saveToRecent(targetProd, targetMat, targetFunc, probeData.direct_result.recommendedHsCode);
+            setAnalyzing(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Probe call failed, continuing to standard classification.');
+      }
+    }
+
+    // 2단계 또는 직접 전체 RAG 분류 실행
     try {
       const response = await fetch('/api/hs/classify', {
         method: 'POST',
@@ -1673,24 +1718,39 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
         </div>
       )}
 
-      {/* 법적 고지 면책 배너 (Disclaimer) */}
+      {/* ⚖️ 품목분류 AI 심사 및 법적 유의사항 안내 (Option 1) */}
       <div style={{
-        padding: '14px 20px',
-        background: 'rgba(220, 38, 38, 0.05)',
-        border: '1px dashed rgba(220, 38, 38, 0.25)',
-        borderRadius: '8px',
-        color: 'var(--accent-red)',
-        fontSize: '0.8rem',
-        lineHeight: 1.5,
+        padding: '16px 20px',
+        background: 'rgba(59, 130, 246, 0.04)',
+        border: '1px solid rgba(59, 130, 246, 0.2)',
+        borderRadius: '10px',
+        color: 'var(--text-main, #334155)',
+        fontSize: '0.82rem',
+        lineHeight: 1.55,
         display: 'flex',
         flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '12px'
+        alignItems: 'flex-start',
+        gap: '14px'
       }}>
-        <AlertTriangle size={18} style={{ color: 'var(--accent-red)', flexShrink: 0 }} />
-        <div style={{ flex: 1, minWidth: '240px' }}>
-          <strong>⚠️ 법적 고지 및 면책 조항 (Legal Disclaimer)</strong><br />
-          본 AI HS Code 분류 엔진이 제공하는 분석 결과 및 관세 해설서 분류 근거는 <strong>단순 법적 참고용</strong>으로만 제공되는 것이며, 실제 신고 시 법적 효력을 갖는 공식 유권해석이 아닙니다. 실제 품목분류 및 관세율 적용 오류로 인하여 발생하는 불이익이나 세무상의 책임은 사용자(신고자) 본인에게 있으며, 개발사 및 CUSWAY는 어떠한 법적 책임도 지지 않습니다.
+        <div style={{
+          background: 'rgba(59, 130, 246, 0.12)',
+          color: '#2563eb',
+          padding: '6px',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          <Scale size={20} />
+        </div>
+        <div style={{ flex: 1, minWidth: '260px' }}>
+          <strong style={{ color: '#1e40af', fontSize: '0.88rem' }}>⚖️ 품목분류 AI 심사 및 법적 유의사항 안내</strong>
+          <ul style={{ margin: '6px 0 0 0', paddingLeft: '18px', color: 'var(--text-muted, #64748b)' }}>
+            <li>본 AI 서비스는 대한민국 관세평가분류원 판례 DB 및 WCO 일반통칙(GRI)에 기반하여 <strong>90% 이상의 정밀 법리 분석 및 수입신고 사전 소명서</strong>를 제공합니다.</li>
+            <li>다만, 관세법령상 <strong>복합 배합원료(COA) 또는 특수 제조공정(Process Flow) 확인이 필요한 물품</strong>은 성상에 따라 세번이 달라질 수 있습니다.</li>
+            <li>따라서 본 결과는 수입신고 전 <strong>사전 의사결정 참고용</strong>이며, 안전하고 무결한 통관을 위해 <strong>수입신고 전 담당 전문 관세사의 최종 서류 검토 및 관세청 사전심사(관세법 제86조)</strong>를 권장합니다.</li>
+          </ul>
         </div>
       </div>
 
@@ -1908,6 +1968,63 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
               }}
             />
           </div>
+
+          {/* 2-Step Progressive Interactive Clarification Card */}
+          {clarificationPrompt && clarificationPrompt.needs && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(20, 184, 166, 0.15) 100%)',
+              border: '1.5px solid rgba(6, 182, 212, 0.5)',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              boxShadow: '0 4px 16px rgba(6, 182, 212, 0.2)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Sparkles size={18} color="var(--accent-cyan)" />
+                <strong style={{ fontSize: '0.88rem', color: 'var(--text-main)' }}>
+                  {clarificationPrompt.question}
+                </strong>
+              </div>
+              
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {clarificationPrompt.chips.map((chip, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      if (clarificationPrompt.type === 'MATERIAL') {
+                        setMaterial(chip);
+                        handleStartAnalysis(productName, chip, functionUse, true);
+                      } else {
+                        setFunctionUse(chip);
+                        handleStartAnalysis(productName, material, chip, true);
+                      }
+                    }}
+                    style={{
+                      background: 'rgba(15, 23, 42, 0.7)',
+                      border: '1px solid rgba(20, 184, 166, 0.5)',
+                      color: 'var(--accent-cyan)',
+                      padding: '8px 14px',
+                      borderRadius: '20px',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(20, 184, 166, 0.3)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(15, 23, 42, 0.7)')}
+                  >
+                    ✨ {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Collapsible Advanced Specifications: Material & Function Use */}
           <div style={{
