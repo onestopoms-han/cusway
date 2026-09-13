@@ -180,7 +180,7 @@ export default function MarketingBrochureModal({
                     대한민국 1위 관세 AI 솔루션
                   </div>
                   <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>
-                    WCO 해설서 & 9,450건 판례 마스터 기반
+                    실무 벤치마크 90.0% 정확도 · WCO 해설서 & 9,450건 판례 마스터 기반
                   </span>
                 </div>
                 <h1 style={{
@@ -194,7 +194,7 @@ export default function MarketingBrochureModal({
                   CUSWAY <span style={{ color: '#0d9488' }}>Customs Copilot</span>
                 </h1>
                 <p style={{ fontSize: '0.88rem', color: '#475569', fontWeight: 700, margin: '5px 0 0 0' }}>
-                  관세사의 업무 속도와 소명 정확도를 10배 높이는 전용 AI 어시스턴트
+                  2단계 스마트 분류 & 3단계 법리 CoT로 소명 정확도 90%를 달성한 관세 전용 AI 어시스턴트
                 </p>
               </div>
 

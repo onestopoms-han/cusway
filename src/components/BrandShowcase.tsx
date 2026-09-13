@@ -136,7 +136,7 @@ export default function BrandShowcase({
           }}>
             <Sparkles size={15} color="var(--accent-primary)" />
             <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-primary)', letterSpacing: '0.02em' }}>
-              대한민국 1위 관세 AI 코파일럿 | WCO 해설서 & 9,450건 판례 마스터 기반
+              대한민국 1위 관세 AI 코파일럿 | 실무 벤치마크 90.0% 정확도 & WCO 해설서 9,450건 판례 기반
             </span>
           </div>
 
@@ -166,7 +166,7 @@ export default function BrandShowcase({
             lineHeight: 1.65,
             margin: 0
           }}>
-            CUSWAY는 단순한 키워드 검색기가 아닙니다. 물품 규격 3줄 입력으로 <strong>통칙 1~6 적용 논리, WCO 해설서 본문, 관세청 결정례를 매핑한 법적 소명서(PDF)</strong>를 관세사무소 명의로 자동 발급합니다.
+            CUSWAY는 단순한 키워드 검색기가 아닙니다. 물품 규격 3줄 입력으로 <strong>2단계 심층 정밀 분류(스마트 칩) & 3단계 법리 CoT(GRI 1~6 통칙 순차 적용)</strong>를 거쳐, WCO 해설서와 관세청 실존 판례를 매핑한 <strong>관세사무소 맞춤 법적 소명서(A4 PDF)</strong>를 즉시 자동 발급합니다.
           </p>
 
           {/* CTA Buttons */}
@@ -192,7 +192,7 @@ export default function BrandShowcase({
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
               <Zap size={17} fill="#ffffff" />
-              <span>3초 만에 내 품목 소명 리포트 뽑아보기 (무료)</span>
+              <span>⚡ 2단계 AI 품목분류 & 소명 리포트 체험하기 (무료)</span>
               <ArrowRight size={17} />
             </button>
 
@@ -289,16 +289,16 @@ export default function BrandShowcase({
               <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>관세청·WCO 판례 마스터 DB</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-amber)' }}>90% 절감</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>건당 소명서 작성 시간 (30분➔3초)</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-amber)' }}>90.0% 달성</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>100종 실무 벤치마크 검증 정확도</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#059669' }}>무제한 동시접속</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>선착순 튕김 없는 팀 협업 환경</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#059669' }}>3단계 법리 CoT</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>GRI 1~6 통칙 순차 추론 & 자가교정</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>최대 5,000P</div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>비공개 판례 캐시백 (구독료 차감)</div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>2-Step 스마트 칩</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>쟁점 스펙 선택으로 1초 만에 확정</div>
             </div>
           </div>
 
@@ -328,7 +328,7 @@ export default function BrandShowcase({
           flexWrap: 'wrap'
         }}>
           {[
-            { id: 'invoice-calc', label: '📦 WCO 해설서 기반 AI 품목분류 & 법리 소명', badge: '핵심 엔진 🚀' },
+            { id: 'invoice-calc', label: '📦 2단계 AI 품목분류 & 3단계 법리 CoT 소명', badge: '90.0% 정확도 🚀' },
             { id: 'branding', label: '🖨️ 관세사 맞춤 A4 의견서 & Co-Branding', badge: '화주 바이럴 1위' },
             { id: 'cashback', label: '💰 비공개 결정례 AI 가치 감정 & 캐시백', badge: '구독료 0원화' },
             { id: 'pipeline', label: '⚡ 4단계 원스톱 수입통관 파이프라인', badge: '요건/FTA 일괄' },
@@ -384,33 +384,33 @@ export default function BrandShowcase({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Zap size={18} color="var(--accent-cyan)" />
                   <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
-                    AI HS CODE CLASSIFICATION & LEGAL EVIDENCE MATCHING
+                    2-STEP PROGRESSIVE CLASSIFICATION & 3-STAGE LEGAL COT
                   </span>
                 </div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
                   물품의 규격·용도·성분을 입력하면<br />
-                  <span style={{ color: 'var(--accent-cyan)' }}>WCO 해설서 기반 10단위 HSK 매핑과 법리 근거</span>가 즉시 도출됩니다.
+                  <span style={{ color: 'var(--accent-cyan)' }}>90.0% 검증 정확도의 HSK 10단위와 4단락 법리 소명서</span>가 도출됩니다.
                 </h3>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
-                  수입신고 대상 물품의 <strong>품명, 가공상태, 용도 및 재질 규격</strong>을 입력하면, AI가 WCO 관세율표 해설서와 한국 관세청 10단위 HSK 마스터 DB를 1:1 정밀 대조하여 통칙(GRI)과 주규정에 입각한 가장 정확한 품목분류 및 소명 리포트를 즉시 도출합니다.
+                  CUSWAY AI는 <strong>1단계 완제품 성상 vs 배합원재료 분리 ➔ 2단계 스마트 칩 대화형 정밀 보완 ➔ 3단계 통칙 1~6 순차 적용</strong>의 엄격한 3단계 Chain of Thought 법리 추론 체계를 통해, WCO 해설서와 실존 결정례 100% 매핑 소명서를 즉시 작성합니다.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>10단위 HSK 정밀 분류:</strong> 관세율표 통칙 1~6호 및 부·류 주규정 기반 최적 세번 추천</span>
+                    <span><strong>실무 벤치마크 90.0% 정확도:</strong> 100종 난해 실품목 전수 검증 통과 (73% ➔ 90% 달성)</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>WCO 해설서 & 법령 근거 1:1 매칭:</strong> 소호 해설 및 관세청 기분류 결정례 실시간 연동</span>
+                    <span><strong>2단계 스마트 질의 칩:</strong> 스펙 불충분 시 쟁점 칩(성분비/용도) 클릭 한 번으로 세번 확정</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>1-Click HSK 복사 & UNI-PASS 연동:</strong> 유니패스/CLIP 직통 포털 링크 및 단골 품목(⭐) 보관함</span>
+                    <span><strong>10대 주규정 모순 자가 교정:</strong> 단일화합물, 발효유, 의약품 경합 등 법적 모순 자동 감사</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
                     <CheckCircle2 size={16} color="var(--accent-cyan)" />
-                    <span><strong>전문가 소명 팔레트:</strong> 통칙 1호, 본질적 특성, 소명 법리 문구 1클릭 삽입</span>
+                    <span><strong>담당 전문 관세사 안전 연계:</strong> COA/제조공정도 필수 10% 품목 사전심사 자문 안내</span>
                   </div>
                 </div>
 
@@ -432,7 +432,7 @@ export default function BrandShowcase({
                       boxShadow: '0 2px 8px rgba(6, 182, 212, 0.35)'
                     }}
                   >
-                    <Sparkles size={15} /> AI 품목분류 & 법리 소명 체험하기
+                    <Sparkles size={15} /> 2단계 AI 품목분류 & 법리 소명 체험하기
                   </button>
                 </div>
               </div>
@@ -450,16 +450,16 @@ export default function BrandShowcase({
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
                   <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)' }}>
-                    📦 AI 품목분류 판정 ➔ WCO 해설서 & 법리 근거 대조
+                    📦 2단계 AI 품목분류 판정 ➔ 스마트 칩 & 법리 CoT 대조
                   </span>
                   <span style={{ fontSize: '0.7rem', color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.12)', padding: '2px 8px', borderRadius: '8px', fontWeight: 700 }}>
-                    AI Live Demo
+                    실무 정확도 90.0%
                   </span>
                 </div>
 
                 {/* Simulated Input Spec Card */}
                 <div style={{ background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.75rem' }}>
-                  <div style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>INPUT SPECIFICATION (수입물품 규격 및 용도)</div>
+                  <div style={{ color: '#64748b', fontSize: '0.68rem', fontWeight: 700 }}>1단계: INPUT SPECIFICATION (수입물품 규격 및 성상)</div>
                   <div style={{ fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                     산업용 로봇 관절 구동용 영구자석 동기모터 (PMSM 3.0kW, 400V, 3000 RPM)
                   </div>
@@ -468,16 +468,25 @@ export default function BrandShowcase({
                   </div>
                 </div>
 
+                {/* Interactive Clarification Chips Preview */}
+                <div style={{ background: 'rgba(6, 182, 212, 0.08)', border: '1px dashed rgba(6, 182, 212, 0.4)', borderRadius: '8px', padding: '8px 10px', fontSize: '0.72rem' }}>
+                  <div style={{ color: '#0891b2', fontWeight: 700, marginBottom: '4px' }}>💡 2단계: AI 스마트 질의 칩 (쟁점 스펙 원클릭 반영)</div>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ background: '#ffffff', border: '1px solid #0891b2', color: '#0891b2', padding: '2px 8px', borderRadius: '12px', fontWeight: 700, fontSize: '0.68rem' }}>✨ 출력 75kW 이하 (적용됨)</span>
+                    <span style={{ background: '#ffffff', border: '1px solid #cbd5e1', color: '#64748b', padding: '2px 8px', borderRadius: '12px', fontSize: '0.68rem' }}>✨ 다상교류전동기 (AC)</span>
+                  </div>
+                </div>
+
                 {/* Resulting HSK & Legal Evidence Breakdown */}
                 <div style={{ background: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>최종 확정 10단위 세번:</span>
+                    <span style={{ fontSize: '0.72rem', color: '#64748b' }}>3단계 확정 10단위 세번:</span>
                     <span style={{ fontSize: '0.95rem', fontWeight: 900, color: '#0284c7' }}>HSK 8501.52-9000</span>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: '#f8fafc', padding: '8px', borderRadius: '6px' }}>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>4단위 호의 용어 (Heading)</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b' }}>4단위 호 (Heading)</div>
                       <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#0f172a' }}>8501 (전동기와 발전기)</div>
                     </div>
                     <div>
@@ -488,7 +497,7 @@ export default function BrandShowcase({
 
                   <div style={{ background: 'rgba(6, 182, 212, 0.08)', borderRadius: '6px', padding: '8px', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
                     <div style={{ fontSize: '0.68rem', fontWeight: 800, color: '#0891b2', marginBottom: '2px' }}>
-                      ⚖️ WCO 해설서 및 통칙(GRI 1호) 법리 소명
+                      ⚖️ WCO 해설서 및 통칙(GRI 1호, 6호) 4단락 법리 소명
                     </div>
                     <div style={{ fontSize: '0.72rem', color: '#334155', lineHeight: 1.4 }}>
                       관세율표 해석에 관한 통칙 제1호에 의거, 호의 용어(출력 3kW 다상교류전동기) 및 제16부 주규정에 따라 제8501.52-9000호로 최종 분류함.
@@ -497,7 +506,7 @@ export default function BrandShowcase({
                 </div>
 
                 <div style={{ fontSize: '0.72rem', color: '#0891b2', fontWeight: 700, textAlign: 'right' }}>
-                  ✓ WCO 해설서 원문 인용 및 관세청 기분류 결정례 1:1 매칭 완료
+                  ✓ WCO 해설서 원문 인용 · 실존 결정례 100% 매핑 · 10대 법령 모순 감사 통과
                 </div>
               </div>
             </div>
@@ -1130,24 +1139,28 @@ export default function BrandShowcase({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-primary)', fontWeight: 900, fontSize: '0.95rem', borderBottom: '1px solid rgba(13, 148, 136, 0.2)', paddingBottom: '8px' }}>
               <CheckCircle2 size={18} />
-              <span>CUSWAY AI 코파일럿 솔루션</span>
+              <span>CUSWAY AI 코파일럿 솔루션 (실무 정확도 90.0%)</span>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.82rem', color: 'var(--text-main)' }}>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
-                <span><strong>3초 만에 완성:</strong> 통칙 1~6, 부·류 주규정, 관세청 결정례 매핑 소명서 자동 작성</span>
+                <span><strong>실무 벤치마크 90.0% 정확도:</strong> 100종 난해 실품목 전수 검증 통과 (3-Stage Legal CoT 엔진)</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
-                <span><strong>무제한 동시접속:</strong> 모바일/PC 제약 없이 팀 전원이 동시에 사용</span>
+                <span><strong>2-Step 스마트 칩:</strong> 스펙/배합비 불충분 시 쟁점 칩 클릭 한 번으로 세번 즉시 확정</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
-                <span><strong>관세사 맞춤 Co-Branding:</strong> 자체 로고/직인이 찍힌 A4 PDF 원클릭 출력</span>
+                <span><strong>관세사 맞춤 Co-Branding:</strong> 자체 로고/직인이 찍힌 정식 2페이지 편철 A4 PDF 원클릭 출력</span>
               </li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>비공개 판례 캐시백:</strong> 서랍 속 결정서 1건 공유로 Pro 구독료 100% 무료화</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
+                <span><strong>전문 관세사 안전망:</strong> COA/제조공정도 필수 10% 물품은 담당 관세사 1:1 상담 안내</span>
               </li>
             </ul>
           </div>
