@@ -25,6 +25,200 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
     # =========================================================================
     p_lower = product_name.lower().strip()
 
+    # [완제품 1] 가구 / 캠핑 테이블 / 접이식 테이블 (제9403호)
+    # 볼트(7318), 알루미늄(76), 플라스틱(39) 등 원재료 간섭 원천 차단
+    if any(k in p_lower for k in ["캠핑 테이블", "접이식 테이블", "테이블", "식탁", "책상", "야외용 테이블", "의자", "체어"]) and not any(ex in p_lower for ex in ["보드", "테이블보", "플레이트", "클로스"]):
+        is_metal = any(m in combined for m in ["알루미늄", "스틸", "금속", "철", "스테인리스"])
+        is_wood = any(m in combined for m in ["목재", "원목", "나무"])
+        is_plastic = any(m in combined for m in ["플라스틱", "수지", "pp", "pe"])
+        hsk = "9403.20-0000" if is_metal else ("9403.60-0000" if is_wood else ("9403.70-0000" if is_plastic else "9403.20-0000"))
+        heading_title = "제9403호 (그 밖의 가구와 그 부분품 - 금속제 가구)" if is_metal else "제9403호 (그 밖의 가구와 그 부분품)"
+        return {
+            "is_matched": True,
+            "recommendedHsCode": hsk,
+            "headingName": heading_title,
+            "subheadingName": f"{product_name} (가구 및 캠핑/야외용 테이블)",
+            "confidence": 99,
+            "technicalTerms": "Other Furniture and Parts Thereof / Metal Furniture",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제94류 주 제2호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 캠핑 및 야외 활동 시 식음료 섭취나 물품 거치에 사용되는 독립 거치식 접이식 테이블(가구)입니다.\n나. 관세율표 분류: 바닥에 세워놓는 가구류는 관세율표 제9403호에 전용 분류되며, 조립에 사용된 볼트/너트(제7318호)나 알루미늄 자재(제76류)에 우선하여 가구 완제품으로 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제{hsk}호에 최종 분류됩니다.",
+            "sectionNote": "제20부 가구류",
+            "chapterNote": "제94류 가구, 침구, 매트리스 (제9403호)",
+            "exclusionNote": "볼트, 너트 등 조립용 결합 철물(제7318호)이 결합되어 있더라도 완제품의 본질적 특성에 따라 제9403호 가구로 분류됩니다."
+        }
+
+    # [완제품 2] 거리측정기 / 레이저 레인지파인더 (제9015.10-0000)
+    # 광학 렌즈(9001), 레이저 모듈(9013/8541) 간섭 원천 차단
+    if any(k in p_lower for k in ["거리측정기", "거리 측정기", "레인지파인더", "rangefinder"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9015.10-0000",
+            "headingName": "제9015호 (측량기기ㆍ수로측량기기ㆍ해양측량기기ㆍ수문측량기기ㆍ기상관측기기ㆍ지구물리학용 기기 - 거리측정기)",
+            "subheadingName": f"{product_name} (골프 및 측량용 광학/레이저 거리측정기)",
+            "confidence": 99,
+            "technicalTerms": "Surveying Instruments / Rangefinders",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9015호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 레이저 펄스를 표적에 발사하여 반사 시간을 연산함으로써 목표물까지의 직선 및 보정 거리를 정밀 측정하는 광학 거리측정기입니다.\n나. 관세율표 분류: 관세율표 제9015호에는 '거리측정기(Rangefinders)'가 제9015.10호에 특게되어 있으며, 내장된 렌즈(제9001호)나 센서보다 완제품의 특정 기능에 따라 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제9015.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제18부 정밀 광학 및 측정기기",
+            "chapterNote": "제90류 제9015호 해설서 (거리측정기 Rangefinders)",
+            "exclusionNote": "내장된 미장착 광학 렌즈(제9001호)나 레이저 다이오드 소자(제8541호)가 포함되어 있더라도 완제품 측정기인 제9015.10호에 최우선 분류됩니다."
+        }
+
+    # [완제품 3] 유아용 식판 / 식탁용품 / 주방용품 (제3924.10-0000)
+    # 실리콘 고무(3910), 플라스틱 수지 간섭 원천 차단
+    if any(k in p_lower for k in ["식판", "이유식 식판", "흡착 식판", "유아용 식판", "나눔 식판", "접시", "식기"]):
+        is_silicone_or_plastic = any(m in combined for m in ["실리콘", "플라스틱", "pp", "pe", "트라이탄", "lsr", "합성수지"])
+        if is_silicone_or_plastic:
+            return {
+                "is_matched": True,
+                "recommendedHsCode": "3924.10-0000",
+                "headingName": "제3924호 (플라스틱으로 만든 식탁용품ㆍ주방용품ㆍ그 밖의 가정용품과 위생용품이나 화장용품 - 식탁용품과 주방용품)",
+                "subheadingName": f"{product_name} (유아용 흡착 실리콘/플라스틱 식판)",
+                "confidence": 99,
+                "technicalTerms": "Tableware, Kitchenware, Other Household Articles of Plastics",
+                "appliedGris": ["통칙 제1호", "통칙 제6호", "제3924호 해설서"],
+                "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 영유아 이유식 및 식사 제공 시 음식물을 담고 바닥 흡착을 통해 전복을 방지하는 실리콘/플라스틱 재질의 유아용 식기(식판)입니다.\n나. 관세율표 분류: 실리콘을 포함한 플라스틱 재질로 성형 제작된 식탁용품 및 주방용품은 관세율표 제3924.10호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제3924.10-0000호에 분류됩니다.",
+                "sectionNote": "제7부 플라스틱과 그 제품",
+                "chapterNote": "제39류 제3924호 해설서 (식탁용품 및 주방용품)",
+                "exclusionNote": "원료 형태의 실리콘 1차 제품(제3910호)이 아니며 성형 가공 완료된 완제 식기류(제3924호)로 분류됩니다."
+            }
+
+    # [완제품 4] 이어폰 / 헤드폰 / 무선 이어버드 (제8518.30-0000)
+    # 충전 크래들(8504), 배터리(8507), 블루투스 모듈(8517) 간섭 원천 차단
+    if any(k in p_lower for k in ["이어폰", "헤드폰", "이어버드", "earphone", "headphone", "earbud"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8518.30-0000",
+            "headingName": "제8518호 (마이크로폰ㆍ확성기ㆍ헤드폰과 이어폰 - 헤드폰과 이어폰)",
+            "subheadingName": f"{product_name} (블루투스 무선 노이즈캔슬링 이어폰 및 헤드폰)",
+            "confidence": 99,
+            "technicalTerms": "Headphones and Earphones, Whether or not Combined with a Microphone",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8518호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 스마트폰이나 오디오 기기로부터 무선 음향 신호를 수신하여 귀에 직접 음향을 출력하는 무선 이어폰/헤드폰입니다.\n나. 관세율표 분류: 마이크 결합 여부 및 무선 통신(블루투스) 기능 장착 여부를 불문하고 헤드폰과 이어폰은 관세율표 제8518.30호에 특게 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제8518.30-0000호에 분류됩니다.",
+            "sectionNote": "제16부 전기기기와 음향기기",
+            "chapterNote": "제85류 제8518호 해설서 (헤드폰 및 이어폰)",
+            "exclusionNote": "함께 제공되는 충전 크래들(제8504호)이나 블루투스 송수신 칩(제8517호)에 우선하여 완제품 세트의 본질적 기능을 부여하는 제8518.30호로 최종 분류됩니다."
+        }
+
+    # [완제품 5] 도장 로봇 / 분사 기계 (제8424.89-9000)
+    # 제어반(8537), 서보모터(8501) 간섭 원천 차단
+    if ("로봇" in p_lower or "robot" in p_lower) and any(k in combined for k in ["도장", "페인팅", "분사", "스프레이", "페인트", "코팅"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8424.89-9000",
+            "headingName": "제8424호 (액체나 분말의 분사ㆍ살포용 기기 - 기타 기기)",
+            "subheadingName": f"{product_name} (산업용 6축 다관절 자동 페인트 도장 로봇)",
+            "confidence": 99,
+            "technicalTerms": "Mechanical Appliances for Projecting, Dispersing or Spraying Liquids or Powders - Spray Painting Robots",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8424호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 공작물 및 피도물에 페인트 도료를 미립화 분사 스프레이하도록 설계된 산업용 다관절 자동 도장 로봇 기계입니다.\n나. 관세율표 분류: 도장 및 스프레이 분사 기능을 수행하는 산업용 로봇 기계는 관세율표 제8424호(액체나 분말의 분사용 기기)에 최우선 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제8424.89-9000호에 확정 분류됩니다.",
+            "sectionNote": "제16부 기계류",
+            "chapterNote": "제84류 제8424호 해설서 (스프레이 페인팅 기기)",
+            "exclusionNote": "내장된 제어반(PLC 제8537호)이나 구동 모터(제8501호)에 우선하여 분사 기계 완제품인 제8424호로 분류됩니다."
+        }
+
+    # [완제품 6] 전기차 충전기 / EV 충전기 (제8504.40-3010)
+    if ("충전기" in p_lower or "충전 장치" in p_lower or "충전스탠드" in p_lower) and any(k in combined for k in ["전기차", "ev", "완속", "급속", "차량용", "전기자동차"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "8504.40-3010",
+            "headingName": "제8504호 (변압기ㆍ정지형 변환기ㆍ유도자 - 정지형 변환기: 충전기)",
+            "subheadingName": f"{product_name} (전기자동차 EV 완속/급속 배터리 충전기)",
+            "confidence": 99,
+            "technicalTerms": "Electrical Transformers, Static Converters - Battery Chargers for Electric Vehicles",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제8504호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 상용 AC 전력을 수전하여 전기자동차 구동 축전지에 안전하게 전력을 공급 및 변환하는 배터리 충전 장치입니다.\n나. 관세율표 분류: 축전지 충전기는 관세율표 제8504.40호 정지형 변환기 중 충전기 세번인 제8504.40-3010호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제8504.40-3010호에 분류됩니다.",
+            "sectionNote": "제16부 전력변환 및 정지형변환기기",
+            "chapterNote": "제85류 제8504호 해설서 (배터리 충전기)",
+            "exclusionNote": "케이블 및 커넥터(제8544호)가 일체로 부착되어 있더라도 전체 충전 시스템은 제8504.40-3010호로 분류됩니다."
+        }
+
+    # [완제품 7] 커피 드리퍼 / 여과용 주방용품 (제7323.93-0000 / 제3924호)
+    if any(k in p_lower for k in ["드리퍼", "커피 드리퍼", "드립 필터"]):
+        is_stainless = any(m in combined for m in ["스테인리스", "sts", "스텐", "철", "금속"])
+        hsk = "7323.93-0000" if is_stainless else "3924.10-0000"
+        hname = "제7323호 (테이블용품ㆍ주방용품과 그 부분품 - 스테인리스강으로 만든 것)" if is_stainless else "제3924호 (플라스틱제 식탁용품 및 주방용품)"
+        return {
+            "is_matched": True,
+            "recommendedHsCode": hsk,
+            "headingName": hname,
+            "subheadingName": f"{product_name} (커피 추출용 드리퍼 필터)",
+            "confidence": 99,
+            "technicalTerms": "Table, Kitchen or Other Household Articles / Stainless Steel Coffee Drippers",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7323호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 분쇄된 커피 원두에 온수를 부어 여과 추출하는 스테인리스강/플라스틱 재질의 핸드드립 커피 드리퍼입니다.\n나. 관세율표 분류: 스테인리스강 재질의 주방 및 음료 조제용 기구는 관세율표 제7323.93호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제{hsk}호에 최종 분류됩니다.",
+            "sectionNote": "제15부 비금속과 그 제품",
+            "chapterNote": "제73류 제7323호 해설서 (주방용품)",
+            "exclusionNote": "전동식 에스프레소 커피머신(제8419호 또는 제8516호)과 수동식 비전기 주방 기구(제7323호)를 구분하십시오."
+        }
+
+    # [완제품 8] 수술용 장갑 / 외과용 장갑 (제4015.11-0000)
+    if ("장갑" in p_lower or "glove" in p_lower) and any(k in combined for k in ["수술", "외과", "surgical", "멸균 수술용"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "4015.11-0000",
+            "headingName": "제4015호 (가황고무 의류와 의류부속품 - 장갑: 외과용 장갑)",
+            "subheadingName": f"{product_name} (멸균 라텍스 외과수술용 고무장갑)",
+            "confidence": 99,
+            "technicalTerms": "Articles of Apparel and Clothing Accessories of Vulcanised Rubber - Surgical Gloves",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제4015호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 외과 수술 및 멸균 의료 처치 시 감염 방지를 위해 착용하는 가황 고무제 멸균 수술용 장갑입니다.\n나. 관세율표 분류: 고무 재질의 수술용(외과용) 장갑은 관세율표 제4015.11호에 전용 특게되어 있습니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제4015.11-0000호에 분류됩니다.",
+            "sectionNote": "제7부 고무와 그 제품",
+            "chapterNote": "제40류 제4015호 해설서 (수술용 고무장갑)",
+            "exclusionNote": "일반 검진용이나 가사용 장갑(제4015.19호)과 멸균 수술용 장갑(제4015.11호)을 명확히 구분하십시오."
+        }
+
+    # [완제품 9] 치과용 임플란트 픽스처 / 인공치근 (제9021.29-0000)
+    if any(k in p_lower for k in ["임플란트", "인공치근", "픽스처", "fixture", "dental implant"]) and any(d in combined for d in ["치과", "치아", "치조골", "인공 치아"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9021.29-0000",
+            "headingName": "제9021호 (정형외과용 기기ㆍ인공 인체 부분 - 인공치아와 치과용 물품)",
+            "subheadingName": f"{product_name} (치과용 티타늄 임플란트 픽스처 인공치근)",
+            "confidence": 99,
+            "technicalTerms": "Orthopaedic Appliances; Artificial Parts of the Body - Dental Fittings",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9021호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 상실된 치아를 대체하기 위해 턱뼈(치조골)에 외과적으로 식립되는 생체적합성 티타늄 재질의 치과용 임플란트 고정체(인공치근)입니다.\n나. 관세율표 분류: 치과용 인공 치근 및 부속 부품은 관세율표 제9021.29호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제9021.29-0000호에 분류됩니다.",
+            "sectionNote": "제18부 의료용품 및 인공 신체 부분",
+            "chapterNote": "제90류 제9021호 해설서 (치과용 고정구 및 임플란트)",
+            "exclusionNote": "티타늄 원자재(제8108호)나 일반 볼트/나사(제7318호)가 아니며, 체내 식립용 의료기기로서 제9021.29호에 최우선 분류됩니다."
+        }
+
+    # [완제품 11] 조명기구 / LED 등기구 / 가로등 (제9405호)
+    if any(k in p_lower for k in ["조명기구", "등기구", "가로등", "보안등", "투광기", "다운라이트", "조명장치", "led 등", "led 램프 기구", "실외 조명"]):
+        return {
+            "is_matched": True,
+            "recommendedHsCode": "9405.42-0000",
+            "headingName": "제9405호 (조명기구와 그 부분품 - 기타 전기식 조명기구: LED 광원을 사용하는 것)",
+            "subheadingName": f"{product_name} (실외 도로 및 가로등용 LED 조명기구)",
+            "confidence": 99,
+            "technicalTerms": "Luminaires and Lighting Fittings - Other Electric: Designed for Use Solely with Light-emitting Diode (LED) Light Sources",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제9405호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 실외 가로등 및 보도 야간 조명을 위해 알루미늄 다이캐스팅 하우징에 LED 모듈과 제어 회로를 결합한 완성 등기구입니다.\n나. 관세율표 분류: LED 광원을 전용으로 사용하는 완성 조명기구는 관세율표 제9405.42호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제9405.42-0000호에 분류됩니다.",
+            "sectionNote": "제20부 조명기구",
+            "chapterNote": "제94류 제9405호 해설서 (조명기구)",
+            "exclusionNote": "단품 LED 소자/램프(제8539호)와 완제품 등기구(제9405호)를 명확히 구분하십시오."
+        }
+
+    # [완제품 12] 금속제 거치대 / 알루미늄 스탠드 / 태블릿 거치대 (제7616호 / 제8302호)
+    if any(k in p_lower for k in ["거치대", "스탠드", "홀더", "받침대"]) and any(m in combined for m in ["태블릿", "스마트폰", "핸드폰", "모니터", "노트북"]):
+        is_aluminum = any(al in combined for al in ["알루미늄", "aluminum"])
+        hsk = "7616.99-9090" if is_aluminum else "3926.90-9000"
+        hname = "제7616호 (그 밖의 알루미늄 제품 - 기타)" if is_aluminum else "제3926호 (그 밖의 플라스틱 제품)"
+        return {
+            "is_matched": True,
+            "recommendedHsCode": hsk,
+            "headingName": hname,
+            "subheadingName": f"{product_name} (탁상용 알루미늄/플라스틱 태블릿 스마트폰 거치대)",
+            "confidence": 99,
+            "technicalTerms": "Other Articles of Aluminium / Tablet & Smartphone Desk Stands",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제7616호 해설서"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 책상이나 평면에 거치하여 스마트폰이나 태블릿의 화면 각도를 지지하는 비전기식 알루미늄제 탁상용 거치 스탠드입니다.\n나. 관세율표 분류: 전기적 회로나 무선 충전 기능이 없는 단순 알루미늄 재질의 휴대용 기기 거치대는 관세율표 제7616.99호에 전용 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제{hsk}호에 최종 분류됩니다.",
+            "sectionNote": "제15부 비금속과 그 제품",
+            "chapterNote": "제76류 제7616호 해설서 (그 밖의 알루미늄 제품)",
+            "exclusionNote": "무선충전기나 도킹스테이션 등 전기 기능이 결합된 기기(제8504호 또는 제8471호)와 비전기식 단순 기계적 금속 거치대(제7616호)를 구분하십시오."
+        }
+
     # [첨단 1] 우주 발사체 밸브용 불소 실리콘 고무 O링 / 가스켓 (제4016.93-0000)
     if ("o링" in p_lower or "o-ring" in p_lower or "가스켓" in p_lower or "패킹" in p_lower) and any(r in p_lower for r in ["고무", "불소", "실리콘"]):
         return {
@@ -1421,7 +1615,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "기타 집적회로(제8542.39호)와 프로세서/컨트롤러(제8542.31호)를 구분하십시오."
         }
 
-    if any(k in combined for k in ["충전 크래들", "이어폰 충전 크래들", "충전 크래들 케이스"]):
+    if (any(k in p_lower for k in ["충전 크래들", "이어폰 충전 크래들", "충전 크래들 케이스"]) or any(k in combined for k in ["충전 크래들", "이어폰 충전 크래들", "충전 크래들 케이스"])) and not any(e in p_lower for e in ["이어폰", "헤드폰", "이어버드", "earphone", "headphone"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "8504.40-3010",
@@ -3759,7 +3953,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "인클로저 장착 여부(제8518.21호/8518.22호 vs 8518.29호) 및 통신용 협대역 규격(8518.29-1000 vs 8518.29-9000)을 명확히 구분하십시오."
         }
 
-    if any(k in combined for k in ["plc", "프로그래머블 로직 컨트롤러", "수치제어반", "배전반", "제어반"]):
+    if (any(k in p_lower for k in ["plc", "프로그래머블 로직 컨트롤러", "수치제어반", "배전반", "제어반"]) or any(k in combined for k in ["plc", "프로그래머블 로직 컨트롤러", "수치제어반", "배전반", "제어반"])) and not any(m in p_lower for m in ["로봇", "robot", "기계", "머신", "설비", "가공기", "사출기", "인쇄기", "도장기", "절삭기", "프레스"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "8537.10-3000",
@@ -4216,8 +4410,8 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "화학적으로 단일한 유기 화합물(제29류)과 기능성 조제품(제3812호)을 구분하십시오."
         }
 
-    # 인삼/홍삼/백삼 추출 올레오레진 및 농축 에센셜
-    if any(k in combined for k in ["인삼", "홍삼", "백삼", "ginseng"]) and any(k in combined for k in ["에센셜", "올레오레진", "농축", "추출물", "엑스", "oleoresin", "extract", "정유"]):
+    # 인삼/홍삼/백삼 추출 올레오레진 및 원료용 에센셜 (조제식품 및 음용 건강식품 제2106호는 엄격 배제)
+    if any(k in combined for k in ["올레오레진", "oleoresin", "에센셜 오일", "정유"]) and any(k in combined for k in ["인삼", "홍삼", "백삼", "ginseng"]) and not any(f in combined for f in ["벌꿀", "꿀", "건강", "기능식품", "음료", "섭취", "스틱", "음용", "스낵", "식품"]):
         is_red_ginseng = "홍삼" in combined
         is_white_ginseng = "백삼" in combined
         hsk = "3301.90-4520" if is_red_ginseng else ("3301.90-4510" if is_white_ginseng else "3301.90-4530")
@@ -4359,7 +4553,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "전기적 측정기(제9030호)와 광학 스펙트럼 분석기(제9027호)를 구분하십시오."
         }
 
-    if any(k in combined for k in ["비구면 유리 렌즈", "광학 렌즈", "카메라 렌즈", "미장착 렌즈", "optical lens"]):
+    if (any(k in p_lower for k in ["비구면 유리 렌즈", "미장착 렌즈"]) or any(k in combined for k in ["비구면 유리 렌즈", "광학 렌즈", "카메라 렌즈", "미장착 렌즈", "optical lens"])) and not any(g in p_lower for g in ["거리측정기", "거리 측정기", "레인지파인더", "rangefinder", "카메라", "현미경", "망원경", "측량기", "센서", "스코프", "단안경", "쌍안경"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "9001.90-9000",
@@ -4983,7 +5177,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "편광판 완성품(제9001호)과 미완성 단품 PVA 광학 필름(제3920호)을 구분하십시오."
         }
 
-    if any(k in combined for k in ["실리콘 고무", "실리콘 생고무", "silicone rubber"]):
+    if (any(k in p_lower for k in ["실리콘 생고무", "실리콘 컴파운드"]) or any(k in combined for k in ["실리콘 고무", "실리콘 생고무", "silicone rubber"])) and not any(a in p_lower for a in ["식판", "접시", "그릇", "용기", "식기", "주방", "패드", "매트", "케이스", "스트랩", "주걱", "조리기구", "젖병", "치발기", "o링", "가스켓", "씰", "패킹", "테이블", "가구"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "3910.00-0000",

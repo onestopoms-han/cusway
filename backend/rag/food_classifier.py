@@ -33,13 +33,15 @@ FOOD_TRIGGER_PATTERNS = [
     r"된장", r"메주", r"간장", r"고추장", r"장류", r"소스", r"sauce", r"드레싱", r"마요네즈", r"케첩", r"조미료",
     r"망고스틴", r"mangosteen", r"망고", r"mango", r"mangoes", r"구아바", r"guava", r"아보카도", r"avocado",
     r"파인애플", r"pineapple", r"대추야자", r"dates", r"무화과", r"figs", r"fig",
-    r"동결\s*건조", r"freeze\s*dried", r"freeze-dried", r"dried\s*fruit", r"건조\s*과실", r"건조\s*과일"
+    r"동결\s*건조", r"freeze\s*dried", r"freeze-dried", r"dried\s*fruit", r"건조\s*과실", r"건조\s*과일",
+    r"감자", r"감자튀김", r"프렌치프라이", r"포테이토", r"potato",
+    r"홍삼", r"인삼", r"농축액", r"엑기스", r"귀리", r"오트밀", r"단백질\s*음료", r"분말\s*음료"
 ]
 
 def is_food_query(query: str) -> bool:
     """Checks if the query represents any food, agricultural, fishery, or beverage item."""
     q_lower = query.lower().strip()
-    if any(fo in q_lower for fo in ["알룰로스", "allulose", "psicose", "시럽", "카라기난", "식물성 젤라틴", "식물성젤라틴", "해조류", "대체 단백질", "대체 감미료"]):
+    if any(fo in q_lower for fo in ["알룰로스", "allulose", "psicose", "시럽", "카라기난", "식물성 젤라틴", "식물성젤라틴", "해조류", "대체 단백질", "대체 감미료", "감자", "감자튀김", "홍삼", "인삼", "귀리"]):
         return True
     if any(ex in q_lower for ex in [
         "코르크", "마개", "배합기", "기계", "원심분리기", "반도체", "인터페이스", "펠리클", "프로브", "센서", "전자", "모듈",
@@ -62,11 +64,64 @@ def is_food_query(query: str) -> bool:
     return any(re.search(pat, q_lower) for pat in FOOD_TRIGGER_PATTERNS)
 
 def classify_food_universally(product_name: str, material: str = "", function_use: str = "") -> dict:
+    res = _classify_food_universally_raw(product_name, material, function_use)
+    if res.get("recommendedHsCode") and res.get("recommendedHsCode") != "0000.00-0000":
+        res["is_matched"] = True
+    else:
+        res["is_matched"] = False
+    return res
+
+def _classify_food_universally_raw(product_name: str, material: str = "", function_use: str = "") -> dict:
     """
     Classifies food and agricultural items with legal reasoning, correct 10-digit HSK codes,
     Section Notes, and Chapter Notes.
     """
     combined = f"{product_name} {material} {function_use}".lower()
+    p_lower = product_name.lower().strip()
+
+    # =========================================================================
+    # High-Priority Head Noun Anchoring (원재료 키워드 간섭 원천 배제)
+    # =========================================================================
+    # [식품 1] 벌꿀 배합 홍삼/인삼 농축액 및 기능성 건강기능식품 (제2106.90-3010 / 제2106.90-9099)
+    # 원재료에 천연 벌꿀이 포함되어 있더라도 완성된 홍삼 조제품은 제0409호(천연꿀)가 아닌 제2106호로 분류
+    if any(g in p_lower for g in ["홍삼", "인삼", "ginseng"]) and any(e in p_lower for e in ["농축", "추출", "엑기스", "음료", "스틱", "조제", "함유", "가공", "보충", "건강", "기능식품"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2106.90-3010",
+            "headingName": "제2106호 (따로 분류되지 않은 조제 식료품 - 홍삼 조제품)",
+            "subheadingName": f"{product_name} (홍삼 농축액 및 천연 벌꿀 배합 액상 건강기능식품)",
+            "confidence": 99,
+            "technicalTerms": "Food preparations not elsewhere specified / Preparations of red ginseng",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 6년근 홍삼 농축액에 천연 벌꿀 등을 배합하여 액상 파우치/스틱 형태로 조제한 섭취용 건강기능식품입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 관세율표 제0409호는 다른 물질이 첨가되지 않은 순수 100% 천연 벌꿀에 한정되므로, 홍삼 등 다른 성분이 배합된 본 물품은 제0409호에서 배제됩니다. 또한 제1211호(단순 건조 인삼/홍삼)의 범위를 벗어난 조제품이므로, WCO 관세율표 해설서 제2106호 총설(16) 규정에 따라 조제 식료품(제2106.90-3010호 홍삼 조제품)에 전용 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 관세율표 일반통칙 제1호 및 제6호에 따라 HSK 제2106.90-3010호에 최종 확정 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제 식료품 (각종 조제 식료품)",
+            "chapterNote": "제21류 제2106호 해설서 (인삼 및 홍삼 조제품)",
+            "exclusionNote": "⚠️ 당류나 기타 첨가물이 일절 없는 순수 천연 꿀은 제0409호, 미가공 수삼/홍삼은 제1211호로 분류됩니다."
+        }
+
+    # [식품 2] 단백질 보충용 귀리/곡물 분말 음료 (제2106.90-9099)
+    if any(p in p_lower for p in ["단백질", "프로틴", "protein"]) and any(c in p_lower for c in ["분말", "음료", "쉐이크", "보충", "귀리", "식사대용"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2106.90-9099",
+            "headingName": "제2106호 (따로 분류되지 않은 조제 식료품 - 기타)",
+            "subheadingName": f"{product_name} (귀리 분말 및 식물성 단백 배합 단백질 보충용 분말 음료)",
+            "confidence": 99,
+            "technicalTerms": "Food preparations not elsewhere specified / Protein-enriched beverage preparations",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제2106호 해설서"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 귀리 분말과 완두 단백질, 당류, 착향료를 배합하여 물 등에 타서 음용하는 단백질 보충용 조제 분말 음료입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 단순 귀리 가루(제1102호)나 단순 단백질 농축물(제3504호)과 달리, 단백질과 곡분, 감미료 등을 배합하여 즉석 음용할 수 있도록 조제된 물품은 제2106호(기타 조제 식료품)에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 관세율표 일반통칙 제1호 및 제6호에 따라 HSK 제2106.90-9099호에 최종 확정 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제 식료품",
+            "chapterNote": "제21류 제2106호 해설서",
+            "exclusionNote": "⚠️ 단일 식물성 단백질 분리물(제3504호) 및 제분 곡물 가루(제1102호)와 구분하십시오."
+        }
 
     # 0-0. 복합 견과류/건과류 믹스 및 세트물품 질의는 단일 단순식품 하드코딩 룰을 배제하고 RAG DB + LLM 심층 추론(CoT)으로 전달
     is_compound_or_mixture = (
@@ -90,6 +145,22 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "sectionNote": "제4부 조제 식료품, 음료, 주류 및 식초",
             "chapterNote": "제17류 당류와 설탕과자 (제1702호)",
             "exclusionNote": "설탕과자 완제품(제1704호) 및 기타 조제식료품(제2106호)과 구분하십시오."
+        }
+
+    # 0-0-감자. 조제 급속 냉동 감자튀김 / 프렌치프라이 / 에어프라이어용 감자 (제2004.10-0000)
+    if any(k in p_lower for k in ["감자튀김", "프렌치프라이", "냉동 감자", "해시브라운", "웨지감자", "냉동감자"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "2004.10-0000",
+            "headingName": "제2004호 (그 밖의 채소 - 냉동한 것: 감자)",
+            "subheadingName": f"{product_name} (조제 급속 냉동 감자튀김)",
+            "confidence": 99,
+            "technicalTerms": "Other Vegetables Prepared or Preserved Otherwise than by Vinegar - Frozen: Potatoes",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제20류 주 제1호"],
+            "legalReasoning": f"가. 대상물품 개요: 본 물품은 [{product_name}]으로, 신선 감자를 절단하고 식물성 유지로 초벌 유탕 처리 후 급속 동결한 에어프라이어 및 조리용 냉동 감자튀김입니다.\n나. 관세율표 분류: 기름에 튀기거나 조제 처리하여 냉동한 감자는 관세율표 제2004.10호에 전용 특게 분류됩니다.\n다. 결론: 관세율표 해석에 관한 통칙 제1호 및 제6호에 따라 HSK 제2004.10-0000호에 확정 분류됩니다.",
+            "sectionNote": "제4부 조제식료품",
+            "chapterNote": "제20류 채소ㆍ과실류의 조제품 (제2004호)",
+            "exclusionNote": "신선/냉장/단순 냉동 감자(제0710호)와 기름 조제 후 냉동한 감자튀김(제2004호)을 명확히 구분하십시오."
         }
 
     # 0-0-카라기난. 해조류 추출 식물성 젤라틴 대체재 / 카라기난 / 알긴산 (제1302.39-0000)
@@ -1794,7 +1865,7 @@ def classify_food_universally(product_name: str, material: str = "", function_us
         }
 
     # 17. 제04류: 낙농품, 꿀, 로열젤리, 유청단백질
-    if any(k in combined for k in ["벌꿀", "천연 벌꿀", "천연벌꿀", "natural honey"]) and not any(ex in combined for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
+    if any(k in p_lower for k in ["벌꿀", "천연 벌꿀", "천연벌꿀", "natural honey"]) and not any(ex in p_lower for ex in ["홍삼", "인삼", "농축", "추출", "음료", "캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets", "건강", "기능식품"]):
         return {
             "is_food": True,
             "recommendedHsCode": "0409.00-0000",

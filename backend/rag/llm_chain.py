@@ -1020,11 +1020,13 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
 
     combined_query = f"{product_name} {material} {function_use}"
     input_lower = combined_query.lower()
+    p_name_lower = product_name.lower().strip()
 
-    # 0. 우선적으로 정적 룰셋(KOREAN_HS_RULES) 매칭 시도 (RAG 검색 오류보다 정확한 수동 룰 매칭)
+    # 0. 우선적으로 정적 룰셋(KOREAN_HS_RULES) 매칭 시도
+    # (주의: 완제품 두부명사 왜곡 방지를 위해 material/function이 아닌 product_name을 기준으로 엄격 매칭)
     found = None
     for rule in KOREAN_HS_RULES:
-        if any(is_keyword_matched(keyword, input_lower) for keyword in rule["keywordTrigger"]):
+        if any(is_keyword_matched(keyword, p_name_lower) for keyword in rule["keywordTrigger"]):
             found = rule
             break
             
