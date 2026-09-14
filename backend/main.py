@@ -60,9 +60,11 @@ def startup_event():
     print("[STARTUP] CUSWAY Serverless Backend Initialized Successfully.")
     from backend.db import SessionLocal
     from backend.seed import seed_data
-    from backend.models import User
-    import threading
-    from backend.customs_news_daemon import start_daemon_loop
+    try:
+        import threading
+        from backend.customs_news_daemon import start_daemon_loop
+    except Exception as e:
+        print(f"[STARTUP_WARN] customs_news_daemon import skipped: {e}")
 
     db = SessionLocal()
     try:
