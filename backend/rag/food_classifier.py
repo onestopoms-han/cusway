@@ -843,6 +843,26 @@ def classify_food_universally(product_name: str, material: str = "", function_us
             "exclusionNote": "액상 홍차 음료(제2202호) 및 수용성 차 추출 분말(제2101호)과 구분하십시오."
         }
 
+    # 3-B. 말차라떼 / 라떼 파우더 / 음료용 조제분말 (제1901호 / 제2106호)
+    if any(k in combined for k in ["말차라떼", "말차 라떼", "라떼 파우더", "라떼파우더", "음료용 조제분말", "음료용분말", "matcha latte"]):
+        return {
+            "is_food": True,
+            "recommendedHsCode": "1901.90-9000",
+            "headingName": "제1901호 (맥아추출물과 곡분ㆍ코코아ㆍ밀크 조제 식료품 - 그 밖의 것)",
+            "subheadingName": f"{product_name} (가당 분유 및 말차 배합 음료용 조제분말)",
+            "confidence": 98,
+            "technicalTerms": "Food Preparations of Goods of Headings 04.01 to 04.04 / Beverage Mix Powder",
+            "appliedGris": ["통칙 제1호", "통칙 제6호", "제19류 주 제1호"],
+            "legalReasoning": (
+                f"가. 대상물품 사양 및 기술적 개요: 본 물품은 [{product_name}]으로, 말차 분말에 탈지분유 및 당류를 배합하여 우유나 온수에 타서 음용하는 조제 식료품 분말입니다.\n"
+                f"나. 관세율표 부/류 주 및 배제 규정 검토: 유제품(분유)을 함유한 음료용 조제분말은 관세율표 제1901.90호 또는 제2106.90호에 분류됩니다.\n"
+                f"다. 통칙 적용 및 결론: 따라서 통칙 제1호 및 제6호에 따라 HSK 제1901.90-9000호에 분류됩니다."
+            ),
+            "sectionNote": "제4부 조제식료품",
+            "chapterNote": "제19류 제1901호 해설서 (밀크 조제품)",
+            "exclusionNote": "단순 분쇄 찻잎 100%(제0902호) 및 단순 차 추출물(제2101호)과 구분하십시오."
+        }
+
     # 4. 제21류: 각종 조제식료품, 효모, 차 추출물
     if any(k in combined for k in ["녹차 분말", "인스턴트 녹차", "차 추출물", "녹차 엑기스"]):
         return {

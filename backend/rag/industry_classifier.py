@@ -986,7 +986,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
         }
 
     # 4. 서보모터 / AC 전동기 (제8501호) - 로봇/설비 명칭 간섭 방지
-    if any(k in p_lower for k in ["서보모터", "전동기", "ac 모터", "ac모터", "교류모터", "교류 모터", "모터"]) and not any(ex in p_lower for ex in ["팬 모터", "팬모터", "쿨링팬"]):
+    if any(k in p_lower for k in ["서보모터", "전동기", "ac 모터", "ac모터", "교류모터", "교류 모터", "모터"]) and not any(ex in p_lower for ex in ["팬 모터", "팬모터", "쿨링팬", "데스크", "책상", "가구", "의자", "침대", "스탠딩"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "8501.52-9000",
@@ -4785,7 +4785,7 @@ def classify_industry_item(product_name: str, material: str = "", function_use: 
             "exclusionNote": "순수 니켈(제7506.10호)과 니켈 합금(제7506.20호)을 구분하십시오."
         }
 
-    if any(k in combined for k in ["탄소섬유", "탄소토우", "carbon fiber"]):
+    if any(k in combined for k in ["탄소섬유", "탄소토우", "carbon fiber"]) and not any(ex in combined for ex in ["헬멧", "안전모", "모자", "보호구", "의류", "스카프", "장갑"]):
         return {
             "is_matched": True,
             "recommendedHsCode": "6815.19-1000",

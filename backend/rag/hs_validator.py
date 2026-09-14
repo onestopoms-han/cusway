@@ -55,6 +55,30 @@ class HSConsistencyValidator:
             "excluded_headings": ["8483", "8511", "8512"],  # Specific machinery parts prioritized over vehicle parts (17부 주2호 마목)
             "exception_keywords": ["범퍼", "섀시", "차체", "핸들", "브레이크"],
             "error_msg": "제8708호(차량용 부분품)는 범용 기계요소인 전동축, 기어 장치, 볼스크류(제8483호) 및 시동용 전기 기기(제8511호)를 제외하며, 이들은 해당 기계류 호에 최우선적으로 분류됩니다."
+        },
+        {
+            "target_chapter": "85",  # Electric motors vs Furniture
+            "excluded_headings": ["8501"],
+            "exception_keywords": ["데스크", "책상", "스탠딩", "의자", "침대", "가구"],
+            "error_msg": "[복합 가구 모순] 모터가 내장된 스탠딩 데스크/책상/의자/가구는 통칙 제3호 나목에 따라 완제품 가구 제9403호로 분류되어야 하며, 제8501호(전동기 단독)로 오분류되어서는 안 됩니다."
+        },
+        {
+            "target_chapter": "68",  # Carbon fiber vs Helmets/Safety gear
+            "excluded_headings": ["6815"],
+            "exception_keywords": ["헬멧", "안전모", "모자", "보호구"],
+            "error_msg": "[안전보호구 모순] 탄소섬유/카본 재질의 안전모/헬멧은 외피 재질에 관계없이 두부 보호구 제6506호(안전모)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "02",  # Raw meat vs Prepared Jerky
+            "excluded_headings": ["0201", "0202", "0203"],
+            "exception_keywords": ["육포", "양념", "건조육", "가공육", "소시지"],
+            "error_msg": "[조제육류 모순] 양념, 건조 또는 가열 조제된 소고기 육포는 제02류(신선/냉장 생육)가 아니라 조제 식육 제1602호로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "08",  # Fresh fruit vs Frozen Fruit
+            "excluded_headings": ["0804", "0805", "0806", "0807", "0808", "0809", "0810"],
+            "exception_keywords": ["냉동", "급속동결", "동결"],
+            "error_msg": "[냉동과실 모순] 급속 동결 또는 냉동된 과실(아보카도 등)은 신선 과실(제0804호 등)이 아니라 냉동 과실 제0811호로 분류되어야 합니다."
         }
     ]
 
@@ -134,22 +158,13 @@ class HSConsistencyValidator:
                             warnings.append(rule["error_msg"])
                             break
                             
-            # Check Heading Exclusions (Ensure target chapter matches before checking excluded heading)
+            # Check Heading Exclusions
             if chapter == rule.get("target_chapter"):
                 if heading in rule.get("excluded_headings", []):
-                    # 3926호 플라스틱 제품으로 판정하려 하나 장난감/장신구 키워드가 매치될 때
-                    if rule.get("target_chapter") == "39" and ("완구" in query_text or "장난감" in query_text or "인형" in query_text or "장신구" in query_text or "액세서리" in query_text):
-                        if not any(exc in query_text for exc in rule["exception_keywords"]):
-                            score_deduction += 40
-                            warnings.append(rule["error_msg"])
-                    # 8708호 차량 부품으로 판정하려 하나 볼스크류/샤프트/기어(8483) 키워드가 매치될 때
-                    elif rule.get("target_chapter") == "87" and ("볼스크류" in query_text or "샤프트" in query_text or "기어" in query_text or "전동축" in query_text):
-                        if not any(exc in query_text for exc in rule["exception_keywords"]):
-                            score_deduction += 40
-                            warnings.append(rule["error_msg"])
-                    # 기타 일반적 매핑 제외
-                    else:
-                        score_deduction += 30
+                    # Check if query contains any of the target prohibited keywords for this heading
+                    has_kw = any(exc in query_text for exc in rule.get("exception_keywords", []))
+                    if has_kw:
+                        score_deduction += 50
                         warnings.append(rule["error_msg"])
 
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
