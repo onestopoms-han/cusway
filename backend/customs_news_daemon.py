@@ -29,11 +29,28 @@ def parse_customs_news_feed():
     }
 
     FEEDS = [
-        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%86%B5%EA%B4%80+%EA%B3%A0%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko", "고시/지침"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EA%B3%A0%EC%8B%9C+%EA%B0%9C%EC%A0%95&hl=ko&gl=KR&ceid=KR:ko", "고시/지침"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%9B%88%EB%A0%B9+%ED%96%89%EC%A0%95%EC%98%88%EA%B3%A0&hl=ko&gl=KR&ceid=KR:ko", "고시/지침"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%86%B5%EA%B4%80+%EB%B3%B4%EB%8F%84%EC%9E%90%EB%A3%8C&hl=ko&gl=KR&ceid=KR:ko", "통관 소식"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%ED%8F%89%EA%B0%80%EB%B6%84%EB%A5%98%EC%9B%90+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "품목 분류"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+FTA+%EC%9B%90%EC%82%B0%EC%A7%80&hl=ko&gl=KR&ceid=KR:ko", "FTA/원산지"),
         ("https://news.google.com/rss/search?q=%EC%8B%9D%ED%92%88%EC%9D%98%EC%95%BD%ED%92%88%EC%95%88%EC%A0%84%EC%B2%98+%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EA%B2%80%EC%82%AC+%EA%B3%A0%EC%8B%9C&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
         ("https://news.google.com/rss/search?q=%EB%85%88%EB%A6%BC%EC%B6%95%EC%82%B0%EA%B2%80%EC%97%AD%EB%B3%B8%EB%B6%80+%EC%88%98%EC%9E%85+%EA%B2%80%EC%97%AD&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
         ("https://news.google.com/rss/search?q=%EA%B5%AD%EB%A6%BD%EC%88%98%EC%82%B0%EB%AC%BC%ED%92%88%EC%A7%88%EA%B4%80%EB%A6%AC%EC%9B%90+%EC%88%98%EC%82%B0%EB%AC%BC+%EC%88%98%EC%9E%85%EA%B2%80%EC%97%AD&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역"),
-        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EB%85%88%EC%88%98%EC%82%B0%EB%AC%BC+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80&hl=ko&gl=KR&ceid=KR:ko", "농수산·식품검역")
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EC%82%AC%ED%9B%84%EC%84%B8%EC%95%A1+%EA%B8%B0%EC%97%85%EC%8B%AC%EC%82%AC&hl=ko&gl=KR&ceid=KR:ko", "기업 심사"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%ED%8F%89%EA%B0%80+%EA%B4%80%EC%84%B8%EC%B2%AD&hl=ko&gl=KR&ceid=KR:ko", "관세 평가"),
+        ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%EB%B0%80%EC%88%98+%EB%8B%A8%EC%86%8D+%EC%A0%81%EB%B0%9C&hl=ko&gl=KR&ceid=KR:ko", "세관 단속")
+    ]
+
+    CUSTOMS_KEYWORDS = [
+        "관세", "통관", "세관", "수출입", "수입", "수출", "검역", "식약처", "원산지", "fta", "aeo",
+        "보세", "품목분류", "hs", "hsk", "할당관세", "직구", "해외직구", "과세", "환급", "밀수",
+        "수입식품", "식물방역", "축산물", "수산물", "해설서", "세액", "덤핑", "지침", "고시", "훈령", "조세"
+    ]
+
+    SPAM_EXCLUSION_KEYWORDS = [
+        "축구", "스코어", "토토", "카지노", "부동산", "아파트 분양", "드라마", "예능", "연예", "골프", "etaxkorea",
+        "맛집", "호텔 후기", "영화 후기", "웹툰", "로또", "주가 전망", "코인 리딩"
     ]
 
     try:
@@ -45,7 +62,7 @@ def parse_customs_news_feed():
                     soup = BeautifulSoup(xml_content, 'xml')
                     items = soup.find_all('item')
 
-                    for item in items[:6]:
+                    for item in items[:10]:
                         title = item.title.text.strip() if item.title else ""
                         pub_date = item.pubDate.text.strip() if item.pubDate else ""
                         raw_link = item.link.text.strip() if item.link else ""
@@ -53,6 +70,16 @@ def parse_customs_news_feed():
                         clean_desc = re.sub(r'<[^>]+>', '', desc)
 
                         clean_title = re.sub(r'\s*-\s*[^-]+$', '', title).strip()
+
+                        if not clean_title or len(clean_title) < 5:
+                            continue
+
+                        if any(sk in clean_title for sk in SPAM_EXCLUSION_KEYWORDS):
+                            continue
+
+                        combined_check = f"{clean_title} {clean_desc}".lower()
+                        if not any(ck in combined_check for ck in CUSTOMS_KEYWORDS):
+                            continue
 
                         try:
                             dt = datetime.strptime(pub_date[:16], '%a, %d %b %Y')
