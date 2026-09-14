@@ -2308,8 +2308,8 @@ def _classify_food_universally_raw(product_name: str, material: str = "", functi
             "exclusionNote": "조리된 파스타 및 소스 동봉 세트(제1902.30호)와 구분하십시오."
         }
 
-    # 34. 제04류: 벌꿀
-    if any(k in combined for k in ["벌꿀", "아카시아 벌꿀", "천연 꿀", "honey"]) and not any(ex in combined for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets"]):
+    # 34. 제04류: 벌꿀 (홍삼/인삼/건강기능식품/조제식품 제2106호는 엄격 배제)
+    if any(k in p_lower for k in ["벌꿀", "아카시아 벌꿀", "천연 꿀", "천연 벌꿀"]) and not any(ex in p_lower for ex in ["캔디", "사탕", "candy", "과자", "젤리", "캐러멜", "카라멜", "sweets", "홍삼", "인삼", "농축", "추출", "음료", "스틱", "건강", "기능식품", "식품", "분말"]):
         return {
             "is_food": True,
             "recommendedHsCode": "0409.00-0000",

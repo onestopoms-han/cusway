@@ -29,6 +29,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api/version")
+def get_version():
+    return {
+        "status": "online",
+        "version": "v1.2.0-head-noun-anchoring",
+        "timestamp": "2026-09-14T23:33:00Z"
+    }
+
 # --- Pydantic Schemas ---
 class UserResponse(BaseModel):
     email: str

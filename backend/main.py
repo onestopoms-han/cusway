@@ -40,6 +40,14 @@ except Exception as e:
 
 app = FastAPI(title="CUSWAY Backend API", version="1.0")
 
+@app.get("/api/version")
+def get_version():
+    return {
+        "status": "online",
+        "version": "v1.2.0-head-noun-anchoring",
+        "timestamp": "2026-09-14T23:33:00Z"
+    }
+
 # 프론트엔드 React 빌드본 마운트 해제 (원래의 개별 포트 구동 방식으로 원복)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(current_dir)
