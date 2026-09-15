@@ -332,11 +332,13 @@ class AICustomsClassificationProcessor:
         if not candidates:
             return raw_hs, "", [], empty_clarif
 
-        # Stopwords for candidate and query matching
+        # Stopwords for candidate and query matching (exclude generic physical forms, processes, and tariff boilerplate)
         generic_stopwords = {
             "제조용", "조제품", "함량", "중량", "초과", "이하", "한정한다", "제외하며", 
             "물질", "기본", "재료", "것으로서", "내용물", "무게가", "킬로그램", "직접", 
-            "접하여", "포장된", "것으로", "그", "밖의", "포함한다", "전", "용량"
+            "접하여", "포장된", "것으로", "그", "밖의", "포함한다", "전", "용량",
+            "가루", "분말", "파우더", "펠릿", "칩", "조각", "플레이크", "슬라이스", "농축액",
+            "볶은", "구운", "삶은", "데친", "열처리", "가열"
         }
 
         # 0. Decouple inputs into Constitutional 3-Slot representation (No brittle text pollution)
@@ -422,6 +424,12 @@ class AICustomsClassificationProcessor:
                     if any(w in (subject + " " + ingredients + " " + head_noun) for w in ["냉동", "동결", "frozen"]):
                         score += 60.0
                         match_reasons.append("냉동 성상 소호 일치 (+60)")
+
+            # Species conflict check (e.g. candidate has 참깨 but input has 들깨)
+            input_full = f"{subject} {ingredients} {head_noun}"
+            if "참깨" in cand_lower and "들깨" in input_full and "참깨" not in input_full:
+                score -= 300.0
+                match_reasons.append("종실 품종 불일치 감점: 참깨 vs 들깨 (-300)")
 
             # 6. Fallback "기타 (Other)" safety floor
             if clean_cand.endswith("9000") or clean_cand.endswith("9090") or clean_cand.endswith("9099"):
