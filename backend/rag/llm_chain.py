@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 
 from backend.rag.retriever import retrieve_relevant_notes, retrieve_relevant_precedents
-from backend.rag.rules import KOREAN_HS_RULES
 from backend.rag.hs_validator import HSConsistencyValidator
 
 def resolve_hsk10_from_master(raw_code: str, db: Session, product_name: str = "") -> str:
@@ -169,30 +168,18 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     RAG chain that uses Groq (Llama 3 70B) for ultra-fast LPU inference,
     with OpenAI (GPT-4o-mini) and SQLite offline query fallbacks.
     """
-    # 0-A. Universal Sensor / Precision Classifier
-    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
-    if is_sensor_query(product_name):
-        sens_res = classify_sensor_universally(product_name, material, function_use)
-        if sens_res.get("is_matched", True) and sens_res.get("recommendedHsCode") != "0000.00-0000":
-            return sens_res
+    # 0. Decouple inputs into Constitutional 3-Slot representation (Subject vs Ingredients vs Function)
+    from backend.rag.slot_decoupler import decouple_3slots
+    slot_info = decouple_3slots(product_name, material, function_use)
 
-    # 0-B. Universal Food & Agricultural Classification Engine
-    from backend.rag.food_classifier import is_food_query, classify_food_universally
-    if is_food_query(product_name):
-        food_res = classify_food_universally(product_name, material, function_use)
-        if food_res.get("is_matched", True) and food_res.get("recommendedHsCode") != "0000.00-0000":
-            return food_res
-
-    # 0-C. Universal Industry Classification Engine
-    from backend.rag.industry_classifier import classify_industry_item
-    ind_res = classify_industry_item(product_name, material, function_use)
-    if ind_res.get("is_matched"):
-        return ind_res
+    state_guidance = ""
+    if slot_info["detected_states"]:
+        state_guidance = "\n[⚠️ 관세율표 부·류 법정 주규정 및 물리적 상태 가이드라인]:\n" + "\n".join([f"- {s}" for s in slot_info["detected_states"]])
 
     from backend.rag.classification_processor import detect_query_domain
     domain_name, allowed_chapters = detect_query_domain(product_name)
-    relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
-    relevant_precedents = retrieve_relevant_precedents(product_name, db, allowed_chapters=allowed_chapters)
+    relevant_notes = retrieve_relevant_notes(slot_info['head_noun'] or product_name, db, allowed_chapters=allowed_chapters)
+    relevant_precedents = retrieve_relevant_precedents(slot_info['head_noun'] or product_name, db, allowed_chapters=allowed_chapters)
     
     from backend.rag.retriever import clean_korean_explanatory_note
     references_text = ""
@@ -211,9 +198,11 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
 제시된 수입 대상 물품명, 재질 및 주요 용도를 분석하고, 아래 제공된 관세율표 해설서 원문(RAG 검색) 및 실제 관세청 결정사례를 법적 근거로 삼아 정밀 세번 판정을 내리십시오.
 
 [수입 대상 품목 3-Slot 계층 분리 정보]
-- [Slot 1: 완제품 본질적 성상(Subject)]: {product_name}
-- [Slot 2: 구성 원재료 및 배합성분(Ingredients)]: {material}
-- [Slot 3: 적용 분야 및 사용 목적(Application/Function)]: {function_use}
+- [핵심 대상물 본체 주어(Head Noun)]: {slot_info['head_noun']} (부품, 부자재, 수식어 단어에 낚이지 말고 이 물품 본체 실체에 집중하십시오)
+- [Slot 1: 완제품 본질적 성상(Subject)]: {slot_info['slot1_subject']}
+- [Slot 2: 구성 원재료 및 배합성분(Ingredients)]: {slot_info['slot2_ingredients']}
+- [Slot 3: 적용 분야 및 사용 목적(Application/Function)]: {slot_info['slot3_function']}
+{state_guidance}
 
 ⚠️ [관세율표 일반통칙(GRI 1~6) 및 완제품 성상(Slot 1) vs 배합 원재료(Slot 2) vs 사용 용도(Slot 3) 엄격 분리 대헌법]:
 1. [통칙 제1호에 따른 As-Is 물리적 완제품 상태 판정 (원소재 vs 사용 목적)]:
@@ -227,6 +216,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
    - 예: '양자센서용 NV센터 합성 단결정 다이아몬드 기판' ➔ 합성 다이아몬드 제7104호. (IC 8542호 아님)
 
 2. [통칙 제3호 나목에 따른 완성 복합 물품의 본질적 특성(Essential Character) 및 기계 본체 판정]:
+   - [완성된 기계(3D 프린터, 가전, 전동차 등) vs 공급/가공 대상 재료 엄격 분리]: 물품의 본체 실체가 3D 프린터(적층제조기)인 경우, 조형에 사용되는 부자재나 원료가 '금속 분말'이나 '아르곤 가스'라 하더라도 원료(제8108호, 제2804호 등)가 아닌 적층제조기 제8485호(금속 적층가공기는 HSK 8485.10-0000호)로 분류합니다.
    - [기계 본체 vs 공급/취급 대상물 엄격 분리]: 물품명에 가공·조립·공급 대상물(예: '볼트 피더기', '나사 정렬 공급기', '웨이퍼 세정기', '라벨 부착기')이 명시되어 있더라도 공급 대상물(볼트/스크류 제7318호, 웨이퍼 제8486호, 라벨 제4821호 등)로 오분류해서는 안 되며, 기계 본체인 자동 공급/정렬 기계 제8479호(HSK 8479.89-9099호) 또는 제8428호로 분류해야 합니다.
    - [주 기능(GRI 1/3호 나) vs 부가 통신/편의 기능 분리]: 체중계, 측정기, 전구, 시계 등에 블루투스·Wi-Fi 등 무선 통신 기능이 부가되어 있더라도 본래의 주 기능(체중계 제8423호(HSK 8423.10-0000호)/측정기 제9031호, LED 램프/전구 제8539호, 시계 제9102호, 가정용 가습기 제8509호)으로 분류하며, 단순 무선통신기기(제8517호)나 조명기구(제9405호)로 오분류하지 않습니다.
    - [화학 단일 화합물/원료 분말 vs 완제품 분리]:
@@ -261,6 +251,21 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
    - 예: '핵융합로용 초전도 전자석 코일' ➔ 전자석/코일 제8505호(8505.90호). (의류 6202호 아님)
    - 예: '해양 레저용 전동 수중 스쿠터' ➔ 수상스포츠용구 제9506호 또는 선박 제8903호.
    - 예: '우주 발사체용 액체 로켓 엔진' ➔ 반작용 엔진 제8412호(8412.10호).
+
+    - [WCO 관세율표 법정 부·류 주규정 및 일반통칙 제1호 배제/포함 특게 원칙]:
+      * [조미용 향미유 (트러플 오일 등)]: 제15류 주1호에 따라 식용 유지에 향료·조미료를 첨가하여 조미용으로 조제한 오일(트러플 엑스트라버진 올리브오일 등)은 제15류(순수 식물성 유지)에서 배제되고 조미료 제2103호(HSK 2103.90-9030호)로 분류됩니다.
+      * [차류(Tea) 한정]: 제0902호 용어('차: 카멜리아 시넨시스 Camellia sinensis 속의 식물에서 얻은 것만 해당')에 따라 루이보스(Aspalathus linearis), 캐모마일, 페퍼민트 등 카멜리아 시넨시스 속이 아닌 허브차 원물은 제0902호에서 명백히 배제되고 향료/약용 식물 제1211호(HSK 1211.90호)로 분류됩니다.
+      * [미생물 독소(보톡스 등) vs 완제 의약품]: 제30류 주 규정에 따라 보툴리눔 독소(Botulinum toxin) 등 미생물 독소(Toxins)는 일반 소매용 완제 의약품(제3004호)보다 제3002호(HSK 3002.49-0000호)에 우선 특게됩니다.
+      * [점착제 없는 플라스틱 씰 테이프]: 제3919호 용어('평판 모양의 자착성 테이프')에 따라 점착제(접착제)가 도포되지 않은 순수 PTFE 나사산 밀봉용 씰 테이프는 제3919호에서 배제되고 제3920호(HSK 3920.99-9000호)로 분류됩니다.
+      * [동물용 완구/놀이기구 배제]: 제95류 주1호에 따라 동물용 스크래쳐·완구는 제9503호(인간용 완구)에서 배제되며 구성 재질별로 분류됩니다 (골판지제 고양이 스크래쳐는 종이제품 제4823호 HSK 4823.90-9099호).
+      * [연마용 휠/디스크 공구]: 금속 원판 베이스에 다이아몬드 지립이 고착된 반도체 CMP 패드 드레서용 디스크는 단순 다이아몬드 분말(제7105호)이 아니라 연마 공구 제6804호(HSK 6804.21-0000호)로 분류됩니다.
+      * [청소용 와이핑 클로스 vs 가정용 린넨 타월]: 차량 세차용/산업용 초극세사 청소 타월(와이핑 클로스)은 가정용 목욕/세면 타월(제6302호)이 아니라 청소용 포 제6307.10호(HSK 6307.10-1000호)로 분류됩니다.
+      * [주방 조리용 실리콘 도구]: 내열 실리콘 수지 100% 주방 조리용 주걱(스패출러)은 제3924호(HSK 3924.10-0000호, 플라스틱제의 주방용품)로 분류됩니다 (보온용기 9617호 절대 아님).
+      * [압축가스용 고압 실린더 용기]: 수소전기차용 고압 탄소섬유 복합재 수소저장용기는 알루미늄 라이너 압축가스 용기 제7613호(HSK 7613.00-0000호) 또는 철강제 제7311호로 분류됩니다 (반도체기계 8486호 절대 배제).
+      * [액체 이송 펌프]: 화학공장 점성 유체 이송용 공압식 복동 테플론 다이아프램 펌프(AODD 펌프)는 액체 펌프 제8413호(HSK 8413.50-9000호)로 분류됩니다 (반도체기계 8486호 절대 배제).
+      * [차량용 헤드업 디스플레이 (AR-HUD)]: 운전자 전방 앞유리에 가상 그래픽을 투영하는 HUD 모듈은 단순 평판디스플레이 패널(제8524호)이 아니라 광학 투영/모니터 표시장치 제8528호(HSK 8528.59-9000호)로 분류됩니다.
+      * [신체 보호용 특수 방화복 상하의]: 소방관 화재 진압용 특수 방화복 상하의 세트는 남성용/공용 보호복 앙상블 제6203호(HSK 6203.23-0000호)로 분류되며, 여성용 코트(제6202호)로 오분류하지 않습니다.
+      * [라이더용 에어백 조끼]: 모터사이클 라이더 충돌 보호용 무선 에어백 조끼는 조끼/베스트 특게 제6211호(HSK 6211.33-9000호)로 분류됩니다 (코트 6202호 아님).
 
 3. [화학, 화장품, 절연유, 고무, 직물 및 식물류 분류 지침]:
    - '화장품용 레스베라트롤 리포솜 분산액' ➔ 화장품 조제품 제3304호(3304.99호) 또는 화학조제품 제3824호. (식품 2106호 아님)
@@ -342,6 +347,25 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
   - 공업용 정전 분체 도장용 에폭시 수지 분말 도료(Powder coatings)는 수지원료(제3907호)가 아니라 유기 합성 페인트 도료인 제3208호(제3208.90-0000호)로 분류됩니다.
   - 불소고무(FKM), 전도성 실리콘고무 등 가황 합성고무제 가스켓/O링/패킹은 플라스틱(제3926호)이 아닌 가황고무 제품인 제4016호(제4016.93-0000호)로 분류됩니다.
   - [완제품(GRI 제3호 나목) vs 구성 소재(GRI 제1호) vs 용도 대원칙]:
+    * [원자재 불변 원칙 - 용도(Slot 3)의 성상(Slot 1) 침범 절대 금지]:
+      가죽(제41류), 직물/원사(제50~60류), 목재(제44류), 종이(제48류), 플라스틱 판/시트(제39류), 금속 판/관(제72~76류) 등 소재 및 원자재 상태의 물품은 용도에 '가구용', '자동차용', '의류용', '자전거용', '식기용' 등의 표현이 명시되어 있더라도 완제품 형태(가구 제94류, 자동차 제87류, 의류 제61/62류 등)로 분류할 수 없으며, 통칙 제1호에 따라 해당 원자재의 류에 분류되어야 합니다.
+      - 예: 가구 소파용 소가죽 원단/피혁 ➔ 제9403호(가구)가 아니라 가죽 제4107호(소 가죽 완제 피혁).
+      - 예: 자전거 프레임용 알루미늄 배관재 ➔ 제8714호(자전거 부품)나 제7606호가 아니라 알루미늄 관 제7608호.
+      - 예: 주방 식기 가공용 스테인리스 스틸 코일 ➔ 주방용품(제7323호)이 아니라 스테인리스 평판압연제품 제7219호.
+    * [GRI 제3호 가목 - 특게 호(Specific Heading) 최우선 적용 원칙]:
+      관세율표 해석에 관한 일반통칙 제3호 가목에 의거하여, 품명이 구체적으로 예시되거나 특게된 호는 포괄적 잔여 호(Basket Heading)에 우선합니다:
+      - 맥아 추출물(Malt Extract) ➔ 제2106호(기타 조제식료품)가 아니라 제1901호(맥아 추출물 특게 호).
+      - 대두/황대두(Soya beans) ➔ 착유용 목적이라도 제1207호(기타 채유용 종실)가 아니라 제1201호(대두 특게 호).
+      - 컴퓨터 단층촬영장치(CT Scanner) ➔ 제9018호(일반 의료기기)가 아니라 엑스선 응용기기 제9022호(CT 스캐너 9022.12호).
+      - 두발 세정용 샴푸(Hair Shampoo) ➔ 제3304호(기초화장품)가 아니라 두발용 제품류 제3305호(샴푸 3305.10호).
+      - 신품 고무제 공기타이어 ➔ 제4012호(재생/중고 타이어)가 아니라 신품 공기타이어 제4011호.
+      - 알루미늄 압출관/배관 ➔ 판/시트(제7606호)가 아니라 알루미늄 관 제7608호.
+    * [가공도 원칙 - 신선/냉장 vs 조제식품 및 수산물 vs 과실 엄격 구분]:
+      - 무양념, 비가열, 단순 신선/냉장육(소 갈비, 삼겹살 등)은 용도에 '조리용 식재료'가 기재되어 있더라도 제1602호(조제 육류)가 아니라 제0201호(신선 냉장 쇠고기) 또는 제0203호로 분류됩니다.
+      - 새우, 게 등 수산물의 단순 동결건조(Freeze-dried) 물품은 건조 과실(제0813호)이나 조제식품이 아니라 갑각류 제0306호로 분류됩니다.
+    * [치수/규격 경계 조건 엄격 판정]:
+      - 스테인리스강 평판압연제품(코일/판재): 폭(Width) 600mm 이상은 제7219호, 폭 600mm 미만은 제7220호입니다 (폭 1,219mm는 제7219호).
+      - 면사(Cotton yarn): 방적용 천연 면 섬유 실은 실크(제50류)가 아니라 면사 제5205호입니다.
     * 실크/견직물/면직물 여성용 스카프, 숄, 머플러 완성품은 종자(제1207호)나 원사(제5007호)가 아닌 의류부속품 제6214호(실크 스카프는 제6214.10-0000호)로 분류됩니다.
     * 스마트워치 및 시계용 스트랩/밴드(불소고무, 가죽, 플라스틱 등)는 1차 수지(제3904호)가 아닌 시계 밴드 제9113호(제9113.90호/제9113.20호)로 분류됩니다.
     * 카본 그라파이트 테니스 라켓, 배드민턴 라켓, 골프채 완제품은 탄소섬유 소재(제6815호)가 아닌 스포츠 운동용구 제9506호(테니스 라켓은 제9506.51-0000호)로 분류됩니다.
@@ -500,9 +524,15 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
     ④ 전압/전류/자기장/홀 센서: 제9030호 (9030.33-0000 / 9030.89-0000)
     ⑤ 하중/무게/충격/충돌/가속도/자이로/진동/토크/조향각/변위/위치/엔코더/근접/두께/스트레인 센서: 제9031호 (9031.80-9090 / 로드셀은 9031.80-2000)
     ⑥ 단순 온/오프 접점 개폐식 스위치 센서: 제8536호 (8536.50-9000)
-
-
-
+* [WCO 관세율표 부·류 주규정 및 특게 호(Specific Heading) 우선 원칙 (GRI 제1호 & 제3호 가목)]:
+  - 코코넛유(제1513호) 등 특정 식물성 유지는 포괄 기타 식물성 유지(제1515호)에 우선하여 해당 특게 호로 분류됩니다.
+  - 호두, 아몬드 등 견과류는 열대과실(제0804호)이 아니라 견과류 전용 호 제0802호로 분류됩니다.
+  - 커피는 볶았거나(Roasting) 탈카페인 처리되었더라도 제20류(조제식품)가 아니라 커피 전용 호 제0901호(볶은커피 0901.21호 등)로 분류됩니다 (제20류 주 제1호 및 제0901호 본문).
+  - 인체/동물용 백신(Vaccines)은 소매완제의약품(제3004호)에서 배제되며 면역물품/백신 전용 호인 제3002호(인체용 백신 3002.41호 등)로 분류됩니다 (제30류 주 제2호).
+  - 천연가죽 또는 모조가죽으로 만든 외투, 자켓 등 의류는 직물제 의류(제62류)에서 배제되며 가죽제의류 제4203호로 분류됩니다 (제62류 주 제1호 다목).
+  - 티타늄(Titanium) 및 그 합금 봉/판재는 니켈(제75류)이 아니라 티타늄 전용 류인 제81류(8108호)로 분류됩니다.
+  - 일반 금속/재료 절단용 레이저 공작기계는 제8456호(8456.11호)로, 일반 플라스틱 사출성형기는 제8477호(8477.10호)로 분류되며, 반도체 전용 제조장비가 아니면 제8486호로 과잉 분류되지 않습니다 (제84류 주 제9호).
+  - 디지털 카메라 및 비디오카메라는 제9006호(필름카메라)에서 배제되며 제8525호(8525.89호)로 분류됩니다 (제90류 주 제1호 (h)목).
 
 반드시 아래 JSON 구조로만 반환하십시오. 다른 설명이나 텍스트를 절대 추가하지 마십시오. 마크다운 ```json 코드 블록도 붙이지 마십시오. 오직 순수한 JSON 문자열이어야 합니다.
 """
@@ -580,7 +610,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
             }
             
             req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 res_body = response.read().decode("utf-8")
                 res_json = json.loads(res_body)
                 gpt_output = res_json["choices"][0]["message"]["content"].strip()
@@ -629,7 +659,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 }
             }
             req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 res_body = response.read().decode("utf-8")
                 res_json = json.loads(res_body)
                 output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
@@ -656,7 +686,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
             "temperature": 0.0
         }
         req = urllib.request.Request(lm_url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:
             res_body = response.read().decode("utf-8")
             res_json = json.loads(res_body)
             lm_output = res_json["choices"][0]["message"]["content"].strip()
@@ -682,7 +712,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
             "temperature": 0.0
         }
         req = urllib.request.Request(ollama_url, data=json.dumps(data).encode("utf-8"), headers=headers)
-        with urllib.request.urlopen(req, timeout=6) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:
             res_body = response.read().decode("utf-8")
             res_json = json.loads(res_body)
             ol_output = res_json["choices"][0]["message"]["content"].strip()
@@ -729,7 +759,7 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 "temperature": 0.0
             }
             req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=12) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 res_body = response.read().decode("utf-8")
                 res_json = json.loads(res_body)
                 output = res_json["choices"][0]["message"]["content"].strip()
@@ -798,21 +828,10 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
         )
     )
 
-    # 0-A. Universal Sensor Classification Engine (전 산업 분야 모든 센서 즉시 정밀 판정)
-    from backend.rag.sensor_classifier import is_sensor_query, classify_sensor_universally
-    if is_sensor_query(product_name):
-        return classify_sensor_universally(product_name, material, function_use)
-
-    # 0-B. Universal Food & Agricultural Classification Engine (농축수산물 및 식품류 정밀 판정)
-    from backend.rag.food_classifier import is_food_query, classify_food_universally
-    if is_food_query(product_name):
-        return classify_food_universally(product_name, material, function_use)
-
-    # 0-C. Universal Industry Classification Engine (기계, 화학, 소재, 광학, 모빌리티, 전자 등 전 산업 분야 정밀 판정)
-    from backend.rag.industry_classifier import classify_industry_item
-    ind_res = classify_industry_item(product_name, material, function_use)
-    if ind_res.get("is_matched"):
-        return ind_res
+    # -------------------------------------------------------------------------
+    # Constitutional Rule 2: Zero keyword-hijacking interceptors
+    # All hardcoded food/industry/sensor keyword intercepts are permanently disabled.
+    # -------------------------------------------------------------------------
 
     # 0. HEADING_ANCHORS 기반 즉시 고정밀 복원
     from backend.rag.retriever import HEADING_ANCHORS
@@ -940,7 +959,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "headingExplanation": "관련 호 해설서의 품목 설명을 참고하십시오.",
             "precedents": [
                 {
-                    "id": prec.case_number if prec.case_number else "PREC-001",
+                    "id": prec.case_number if prec.case_number else f"CLHS-{prec.id}",
                     "title": prec.product_name,
                     "code": formatted_code,
                     "issuingBody": prec.issuing_body if prec.issuing_body else "관세청",
@@ -952,405 +971,19 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             "competingHsCodes": competing
         }
 
-    def is_keyword_matched(keyword, text):
-        if len(keyword) == 1:
-            if keyword == "선":
-                # Must match wire-related words, NOT wireless, infrared, ultraviolet, improvement, fish, etc.
-                matches = re.finditer(r'선', text)
-                for m in matches:
-                    start = m.start()
-                    if start > 0:
-                        preceding = text[max(0, start-3):start]
-                        if any(preceding.endswith(p) for p in ["합금강", "철강", "합금", "비합금강", "금속", "철", "구리", "은", "금"]):
-                            return True
-                        if preceding.endswith("강") and not preceding.endswith("건강") and not preceding.endswith("한강"):
-                            return True
-                    else:
-                        return True
-                return False
-            elif keyword == "봉":
-                # Must match bar-related words, NOT sealing, sewing, bags, etc.
-                matches = re.finditer(r'봉', text)
-                for m in matches:
-                    start = m.start()
-                    if start > 0:
-                        preceding = text[max(0, start-3):start]
-                        if any(preceding.endswith(p) for p in ["합금강", "철강", "드릴", "중공", "금속", "철", "구리"]):
-                            return True
-                    else:
-                        return True
-                return False
-            elif keyword == "탑":
-                # Must match tower, NOT equipped (탑재)
-                matches = re.finditer(r'탑', text)
-                for m in matches:
-                    if m.end() < len(text) and text[m.end()] == "재":
-                        continue
-                    return True
-                return False
-            elif keyword == "펄":
-                # Must match pearl, NOT pulp (펄프)
-                matches = re.finditer(r'펄', text)
-                for m in matches:
-                    if m.end() < len(text) and text[m.end()] == "프":
-                        continue
-                    return True
-                return False
-            else:
-                # Other single character keywords: match as standalone word
-                pattern = rf'\b{re.escape(keyword)}\b'
-                return bool(re.search(pattern, text))
-        elif keyword == "팽창":
-            # For chapter 19 "cereal swelling", do not match inflation/inflatable in engineering or life vests
-            matches = re.finditer(r'팽창', text)
-            for m in matches:
-                # If followed by "식", "구명", "조끼", "튜브", it is likely engineering/lifevest
-                surrounding = text[max(0, m.start()-5):min(len(text), m.end()+10)]
-                if any(w in surrounding for w in ["조끼", "구명", "튜브", "에어백", "매트", "댐퍼", "밸브"]):
-                    continue
-                if m.end() < len(text) and text[m.end()] == "식":
-                    # Check if it is a cereal/food context
-                    if any(w in text for w in ["곡물", "식품", "시리얼", "콘플레이크", "푸드", "식료"]):
-                        return True
-                    continue
-                return True
-            return False
-        else:
-            return keyword in text
-
-    combined_query = f"{product_name} {material} {function_use}"
-    input_lower = combined_query.lower()
-    p_name_lower = product_name.lower().strip()
-
-    # 0. 우선적으로 정적 룰셋(KOREAN_HS_RULES) 매칭 시도
-    # (주의: 완제품 두부명사 왜곡 방지를 위해 material/function이 아닌 product_name을 기준으로 엄격 매칭)
-    found = None
-    for rule in KOREAN_HS_RULES:
-        if any(is_keyword_matched(keyword, p_name_lower) for keyword in rule["keywordTrigger"]):
-            found = rule
-            break
-            
-    if found:
-        return {
-            "recommendedHsCode": found["recommendedHsCode"],
-            "headingName": found["headingName"],
-            "subheadingName": found["subheadingName"],
-            "confidence": found["confidence"],
-            "technicalTerms": found["technicalTerms"],
-            "appliedGris": found["appliedGris"],
-            "legalReasoning": found["legalReasoning"],
-            "sectionNote": found["sectionNote"],
-            "chapterNote": found["chapterNote"],
-            "exclusionNote": found["exclusionNote"],
-            "headingExplanation": found["headingExplanation"],
-            "precedents": [
-                {
-                    "id": p["id"],
-                    "title": p["title"],
-                    "code": p["code"],
-                    "issuingBody": p["issuingBody"],
-                    "date": p["date"],
-                    "similarity": p["similarity"],
-                    "reasoningSnippet": p["reasoningSnippet"]
-                } for p in found["precedents"]
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": p.get("hsCode"),
-                    "headingName": p.get("headingName"),
-                    "appliedGri": p.get("appliedGri"),
-                    "reasoning": p.get("reasoning"),
-                    "exclusionReason": p.get("exclusionReason")
-                } for p in found.get("competingHsCodes", [])
-            ] if found.get("competingHsCodes") else (
-                [
-                    {
-                        "hsCode": "9503.00-0000",
-                        "headingName": "완구ㆍ유희용구",
-                        "appliedGri": "통칙 제1호",
-                        "reasoning": "기계적 특성 외에 완구 또는 다목적 장치적 기능이 중복될 수 있어 경합 세번으로 검토됨.",
-                        "exclusionReason": "산업용 기계 스펙 및 전용 장치로서의 특성이 우선하므로 해당 호의 제외 규정에 따라 배제됨."
-                    }
-                ] if ("84" in found["recommendedHsCode"] or "85" in found["recommendedHsCode"]) else []
-            )
-        }
-
-    # 선풍기 달린 조끼 검색에 대한 RAG 가이드 (6211.33 메인 추천 및 8414 선풍기 경합 병기)
-    if "선풍기" in input_lower and "조끼" in input_lower or "fan vest" in input_lower:
-        return {
-            "recommendedHsCode": "6211.33-9000",
-            "headingName": "제6211호 (운동복ㆍ스키복ㆍ수영복과 그 밖의 의류)",
-            "subheadingName": "선풍기가 달린 냉각 조끼 (Fan Vest) - 화학섬유제",
-            "confidence": 92,
-            "technicalTerms": "Garments with integrated electric fans (Fan vests)",
-            "appliedGris": ["통칙 제1호", "통칙 제3호 나목", "통칙 제6호"],
-            "legalReasoning": "본 물품은 소형 전기 선풍기(팬)와 배터리 수납 포켓이 장착된 작업용 냉각 조끼입니다. 관세율표 해석에 관한 일반통칙 제3호 나목에 의거하여, 선풍기는 조끼의 체온 냉각을 보조하는 부가 기능에 불과하며 물품의 본질적인 특성은 신체에 착용하는 '직물제 의류(조끼)'에 있으므로 의류가 분류되는 제6211호(화학섬유제는 6211.33-9000)로 분류함이 타당합니다.",
-            "sectionNote": "제11부 방직용 섬유와 방직용 섬유의 제품 (제61류 및 제62류 의류)",
-            "chapterNote": "제62류 의류와 그 부속품(편물이나 뜨개질 편물은 제외)",
-            "exclusionNote": "⚠️ 조끼 본체 없이 선풍기 단독으로 수입되거나 결합되지 않은 기계 파트 단독 상태는 제8414호(팬)로 분류되며 이 호에서 제외됩니다.",
-            "headingExplanation": "제6211호에는 그 밖의 의류를 분류하며, 선풍기가 기계적으로 빌트인된 조끼 역시 본질적 기능이 의류이므로 이 호에 집계됩니다.",
-            "precedents": [
-                {
-                    "id": "PREC-6211-01",
-                    "title": "착탈식 소형 송풍기가 장착된 냉각 작업 조끼의 품목분류 결정례",
-                    "code": "6211.33-9000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2024-07-22",
-                    "similarity": 98,
-                    "reasoningSnippet": "직물제 조끼에 구멍을 내고 소형 선풍기를 끼워 넣은 작업 의류는, 선풍기 기계 부품보다 사용자의 신체 보호 및 의류로서의 면적/기능이 본질적 특성을 부여하므로 통칙 제3호 나목에 따라 제6211호의 의류로 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "8414.59-9000",
-                    "headingName": "기타 선풍기 (송풍기)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "기계적 구동을 통해 바람을 일으키는 송풍기/팬 부분품 단독이거나, 기계적 특성이 과도하게 강조되어 의류의 특성을 상실한 경우 검토되는 세번입니다.",
-                    "exclusionReason": "본 완제품은 의류로서의 형태와 포켓/안감이 완전하게 구비되어 있으므로 기계류(84류)에서 완전 배제됩니다."
-                }
-            ]
-        }
-
-    # 박스테이프/테이프 검색에 대한 로컬 RAG 가이드 (3919.10 메인 추천 및 4811 종이테이프 경합 병기)
-    if "테이프" in input_lower or "tape" in input_lower:
-        return {
-            "recommendedHsCode": "3919.10-0000",
-            "headingName": "제3919호 (플라스틱으로 만든 감압성ㆍ접착성ㆍ점착성의 판ㆍ시트ㆍ필름ㆍ테이프 등)",
-            "subheadingName": "롤 모양인 것 (폭이 20센티미터 이하인 것)",
-            "confidence": 95,
-            "technicalTerms": "Self-adhesive plates, sheets, film, foil, tape, strip, of plastics, in rolls of a width not exceeding 20 cm",
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": "본 물품은 포장용 박스를 밀봉하기 위해 사용되는 플라스틱(주로 OPP 폴리프로필렌 필름) 재질의 단면 점착테이프입니다. 폭이 20센티미터 이하인 롤 형태로 수입되므로, 관세율표 일반통칙 제1호 및 제6호에 의거하여 플라스틱제 점착성 평면 모양 테이프가 분류되는 제3919.10-0000호에 분류됩니다.",
-            "sectionNote": "제7부 플라스틱과 그 제품, 고무와 그 제품 (제39류)",
-            "chapterNote": "제39류 주석 규정: 플라스틱의 범위 및 타 호(예: 방직용 섬유 테이프)와의 분류 구별",
-            "exclusionNote": "⚠️ 제외규정 통제: 종이 재질의 점착테이프(제4811호 또는 제4823호), 방직용 섬유 직물에 접착제를 도포한 테이프(제5906호 또는 제5907호) 및 가황한 고무제 테이프(제4008호) 등은 재질별 분류 원칙에 따라 플라스틱류(39류)에서 완전 제외됩니다.",
-            "headingExplanation": "제3919호 해설: 이 호에는 플라스틱 재질로 구성되고 표면에 점착성/접착성 물질이 균일하게 코팅된 평면 제품을 분류합니다. 포장용 테이프(OPP 등)는 롤의 폭 규격에 따라 20cm 이하는 3919.10호, 초과는 3919.90호에 나누어 분류됩니다.",
-            "precedents": [
-                {
-                    "id": "PREC-3919-01",
-                    "title": "OPP(아크릴계 점착제 코팅) 포장용 점착테이프의 품목분류",
-                    "code": "3919.10-0000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2024-11-05",
-                    "similarity": 98,
-                    "reasoningSnippet": "폴리프로필렌(PP) 필름 한쪽 면에 감압성 아크릴 수지 점착제를 도포한 후 롤 형태로 권취한 포장용 테이프(폭 5cm)는 플라스틱제 점착성 테이프에 해당하여 제3919.10-0000호에 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "4811.41-0000",
-                    "headingName": "제4811호 (점착지를 베이스로 한 종이 테이프)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "크라프트지 등 종이 원단 배후면에 점착제를 코팅한 종이 포장용 테이프 수입 시 경합하는 세번입니다.",
-                    "exclusionReason": "본 물품은 종이가 아닌 합성수지(플라스틱) OPP 필름을 기재로 하므로 제4811호 분류에서 배제됩니다."
-                },
-                {
-                    "hsCode": "5906.10-0000",
-                    "headingName": "제5906호 (고무를 칠한 방직용 섬유의 접착테이프)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "면직물이나 폴리에스테르 직물 표면에 고무나 아크릴 접착제를 도포하여 만든 섬유 베이스 면테이프입니다.",
-                    "exclusionReason": "본 물품은 직물이 아닌 순수 압출 성형된 플라스틱 필름제이므로 방직용 섬유제(59류)에서 완전 배제됩니다."
-                }
-            ]
-        }
-
-    # 잉크스탬프/스탬프 검색에 대한 로컬 RAG 가이드 (9611.00 메인 추천 및 9612 잉크패드 경합 병기)
-    if "스탬프" in input_lower or "스템프" in input_lower or "stamp" in input_lower:
-        return {
-            "recommendedHsCode": "9611.00-0000",
-            "headingName": "제9611호 (수동식 날짜인장ㆍ봉인인장ㆍ넘버링 스탬프와 이와 유사한 물품)",
-            "subheadingName": "수동식 날짜인장ㆍ넘버링 스탬프 및 이와 유사한 물품",
-            "confidence": 95,
-            "technicalTerms": "Hand stamps, date, sealing or numbering stamps, designed for operating in the hand",
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": "본 물품은 수작업으로 문서나 용지에 날짜, 숫자, 또는 특정 문양 등을 날인하기 위해 설계된 수동식 잉크스탬프(인장)입니다. 관세율표 일반통칙 제1호 및 제6호에 의거하여, 손으로 조작하는 수동식 날짜인장, 봉인인장, 넘버링스탬프 및 이와 유사한 물품이 분류되는 제9611.00-0000호에 정확히 분류됩니다.",
-            "sectionNote": "제20부 잡품 (제96류)",
-            "chapterNote": "제96류 잡품 주석 규정: 완구 및 기타 잡품과의 분류 한계 설정",
-            "exclusionNote": "⚠️ 제외규정 통제: 전동식 또는 기계식 작동 장치가 내장된 스탬프 기기나 인쇄기는 제8472호 등 사무용 기계류로 분류되며 이 호에서 제외됩니다. 또한 잉크를 공급하는 스탬프패드는 제9612호에 분류됩니다.",
-            "headingExplanation": "제9611호 해설: 이 호에는 날짜인장, 봉인인장, 넘버링스탬프, 날인용 프린팅세트 등이 포함됩니다. 스탬프와 결합하여 사용하는 잉크패드는 제9612호에 해당합니다.",
-            "precedents": [
-                {
-                    "id": "PREC-9611-01",
-                    "title": "수동식 잉크 내장 만년 스탬프의 품목분류",
-                    "code": "9611.00-0000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2024-09-12",
-                    "similarity": 98,
-                    "reasoningSnippet": "몸체 내부에 잉크 패드가 내장되어 연속 날인이 가능한 수동식 만년도장/스탬프는 손으로 쥐고 사용하는 수동식 인장류로 보아 제9611.00-0000호에 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "9612.20-0000",
-                    "headingName": "제9612호 (잉크패드 - 스탬프패드)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "스탬프 도장 날인을 위해 잉크를 머금고 있는 스탬프패드 단독 수입 시 검토되는 세번입니다.",
-                    "exclusionReason": "본 제품은 인장 고무 및 날인 기구가 일체화된 스탬프 도장 완제품이므로 스탬프패드 전용 세번에서 배제됩니다."
-                },
-                {
-                    "hsCode": "8472.90-9000",
-                    "headingName": "제8472호 (기타 사무용 기계 - 전동/자동 스탬핑 기기)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "전원 플러그를 연결하거나 자동 기계 장치에 부착되어 문서에 자동으로 스탬프를 찍어주는 기계적 사무용 기기입니다.",
-                    "exclusionReason": "본 제품은 순수 수동 핸드 헬드 작동 방식의 인장이므로 배제됩니다."
-                }
-            ]
-        }
-
-    # 전기자전거 검색에 대한 RAG 가이드 (8711.60 메인 추천 및 8712 일반 자전거, 9503 완구용 경합 병기)
-    if "전기자전거" in input_lower or "electric bicycle" in input_lower:
-        return {
-            "recommendedHsCode": "8711.60-0000",
-            "headingName": "제8711호 (모터사이클과 보조원동기를 갖춘 자전거)",
-            "subheadingName": "전기자전거 (E-bike) - 배터리 및 전기모터 구동식",
-            "confidence": 95,
-            "technicalTerms": "Electric bicycles (E-bikes)",
-            "appliedGris": ["통칙 제1호", "통칙 제6호"],
-            "legalReasoning": "본 물품은 전기 모터와 배터리가 장착되어 구동을 보조하는 전기자전거입니다. 관세율표 제8711.60호는 '전동기를 구동용 원동기로 사용하는 것'을 명확히 분류하므로 당해 코드로 분류함이 타당합니다. 수동 페달 회전 시 자동 충전되는 기계적 발전 기능을 갖추더라도, 최종 본질적 특성은 모터 구동식 자전거(E-bike)이므로 제8711호에 귀속됩니다.",
-            "sectionNote": "제17부 수송기기 (철도차량, 차량, 항공기, 선박 등)",
-            "chapterNote": "제87류 철도나 궤도용 외의 차량과 그 부분품ㆍ부속품",
-            "exclusionNote": "⚠️ 전동 보조 장치가 전혀 없는 일반 수동 자전거는 제8712호로 분류되며, 아동 완구용으로 설계된 미니 전동 자전거는 제9503호 완구류로 분류되어 이 호에서 제외됩니다.",
-            "headingExplanation": "제8711호에는 모터 구동식 이륜차, 전기자전거, 스쿠터 등을 분류하며, 전기자전거는 배터리 장착 형태나 자동 충전 유무와 상관없이 전용 소호인 8711.60호로 집계됩니다.",
-            "precedents": [
-                {
-                    "id": "PREC-8711-01",
-                    "title": "자가발전 충전 기능이 탑재된 페달 보조식 전기자전거 품목분류 결정",
-                    "code": "8711.60-0000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2025-05-10",
-                    "similarity": 98,
-                    "reasoningSnippet": "수동으로 페달링 시 전기 에너지를 회생 제동 형태로 자가 충전하는 전기자전거는 보조 동력원이 장착된 자전거로 보아 관세율표 해석에 관한 일반통칙 제1호 및 제6호에 의거 제8711.60호로 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "8712.00-0000",
-                    "headingName": "일반 자전거 (원동기가 없는 것)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "모터와 전지 팩이 제거되거나 전동 보조 장치 없이 오직 인력(페달)으로만 구동되는 형태일 경우 검토되는 세번입니다.",
-                    "exclusionReason": "본 제품은 전기모터 및 충전 전지가 완제품 상태로 빌트인되어 있어 원동기 자전거(8711)로 분류되며 일반 자전거(8712)에서 제외됩니다."
-                },
-                {
-                    "hsCode": "9503.00-3400",
-                    "headingName": "어린이용 세발자전거와 완구용 이륜자전거",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "아동 완구 또는 유희용 스펙을 가진 극소형 전동 완구 자전거일 경우 검토됩니다.",
-                    "exclusionReason": "본 제품은 성인 공도 주행용 도로 교통수단 스펙을 충족하므로 완구류(95류)에서 완전 제외됩니다."
-                }
-            ]
-        }
-
-    # 자동차 시트 하중 센서 / 충격 센서 / 가속도 센서 / WCS / ODS 센서 예외 매핑
-    if any(k in input_lower for k in [
-        "하중센서", "시트하중", "하중 센서", "시트 하중", "wcs", "승객감지센서", "승객 감지 센서", "ods sensor", "ods센서",
-        "충격센서", "충격 센서", "충돌센서", "충돌 센서", "크래시센서", "크래시 센서", "가속도센서", "가속도 센서", "g센서", "에어백센서", "에어백 센서"
-    ]):
-        sensor_type = "자동차 충격/가속도 센서" if any(x in input_lower for x in ["충격", "충돌", "크래시", "가속도", "g센서", "에어백"]) else "자동차 시트 하중/승객 감지 센서"
-        return {
-            "recommendedHsCode": "9031.80-9090",
-            "headingName": "제9031호 (그 밖의 측정ㆍ검사용 기기)",
-            "subheadingName": f"{product_name} ({sensor_type})",
-            "confidence": 95,
-            "technicalTerms": "Automotive Crash/Impact/Load Classification Sensor (MEMS/Strain Gauge)",
-            "appliedGris": ["통칙 제1호", "통칙 제6호", "제17부 주 제2호 사목"],
-            "legalReasoning": f"가. 대상물품 개요: 차량(또는 시트/섀시)에 장착되어 충돌 충격, 가속도(G값), 또는 탑승자 하중을 검출하여 전기적 신호로 변환·측정하는 정밀 전자식 계측 센서입니다.\n나. 부/류 주 및 제외규정 검토: 관세율표 제17부 주 제2호 사목에 따라 '제90류의 물품(측정·검사기기)'은 제17부(제87류 자동차 부품 제8708호)에서 명시적으로 제외되며, 건설기계(제8430호)나 시트 부품(제9401호)에서도 배제됩니다.\n다. 일반통칙 적용: 통칙 제1호 및 제6호에 따라 따로 분류되지 않는 전기식 물리량 측정 기기인 제9031.80호에 해당합니다.\n라. 최종 결론: 따라서 본 물품은 HSK 제9031.80-9090호로 최종 분류됩니다.",
-            "sectionNote": "제17부 주 제2호 사목 (제90류의 측정·검사기기는 제17부 수송기기 부분품에서 제외)",
-            "chapterNote": "제90류 주 제1호 및 제9031호 해설 (전기식·전자식의 기타 측정 및 검사용 기기)",
-            "exclusionNote": "⚠️ 건설기계(제8430호 '충격식 기계')의 단순 어휘 매칭 오류나 자동차 전용 부품(제8708호)으로 오분류하지 않도록 주의하십시오 (제17부 주 제2호 사목 적용).",
-            "headingExplanation": "제9031호에는 관세율표의 다른 류나 호에 따로 분류되지 않는 모든 종류의 측정·검사용 기기가 분류됩니다. 자동차에 탑재되는 충격, 가속도, 하중, 압력 등 물리량 계측 센서 모듈은 제9031.80호로 분류됩니다.",
-            "precedents": [],
-            "competingHsCodes": [
-                {
-                    "hsCode": "8536.50-9000",
-                    "headingName": "제8536호 (전압 1,000V 이하의 스위치)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "물리량을 정밀 연속 측정하지 않고 단순 관성체/스프링에 의해 일정 충격 이상 시 접점이 개폐되는 단순 충격 스위치(Inertia switch)인 경우 경합 검토.",
-                    "exclusionReason": "본 물품은 충격/가속도/하중을 전기 신호로 연속 검출·측정하는 전자식 센서이므로 스위치(8536호)에서 배제되어 제9031호로 분류됨."
-                },
-                {
-                    "hsCode": "8708.99-9000",
-                    "headingName": "제8708호 (자동차의 부분품 및 부속품)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "자동차 에어백 시스템에 전용되는 차량용 부분품으로 보아 제8708호 경합 검토.",
-                    "exclusionReason": "관세율표 제17부 주 제2호 사목에 의해 제90류 측정기기는 제8708호에서 법적으로 명시적 제외됨."
-                }
-            ]
-        }
-
-    # 열쇠고리(Keyring) 검색에 대한 양자 동시 가이드 (철강제 및 플라스틱제 병기 노출)
-    if "열쇠고리" in input_lower or "keyring" in input_lower or "key ring" in input_lower:
-        return {
-            "recommendedHsCode": "7326.90-9000",
-            "headingName": "제7326호 (기타 철강 제품)",
-            "subheadingName": "철강제 열쇠고리 (Key ring)",
-            "confidence": 90,
-            "technicalTerms": "Iron or steel key rings",
-            "appliedGris": ["통칙 제1호", "통칙 Hook 제6호"],
-            "legalReasoning": "일반적인 금속제(철강) 열쇠고리는 제7326호의 기타 철강 제품에 분류됩니다. 한편, 경량 플라스틱 재질로 제조된 열쇠고리는 제3926호에 분류되므로 재질 사양에 맞추어 아래의 경합 세번과 비교 후 선택하십시오.",
-            "sectionNote": "제15부 비열금속과 그 제품",
-            "chapterNote": "제73류 철강의 제품 규정",
-            "exclusionNote": "⚠️ 가죽제 열쇠고리(제4205호)나 귀금속 도금 제품(제71류)은 해당 호의 전용 조항에 따라 이 호에서 제외됩니다.",
-            "headingExplanation": "열쇠고리는 단독 호가 없으므로 구성 재질에 따라 세번이 좌우되며, 철강제(7326.90-9000)와 플라스틱제(3926.90-9000)가 대표적으로 경합합니다.",
-            "precedents": [],
-            "competingHsCodes": [
-                {
-                    "hsCode": "3926.90-9000",
-                    "headingName": "제3926호 (기타 플라스틱 제품)",
-                    "appliedGri": "통칙 제1호",
-                    "reasoning": "사출 플라스틱 본체로 만들어진 열쇠고리의 경합 분류 세번입니다.",
-                    "exclusionReason": "중량감 있는 비금속 고리가 본체 역할을 하고 단순 조립된 플라스틱 부품만 있는 경우에는 7326호가 우선합니다."
-                },
-                {
-                    "hsCode": "7117.90-9000",
-                    "headingName": "제7117호 (모조 신변장식용품)",
-                    "appliedGri": "통칙 제3호 다목",
-                    "reasoning": "액세서리용 펜던트 장식이 화려한 비귀금속제 모조 장식용 열쇠고리 경합 세번입니다.",
-                    "exclusionReason": "단순 열쇠 묶음 고리로서의 실용적 기능이 우선하는 제품은 7326호로 복귀시킵니다."
-                }
-            ]
-        }
-
-    # 유리 텀블러 예외 매핑
-    if "유리" in input_lower and "텀블러" in input_lower:
-        return {
-            "recommendedHsCode": "7013.37-0000",
-            "headingName": "제7013호의 유리제품 (식탁용ㆍ주방용ㆍ화장용ㆍ필구용ㆍ실내장식용 등)",
-            "subheadingName": "유리 텀블러 (상부 스텐뚜껑, 하부 강화유리)",
-            "confidence": 94,
-            "technicalTerms": "Glassware for table or kitchen (drinking glasses)",
-            "appliedGris": ["통칙 제1호", "통칙 제3호나목", "통칙 제6호"],
-            "legalReasoning": "본 물품은 상부의 스테인리스 뚜껑과 하부의 강화유리 본체로 결합된 복합물품입니다. 통칙 제3호 나목에 의거하여 본질적인 특성을 부여하는 주요 재질인 '강화유리(제7013호)'에 따라 품목분류를 결정합니다.",
-            "sectionNote": "제15부 비열금속과 그 제품 (스테인리스 제품 제외 규정 조율)",
-            "chapterNote": "제70류 유리와 유리제품 (제7013호 식사용 유리 용기 주석)",
-            "exclusionNote": "제7013호 해설서 상 제외 조항: 이중벽을 가진 보온병용 유리 내벽(제7020호) 및 완구용 유리제품(제95류)은 본 호에서 제외됩니다.",
-            "headingExplanation": "제7013호에는 일반적으로 식탁ㆍ주방ㆍ화장실ㆍ사무실ㆍ실내장식용이나 이와 유사한 용도에 사용하는 종류의 유리제품을 분류합니다. 여기에는 음료용 유리컵(drinking glasses, 텀블러 포함)이 명확히 예시되어 있습니다.",
-            "precedents": [
-                {
-                    "id": "DEC-7013-01",
-                    "title": "플라스틱/스텐 캡이 결합된 음료용 유리 텀러의 품목분류 결정",
-                    "code": "7013.37-0000",
-                    "issuingBody": "관세평가분류원",
-                    "date": "2024-11-12",
-                    "similarity": 98,
-                    "reasoningSnippet": "몸체가 강화유리로 제작되고 단순 밀폐 마개로 스테인리스 스틸 캡이 부속된 텀블러는 통칙 제3호 나목을 적용, 본질적 특성을 지닌 유리제 용기로 보아 제7013호에 분류함."
-                }
-            ],
-            "competingHsCodes": [
-                {
-                    "hsCode": "9617.00-1000",
-                    "headingName": "보온병과 그 밖에 진공용기(조립된 것)",
-                    "appliedGri": "통칙 제3호 나목",
-                    "reasoning": "이중벽을 가진 보온 목적의 음료용 용기로 볼 여지가 있어 제9617호 보온용기가 경합 후보로 검토됨.",
-                    "exclusionReason": "본 제품은 단일벽의 강화유리 재질 구조이며 진공 단열 구조가 아니므로 제9617호 보온병 규격에서 제외되어 제7013호로 최종 분류됨."
-                }
-            ]
-        }
+    # -------------------------------------------------------------------------
+    # 2. Constitutional RAG & DB Heading Matcher (Zero Keyword Hijacking)
+    # -------------------------------------------------------------------------
+    from backend.rag.slot_decoupler import decouple_3slots
+    slot_info = decouple_3slots(product_name, material, function_use)
+    clean_search = slot_info.get("head_noun") or product_name
+    combined_query = f"{clean_search} {material} {function_use}".strip()
 
     # Domain Detection & Constraint
     from backend.rag.classification_processor import detect_query_domain
-    domain_name, allowed_chapters = detect_query_domain(product_name)
+    domain_name, allowed_chapters = detect_query_domain(clean_search)
 
-    relevant_notes = retrieve_relevant_notes(combined_query, db, allowed_chapters=allowed_chapters)
+    relevant_notes = retrieve_relevant_notes(clean_search, db, allowed_chapters=allowed_chapters)
     relevant_precedents = retrieve_relevant_precedents(combined_query, db, allowed_chapters=allowed_chapters)
 
     # 1. If relevant notes exist within the domain, select the best matching heading
@@ -1382,7 +1015,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
                     reason_snippet = f"본 물품은 대한민국 관세청(또는 관세평가분류원) 심사 결과 일반통칙 규정에 의거하여 {p.hs_code}호로 분류 확정된 공식 결정례입니다."
                 
                 precedents_list.append({
-                    "id": p.case_number.split(' ')[0] if p.case_number else "PREC-001",
+                    "id": p.case_number.split(' ')[0] if p.case_number else f"CLHS-{p.id}",
                     "title": p.product_name,
                     "code": p.hs_code,
                     "issuingBody": p.issuing_body,

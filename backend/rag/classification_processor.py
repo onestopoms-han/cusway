@@ -27,16 +27,20 @@ class AICustomsClassificationProcessor:
         print(f"[PROCESSOR] Launching 2-Pass Decoupled AI Classification Pipeline for: '{product_name}'")
         
         # ----------------------------------------------------
-        # Pass 1: Domain & Physical State Isolation Gate
+        # Pass 1: 3-Slot Decoupling & Physical Subject Isolation
         # ----------------------------------------------------
-        domain_name, allowed_chapters = detect_query_domain(product_name)
-        print(f"[PROCESSOR] Domain Identified: {domain_name} (Allowed Chapters: {len(allowed_chapters)})")
+        from backend.rag.slot_decoupler import decouple_3slots
+        slot_info = decouple_3slots(product_name, material, function_use)
+        search_query = slot_info.get("head_noun") or product_name
+        
+        domain_name, allowed_chapters = detect_query_domain(search_query)
+        print(f"[PROCESSOR] Head Noun Isolated: '{search_query}' | Domain: {domain_name} (Allowed Chapters: {len(allowed_chapters)})")
         
         # ----------------------------------------------------
         # Phase 1: Retrieve Domain-Constrained RAG Notes & Precedents
         # ----------------------------------------------------
-        relevant_notes = retrieve_relevant_notes(product_name, db, allowed_chapters=allowed_chapters)
-        relevant_precedents = retrieve_relevant_precedents(product_name, db, allowed_chapters=allowed_chapters)
+        relevant_notes = retrieve_relevant_notes(search_query, db, allowed_chapters=allowed_chapters)
+        relevant_precedents = retrieve_relevant_precedents(search_query, db, allowed_chapters=allowed_chapters)
 
         # ----------------------------------------------------
         # Phase 2: Classification (Runs through LLM Chain with Iterative Feedback Loop up to 3 retries)
@@ -98,7 +102,7 @@ class AICustomsClassificationProcessor:
             feedback_msg = (
                 f"당신의 이전 분류 결과 {result_dict.get('recommendedHsCode')} ({result_dict.get('headingName')}) 에 다음 법적 모순 및 제외 조항 저촉 경고가 감지되었습니다:\n"
                 + "\n".join([f"- {str(w)}" for w in validation_results["warnings"]])
-                + "\n\n이 제외 조항과 모순을 철저히 대조하여 본 물품에 합당한 세번(GRI 통칙에 입각한 대체 세번)으로 엄격하게 수정하여 반환하십시오."
+                + "\n\n[필수 지침] 위 제외 조항과 모순을 철저히 확인하십시오. 경고에서 명시한 배제 호/류(예: 저촉된 세번)를 절대로 다시 선택하지 말고, 법리적 주규정 및 통칙에 부합하는 올바른 대체 세번으로 즉시 수정하여 반환하십시오."
             )
             
             # Re-query LLM with feedback prompt
@@ -108,11 +112,11 @@ class AICustomsClassificationProcessor:
             )
         
         # ----------------------------------------------------
-        # Phase 3.5: Deterministic 10-Digit HSK Master Resolution
+        # Phase 3.5: Cascading 3-Stage HSK Resolution & Clarification Probing
         # ----------------------------------------------------
         raw_hs = result_dict.get("recommendedHsCode", "")
         if raw_hs and raw_hs != "0000.00-0000":
-            resolved_hs, resolved_name, structures = cls.resolve_deterministic_hsk10(
+            resolved_hs, resolved_name, structures, clarif_info = cls.resolve_hierarchical_hsk10(
                 raw_hs=raw_hs,
                 product_name=product_name,
                 material=material,
@@ -120,12 +124,17 @@ class AICustomsClassificationProcessor:
                 db=db
             )
             if resolved_hs and resolved_hs != raw_hs:
-                print(f"[PROCESSOR] Deterministic 10-digit resolution adjusted '{raw_hs}' -> '{resolved_hs}' ({resolved_name})")
+                print(f"[PROCESSOR] Cascading resolution adjusted '{raw_hs}' -> '{resolved_hs}' ({resolved_name})")
                 result_dict["recommendedHsCode"] = resolved_hs
                 if resolved_name:
                     result_dict["subheadingName"] = f"제{resolved_hs}호 ({resolved_name})"
             if structures:
                 result_dict["hsk_structures"] = structures
+            if clarif_info:
+                result_dict["needs_clarification"] = clarif_info.get("needs_clarification", False)
+                result_dict["hsk_resolution_stage"] = clarif_info.get("resolution_stage", "DIRECT_10DIGIT")
+                result_dict["clarification_question"] = clarif_info.get("question", "")
+                result_dict["clarification_options"] = clarif_info.get("options", [])
 
         result_dict["consistency_score"] = validation_results["consistency_score"]
         result_dict["consistency_status"] = validation_results["status"]
@@ -280,41 +289,48 @@ class AICustomsClassificationProcessor:
         return result_dict
 
     @classmethod
-    def resolve_deterministic_hsk10(cls, raw_hs: str, product_name: str, material: str = "", function_use: str = "", db: Session = None):
+    def resolve_hierarchical_hsk10(cls, raw_hs: str, product_name: str, material: str = "", function_use: str = "", db: Session = None):
         """
-        Deterministically resolves and validates a 10-digit HSK code against official DB siblings.
-        Calculates token and semantic overlap between the query text and sibling HSK candidate names.
-        Returns: (resolved_hs_code, resolved_name_ko, candidate_structures)
+        3-Stage Cascading HSK Resolver (Heading 4-digit -> Subheading 6-digit -> HSK 10-digit)
+        Evaluates candidate nodes in the official DB and detects specification ambiguity.
+        Returns: (resolved_hs_code, resolved_name_ko, candidate_structures, clarification_info)
         """
+        empty_clarif = {"needs_clarification": False, "resolution_stage": "DIRECT_10DIGIT", "question": "", "options": []}
         if not raw_hs or raw_hs == "0000.00-0000":
-            return raw_hs, "", []
+            return raw_hs, "", [], empty_clarif
             
         clean_digits = re.sub(r'[^\d]', '', raw_hs)
         if len(clean_digits) < 4:
-            return raw_hs, "", []
+            return raw_hs, "", [], empty_clarif
 
         prefix_6 = clean_digits[:6]
         prefix_4 = clean_digits[:4]
         
         from backend.models import HSCodeMaster
         
-        # 1. Query all 10-digit candidates under 6-digit prefix
-        candidates = db.query(HSCodeMaster).filter(
-            ((HSCodeMaster.hs_code.like(f"{prefix_6}%")) | 
-             (HSCodeMaster.hs_code.like(f"{prefix_4}.{prefix_6[4:6]}%"))) &
-            (HSCodeMaster.hscode_length == 10)
-        ).order_by(HSCodeMaster.hs_code).all()
-        
-        # If no 10-digit candidates under 6-digit, try 4-digit prefix
-        if not candidates:
-            candidates = db.query(HSCodeMaster).filter(
-                ((HSCodeMaster.hs_code.like(f"{prefix_4}%")) | 
-                 (HSCodeMaster.hs_code.like(f"{prefix_4[:2]}.{prefix_4[2:]}%"))) &
-                (HSCodeMaster.hscode_length == 10)
-            ).order_by(HSCodeMaster.hs_code).all()
+        # 1. Query all records under the 4-digit heading to build full HSK Hierarchy context
+        all_heading_records = db.query(HSCodeMaster).filter(
+            ((HSCodeMaster.hs_code.like(f"{prefix_4}%")) | 
+             (HSCodeMaster.hs_code.like(f"{prefix_4[:2]}.{prefix_4[2:]}%")))
+        ).all()
+
+        if not all_heading_records:
+            return raw_hs, "", [], empty_clarif
+
+        # Build clean code to official name lookup table
+        code_name_table = {}
+        candidates = []
+        for r in all_heading_records:
+            clean = re.sub(r'[^\d]', '', r.hs_code)
+            name = (r.name_ko or "").strip()
+            if clean and name:
+                if clean not in code_name_table or len(name) > len(code_name_table[clean]):
+                    code_name_table[clean] = name
+            if r.hscode_length == 10:
+                candidates.append(r)
 
         if not candidates:
-            return raw_hs, "", []
+            return raw_hs, "", [], empty_clarif
 
         # Stopwords for candidate and query matching
         generic_stopwords = {
@@ -323,65 +339,20 @@ class AICustomsClassificationProcessor:
             "접하여", "포장된", "것으로", "그", "밖의", "포함한다", "전", "용량"
         }
 
-        # Prepare query tokens and text
-        full_text = f"{product_name} {material} {function_use}".lower()
-
-        # 0. Domain Specific Hard Pre-Resolution for Sesame & Perilla Varieties
-        is_perilla = ("들깨" in full_text or "perilla" in full_text)
-        is_sesame = ("참깨" in full_text or ("깨" in full_text and not is_perilla) or "sesame" in full_text or "sesamum" in full_text)
+        # 0. Decouple inputs into Constitutional 3-Slot representation (No brittle text pollution)
+        from backend.rag.slot_decoupler import decouple_3slots
+        slot_info = decouple_3slots(product_name, material, function_use)
         
-        if is_perilla or is_sesame:
-            is_negated_roasted = any(
-                neg in full_text for neg in [
-                    "볶지않", "볶지 않", "안볶", "안 볶", "미볶", "비볶", "비가열", "미가공", 
-                    "생", "날것", "raw", "unroasted", "non-roasted", "not roasted", "탈지"
-                ]
-            )
-            is_truly_roasted = not is_negated_roasted and any(
-                rk in full_text for rk in ["볶은", "볶음", "구운", "로스팅", "roast", "toasted", "조제"]
-            )
-            has_powder = any(pk in full_text for pk in ["가루", "분말", "powder", "flour", "세말", "조말", "분"])
-            has_crushed = any(ck in full_text for ck in ["파쇄", "부순", "거칠", "1.25", "체", "crushed", "broken"])
-            
-            if is_perilla:
-                if has_crushed:
-                    return "1207.99-1000", "들깨", []
-                elif has_powder:
-                    if is_negated_roasted or (not is_truly_roasted and "분말" in full_text and "가루" not in full_text):
-                        return "1208.90-9000", "기타 (채유용 미가공 들깨 분말)", []
-                    else:
-                        return "2008.19-9000", "기타 (조제한 들깨가루)", []
-                else:
-                    if is_truly_roasted:
-                        return "2008.19-9000", "기타 (원형 낟알 볶은 들깨)", []
-                    else:
-                        return "1207.99-1000", "들깨", []
-            elif is_sesame:
-                if has_crushed:
-                    return "1207.40-0000", "참깨", []
-                elif has_powder:
-                    if is_negated_roasted or (not is_truly_roasted and "분말" in full_text and "가루" not in full_text):
-                        return "1208.90-9000", "기타 (채유용 미가공 참깨 분말)", []
-                    else:
-                        return "2008.19-3000", "볶은 참깨가루", []
-                else:
-                    if is_truly_roasted:
-                        return "2008.19-9000", "기타 (원형 낟알 볶은 참깨)", []
-                    else:
-                        return "1207.40-0000", "참깨", []
+        subject = slot_info["slot1_subject"].lower()
+        head_noun = slot_info["head_noun"].lower()
+        ingredients = slot_info["slot2_ingredients"].lower()
+        func_text = slot_info["slot3_function"].lower()
 
-        text_words = [w for w in re.findall(r'[a-zA-Z가-힣]+', full_text) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit()]
-        
-        # Extract key morphemes / subwords for Korean (e.g., 참깨가루 -> 참깨, 가루)
-        expanded_words = set(text_words)
-        for w in list(text_words):
-            if len(w) >= 3:
-                for sub_len in range(2, len(w)):
-                    for i in range(len(w) - sub_len + 1):
-                        sub_w = w[i:i+sub_len]
-                        if sub_w not in generic_stopwords and not sub_w.isdigit():
-                            expanded_words.add(sub_w)
-                        
+        head_words = set(w for w in re.findall(r'[a-zA-Z가-힣]+', head_noun) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit())
+        subject_words = set(w for w in re.findall(r'[a-zA-Z가-힣]+', subject) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit() and w not in head_words)
+        ing_words = set(w for w in re.findall(r'[a-zA-Z가-힣]+', ingredients) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit())
+        func_words = set(w for w in re.findall(r'[a-zA-Z가-힣]+', func_text) if len(w) >= 2 and w not in generic_stopwords and not w.isdigit())
+
         scored_candidates = []
         seen_clean_codes = set()
         
@@ -396,77 +367,65 @@ class AICustomsClassificationProcessor:
                 
             cand_name_ko = cand.name_ko or ""
             cand_name_en = cand.name_en or ""
-            cand_lower = f"{cand_name_ko} {cand_name_en}".lower()
+            
+            # Inherit full hierarchy tree context (Heading -> 5-digit/6-digit Subheadings -> 8-digit -> 10-digit)
+            inherited_parts = []
+            for prefix_len in [4, 5, 6, 8, 10]:
+                sub_code = clean_cand[:prefix_len]
+                if sub_code in code_name_table:
+                    inherited_parts.append(code_name_table[sub_code])
+            hierarchy_context = " ".join(inherited_parts)
+            cand_lower = f"{hierarchy_context} {cand_name_en}".lower()
             
             score = 0.0
             match_reasons = []
             
-            # Exact clean match baseline
+            # 1. Proposal alignment bonus
             if clean_cand == clean_digits:
-                score += 150.0
-                match_reasons.append("기존 제안 세번 기본점수")
+                score += 20.0
+                match_reasons.append("원래 제안 세번 일치 기본점수 (+20)")
+            elif clean_cand[:6] == prefix_6:
+                score += 15.0
+                match_reasons.append("제안 소호 일치 (+15)")
                 
-            # 1. Exact phrase / word match (excluding generic stopwords)
-            for w in set(text_words):
-                if len(w) >= 2 and w in cand_lower:
+            # 2. Slot 1 (Head Noun) Top-Weight Matching (Weight: 200pt/len)
+            for w in head_words:
+                if w in cand_lower:
+                    score += 200.0 * len(w)
+                    match_reasons.append(f"핵심 주어(Head Noun) 일치: '{w}' (+{200*len(w)})")
+                    
+            # 3. Slot 1 (Physical Subject Modifiers) Matching (Weight: 80pt/len)
+            for w in subject_words:
+                if w in cand_lower:
                     score += 80.0 * len(w)
-                    match_reasons.append(f"핵심어 일치: '{w}'")
-                    
-            # 2. Sub-token matching from expanded morphemes
-            for sw in expanded_words:
-                if len(sw) >= 2 and sw in cand_lower:
-                    score += 30.0 * len(sw)
-                    
-            # 3. High-weight domain keywords matching (Bidirectional Korean & English)
-            keyword_boosts = [
-                ("가루", ["가루", "분말", "세말", "조말", "flour", "powder", "meal"]),
-                ("참깨", ["참깨", "볶음참깨", "sesamum", "sesame", "흰깨", "검은깨", "흑임자", "통깨"]),
-                ("들깨", ["들깨", "perilla"]),
-                ("볶은", ["볶은", "구운", "roasted", "heat-treated", "toasted"]),
-                ("콩나물", ["콩나물", "sprout", "sprouting", "yellow soybean"]),
-                ("대두", ["대두", "콩", "soybean", "soya", "glycine max"]),
-                ("모터", ["전동기", "모터", "motor", "pmsm", "actuator", "servo"]),
-                ("배터리", ["축전지", "배터리", "battery", "accumulator", "lithium", "li-ion"]),
-                ("밤", ["밤", "chestnut"]),
-                ("코코넛", ["코코넛", "coconut"]),
-                ("땅콩", ["땅콩", "피넛", "peanut", "ground-nut"]),
-                ("버터", ["버터", "butter", "paste"]),
-                ("도토리", ["도토리", "acorn"]),
-                ("인삼", ["인삼", "ginseng"]),
-                ("홍삼", ["홍삼", "red ginseng"]),
-                ("커피", ["커피", "coffee"]),
-                ("크림", ["크리머", "크림", "creamer"]),
-                ("녹차", ["녹차", "green tea"]),
-                ("홍차", ["홍차", "black tea"]),
-                ("콜라", ["콜라", "cola"]),
-                ("알로에", ["알로에", "aloe"]),
-                ("효모", ["효모", "yeast"]),
-                ("벌꿀", ["벌꿀", "꿀", "honey"]),
-                ("로열젤리", ["로열젤리", "royal jelly"]),
-            ]
-            
-            for kw_name, target_terms in keyword_boosts:
-                input_has_kw = any(t in full_text for t in target_terms)
-                cand_has_kw = any(t in cand_lower for t in target_terms)
-                
-                if input_has_kw and cand_has_kw:
-                    score += 300.0
-                    match_reasons.append(f"특화 품목 키워드 적합: '{kw_name}'")
-                elif not input_has_kw and cand_has_kw:
-                    # Penalty if candidate is specific to another item not mentioned in input
-                    if kw_name in ["참깨", "밤", "코코넛", "도토리", "인삼", "홍삼", "피넛", "콜라", "알로에", "효모", "벌꿀", "로열젤리", "녹차", "홍차"]:
-                        score -= 800.0
-                        match_reasons.append(f"타 품목 전용 세번 감점: '{kw_name}' 미포함")
+                    match_reasons.append(f"성상 명사 일치: '{w}' (+{80*len(w)})")
 
-            # 4. Domain Specific Mutual Exclusion Penalties
-            if ("들깨" in full_text or "perilla" in full_text) and ("참깨" not in full_text and "sesame" not in full_text):
-                if clean_cand.startswith("2008193000") or clean_cand.startswith("1207400000") or "참깨" in cand_name_ko or "sesame" in cand_name_en.lower():
-                    score -= 800.0
-                    match_reasons.append("들깨 품목으로 참깨 세번 배제")
+            # 4. Slot 2 (Ingredients / Composition) Matching (Weight: 40pt/len)
+            for w in ing_words:
+                if w in cand_lower:
+                    score += 40.0 * len(w)
+                    match_reasons.append(f"원재료 일치: '{w}' (+{40*len(w)})")
 
-            # 5. Fallback "기타 (Other)" base score
-            if "기타" in cand_name_ko or "other" in cand_lower or clean_cand.endswith("9000"):
-                score += 50.0
+            # 5. Slot 3 (Function / Application) Matching (Weight: 20pt/len)
+            for w in func_words:
+                if w in cand_lower:
+                    score += 20.0 * len(w)
+                    match_reasons.append(f"용도/기능 일치: '{w}' (+{20*len(w)})")
+
+            # WCO Chapter 02/03/07/08 state alignment (Fresh/Chilled vs Frozen)
+            if len(clean_cand) >= 5 and clean_cand[:2] in ["02", "03", "07", "08"]:
+                if clean_cand[4] == "1":  # .1x is fresh / chilled
+                    if any(w in (subject + " " + ingredients + " " + head_noun) for w in ["신선", "냉장", "생육", "생물", "활", "fresh", "chilled"]):
+                        score += 60.0
+                        match_reasons.append("신선/냉장 성상 소호 일치 (+60)")
+                elif clean_cand[4] == "2":  # .2x is frozen
+                    if any(w in (subject + " " + ingredients + " " + head_noun) for w in ["냉동", "동결", "frozen"]):
+                        score += 60.0
+                        match_reasons.append("냉동 성상 소호 일치 (+60)")
+
+            # 6. Fallback "기타 (Other)" safety floor
+            if clean_cand.endswith("9000") or clean_cand.endswith("9090") or clean_cand.endswith("9099"):
+                score += 5.0
                 
             scored_candidates.append({
                 "code": formatted_code,
@@ -479,8 +438,81 @@ class AICustomsClassificationProcessor:
         # Sort candidates by score descending
         scored_candidates.sort(key=lambda x: x["score"], reverse=True)
         best = scored_candidates[0]
+
+        # Stage 3: Smart Clarification Probing
+        clarification_info = {
+            "needs_clarification": False,
+            "resolution_stage": "DIRECT_10DIGIT",
+            "question": "",
+            "options": []
+        }
+
+        best_clean_code = re.sub(r'[^\d]', '', best["code"])
+        best_prefix_6 = best_clean_code[:6]
+        same_subheading_cands = [c for c in scored_candidates if re.sub(r'[^\d]', '', c["code"])[:6] == best_prefix_6]
+
+        # Check for cross-subheading competition under heading (e.g. 0902.10 <=3kg vs 0902.20 >3kg)
+        if len(scored_candidates) > 1:
+            top1 = scored_candidates[0]
+            top2 = scored_candidates[1]
+            score_margin = top1["score"] - top2["score"]
+
+            if score_margin <= 30.0 and top2["score"] >= 50.0:
+                # Close competition across subheadings or within subheading
+                clarification_info["needs_clarification"] = True
+                clarification_info["resolution_stage"] = "NEEDS_SPEC_CLARIFICATION"
+                clarification_info["question"] = f"'{product_name}'의 정확한 10단위 세번 확정을 위해 포장 형태 또는 세부 규격을 선택해 주십시오."
+                clarification_info["options"] = [
+                    {
+                        "hscode": c["code"],
+                        "name_ko": c["name_ko"],
+                        "label": f"{c['code']} - {c['name_ko']}"
+                    }
+                    for c in scored_candidates[:3] if c["score"] >= top1["score"] - 50.0
+                ]
+            elif len(same_subheading_cands) == 1:
+                clarification_info["needs_clarification"] = False
+                clarification_info["resolution_stage"] = "DIRECT_10DIGIT"
+            else:
+                top1_sub = same_subheading_cands[0]
+                top2_sub = same_subheading_cands[1]
+                sub_margin = top1_sub["score"] - top2_sub["score"]
+                has_distinct_head = any("핵심 주어" in r or "성상 명사" in r for r in top1_sub.get("reasons", []))
+
+                if sub_margin >= 80.0 or (has_distinct_head and sub_margin > 20.0):
+                    clarification_info["needs_clarification"] = False
+                    clarification_info["resolution_stage"] = "CONFIRMED_VIA_MORPHOLOGY"
+                else:
+                    clarification_info["needs_clarification"] = True
+                    clarification_info["resolution_stage"] = "NEEDS_SPEC_CLARIFICATION"
+                    clarification_info["question"] = f"'{product_name}'의 최종 10단위 세번(HSK) 확정을 위해 세부 규격 또는 용도를 선택해 주십시오."
+                    clarification_info["options"] = [
+                        {
+                            "hscode": c["code"],
+                            "name_ko": c["name_ko"],
+                            "label": f"{c['code']} - {c['name_ko']}"
+                        }
+                        for c in same_subheading_cands[:4]
+                    ]
+        else:
+            clarification_info["needs_clarification"] = False
+            clarification_info["resolution_stage"] = "DIRECT_10DIGIT"
         
-        return best["code"], best["name_ko"], scored_candidates
+        return best["code"], best["name_ko"], scored_candidates, clarification_info
+
+    @classmethod
+    def resolve_deterministic_hsk10(cls, raw_hs: str, product_name: str, material: str = "", function_use: str = "", db: Session = None):
+        """
+        Backward-compatible wrapper returning (resolved_hs_code, resolved_name_ko, candidate_structures)
+        """
+        res_code, res_name, structs, _ = cls.resolve_hierarchical_hsk10(
+            raw_hs=raw_hs,
+            product_name=product_name,
+            material=material,
+            function_use=function_use,
+            db=db
+        )
+        return res_code, res_name, structs
 
     @classmethod
     def probe_clarification_needs(cls, product_name: str, db: Session) -> dict:

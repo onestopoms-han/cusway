@@ -79,6 +79,235 @@ class HSConsistencyValidator:
             "excluded_headings": ["0804", "0805", "0806", "0807", "0808", "0809", "0810"],
             "exception_keywords": ["냉동", "급속동결", "동결"],
             "error_msg": "[냉동과실 모순] 급속 동결 또는 냉동된 과실(아보카도 등)은 신선 과실(제0804호 등)이 아니라 냉동 과실 제0811호로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "90",  # Thermometers vs General Medical instruments
+            "excluded_headings": ["9018", "9019"],
+            "exception_keywords": ["체온계", "온도계", "써모미터"],
+            "error_msg": "[체온계 특게 모순] 인체 체온 측정용이라 하더라도 체온계는 제9018호(의료기기)가 아니라 온도계/체온계 전용 호인 제9025호(HSK 9025.19-1000호)로 최우선 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "90",  # Sterile Sutures & Dental Cements vs Medical Instruments
+            "excluded_headings": ["9018"],
+            "exception_keywords": ["봉합사", "봉합 원사", "봉합재", "치과용 시멘트", "복합레진"],
+            "error_msg": "[의료용품 특게 모순] 제30류 주 제4호 가목 및 마목에 따라 외과 수술용 멸균 흡수성 봉합사와 치과용 시멘트/수복재는 제9018호(수술기구)가 아닌 제3006호(의료용품)로 전용 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "62",  # Knitted garments vs Woven garments
+            "excluded_chapters": ["62"],
+            "exception_keywords": ["편물", "메리야스", "knitted", "니트", "레깅스", "타이츠"],
+            "error_msg": "[편물 의류 모순] 메리야스 편물(Knitted)로 제작된 의류는 직물제 의류(제62류)가 아닌 편물제 의류(제61류, 레깅스는 6104호)로 분류되어야 합니다 (제61류 총설)."
+        },
+        {
+            "target_chapter": "03",  # Cooked/Boiled Shrimp vs Raw Seafood
+            "excluded_headings": ["0306"],
+            "exception_keywords": ["자숙", "데친", "삶은", "조리한"],
+            "error_msg": "[조제 갑각류 모순] 끓는 물에 살짝 데치거나 삶은(자숙) 열처리 새우는 제0306호(생새우)에서 제외되며 제1605호(조제 또는 보존처리한 갑각류)로 분류되어야 합니다 (제3류 주 제1호 나목)."
+        },
+        {
+            "target_chapter": "85",  # Vacuum Cleaners vs General Robots/Appliances
+            "excluded_headings": ["8479", "8509"],
+            "exception_keywords": ["로봇청소기", "진공청소기", "청소기"],
+            "error_msg": "[진공청소기 특게 모순] 전동기를 자체 내장한 진공청소기(로봇청소기 포함)는 제8479호(로봇)나 제8509호(가정용 기기)가 아닌 제8508호(진공청소기)로 분류되어야 합니다."
+        }
+,
+        {
+            "target_chapter": "15",  # Flavoring Oil vs Pure Edible Oil
+            "excluded_headings": ["1509", "1515", "1516"],
+            "exception_keywords": ["향미유", "트러플", "향료", "조미"],
+            "error_msg": "[향미유 모순] 식용 유지에 향료나 조미 성분을 첨가한 조미용 향미유(트러플 오일 등)는 제15류에서 제외되며 제2103호(조미료)로 분류되어야 합니다 (제15류 주 제1호)."
+        },
+        {
+            "target_chapter": "09",  # Non-Camellia sinensis Herb Tea
+            "excluded_headings": ["0902"],
+            "exception_keywords": ["루이보스", "캐모마일", "페퍼민트", "허브차"],
+            "error_msg": "[차류 한정 모순] Camellia sinensis 속의 식물이 아닌 허브차(루이보스, 캐모마일 등)는 제0902호(차)에서 제외되며 제1211호(향료/약용 식물)로 분류되어야 합니다 (제0902호 용어)."
+        },
+        {
+            "target_chapter": "30",  # Botulinum Toxin vs General Medicaments
+            "excluded_headings": ["3004"],
+            "exception_keywords": ["보툴리눔", "독소", "보톡스", "toxin"],
+            "error_msg": "[독소 특게 모순] 보툴리눔 독소 등 미생물 독소(Toxins)는 소매 완제 의약품(제3004호)보다 제3002호(독소)로 우선 분류되어야 합니다 (제30류 주 규정)."
+        },
+        {
+            "target_chapter": "39",  # Non-adhesive Tape vs Self-adhesive Tape
+            "excluded_headings": ["3919"],
+            "exception_keywords": ["점착제 없음", "비점착", "씰테이프", "씰 테이프"],
+            "error_msg": "[점착성 테이프 모순] 점착제(접착제)가 없는 PTFE 씰테이프/스트립은 제3919호(자착성)에서 제외되며 제3920호로 분류되어야 합니다 (제3919호 용어)."
+        },
+        {
+            "target_chapter": "95",  # Pet Toys vs Human Toys
+            "excluded_headings": ["9503"],
+            "exception_keywords": ["고양이", "반려묘", "스크래쳐", "동물용"],
+            "error_msg": "[동물용 완구 모순] 동물용 완구 및 놀이기구(고양이 스크래쳐 등)는 제9503호에서 제외되며 구성 재질(골판지 제4823호 등)로 분류되어야 합니다 (제95류 주 제1호)."
+        },
+        {
+            "target_chapter": "63",  # Cleaning Wiping Cloth vs Household Linen
+            "excluded_headings": ["6302"],
+            "exception_keywords": ["세차", "와이핑", "청소용", "클로스"],
+            "error_msg": "[와이핑 클로스 모순] 차량 세차 및 청소용 와이핑 클로스/타월은 가정용 린넨(제6302호)이 아니라 청소용 포(제6307.10호)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "84",  # Gas Cylinder vs Machinery
+            "excluded_headings": ["8486"],
+            "exception_keywords": ["수소저장", "수소탱크", "수소용기", "가스용기"],
+            "error_msg": "[고압가스용기 모순] 고압 가스/수소 저장 실린더 용기는 기계류(제8486호)가 아니라 알루미늄 용기 제7613호 또는 철강 용기 제7311호로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "84",  # Liquid Pump vs Semiconductor Machinery
+            "excluded_headings": ["8486"],
+            "exception_keywords": ["다이아프램 펌프", "aodd", "유체 이송 펌프"],
+            "error_msg": "[액체 펌프 모순] 유체 이송용 다이아프램 펌프는 반도체 기계(제8486호)가 아니라 액체 펌프 제8413호로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "90",  # Operating Table vs Medical Devices
+            "excluded_headings": ["9018", "9019"],
+            "exception_keywords": ["수술대", "진찰대", "병원용 침대"],
+            "error_msg": "[의료용 가구 특게 모순] 제90류 주 제1호 (ij)목에 따라 전동식/유압식을 불문하고 환자용 수술대·진찰대 등 의료용 가구는 제9018호(수술기구)가 아니라 제9402호(의료용 가구)로 전용 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "30",  # Surgical Rubber Gloves vs Medical Gel/Articles
+            "excluded_headings": ["3006"],
+            "exception_keywords": ["장갑", "검진 장갑", "수술용 장갑", "라텍스 장갑"],
+            "error_msg": "[고무장갑 재질 특게 모순] 멸균 수술용 또는 검진용이라 하더라도 천연가황고무제 장갑은 제3006호(의료용품/겔)가 아니라 제4015호(가황고무제 의류 및 장갑)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "30",  # Dental Crowns / Prosthetics vs Dental Cements
+            "excluded_headings": ["3006"],
+            "exception_keywords": ["인공치아", "크라운", "보철물", "치아 크라운", "임플란트 픽스처"],
+            "error_msg": "[인공치아 특게 모순] 치과 보철용 지르코니아/세라믹 인공치아 크라운은 제3006호(치과용 시멘트)가 아니라 제9021호(인공치아/정형외과용 기기)로 전용 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "11",  # Raw Wheat Grains vs Milled Flour
+            "excluded_headings": ["1101", "1102"],
+            "exception_keywords": ["곡물 낟알", "비종자", "원맥", "비분쇄", "낟알", "연질 적색 밀"],
+            "error_msg": "[곡물 vs 제분가루 모순] '제분용'이라는 용도 표시가 있더라도 분쇄되지 않은 원형 곡물 낟알(밀 등)은 제1101호(밀가루)가 아니라 제1001호(밀 곡물)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "22",  # Pickles / Pickled Veg vs Vinegar
+            "excluded_headings": ["2209"],
+            "exception_keywords": ["피클", "침지 채소", "오이 피클", "절임"],
+            "error_msg": "[조제 채소 모순] 식초나 초산에 침지·절임 처리한 채소(오이 피클 등)는 제2209호(식초)에서 제외되며 제2001호(식초로 조제한 채소)로 분류되어야 합니다 (제20류 주 제1호)."
+        },
+        {
+            "target_chapter": "84",  # Printing Machines vs Semiconductor Tools
+            "excluded_headings": ["8486"],
+            "exception_keywords": ["인쇄기", "그라비아", "옵셋", "프린팅 머신"],
+            "error_msg": "[인쇄기계 특게 모순] 롤투롤 필름 인쇄기나 그라비아 인쇄기는 반도체 기기(제8486호)가 아니라 제8443호(인쇄기계)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "94",  # Leather articles/fabric hijacked into Furniture
+            "excluded_headings": ["9401", "9402", "9403", "9404"],
+            "exception_keywords": ["소가죽", "가죽 원단", "가공 가죽", "피혁", "은면가죽", "leather"],
+            "error_msg": "[원자재 용도침범 모순] 가구용 소파 커버 등으로 사용되더라도 조립되지 않은 가죽 원단/피혁은 제94류(가구)에서 배제되며 제41류(가죽, 4107호)로 분류되어야 합니다 (제94류 주 제1호 및 GRI 제1호)."
+        },
+        {
+            "target_chapter": "16",  # Fresh/Chilled Unseasoned Meat vs Prepared Meat
+            "excluded_headings": ["1601", "1602"],
+            "exception_keywords": ["신선", "냉장", "무양념", "생 갈비", "소 갈비", "돼지 삼겹살", "생육"],
+            "error_msg": "[신선육 vs 조제육류 모순] 양념, 열처리 조리 또는 건조되지 않은 신선/냉장 식육은 '조리용'이라는 용도 표시가 있더라도 제16류(조제육류)에서 배제되고 제02류(0201/0202호 등)로 분류되어야 합니다 (제16류 주 제1호)."
+        },
+        {
+            "target_chapter": "21",  # Malt Extract vs Basket Food Preparations
+            "excluded_headings": ["2106"],
+            "exception_keywords": ["맥아 추출물", "맥아추출물", "malt extract", "맥아 엑스"],
+            "error_msg": "[맥아 추출물 특게 모순] 맥아 추출물은 일반 조제식료품(제2106호)이 아니라 제1901호(맥아 추출물)에 전용 특게되어 있으므로 GRI 제3호 가목에 따라 제1901호로 우선 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "12",  # Soya Beans vs Other Oil Seeds
+            "excluded_headings": ["1207"],
+            "exception_keywords": ["대두", "황대두", "콩", "soya", "soybean"],
+            "error_msg": "[대두 특게 모순] 대두(콩)는 '착유용' 목적이더라도 기타 채유용 종실(제1207호)이 아니라 대두 전용 호인 제1201호로 분류되어야 합니다 (GRI 제1호 및 제3호 가목)."
+        },
+        {
+            "target_chapter": "33",  # Hair Shampoo vs Skincare / General Cosmetics
+            "excluded_headings": ["3304"],
+            "exception_keywords": ["샴푸", "두발 세정", "shampoo", "헤어클렌저"],
+            "error_msg": "[샴푸 특게 모순] 머리털 세정용 샴푸는 기초화장용 제품류(제3304호)가 아니라 두발용 제품류 제3305호(샴푸 3305.10호)로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "40",  # New Tyres vs Retreaded / Used Tyres
+            "excluded_headings": ["4012"],
+            "exception_keywords": ["신품", "미사용", "새 타이어", "레이디얼"],
+            "error_msg": "[공기타이어 신품 특게 모순] 미사용 신품 고무제 공기타이어는 재생/중고 타이어(제4012호)가 아니라 신품 공기타이어 제4011호로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "90",  # X-ray CT Scanner vs General Medical Instruments
+            "excluded_headings": ["9018"],
+            "exception_keywords": ["단층촬영", "ct 스캐너", "ct scanner", "엑스선", "x-ray", "x선"],
+            "error_msg": "[엑스선 단층촬영기 특게 모순] 엑스선을 응용한 컴퓨터 단층촬영장치(CT Scanner)는 일반 의료기기(제9018호)가 아니라 엑스선 응용기기 제9022호(9022.12호)로 분류되어야 합니다 (GRI 제3호 가목)."
+        },
+        {
+            "target_chapter": "72",  # Stainless Steel Flat-Rolled Width Threshold
+            "excluded_headings": ["7220"],
+            "exception_keywords": ["1219", "1000", "폭 600", "폭 1", "광폭", "코일"],
+            "error_msg": "[스테인리스강 평판 규격 모순] 폭이 600mm 이상인 스테인리스강 평판압연제품은 제7220호(폭 600mm 미만)가 아니라 제7219호(폭 600mm 이상)로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "76",  # Aluminium Tubes & Pipes vs Plates & Sheets
+            "excluded_headings": ["7606"],
+            "exception_keywords": ["압출관", "배관", "파이프", "튜브", "외경", "tube", "pipe"],
+            "error_msg": "[알루미늄 관 특게 모순] 원형 단면의 알루미늄 배관/압출관은 판/시트(제7606호)가 아니라 알루미늄 관 제7608호로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "90",  # Digital Camera vs Analog Film Camera
+            "excluded_headings": ["9006"],
+            "exception_keywords": ["디지털", "digital", "센서", "cmos", "ccd", "미러리스", "dslr"],
+            "error_msg": "[디지털 카메라 제외조항 저촉] 제90류 주 제1호 (h)목에 따라 디지털 카메라 및 비디오카메라는 제9006호(필름카메라)에서 명백히 배제되며 제8525호(디지털 카메라 8525.89호)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "50",  # Cotton Yarn vs Silk
+            "excluded_headings": ["5007", "5006", "5005"],
+            "exception_keywords": ["면사", "면 섬유", "방적사", "cotton yarn"],
+            "error_msg": "[면사 재질 모순] 천연 면 섬유로 만든 면사는 견/실크(제50류)가 아니라 제52류(면사 제5205호 등)로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "08",  # Crustaceans / Dried Shrimp vs Dried Fruits
+            "excluded_headings": ["0813", "0811", "0812"],
+            "exception_keywords": ["새우", "새우살", "갑각류", "shrimp", "게살", "오징어"],
+            "error_msg": "[수산물 vs 과실류 모순] 동결건조되었더라도 새우/갑각류 등 수산물은 건조 과실(제0813호)이 아니라 제0306호(갑각류)로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "15",  # Coconut oil vs Other fixed vegetable oils
+            "excluded_headings": ["1515"],
+            "exception_keywords": ["코코넛", "야자핵", "coconut", "바바수"],
+            "error_msg": "[코코넛유 특게 모순] 코코넛유는 기타 식물성 유지(제1515호)가 아니라 전용 특게 호인 제1513호로 분류되어야 합니다 (GRI 제3호 가목)."
+        },
+        {
+            "target_chapter": "08",  # Walnuts vs Tropical fruits
+            "excluded_headings": ["0804"],
+            "exception_keywords": ["호두", "walnut", "헤이즐넛", "아몬드"],
+            "error_msg": "[견과류 특게 모순] 호두 등 견과류는 열대과실(제0804호)이 아니라 견과류 전용 호인 제0802호로 분류되어야 합니다 (GRI 제1호)."
+        },
+        {
+            "target_chapter": "20",  # Roasted coffee vs Prepared food
+            "excluded_headings": ["2008", "2009"],
+            "exception_keywords": ["커피", "coffee", "원두", "에스프레소"],
+            "error_msg": "[커피 배제 규정 모순] 볶은 커피 원두는 제20류(조제식품)에서 배제되며 커피 전용 호인 제0901호로 분류되어야 합니다 (제20류 주 제1호 및 제0901호 본문)."
+        },
+        {
+            "target_chapter": "30",  # Vaccines vs Retail medicaments
+            "excluded_headings": ["3004"],
+            "exception_keywords": ["백신", "vaccine", "항원"],
+            "error_msg": "[백신 특게 모순] 인체용 및 동물용 백신은 소매 완제 의약품(제3004호)에서 제외되며 면역물품/백신 전용 호인 제3002호(3002.41호 등)로 분류되어야 합니다 (제30류 주 제2호)."
+        },
+        {
+            "target_chapter": "62",  # Leather apparel vs Woven fabric apparel
+            "excluded_headings": ["6201", "6202", "6203", "6204"],
+            "exception_keywords": ["소가죽", "가죽 자켓", "라이더 자켓", "천연가죽 외투", "leather jacket"],
+            "error_msg": "[가죽 의류 배제 모순] 천연 가죽이나 모조 가죽으로 만든 의류 및 자켓은 직물제 의류(제62류)에서 배제되며 가죽제 의류 제4203호로 분류되어야 합니다 (제62류 주 제1호 다목)."
+        },
+        {
+            "target_chapter": "75",  # Titanium vs Nickel
+            "excluded_headings": ["7505", "7506", "7507"],
+            "exception_keywords": ["티타늄", "titanium", "ti-6al"],
+            "error_msg": "[티타늄 금속 류 모순] 티타늄 및 그 합금 봉/판은 니켈(제75류)이 아니라 티타늄 전용 류인 제81류(8108호)로 분류되어야 합니다."
+        },
+        {
+            "target_chapter": "84",  # General CNC Laser & Plastic Molders vs 8486
+            "excluded_headings": ["8486"],
+            "exception_keywords": ["레이저 절단", "레이저 가공기", "파이버 레이저", "사출 성형", "사출기", "플라스틱 사출"],
+            "error_msg": "[반도체 장비 과적용 모순] 반도체/디스플레이 전용 제조 장비가 아닌 일반 금속 절단용 레이저 공작기계는 제8456호로, 일반 플라스틱 사출성형기는 제8477호로 분류되어야 합니다 (제84류 주 제9호)."
         }
     ]
 

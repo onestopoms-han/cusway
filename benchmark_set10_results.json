@@ -1,0 +1,25 @@
+{
+  "total": 50,
+  "passed": 49,
+  "failed": 1,
+  "accuracy": 98.0,
+  "error_rate": 2.0,
+  "failed_details": [
+    {
+      "id": 38,
+      "name": "플라스틱 수지 사출 성형기 (Hydraulic Plastic Injection Molding Machine)",
+      "material": "가열 실린더 배럴, 유압식 형체 유닛, 스크루 사출 장치 및 제어반 일체형",
+      "function": "열가소성 플라스틱 원료를 가열 용융하여 금형에 고압 주입 성형",
+      "predicted": "8487100000",
+      "predicted_heading": "8487",
+      "expected_headings": [
+        "8477"
+      ],
+      "expected_chapters": [
+        "84"
+      ],
+      "reasoning": "가. 물품의 본체는 사출 성형기로서, 물리적 성상에 따라 8487호로 분류된다. 나. 구성 원재료 및 사용 목적이 기계 본체의 분류에 영향을 미치지 않으며, 기계 본체로서의 특성을 유지한다. 다. 통칙 제3호에 따라"
+    }
+  ],
+  "timestamp": "2026-09-15 14:08:42"
+}
