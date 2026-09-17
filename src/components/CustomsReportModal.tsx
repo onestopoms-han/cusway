@@ -669,22 +669,23 @@ export default function CustomsReportModal({
             <button
               type="button"
               onClick={handlePrint}
+              title="브라우저 인쇄 창에서 'PDF로 저장'을 선택하시면 완벽한 A4 공문서 PDF로 저장됩니다."
               style={{
-                padding: '7px 16px',
+                padding: '8px 18px',
                 background: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
                 border: 'none',
                 borderRadius: '6px',
-                color: '#000',
-                fontSize: '0.82rem',
-                fontWeight: 900,
+                color: '#000000',
+                fontSize: '0.84rem',
+                fontWeight: 950,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 2px 10px rgba(6, 182, 212, 0.3)'
+                boxShadow: '0 2px 10px rgba(6, 182, 212, 0.4)'
               }}
             >
-              <Printer size={14} /> 인쇄 / PDF 발급 (2장)
+              <Printer size={15} /> 🖨️ 화주 제출용 리포트 인쇄 / PDF 발급 (A4 2장)
             </button>
 
             <button

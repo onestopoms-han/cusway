@@ -26,7 +26,8 @@ import {
   Clock,
   Info,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  CreditCard
 } from 'lucide-react';
 import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
 import MarketingBrochureModal from './MarketingBrochureModal';
@@ -51,6 +52,7 @@ export default function BrandShowcase({
   const [branding, setBranding] = useState<OfficeBranding>(() => getSavedOfficeBranding(currentUser));
   const [showBrochureModal, setShowBrochureModal] = useState(false);
   const [showSampleReportModal, setShowSampleReportModal] = useState(false);
+  const [showcaseBillingCycle, setShowcaseBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -1374,7 +1376,7 @@ export default function BrandShowcase({
                     4. 합리적인 CUSWAY 요금제 기준
                   </div>
                   <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
-                    1~5인 실무팀 Pro 플랜(월 44,000원), 6~15인 지사 플랜(월 180,000원), 16인 이상 법인 플랜(월 290,000원)을 기준으로 실질 회수 배수를 도출했습니다.
+                    1~5인 실무팀 Pro 플랜(월 39,000원), 전사 무제한 법인 플랜(월 99,000원)을 기준으로 실질 회수 배수를 도출했습니다.
                   </div>
                 </div>
               </div>
@@ -1401,7 +1403,7 @@ export default function BrandShowcase({
               }}
             >
               <Award size={18} />
-              <span>{teamSize <= 5 ? 'Pro 실무팀 플랜 (월 44,000원) 시작하기' : 'Enterprise 법인 플랜 도입하기'}</span>
+              <span>{teamSize <= 5 ? 'Pro 실무팀 플랜 (월 39,000원) 시작하기' : 'Enterprise 법인 플랜 도입하기'}</span>
             </button>
             <button
               onClick={onOpenKakaoConsult}
@@ -1420,6 +1422,336 @@ export default function BrandShowcase({
               }}
             >
               💬 카카오톡 도입 1:1 상담
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 4.5 Dedicated Pricing & Plans Section */}
+      <section id="pricing-plans-section" style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '28px',
+        padding: '40px 30px',
+        background: '#ffffff',
+        border: '1.5px solid #e2e8f0',
+        borderRadius: '20px',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.04)'
+      }}>
+        <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 12px',
+            borderRadius: '999px',
+            background: 'rgba(99, 102, 241, 0.1)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
+            marginBottom: '10px'
+          }}>
+            <CreditCard size={14} color="#4f46e5" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#4338ca', letterSpacing: '0.04em' }}>
+              TRANSPARENT PRICING
+            </span>
+          </div>
+          <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-main)', margin: '0 0 10px 0' }}>
+            부담 없이 시작하는 투명한 관세사 맞춤 요금제
+          </h2>
+          <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+            1인 개업 관세사부터 중대형 관세법인까지, 공수 절감과 정확도를 극대화하는 최적의 플랜을 30일간 무료로 체험하세요.
+          </p>
+
+          {/* Monthly / Yearly Discount Toggle */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginTop: '20px',
+            background: '#f8fafc',
+            padding: '6px 16px',
+            borderRadius: '30px',
+            border: '1px solid #cbd5e1'
+          }}>
+            <span style={{ fontSize: '0.85rem', fontWeight: showcaseBillingCycle === 'monthly' ? 800 : 500, color: showcaseBillingCycle === 'monthly' ? '#0f172a' : '#64748b' }}>
+              월간 결제
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowcaseBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
+              style={{
+                background: showcaseBillingCycle === 'yearly' ? '#0d9488' : '#cbd5e1',
+                border: 'none',
+                borderRadius: '20px',
+                width: '48px',
+                height: '26px',
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                padding: '2px'
+              }}
+            >
+              <div style={{
+                width: '22px',
+                height: '22px',
+                borderRadius: '50%',
+                background: '#ffffff',
+                transform: showcaseBillingCycle === 'yearly' ? 'translateX(22px)' : 'translateX(0px)',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+              }} />
+            </button>
+            <span style={{ fontSize: '0.85rem', fontWeight: showcaseBillingCycle === 'yearly' ? 800 : 500, color: showcaseBillingCycle === 'yearly' ? '#0d9488' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              연간 결제 <span style={{ fontSize: '0.68rem', background: '#ccfbf1', color: '#0f766e', border: '1px solid #0d9488', padding: '1px 6px', borderRadius: '8px', fontWeight: 800 }}>최대 25% 할인 🔥</span>
+            </span>
+          </div>
+        </div>
+
+        {/* 3 Tier Pricing Cards Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '24px',
+          marginTop: '10px'
+        }}>
+          {/* 1. Basic (30일 무료) */}
+          <div style={{
+            background: '#ffffff',
+            border: '1.5px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+            position: 'relative',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
+                  개인 / 신규 관세사
+                </span>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                  Basic (30일 무료)
+                </h3>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0f172a' }}>₩0</span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>/ 30일 전액 무료</span>
+                </div>
+                <p style={{ fontSize: '0.76rem', color: '#059669', margin: '4px 0 0 0', fontWeight: 700 }}>
+                  ✓ 신용카드 등록 없이 3초 만에 시작
+                </p>
+              </div>
+              <ul style={{
+                fontSize: '0.84rem',
+                color: '#334155',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                paddingLeft: '18px',
+                margin: '10px 0 0 0'
+              }}>
+                <li><b>30일간 Pro 플랜 전 기능 무제한 무료 체험</b></li>
+                <li>체험 종료 후 매월 50건 HSK 기본 무료 조회</li>
+                <li>기본 4단계 통관 요건 심사 조회</li>
+                <li>세율 / FTA 협정세율 실시간 매핑</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => onNavigate('billing')}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#f1f5f9',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '8px',
+                color: '#0f172a',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>30일 무료체험 시작하기</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
+
+          {/* 2. Pro (실무팀형 - 추천 BEST) */}
+          <div style={{
+            background: 'linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%)',
+            border: '2.5px solid #0d9488',
+            borderRadius: '16px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+            position: 'relative',
+            boxShadow: '0 10px 25px rgba(13, 148, 136, 0.15)'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+              color: '#ffffff',
+              fontSize: '0.72rem',
+              fontWeight: 900,
+              padding: '3px 12px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(13, 148, 136, 0.3)'
+            }}>
+              관세사무소 추천 BEST 플랜
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.74rem', color: '#0d9488', fontWeight: 800, textTransform: 'uppercase' }}>
+                  중소 지사 & 관세사무소
+                </span>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                  Pro (실무팀형)
+                </h3>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0d9488' }}>
+                    {showcaseBillingCycle === 'yearly' ? '₩29,000' : '₩39,000'}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    {showcaseBillingCycle === 'yearly' ? '/월 (연 ₩348,000 일시납)' : '/월'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.76rem', color: '#0284c7', margin: '4px 0 0 0', fontWeight: 700 }}>
+                  ✓ 5인 기본 포함 • 4단계 사전 심사 무제한
+                </p>
+              </div>
+              <ul style={{
+                fontSize: '0.84rem',
+                color: '#1e293b',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                paddingLeft: '18px',
+                margin: '10px 0 0 0'
+              }}>
+                <li><b>무제한</b> 4단계 수입 통관 사전 심사 가이드</li>
+                <li><b>AI RAG 해설서 및 결정례 소명 근거 매핑</b></li>
+                <li><b>화주 제출용 "전문 관세 검토 리포트" PDF 무제한 출력</b></li>
+                <li><b>관세사무소 상호 및 직인 도장 커스텀 브랜딩</b></li>
+                <li>동시접속 튕김 없는 전 직원 5인 동시 접속 지원</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => onNavigate('billing')}
+              style={{
+                width: '100%',
+                padding: '13px',
+                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.92rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Sparkles size={16} fill="#ffffff" />
+              <span>Pro 플랜 구독하기 (30일 무료 포함)</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
+
+          {/* 3. Enterprise (대형 법인형) */}
+          <div style={{
+            background: '#ffffff',
+            border: '1.5px solid #cbd5e1',
+            borderRadius: '16px',
+            padding: '28px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+            position: 'relative',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.74rem', color: '#6366f1', fontWeight: 800, textTransform: 'uppercase' }}>
+                  50인 이상 중대형 관세법인
+                </span>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                  Enterprise (법인형)
+                </h3>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '2.2rem', fontWeight: 900, color: '#4338ca' }}>
+                    {showcaseBillingCycle === 'yearly' ? '₩79,000' : '₩99,000'}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    {showcaseBillingCycle === 'yearly' ? '/월 (연 ₩948,000 일시납)' : '/월'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.76rem', color: '#6366f1', margin: '4px 0 0 0', fontWeight: 700 }}>
+                  ✓ 전사 본·지사 인원 완전 무제한
+                </p>
+              </div>
+              <ul style={{
+                fontSize: '0.84rem',
+                color: '#334155',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                paddingLeft: '18px',
+                margin: '10px 0 0 0'
+              }}>
+                <li><b>관세법인 내부 ERP 및 통관 관리 시스템 API 연동</b></li>
+                <li>신고서 초안 대량 업로드 오류 자동 검증 엔진</li>
+                <li>전사 본지사 관세사 간 사전 심사 이력 클라우드 동기화</li>
+                <li><b>100% 단독 화이트라벨 모드</b> (CUSWAY 로고 완전 제거)</li>
+                <li>전담 관세 IT 기술 지원 및 맞춤 커스터마이징</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={onOpenKakaoConsult}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#4338ca',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Building2 size={16} />
+              <span>법인 도입 문의 및 맞춤 상담</span>
+              <ArrowRight size={15} />
             </button>
           </div>
         </div>
@@ -1487,6 +1819,98 @@ export default function BrandShowcase({
           </button>
         </div>
       </section>
+
+      {/* 6. Official Samheung Business Info Footer */}
+      <footer style={{
+        marginTop: '20px',
+        padding: '30px 24px',
+        background: '#0f172a',
+        borderRadius: '16px',
+        color: '#94a3b8',
+        fontSize: '0.82rem',
+        lineHeight: 1.7,
+        border: '1px solid #1e293b'
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: '24px',
+          paddingBottom: '20px',
+          borderBottom: '1px solid #1e293b'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '1.05rem', fontWeight: 900, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                CUSWAY
+              </span>
+              <span style={{ fontSize: '0.7rem', background: 'rgba(13, 148, 136, 0.2)', color: '#2dd4bf', border: '1px solid rgba(13, 148, 136, 0.4)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                관세사 전용 AI 코파일럿
+              </span>
+            </div>
+            <p style={{ margin: 0, color: '#64748b', fontSize: '0.8rem', maxWidth: '420px' }}>
+              WCO 관세율표 해설서·주규정 RAG 엔진과 관세평가분류원 실존 결정례에 기반한 대한민국 1위 관세 AI 플랫폼
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => onNavigate('billing')}
+              style={{
+                background: 'transparent',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                color: '#cbd5e1',
+                padding: '6px 12px',
+                fontSize: '0.78rem',
+                cursor: 'pointer'
+              }}
+            >
+              요금제 및 결제 관리
+            </button>
+            <button
+              onClick={onOpenKakaoConsult}
+              style={{
+                background: 'transparent',
+                border: '1px solid #334155',
+                borderRadius: '6px',
+                color: '#cbd5e1',
+                padding: '6px 12px',
+                fontSize: '0.78rem',
+                cursor: 'pointer'
+              }}
+            >
+              도입 문의 및 1:1 상담
+            </button>
+          </div>
+        </div>
+
+        <div style={{
+          paddingTop: '18px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px'
+        }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', color: '#cbd5e1', fontWeight: 600 }}>
+            <span>상호명: 삼흥</span>
+            <span>|</span>
+            <span>대표자: 한상윤</span>
+            <span>|</span>
+            <span>사업자등록번호: 888-64-00585</span>
+            <span>|</span>
+            <span>직통 문의: 010-9256-8480</span>
+            <span>|</span>
+            <span>고객지원: support@cusway.ai</span>
+          </div>
+          <div style={{ color: '#64748b', fontSize: '0.78rem' }}>
+            결제 및 세금계산서 문의: 사업자등록증 첨부 시 관세사무소/관세법인 전용 정식 전자세금계산서 100% 당일 발급 지원
+          </div>
+          <div style={{ color: '#475569', fontSize: '0.75rem', marginTop: '6px' }}>
+            Copyright © 2026 삼흥 (Samheung). All rights reserved. 본 서비스 내 모든 판례 및 해설서는 관세청 공식 데이터베이스와 연동되어 무결성을 보장합니다.
+          </div>
+        </div>
+      </footer>
       </div>
 
       {/* Marketing Brochure Printable Modal */}

@@ -41,6 +41,8 @@ export default function App() {
     phone_number?: string;
     is_admin?: boolean;
     role?: string;
+    trial_end_date?: string;
+    is_trial?: boolean;
   }
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -254,6 +256,28 @@ export default function App() {
     const redirectUri = window.location.origin + "/";
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent('email profile')}&state=google`;
     window.location.href = authUrl;
+  };
+
+  const handleStartTrial = () => {
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 30);
+    const trialUser: UserInfo = {
+      email: `trial_${Date.now().toString().slice(-4)}@cusway.kr`,
+      company_name: '관세사무소 (30일 무료체험)',
+      plan: 'Trial',
+      status: 'Active',
+      accrued_points: 30000,
+      join_date: new Date().toISOString().split('T')[0],
+      user_type: 'broker',
+      years_of_experience: 5,
+      credibility_weight: 2.0,
+      is_trial: true,
+      trial_end_date: trialEndDate.toISOString().split('T')[0]
+    };
+    setCurrentUser(trialUser);
+    setIsLoggedIn(true);
+    localStorage.setItem('cusway_current_user', JSON.stringify(trialUser));
+    alert('🎉 런칭 기념 30일(1개월) 무료 체험이 즉시 시작되었습니다!\n\n신용카드 등록 없이 Pro 실무팀 플랜의 모든 기능(4단계 통관 심사, AI 법리 소명, 화주 제출용 A4 리포트 무제한 발급)을 30일간 자유롭게 이용하실 수 있습니다.');
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -776,6 +800,33 @@ export default function App() {
                 </svg>
                 Google 계정으로 계속하기
               </button>
+
+              {/* 14-Day Free Trial Direct Fast-Pass */}
+              <button 
+                type="button"
+                onClick={handleStartTrial}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'linear-gradient(135deg, #0d9488 0%, #0891b2 100%)',
+                  border: '1.5px solid #14b8a6',
+                  borderRadius: '10px',
+                  color: '#ffffff',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginTop: '4px',
+                  boxShadow: '0 4px 15px rgba(13, 148, 136, 0.35)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <Sparkles size={16} color="#5eead4" />
+                <span>⚡ 30일 무료체험으로 3초 만에 시작 (카드등록 없음)</span>
+              </button>
             </div>
 
             {/* Divider */}
@@ -1148,6 +1199,20 @@ export default function App() {
                 </div>
               </div>
             )}
+
+            {/* Legal Entity Footer in Login Box */}
+            <div style={{
+              marginTop: '20px',
+              paddingTop: '16px',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              textAlign: 'center',
+              fontSize: '0.68rem',
+              color: 'rgba(255,255,255,0.5)',
+              lineHeight: 1.5
+            }}>
+              <div><b>삼흥</b> | 대표자: 한상윤 | 사업자등록번호: 888-64-00585 | 직통: 010-9256-8480</div>
+              <div>CUSWAY AI 관세 코파일럿 서비스 | © 2026 삼흥. All rights reserved.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1301,6 +1366,24 @@ export default function App() {
               <span>비공개 결정례 캐시백</span>
             </button>
 
+            {/* Billing & Subscription Plan Management */}
+            <button 
+              onClick={() => setCurrentView('billing')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'billing' ? '#e0e7ff' : '#f8fafc',
+                color: currentView === 'billing' ? '#4338ca' : '#0f172a',
+                fontWeight: 950,
+                cursor: 'pointer',
+                border: currentView === 'billing' ? '2.5px solid #6366f1' : '1.5px solid #cbd5e1',
+                borderRadius: '8px',
+                boxShadow: currentView === 'billing' ? '0 2px 8px rgba(99, 102, 241, 0.2)' : 'none'
+              }}
+            >
+              <CreditCard size={16} color={currentView === 'billing' ? '#4f46e5' : '#0f172a'} />
+              <span>💳 요금제 & 구독 관리</span>
+            </button>
+
             {isAdmin && (
               <button 
                 onClick={() => setCurrentView('admin')}
@@ -1366,35 +1449,79 @@ export default function App() {
                 <p style={{ fontSize: '0.74rem', color: '#334155', fontWeight: 750, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', margin: '2px 0 0 0' }}>
                   {currentUser?.email || ''}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
-                  <span style={{
-                    fontSize: '0.66rem',
-                    background: '#ccfbf1',
-                    color: '#0f766e',
-                    border: '1px solid #0d9488',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontWeight: 850
-                  }}>
-                    {currentUser?.user_type === 'broker' ? '관세사' : currentUser?.user_type === 'practitioner' ? '실무자' : '일반'} ({currentUser?.credibility_weight || 1.0}점)
-                  </span>
-                  {currentUser?.user_type === 'general_user' && (
+                
+                {/* Plan Status Badges */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                  {currentUser?.is_trial ? (
                     <span 
-                      onClick={() => setShowUpgradeModal(true)}
+                      onClick={() => setCurrentView('billing')}
+                      title="클릭 시 구독 관리로 이동"
                       style={{
-                        fontSize: '0.66rem',
-                        background: '#cffafe',
-                        border: '1px solid #0891b2',
-                        color: '#0e7490',
+                        fontSize: '0.64rem',
+                        background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
+                        color: '#ffffff',
                         padding: '2px 6px',
                         borderRadius: '4px',
                         fontWeight: 900,
+                        cursor: 'pointer',
+                        boxShadow: '0 1px 4px rgba(13,148,136,0.3)'
+                      }}
+                    >
+                      ✨ 30일 체험 중 (D-30)
+                    </span>
+                  ) : currentUser?.plan === 'Business' ? (
+                    <span style={{
+                      fontSize: '0.64rem',
+                      background: '#ede9fe',
+                      color: '#6d28d9',
+                      border: '1px solid #8b5cf6',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontWeight: 900
+                    }}>
+                      🏢 Enterprise 법인
+                    </span>
+                  ) : currentUser?.plan === 'Basic' || currentUser?.plan === 'Pro' ? (
+                    <span style={{
+                      fontSize: '0.64rem',
+                      background: '#cffafe',
+                      color: '#0e7490',
+                      border: '1px solid #0891b2',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontWeight: 900
+                    }}>
+                      👑 Pro 실무팀
+                    </span>
+                  ) : (
+                    <span 
+                      onClick={() => setCurrentView('billing')}
+                      style={{
+                        fontSize: '0.64rem',
+                        background: '#f1f5f9',
+                        color: '#475569',
+                        border: '1px solid #cbd5e1',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        fontWeight: 750,
                         cursor: 'pointer'
                       }}
                     >
-                      업그레이드 ⚡
+                      Basic 무료 • 업그레이드 ⚡
                     </span>
                   )}
+
+                  <span style={{
+                    fontSize: '0.64rem',
+                    background: '#f8fafc',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    padding: '2px 5px',
+                    borderRadius: '4px',
+                    fontWeight: 800
+                  }}>
+                    {currentUser?.user_type === 'broker' ? '관세사' : currentUser?.user_type === 'practitioner' ? '실무자' : '일반'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1488,6 +1615,19 @@ export default function App() {
                 <LogOut size={13} color="#991b1b" />
                 <span>로그아웃</span>
               </button>
+            </div>
+
+            {/* Sidebar Business Notice */}
+            <div style={{
+              padding: '8px 4px 0 4px',
+              borderTop: '1px solid #e2e8f0',
+              fontSize: '0.64rem',
+              color: '#64748b',
+              lineHeight: 1.4,
+              textAlign: 'center'
+            }}>
+              <div>운영: <b>삼흥</b> (대표: 한상윤)</div>
+              <div>사업자: 888-64-00585 | 직통: 010-9256-8480</div>
             </div>
           </div>
         )}

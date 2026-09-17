@@ -130,7 +130,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
         {/* Content Body */}
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: '80vh', overflowY: 'auto' }}>
           
-          {/* Option 1: Instant Kakao Channel Button */}
+          {/* Option 1: Instant Direct Call & Kakao Hotline */}
           <div style={{
             background: 'rgba(254, 229, 0, 0.08)',
             border: '1.5px solid rgba(254, 229, 0, 0.35)',
@@ -141,39 +141,60 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
             gap: '12px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#FEE500' }}>
-                ⚡ CUSWAY 카카오톡 1:1 실시간 채팅 채널
+              <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#FEE500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                ⚡ 삼흥 대표 직통 상담 핫라인
               </span>
               <span style={{ fontSize: '0.7rem', background: '#FEE500', color: '#000', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
-                실시간 빠른 응답
+                실시간 통화 & 문자 가능
               </span>
             </div>
-            <p style={{ margin: 0, fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-              CUSWAY 공식 카카오톡 채널로 연결되어 시스템 기능, 품목분류·평가 데이터 연동, 비공개 결정례 제휴를 1:1로 신속하게 문의하실 수 있습니다.
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+              CUSWAY 운영사 <strong>삼흥(대표: 한상윤)</strong> 직통 번호 <strong>010-9256-8480</strong>으로 즉시 전화 또는 문자 상담이 가능하며, 카카오톡 친구검색에서 해당 번호로 1:1 상담을 나누실 수 있습니다.
             </p>
-            <button
-              type="button"
-              onClick={handleOpenKakaoDirect}
-              style={{
-                background: '#FEE500',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '12px',
-                color: '#111827',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 12px rgba(254, 229, 0, 0.25)',
-                transition: 'transform 0.15s ease'
-              }}
-            >
-              <MessageCircle size={18} />
-              CUSWAY 카카오톡 1:1 상담 시작하기
-            </button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <a
+                href="tel:01092568480"
+                style={{
+                  background: '#FEE500',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  color: '#111827',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  boxShadow: '0 4px 12px rgba(254, 229, 0, 0.25)',
+                  cursor: 'pointer'
+                }}
+              >
+                <Phone size={17} />
+                <span>직통 전화 걸기</span>
+              </a>
+              <a
+                href="sms:01092568480?body=안녕하세요, CUSWAY 관세 AI 서비스 관련 상담 문의드립니다."
+                style={{
+                  background: '#1e293b',
+                  border: '1.5px solid #FEE500',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  color: '#FEE500',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  cursor: 'pointer'
+                }}
+              >
+                <MessageCircle size={17} />
+                <span>문자 메시지 상담</span>
+              </a>
+            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0' }}>
@@ -361,7 +382,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Phone size={14} color="var(--accent-cyan)" />
-              <span>CUSWAY 고객지원센터: <strong style={{ color: '#fff' }}>02-540-0000</strong></span>
+              <span>삼흥 직통 고객지원센터: <strong style={{ color: '#fff' }}>010-9256-8480</strong> (한상윤 대표)</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Clock size={14} color="#f59e0b" />
