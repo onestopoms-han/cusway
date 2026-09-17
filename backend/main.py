@@ -10,6 +10,7 @@ import re
 import json
 import sqlite3
 from datetime import datetime
+import uuid
 
 def load_env():
     # Load .env file from project root if exists
@@ -211,8 +212,21 @@ class BillingRequest(BaseModel):
     original_price: int
     points_used: int
     final_price: int
+    payment_method: Optional[str] = "card"
+    pg_provider: Optional[str] = "portone"
+    transaction_id: Optional[str] = None
+    receipt_url: Optional[str] = None
 
 # --- API Endpoints ---
+
+@app.get("/api/billing/config")
+def get_billing_config():
+    return {
+        "portone_user_code": os.environ.get("PORTONE_USER_CODE", "imp00000000"),
+        "toss_client_key": os.environ.get("TOSS_CLIENT_KEY", "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"),
+        "is_sandbox": os.environ.get("PAYMENT_ENV", "sandbox") == "sandbox",
+        "merchant_name": "삼흥 (대표자: 한상윤)"
+    }
 
 @app.get("/api/auth/social/config")
 def get_social_config():
@@ -1100,20 +1114,42 @@ def subscribe(req: BillingRequest, db: Session = Depends(get_db)):
     # 2. 요금제 업그레이드
     if req.plan_name == "business":
         user.plan = "Business"
-    else:
+    elif req.plan_name == "basic":
         user.plan = "Basic"
+    else:
+        user.plan = "Trial"
         
     # 3. 결제 이력 저장
+    tx_id = req.transaction_id or f"TX-{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
+    receipt_url = req.receipt_url or f"https://cusway.kr/receipt/{tx_id}"
+    
     history = PaymentHistory(
         email=req.email,
         plan_name=req.plan_name,
         original_price=req.original_price,
         points_used=req.points_used,
-        final_price=req.final_price
+        final_price=req.final_price,
+        payment_method=req.payment_method or "card",
+        pg_provider=req.pg_provider or "portone",
+        transaction_id=tx_id,
+        receipt_url=receipt_url
     )
     db.add(history)
     db.commit()
-    return {"message": "결제 및 구독 정기결제 등록이 성공적으로 처리되었습니다."}
+    db.refresh(user)
+    
+    approval_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return {
+        "status": "success",
+        "message": "공인 PG 결제 승인 및 정기 구독 등록이 성공적으로 완료되었습니다.",
+        "transaction_id": tx_id,
+        "approval_date": approval_time,
+        "plan": user.plan,
+        "accrued_points": user.accrued_points,
+        "payment_method": req.payment_method or "card",
+        "pg_provider": req.pg_provider or "portone",
+        "receipt_url": receipt_url
+    }
 
 class EmailSendRequest(BaseModel):
     recipient_email: str

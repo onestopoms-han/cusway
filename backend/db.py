@@ -66,7 +66,21 @@ def init_db_migrations():
                 for col_name, col_type in cols_to_add:
                     if col_name not in existing_cols:
                         cursor.execute(f"ALTER TABLE hs_rate_master ADD COLUMN {col_name} {col_type}")
-                        print(f"[MIGRATION] Added column {col_name} to hs_rate_master")
+                conn.commit()
+
+            cursor.execute("PRAGMA table_info(payment_histories)")
+            hist_cols = {row[1] for row in cursor.fetchall()}
+            if hist_cols:
+                hist_cols_to_add = [
+                    ("payment_method", "TEXT DEFAULT 'card'"),
+                    ("pg_provider", "TEXT DEFAULT 'portone'"),
+                    ("transaction_id", "TEXT"),
+                    ("receipt_url", "TEXT")
+                ]
+                for col_name, col_type in hist_cols_to_add:
+                    if col_name not in hist_cols:
+                        cursor.execute(f"ALTER TABLE payment_histories ADD COLUMN {col_name} {col_type}")
+                        print(f"[MIGRATION] Added column {col_name} to payment_histories")
                 conn.commit()
             conn.close()
         except Exception as e:

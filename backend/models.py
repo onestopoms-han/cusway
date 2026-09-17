@@ -67,6 +67,10 @@ class PaymentHistory(Base):
     points_used = Column(Integer, default=0)
     final_price = Column(Integer, nullable=False)
     date = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d"))
+    payment_method = Column(String, nullable=True, default="card")
+    pg_provider = Column(String, nullable=True, default="portone")
+    transaction_id = Column(String, nullable=True)
+    receipt_url = Column(String, nullable=True)
 
 class ExplanatoryNote(Base):
     __tablename__ = "explanatory_notes"
