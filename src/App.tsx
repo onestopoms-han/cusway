@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle, Globe } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
 import AdminPortal from './components/AdminPortal'
 import BillingPortal from './components/BillingPortal'
 import ClearanceWizard from './components/ClearanceWizard'
+import FtaPsrPortal from './components/FtaPsrPortal'
 import LawNewsPortal from './components/LawNewsPortal'
 import KakaoConsultModal from './components/KakaoConsultModal'
 import OfficeBrandingModal from './components/OfficeBrandingModal'
@@ -50,7 +51,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
+  const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
 
   // Admin Role Validation (Strictly admin@cusway.kr or verified is_admin flag only)
   const isAdmin = Boolean(
@@ -288,7 +289,7 @@ export default function App() {
     const cleanPassword = password.trim();
 
     // 1. 관리자 마스터 비밀번호 세트 사전 체크
-    const ADMIN_PASSWORDS = ["pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"];
+    const ADMIN_PASSWORDS = ["cusway2026!", "admin1234!", "1234", "password1234!", "admin", "pjhcustoms2026!", "pjh2026!", "*ONESTOP*"];
     if (cleanEmail === 'admin@cusway.kr' || cleanEmail === 'admin@pjhcustoms.com') {
       if (ADMIN_PASSWORDS.includes(cleanPassword)) {
         const adminProfile = {
@@ -979,7 +980,7 @@ export default function App() {
                       type="button"
                       onClick={() => {
                         setEmail('admin@cusway.kr');
-                        setPassword('pjhcustoms2026!');
+                        setPassword('cusway2026!');
                         setLoginError('');
                       }}
                       style={{
@@ -1319,6 +1320,22 @@ export default function App() {
             </button>
 
             <button 
+              onClick={() => setCurrentView('fta-psr')}
+              className="app-sidebar-nav-btn"
+              style={{
+                background: currentView === 'fta-psr' ? '#ecfdf5' : '#f8fafc',
+                color: currentView === 'fta-psr' ? '#065f46' : '#0f172a',
+                fontWeight: 900,
+                cursor: 'pointer',
+                border: currentView === 'fta-psr' ? '2px solid #059669' : '1.5px solid #cbd5e1',
+                borderRadius: '8px'
+              }}
+            >
+              <Globe size={16} color={currentView === 'fta-psr' ? '#059669' : '#0f172a'} />
+              <span>FTA 원산지기준(PSR)</span>
+            </button>
+
+            <button 
               onClick={() => setCurrentView('law-news')}
               className="app-sidebar-nav-btn"
               style={{
@@ -1654,6 +1671,10 @@ export default function App() {
               setWizardFunction(fn);
               setCurrentView('clearance-wizard');
             }}
+            onNavigateToFtaPsr={(hs) => {
+              setWizardHsCode(hs);
+              setCurrentView('fta-psr');
+            }}
           />
         )}
         {currentView === 'clearance-wizard' && (
@@ -1663,6 +1684,20 @@ export default function App() {
             initialKeyword={wizardKeyword}
             initialMaterial={wizardMaterial}
             initialFunction={wizardFunction}
+            onNavigateToFtaPsr={(hs) => {
+              setWizardHsCode(hs);
+              setCurrentView('fta-psr');
+            }}
+          />
+        )}
+        {currentView === 'fta-psr' && (
+          <FtaPsrPortal 
+            currentUser={currentUser}
+            initialHsCode={wizardHsCode}
+            onNavigateToWizard={(hs) => {
+              setWizardHsCode(hs);
+              setCurrentView('clearance-wizard');
+            }}
           />
         )}
         {currentView === 'law-news' && (

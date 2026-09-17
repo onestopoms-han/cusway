@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   HelpCircle,
   Share2,
+  Globe,
   Printer,
   Tag,
   Copy,
@@ -93,9 +94,10 @@ import { findFoodRuleMatch, normalizeFoodSpelling } from '../data/food50Rules';
 interface HsClassifierProps {
   currentUser?: any;
   onNavigateToWizard?: (hsCode: string, keyword: string, material: string, functionUse: string) => void;
+  onNavigateToFtaPsr?: (hsCode: string) => void;
 }
 
-export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClassifierProps) {
+export default function HsClassifier({ currentUser, onNavigateToWizard, onNavigateToFtaPsr }: HsClassifierProps) {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth < 768 || 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -2635,6 +2637,28 @@ export default function HsClassifier({ currentUser, onNavigateToWizard }: HsClas
                       >
                         <Share2 size={15} /> 카톡/이메일 전송
                       </button>
+
+                      {onNavigateToFtaPsr && (
+                        <button 
+                          onClick={() => onNavigateToFtaPsr(matchedRule.recommendedHsCode)}
+                          style={{
+                            background: '#ecfdf5',
+                            color: '#065f46',
+                            border: '1px solid #059669',
+                            borderRadius: '6px',
+                            padding: '8px 16px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Globe size={15} color="#059669" /> FTA 원산지기준(PSR)
+                        </button>
+                      )}
 
                       <button 
                         onClick={() => {

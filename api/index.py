@@ -94,7 +94,7 @@ def get_social_config():
     return {
         "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3"),
         "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com"),
-        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_onestopcustoms")
+        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_cusway")
     }
 
 @app.post("/api/auth/social/kakao", response_model=UserResponse)
@@ -386,7 +386,7 @@ def signup(req: SignupRequest):
 
     return user_resp
 
-ADMIN_MASTER_PASSWORDS = {"pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"}
+ADMIN_MASTER_PASSWORDS = {"cusway2026!", "pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"}
 
 @app.post("/api/auth/login", response_model=UserResponse)
 def login(req: LoginRequest):

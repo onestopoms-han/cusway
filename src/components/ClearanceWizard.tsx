@@ -30,6 +30,7 @@ interface ClearanceWizardProps {
   initialKeyword?: string;
   initialMaterial?: string;
   initialFunction?: string;
+  onNavigateToFtaPsr?: (hsCode: string) => void;
 }
 
 export default function ClearanceWizard({ 
@@ -37,7 +38,8 @@ export default function ClearanceWizard({
   initialHsCode = '2009.89-1090',
   initialKeyword = '배 주스',
   initialMaterial = '배 과즙 100%',
-  initialFunction = '음료 제조용 원료'
+  initialFunction = '음료 제조용 원료',
+  onNavigateToFtaPsr
 }: ClearanceWizardProps) {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isMobile, setIsMobile] = useState(
@@ -1137,6 +1139,48 @@ export default function ClearanceWizard({
                   productName={keyword || initialKeyword}
                   originCountryCode={originCountry}
                 />
+
+                {onNavigateToFtaPsr && (
+                  <div style={{
+                    background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                    border: '1.5px solid #10b981',
+                    borderRadius: '10px',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '12px',
+                    marginTop: '8px',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.1)'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#065f46' }}>
+                        🌐 세번({hsCode})별 5대 FTA 원산지결정기준(PSR) 정밀 심사
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#047857', marginTop: '2px' }}>
+                        한-미, 한-EU, 한-중, 한-아세안, RCEP 세번변경기준(CC·CTH·CTSH) 및 C/O 서식 발급 조건 안내
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToFtaPsr(hsCode)}
+                      style={{
+                        padding: '9px 18px',
+                        background: '#059669',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 2px 6px rgba(5, 150, 105, 0.25)'
+                      }}
+                    >
+                      PSR 기준표 보기 →
+                    </button>
+                  </div>
+                )}
 
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                   <button 

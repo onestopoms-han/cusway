@@ -20,7 +20,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
 
   const handleOpenKakaoDirect = () => {
     // 카카오톡 채널 1:1 채팅 또는 오픈채팅 직통 링크
-    const kakaoUrl = 'https://pf.kakao.com/_onestopcustoms/chat';
+    const kakaoUrl = 'https://pf.kakao.com/_cusway/chat';
     window.open(kakaoUrl, '_blank');
   };
 

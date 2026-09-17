@@ -1600,7 +1600,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
                         <button
                           onClick={() => {
                             handleOpenMarketingLauncher(c);
-                            window.open('https://pf.kakao.com/_onestopcustoms/chat', '_blank');
+                            window.open('https://pf.kakao.com/_cusway/chat', '_blank');
                           }}
                           style={{
                             padding: '10px 18px',
@@ -2279,7 +2279,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
                 <button
                   onClick={() => {
                     handleCopyTemplateText();
-                    window.open('https://pf.kakao.com/_onestopcustoms/chat', '_blank');
+                    window.open('https://pf.kakao.com/_cusway/chat', '_blank');
                   }}
                   style={{
                     display: 'flex',
@@ -2796,7 +2796,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
               <button
                 onClick={() => {
                   handleCopyTemplateText();
-                  window.open('https://pf.kakao.com/_onestopcustoms/chat', '_blank');
+                  window.open('https://pf.kakao.com/_cusway/chat', '_blank');
                 }}
                 style={{ padding: '12px 26px', borderRadius: '10px', background: '#FEE500', border: '2.5px solid #ca8a04', color: '#000000', fontSize: '1.0rem', fontWeight: 950, cursor: 'pointer', boxShadow: '0 2px 10px rgba(254, 229, 0, 0.35)' }}
               >

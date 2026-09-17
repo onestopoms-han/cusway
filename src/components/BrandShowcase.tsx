@@ -27,14 +27,15 @@ import {
   Info,
   ChevronDown,
   ChevronUp,
-  CreditCard
+  CreditCard,
+  Globe
 } from 'lucide-react';
 import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
 import MarketingBrochureModal from './MarketingBrochureModal';
 import CustomsReportModal from './CustomsReportModal';
 
 interface BrandShowcaseProps {
-  onNavigate: (view: 'hs-classifier' | 'clearance-wizard' | 'valuation' | 'cashback' | 'billing' | 'law-news') => void;
+  onNavigate: (view: 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'billing' | 'law-news') => void;
   onOpenBranding: () => void;
   onOpenKakaoConsult: () => void;
   onOpenGuide?: (sectionId?: string) => void;
@@ -949,6 +950,25 @@ export default function BrandShowcase({
                     }}
                   >
                     <Zap size={15} /> 4단계 통관 심사 실행하기
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate('fta-psr')}
+                    style={{
+                      padding: '12px 18px',
+                      background: '#ecfdf5',
+                      border: '1.5px solid #059669',
+                      borderRadius: '8px',
+                      color: '#065f46',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Globe size={15} color="#059669" /> 세번별 FTA 원산지기준(PSR)
                   </button>
                 </div>
               </div>

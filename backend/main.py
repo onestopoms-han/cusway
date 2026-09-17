@@ -219,7 +219,7 @@ def get_social_config():
     return {
         "kakao_client_id": os.environ.get("KAKAO_CLIENT_ID", "f3be8f44c4bfeb5e6e640c79e9851da3"),
         "google_client_id": os.environ.get("GOOGLE_CLIENT_ID", "658849756035-63s1rndr4iubplmvi9b25bd1j6i5cpj4.apps.googleusercontent.com"),
-        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_onestopcustoms")
+        "kakao_channel_id": os.environ.get("KAKAO_CHANNEL_PUBLIC_ID", "_cusway")
     }
 
 @app.post("/api/auth/social/kakao", response_model=UserResponse)
@@ -430,7 +430,7 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
             # Vercel 읽기 전용 DB 환경에서도 로그인이 가능하도록 인메모리 유저 객체 반환
     return user
 
-ADMIN_MASTER_PASSWORDS = {"pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"}
+ADMIN_MASTER_PASSWORDS = {"cusway2026!", "pjhcustoms2026!", "admin1234!", "1234", "password1234!", "admin", "pjh2026!", "*ONESTOP*"}
 
 @app.post("/api/auth/login", response_model=UserResponse)
 def login(req: LoginRequest, db: Session = Depends(get_db)):
@@ -919,10 +919,6 @@ class AppraisalRequest(BaseModel):
     identifier: str  # hs_code or issue
     is_confidential: bool = True
     decision_type: Optional[str] = "overturned"  # overturned (인용/승소), approved (적격), rejected (기각)
-    fta_agreement: Optional[str] = "none"  # "kor_eu", "kor_us", "rcep", "kor_cn", "kor_asean", "none"
-    psr_sensitivity: Optional[str] = "standard"  # "standard", "cth_sensitive", "rvc_sensitive", "origin_dispute"
-    gri_complexity: Optional[str] = "gri_1"  # "gri_1", "gri_2", "gri_3", "chapter_note"
-    has_evidence_package: Optional[bool] = False  # BOM/공정도/관세사의견서 완비 여부
 
 @app.post("/api/cashback/appraise")
 def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get_db)):
@@ -943,62 +939,31 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
 
     # [실무 가치 산정 체계 차등 적용]
     if req.doc_type == 'hs':
-        # HS 품목분류 사전심사 및 비공개 회시서: 실무 마일리지 (500P ~ 2,000P, 최대 3,000P 캡)
+        # HS 품목분류 사전심사 및 비공개 회시서: 실무 마일리지 (500P ~ 3,000P 캡)
         base_points = 500
-        confidential_bonus = 500 if req.is_confidential else 100
-        decision_bonus = 300 if req.decision_type in ["overturned", "승소", "인용"] else 100
-        
-        # FTA PSR 민감도 가산
-        psr_bonus = 0
-        psr_name = "일반 분류"
-        if req.psr_sensitivity == "cth_sensitive":
-            psr_bonus = 500
-            psr_name = "FTA 세번변경기준(CTH/CTSH) 경합 쟁점"
-        elif req.psr_sensitivity == "rvc_sensitive":
-            psr_bonus = 700
-            psr_name = "FTA 부가가치(RVC)/미소기준 연계 쟁점"
-        elif req.psr_sensitivity == "origin_dispute":
-            psr_bonus = 1000
-            psr_name = "FTA 원산지 사후검증(Verification) 방어 쟁점"
-
-        # GRI 통칙 및 법리 심도 가산
-        gri_bonus = 0
-        gri_name = "통칙 1호 표준"
-        if req.gri_complexity == "gri_2":
-            gri_bonus = 300
-            gri_name = "통칙 2호 (미완성품/혼합물)"
-        elif req.gri_complexity == "gri_3":
-            gri_bonus = 500
-            gri_name = "통칙 3호 (본질적 특성/세트)"
-        elif req.gri_complexity == "chapter_note":
-            gri_bonus = 400
-            gri_name = "부·류 주규정 배제 조항"
-
-        # 증빙자료 패키지 가산 (BOM/공정도)
-        evidence_bonus = 200 if req.has_evidence_package else 0
+        confidential_bonus = 1000 if req.is_confidential else 200
+        decision_bonus = 500 if req.decision_type in ["overturned", "승소", "인용"] else 200
 
         # 희소성 등급
         if match_count == 0:
-            scarcity_rate = 96.0
-            scarcity_grade = "신규 세번 (DB 미등재 신제품/신소재)"
-            scarcity_bonus = 200
+            scarcity_rate = 92.0
+            scarcity_grade = "신규 세번 (DB 미등재 신제품 회시)"
+            scarcity_bonus = 500
         elif match_count <= 3:
-            scarcity_rate = 88.0
-            scarcity_grade = "정밀 세번 (FTA/통칙 경합 소수 사례)"
-            scarcity_bonus = 100
+            scarcity_rate = 85.0
+            scarcity_grade = "정밀 세번 (통칙 적용 소수 사례)"
+            scarcity_bonus = 200
         else:
-            scarcity_rate = 72.0
+            scarcity_rate = 70.0
             scarcity_grade = "일반 세번 (공개 포털 기등재 규격)"
             scarcity_bonus = 0
 
-        # 합산 후 최대 3,000P 상한 캡 적용
-        total_points = min(3000, base_points + confidential_bonus + decision_bonus + psr_bonus + gri_bonus + evidence_bonus + scarcity_bonus)
-        
-        doc_type_ko = "품목분류 사전심사 회시서/결정문"
+        total_points = min(3000, base_points + confidential_bonus + decision_bonus + scarcity_bonus)
+        doc_type_ko = "품목분류 사전심사 회시서"
         conf_txt = "비공개 " if req.is_confidential else "공식 "
         
-        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 정밀 심사 결과 [{psr_name} + {gri_name}{' + 원산지소명패키지' if req.has_evidence_package else ''}]로 판정되었습니다. " \
-                  f"FTA 원산지결정기준(PSR) 및 GRI 통칙 법리 기여도에 따라 실무 마일리지 ₩{total_points:,}P가 산정되었습니다."
+        snippet = f"본 {conf_txt}{doc_type_ko}는 CUSWAY 마스터 DB 대조 결과 [{scarcity_grade}]로 판정되었습니다. " \
+                  f"실무 결정례 기여도에 따라 마일리지 ₩{total_points:,}P가 산정되었습니다."
         
         return {
             "appraised_points": total_points,
@@ -1007,7 +972,7 @@ def appraise_precedent_document(req: AppraisalRequest, db: Session = Depends(get
             "matched_public_count": match_count,
             "base_points": base_points,
             "confidential_bonus": confidential_bonus,
-            "decision_bonus": decision_bonus + psr_bonus + gri_bonus + evidence_bonus,
+            "decision_bonus": decision_bonus,
             "scarcity_bonus": scarcity_bonus,
             "appraisal_snippet": snippet
         }

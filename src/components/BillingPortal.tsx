@@ -559,7 +559,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
           <div>• 대표자: <strong>한상윤</strong></div>
           <div>• 사업자등록번호: <strong>888-64-00585</strong></div>
           <div>• 직통 문의: <strong>010-9256-8480</strong></div>
-          <div>• 서비스명: <strong>CUSWAY (원스탑 관세 AI 솔루션)</strong></div>
+          <div>• 서비스명: <strong>CUSWAY (AI 관세 통관 코파일럿)</strong></div>
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '8px', marginTop: '4px', fontSize: '0.72rem' }}>
           * 법인 및 개인사업자 결제 시 국세청 홈택스 전자세금계산서 또는 신용카드 매출전표가 자동 발행되며, 세무비용으로 100% 매입세액 공제 및 손비 처리 가능합니다.
