@@ -625,33 +625,34 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* 1. Header Banner */}
-      <div className="glass-panel" style={{
+      <div style={{
         padding: '28px',
-        background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.12) 0%, rgba(59, 130, 246, 0.1) 50%, rgba(99, 102, 241, 0.08) 100%)',
-        border: '1.5px solid rgba(14, 165, 233, 0.3)',
+        background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfeff 50%, #eff6ff 100%)',
+        border: '2px solid #059669',
         borderRadius: '16px',
-        boxShadow: '0 8px 32px rgba(14, 165, 233, 0.08)'
+        boxShadow: '0 4px 20px rgba(5, 150, 105, 0.08)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
               <span style={{ fontSize: '1.8rem' }}>🌐</span>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#fff' }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 950, letterSpacing: '-0.02em', color: '#0f172a' }}>
                 세번별 FTA 원산지결정기준(PSR) 인텔리전스
               </h2>
               <span style={{
-                background: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',
-                color: '#fff',
-                fontSize: '0.72rem',
-                padding: '3px 10px',
+                background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                color: '#ffffff',
+                fontSize: '0.74rem',
+                padding: '4px 12px',
                 borderRadius: '20px',
-                fontWeight: 800
+                fontWeight: 900,
+                letterSpacing: '0.2px'
               }}>
                 실무 특혜관세 & C/O 요건 가이드
               </span>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', lineHeight: 1.6, margin: 0 }}>
-              기업의 영업기밀(BOM) 유출 걱정 없이, <strong>HS 세번만으로 21개 FTA 협정별 원산지결정기준(CC/CTH/CTSH/RVC)과 특혜세율 실익</strong>을 실시간으로 확인하세요.
+            <p style={{ color: '#334155', fontSize: '0.96rem', lineHeight: 1.6, margin: 0, fontWeight: 600 }}>
+              기업 영업기밀(BOM) 유출 걱정 없이, <strong style={{ color: '#065f46' }}>HS 세번만으로 21개 FTA 협정별 원산지결정기준(CC/CTH/CTSH/RVC)과 특혜세율 실익</strong>을 실시간으로 확인하세요.
             </p>
           </div>
 
@@ -659,17 +660,18 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
             <button
               onClick={handleCopyMemo}
               style={{
-                padding: '10px 18px',
-                background: copied ? 'rgba(16, 185, 129, 0.2)' : 'rgba(14, 165, 233, 0.15)',
-                border: copied ? '1.5px solid #10b981' : '1.5px solid rgba(14, 165, 233, 0.4)',
+                padding: '11px 20px',
+                background: copied ? '#dcfce7' : '#0284c7',
+                border: copied ? '2px solid #16a34a' : '2px solid #0284c7',
                 borderRadius: '10px',
-                color: copied ? '#34d399' : '#38bdf8',
-                fontWeight: 800,
-                fontSize: '0.86rem',
+                color: copied ? '#15803d' : '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.88rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
+                boxShadow: '0 2px 8px rgba(2, 132, 199, 0.25)',
                 transition: 'all 0.2s'
               }}
             >
@@ -679,17 +681,18 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
             <button
               onClick={() => window.print()}
               style={{
-                padding: '10px 16px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid var(--border-color)',
+                padding: '11px 18px',
+                background: '#ffffff',
+                border: '2px solid #cbd5e1',
                 borderRadius: '10px',
-                color: 'var(--text-secondary)',
-                fontWeight: 700,
-                fontSize: '0.86rem',
+                color: '#0f172a',
+                fontWeight: 800,
+                fontSize: '0.88rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
               }}
             >
               <Printer size={16} />
@@ -700,12 +703,12 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
       </div>
 
       {/* 2. Search & Preset Bar */}
-      <div className="glass-panel" style={{ padding: '22px', borderRadius: '14px' }}>
+      <div style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '2px solid #cbd5e1', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--accent-cyan)' }} />
+              <Search size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#0891b2' }} />
               <input 
                 type="text"
                 value={searchCode}
@@ -713,14 +716,15 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
                 placeholder="조회할 HS Code (예: 2009.89-1090, 8517.62, 8471.30, 8708.29 등)"
                 style={{
                   width: '100%',
-                  padding: '12px 16px 12px 44px',
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  border: '1.5px solid var(--accent-cyan)',
+                  padding: '14px 18px 14px 48px',
+                  background: '#ffffff',
+                  border: '2px solid #0891b2',
                   borderRadius: '10px',
-                  color: '#fff',
-                  fontSize: '1.05rem',
-                  fontWeight: 800,
-                  letterSpacing: '0.5px'
+                  color: '#0f172a',
+                  fontSize: '1.1rem',
+                  fontWeight: 900,
+                  letterSpacing: '0.5px',
+                  boxShadow: '0 2px 8px rgba(8, 145, 178, 0.08)'
                 }}
               />
             </div>
@@ -729,29 +733,30 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
               <button
                 onClick={() => onNavigateToWizard(currentData.hsCode)}
                 style={{
-                  padding: '12px 20px',
-                  background: 'linear-gradient(135deg, #0d9488 0%, #0891b2 100%)',
+                  padding: '14px 22px',
+                  background: 'linear-gradient(135deg, #0f766e 0%, #0284c7 100%)',
                   border: 'none',
                   borderRadius: '10px',
                   color: '#ffffff',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
+                  fontWeight: 900,
+                  fontSize: '0.92rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  boxShadow: '0 4px 12px rgba(15, 118, 110, 0.25)'
                 }}
               >
                 <span>4단계 원스톱 심사 진행</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={18} />
               </button>
             )}
           </div>
 
           {/* Preset Quick Chips */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 800 }}>
               실무 대표 추천 품목:
             </span>
             {[
@@ -761,25 +766,29 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
               { code: '8708.29-0000', label: '🚗 자동차 부품' },
               { code: '3304.99-1000', label: '💄 기초화장품' },
               { code: '0901.21-0000', label: '☕ 로스팅 원두' }
-            ].map(p => (
-              <button
-                key={p.code}
-                type="button"
-                onClick={() => setSearchCode(p.code)}
-                style={{
-                  padding: '4px 10px',
-                  background: searchCode.replace(/[^0-9]/g, '') === p.code.replace(/[^0-9]/g, '') ? 'rgba(14, 165, 233, 0.3)' : 'rgba(255,255,255,0.04)',
-                  border: searchCode.replace(/[^0-9]/g, '') === p.code.replace(/[^0-9]/g, '') ? '1.5px solid #38bdf8' : '1px solid var(--border-color)',
-                  borderRadius: '6px',
-                  color: searchCode.replace(/[^0-9]/g, '') === p.code.replace(/[^0-9]/g, '') ? '#38bdf8' : 'var(--text-secondary)',
-                  fontSize: '0.76rem',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
-              >
-                {p.label} <span style={{ opacity: 0.6 }}>({p.code.slice(0, 7)})</span>
-              </button>
-            ))}
+            ].map(p => {
+              const isSelected = searchCode.replace(/[^0-9]/g, '') === p.code.replace(/[^0-9]/g, '');
+              return (
+                <button
+                  key={p.code}
+                  type="button"
+                  onClick={() => setSearchCode(p.code)}
+                  style={{
+                    padding: '6px 12px',
+                    background: isSelected ? '#ecfdf5' : '#f8fafc',
+                    border: isSelected ? '2px solid #059669' : '1.5px solid #cbd5e1',
+                    borderRadius: '8px',
+                    color: isSelected ? '#065f46' : '#1e293b',
+                    fontSize: '0.82rem',
+                    fontWeight: isSelected ? 900 : 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {p.label} <span style={{ color: isSelected ? '#047857' : '#64748b' }}>({p.code.slice(0, 7)})</span>
+                </button>
+              );
+            })}
           </div>
 
         </div>
@@ -792,61 +801,62 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
         gap: '20px'
       }}>
         {/* Left: Item Summary */}
-        <div className="glass-panel" style={{ padding: '22px', borderRadius: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-            <span style={{ fontSize: '0.74rem', padding: '2px 8px', background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)', borderRadius: '4px', fontWeight: 800 }}>
+        <div style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '2px solid #cbd5e1', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '0.78rem', padding: '3px 10px', background: '#e0f2fe', color: '#0369a1', borderRadius: '6px', fontWeight: 900 }}>
               {currentData.categoryKo}
             </span>
-            <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
-              HSK 10단위: <strong>{currentData.hsCode}</strong>
+            <span style={{ fontSize: '0.82rem', color: '#475569', fontWeight: 700 }}>
+              HSK 10단위: <strong style={{ color: '#0f172a' }}>{currentData.hsCode}</strong>
             </span>
           </div>
-          <h3 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#fff', margin: '0 0 14px 0' }}>
+          <h3 style={{ fontSize: '1.45rem', fontWeight: 950, color: '#0f172a', margin: '0 0 16px 0' }}>
             {currentData.itemName}
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {currentData.practicalTips.map((tip, idx) => (
-              <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.84rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-                <CheckCircle2 size={16} color="#34d399" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span>{tip}</span>
+              <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.88rem', color: '#1e293b', lineHeight: 1.55, background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span style={{ fontWeight: 600 }}>{tip}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Right: Tariff Advantage Spotlight */}
-        <div className="glass-panel" style={{ 
-          padding: '22px', 
-          borderRadius: '14px',
-          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.06) 100%)',
-          border: '1.5px solid rgba(16, 185, 129, 0.3)',
+        <div style={{ 
+          padding: '24px', 
+          borderRadius: '16px',
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+          border: '2px solid #10b981',
+          boxShadow: '0 4px 16px rgba(16, 185, 129, 0.1)',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+          <span style={{ fontSize: '0.86rem', color: '#065f46', fontWeight: 800 }}>
             관세 실익 요약 (FTA 특혜 적용 시)
           </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '6px' }}>
-            <span style={{ fontSize: '2.4rem', fontWeight: 900, color: '#34d399', letterSpacing: '-0.02em' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginTop: '8px' }}>
+            <span style={{ fontSize: '2.6rem', fontWeight: 950, color: '#047857', letterSpacing: '-0.02em' }}>
               최대 0.0%
             </span>
-            <span style={{ fontSize: '0.88rem', color: '#f87171', textDecoration: 'line-through' }}>
+            <span style={{ fontSize: '0.95rem', color: '#dc2626', textDecoration: 'line-through', fontWeight: 800 }}>
               기본 {currentData.defaultBaseRate}%
             </span>
           </div>
-          <div style={{ fontSize: '0.82rem', color: '#38bdf8', fontWeight: 700, marginTop: '6px' }}>
+          <div style={{ fontSize: '0.92rem', color: '#0369a1', fontWeight: 800, marginTop: '8px' }}>
             ⚡ 건당 최대 {currentData.defaultBaseRate}%p 관세 즉시 절감 효과
           </div>
-          <p style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '8px', margin: 0, lineHeight: 1.4 }}>
-            * 원산지결정기준(PSR)을 충족하고 적법한 원산지증명서(C/O)를 제출할 경우 수입 관세가 대폭 면제됩니다.
+          <p style={{ fontSize: '0.82rem', color: '#065f46', marginTop: '10px', margin: 0, lineHeight: 1.5, fontWeight: 600 }}>
+            * 원산지결정기준(PSR)을 충족하고 적법한 원산지증명서(C/O)를 제출할 경우 수입 관세가 대폭 감면·면제됩니다.
           </p>
         </div>
       </div>
 
       {/* 4. Agreement Filter Tabs */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid rgba(255,255,255,0.06)', paddingBottom: '8px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '2px solid #cbd5e1', paddingBottom: '12px', flexWrap: 'wrap' }}>
         {[
           { code: 'all', label: '전체 협정 비교 (21 FTAs)' },
           { code: 'kor_us', label: '🇺🇸 한-미 FTA' },
@@ -855,26 +865,30 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
           { code: 'rcep', label: '🌏 RCEP' },
           { code: 'kor_asean', label: '🇻🇳 한-아세안' },
           { code: 'kor_vn', label: '🇻🇳 한-베트남' }
-        ].map(tab => (
-          <button
-            key={tab.code}
-            type="button"
-            onClick={() => setSelectedAgreement(tab.code)}
-            style={{
-              padding: '8px 14px',
-              background: selectedAgreement === tab.code ? 'var(--accent-primary)' : 'rgba(255,255,255,0.04)',
-              border: 'none',
-              borderRadius: '8px',
-              color: selectedAgreement === tab.code ? '#000' : 'var(--text-secondary)',
-              fontWeight: 800,
-              fontSize: '0.82rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        ].map(tab => {
+          const isSelected = selectedAgreement === tab.code;
+          return (
+            <button
+              key={tab.code}
+              type="button"
+              onClick={() => setSelectedAgreement(tab.code)}
+              style={{
+                padding: '9px 16px',
+                background: isSelected ? '#0d9488' : '#ffffff',
+                border: isSelected ? '2px solid #0f766e' : '1.5px solid #cbd5e1',
+                borderRadius: '8px',
+                color: isSelected ? '#ffffff' : '#0f172a',
+                fontWeight: 900,
+                fontSize: '0.86rem',
+                cursor: 'pointer',
+                boxShadow: isSelected ? '0 2px 8px rgba(13, 148, 136, 0.25)' : 'none',
+                transition: 'all 0.2s'
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* 5. FTA PSR Detail Matrix Cards */}
@@ -883,79 +897,79 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
           return (
             <div 
               key={idx}
-              className="glass-panel" 
               style={{
-                padding: '20px',
-                borderRadius: '12px',
-                border: '1.5px solid var(--border-color)',
+                padding: '22px',
+                background: '#ffffff',
+                borderRadius: '14px',
+                border: '2px solid #cbd5e1',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 gap: '14px',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.2)'
+                boxShadow: '0 4px 14px rgba(0,0,0,0.04)'
               }}
             >
               <div>
                 {/* Card Header: Agreement & Rate */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '1.4rem' }}>{rule.flag}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1.5px solid #e2e8f0', paddingBottom: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '1.6rem' }}>{rule.flag}</span>
                     <div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                      <h4 style={{ fontSize: '1.15rem', fontWeight: 950, color: '#0f172a', margin: 0 }}>
                         {rule.agreementName}
                       </h4>
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 700 }}>
                         체약상대국: {rule.country}
                       </span>
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#34d399' }}>
+                    <span style={{ fontSize: '1.5rem', fontWeight: 950, color: '#059669' }}>
                       {rule.ftaRate}%
                     </span>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block' }}>
+                    <span style={{ fontSize: '0.76rem', color: '#64748b', display: 'block', fontWeight: 700 }}>
                       (기본 {rule.baseRate}%)
                     </span>
                   </div>
                 </div>
 
                 {/* PSR Core Criteria Badge & Description */}
-                <div style={{ marginTop: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <div style={{ marginTop: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                     <span style={{
-                      padding: '3px 8px',
-                      background: 'rgba(14, 165, 233, 0.2)',
-                      border: '1px solid #0284c7',
+                      padding: '4px 10px',
+                      background: '#e0f2fe',
+                      border: '1.5px solid #0284c7',
                       borderRadius: '6px',
-                      color: '#38bdf8',
-                      fontSize: '0.78rem',
-                      fontWeight: 900
+                      color: '#0369a1',
+                      fontSize: '0.82rem',
+                      fontWeight: 950
                     }}>
                       PSR: {rule.psrCode}
                     </span>
-                    <span style={{ fontSize: '0.74rem', color: '#94a3b8', fontWeight: 700 }}>
+                    <span style={{ fontSize: '0.78rem', color: '#475569', fontWeight: 800 }}>
                       원산지결정기준 요건
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.86rem', color: '#f1f5f9', fontWeight: 700, margin: 0, lineHeight: 1.45 }}>
+                  <p style={{ fontSize: '0.94rem', color: '#0f172a', fontWeight: 800, margin: 0, lineHeight: 1.55 }}>
                     {rule.psrDescription}
                   </p>
                 </div>
 
                 {/* C/O Requirements Details */}
-                <div style={{ marginTop: '14px', background: 'rgba(0,0,0,0.25)', padding: '10px 12px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>C/O 발급 형태</span>
-                    <span style={{ color: '#fff', fontWeight: 800 }}>{rule.coType}</span>
+                <div style={{ marginTop: '14px', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                    <span style={{ color: '#475569', fontWeight: 700 }}>C/O 발급 형태</span>
+                    <span style={{ color: '#0f172a', fontWeight: 900 }}>{rule.coType}</span>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>미소기준(De Minimis)</span>
-                    <span style={{ color: '#cbd5e1', fontWeight: 700 }}>{rule.deMinimis}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                    <span style={{ color: '#475569', fontWeight: 700 }}>미소기준(De Minimis)</span>
+                    <span style={{ color: '#0f172a', fontWeight: 800 }}>{rule.deMinimis}</span>
                   </div>
                   {rule.isApprovedExporterRequired && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: '#fbbf24', fontWeight: 700, marginTop: '2px' }}>
-                      <AlertTriangle size={13} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#b45309', fontWeight: 800, marginTop: '2px', background: '#fef3c7', padding: '6px 10px', borderRadius: '6px', border: '1px solid #f59e0b' }}>
+                      <AlertTriangle size={15} color="#d97706" />
                       <span>원산지인증수출자 자격 필수 (건당 6,000유로 초과)</span>
                     </div>
                   )}
@@ -963,9 +977,9 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
               </div>
 
               {/* Practical Verification Footer */}
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px', fontSize: '0.74rem', color: '#94a3b8', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
-                <Info size={14} color="#06b6d4" style={{ flexShrink: 0, marginTop: '2px' }} />
-                <span><strong>실무 Tip:</strong> {rule.verificationTip}</span>
+              <div style={{ borderTop: '1.5px solid #e2e8f0', paddingTop: '12px', fontSize: '0.82rem', color: '#0f172a', display: 'flex', alignItems: 'flex-start', gap: '8px', background: '#f0f9ff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+                <Info size={16} color="#0284c7" style={{ flexShrink: 0, marginTop: '2px' }} />
+                <span style={{ lineHeight: 1.45 }}><strong style={{ color: '#0369a1' }}>실무 Tip:</strong> {rule.verificationTip}</span>
               </div>
             </div>
           );
@@ -973,27 +987,27 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
       </div>
 
       {/* 6. Legal Guide & Terminology Lexicon */}
-      <div className="glass-panel" style={{ padding: '22px', borderRadius: '14px', background: 'rgba(15, 23, 42, 0.4)' }}>
-        <h4 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fff', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <HelpCircle size={18} color="var(--accent-cyan)" />
+      <div style={{ padding: '24px', borderRadius: '16px', background: '#ffffff', border: '2px solid #cbd5e1', boxShadow: '0 4px 16px rgba(0,0,0,0.04)' }}>
+        <h4 style={{ fontSize: '1.05rem', fontWeight: 950, color: '#0f172a', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <HelpCircle size={20} color="#0891b2" />
           관세사 실무 원산지결정기준(PSR) 약어 핵심 용어집
         </h4>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <strong style={{ color: '#38bdf8' }}>CC (Change of Chapter)</strong>
-            <p style={{ margin: '4px 0 0 0', lineHeight: 1.4 }}>2단위 류 변경 기준. 비원산지 재료의 HS 2단위와 완제품의 HS 2단위가 완전히 상이해야 원산지 인정.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', fontSize: '0.84rem' }}>
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1.5px solid #e2e8f0' }}>
+            <strong style={{ color: '#0284c7', fontSize: '0.94rem' }}>CC (Change of Chapter)</strong>
+            <p style={{ margin: '6px 0 0 0', lineHeight: 1.5, color: '#334155', fontWeight: 600 }}>2단위 류 변경 기준. 비원산지 재료의 HS 2단위와 완제품의 HS 2단위가 완전히 상이해야 원산지 인정.</p>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <strong style={{ color: '#38bdf8' }}>CTH (Change of Tariff Heading)</strong>
-            <p style={{ margin: '4px 0 0 0', lineHeight: 1.4 }}>4단위 호 변경 기준. 공산품에서 가장 널리 쓰이며, 다른 4단위 원재료로 새로운 완제품을 제조했을 때 인정.</p>
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1.5px solid #e2e8f0' }}>
+            <strong style={{ color: '#0284c7', fontSize: '0.94rem' }}>CTH (Change of Tariff Heading)</strong>
+            <p style={{ margin: '6px 0 0 0', lineHeight: 1.5, color: '#334155', fontWeight: 600 }}>4단위 호 변경 기준. 공산품에서 가장 널리 쓰이며, 다른 4단위 원재료로 새로운 완제품을 제조했을 때 인정.</p>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <strong style={{ color: '#38bdf8' }}>CTSH (Change of Subheading)</strong>
-            <p style={{ margin: '4px 0 0 0', lineHeight: 1.4 }}>6단위 소호 변경 기준. 완제품과 원재료 간 6단위가 변경되면 충족되어 CTH보다 완화된 기준.</p>
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1.5px solid #e2e8f0' }}>
+            <strong style={{ color: '#0284c7', fontSize: '0.94rem' }}>CTSH (Change of Subheading)</strong>
+            <p style={{ margin: '6px 0 0 0', lineHeight: 1.5, color: '#334155', fontWeight: 600 }}>6단위 소호 변경 기준. 완제품과 원재료 간 6단위가 변경되면 충족되어 CTH보다 완화된 기준.</p>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <strong style={{ color: '#38bdf8' }}>RVC (Regional Value Content)</strong>
-            <p style={{ margin: '4px 0 0 0', lineHeight: 1.4 }}>역내부가가치 기준. 완제품 가격 중 체약상대국 역내에서 발생한 부가가치가 일정 비율(예: 40% 이상)이어야 인정.</p>
+          <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1.5px solid #e2e8f0' }}>
+            <strong style={{ color: '#0284c7', fontSize: '0.94rem' }}>RVC (Regional Value Content)</strong>
+            <p style={{ margin: '6px 0 0 0', lineHeight: 1.5, color: '#334155', fontWeight: 600 }}>역내부가가치 기준. 완제품 가격 중 체약상대국 역내에서 발생한 부가가치가 일정 비율(예: 40% 이상)이어야 인정.</p>
           </div>
         </div>
       </div>
