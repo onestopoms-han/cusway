@@ -461,10 +461,11 @@ const PSR_MASTER_PRESETS: Record<string, ItemPsrData> = {
 interface FtaPsrPortalProps {
   initialHsCode?: string;
   onNavigateToWizard?: (hsCode: string) => void;
+  onOpenGuide?: (sectionId?: string) => void;
   currentUser?: any;
 }
 
-export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, currentUser }: FtaPsrPortalProps) {
+export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, onOpenGuide, currentUser }: FtaPsrPortalProps) {
   const [searchCode, setSearchCode] = useState(initialHsCode || '2009.89-1090');
   const [selectedAgreement, setSelectedAgreement] = useState<string>('all');
   const [copied, setCopied] = useState(false);
@@ -698,6 +699,28 @@ export default function FtaPsrPortal({ initialHsCode, onNavigateToWizard, curren
               <Printer size={16} />
               <span>A4 인쇄</span>
             </button>
+            {onOpenGuide && (
+              <button
+                onClick={() => onOpenGuide('fta-psr')}
+                style={{
+                  padding: '11px 16px',
+                  background: '#eff6ff',
+                  border: '2px solid #3b82f6',
+                  borderRadius: '10px',
+                  color: '#1d4ed8',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 6px rgba(59, 130, 246, 0.1)'
+                }}
+              >
+                <HelpCircle size={16} color="#2563eb" />
+                <span>기능 가이드</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

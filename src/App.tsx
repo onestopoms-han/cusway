@@ -107,6 +107,7 @@ export default function App() {
         'showcase': 'hs-classifier',
         'hs-classifier': 'hs-classifier',
         'clearance-wizard': 'clearance-wizard',
+        'fta-psr': 'fta-psr',
         'law-news': 'law-news',
         'valuation': 'valuation',
         'cashback': 'cashback',
@@ -1698,6 +1699,7 @@ export default function App() {
               setWizardHsCode(hs);
               setCurrentView('clearance-wizard');
             }}
+            onOpenGuide={handleOpenGuide}
           />
         )}
         {currentView === 'law-news' && (

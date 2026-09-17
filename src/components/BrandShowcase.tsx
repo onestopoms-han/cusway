@@ -49,7 +49,7 @@ export default function BrandShowcase({
   onOpenGuide,
   currentUser
 }: BrandShowcaseProps) {
-  const [activeTab, setActiveTab] = useState<'invoice-calc' | 'branding' | 'cashback' | 'pipeline' | 'valuation'>('invoice-calc');
+  const [activeTab, setActiveTab] = useState<'invoice-calc' | 'branding' | 'cashback' | 'pipeline' | 'fta-psr' | 'valuation'>('invoice-calc');
   const [branding, setBranding] = useState<OfficeBranding>(() => getSavedOfficeBranding(currentUser));
   const [showBrochureModal, setShowBrochureModal] = useState(false);
   const [showSampleReportModal, setShowSampleReportModal] = useState(false);
@@ -316,7 +316,7 @@ export default function BrandShowcase({
             CORE VALUE PROPOSITION
           </span>
           <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-main)', margin: '6px 0 8px 0' }}>
-            관세사와 기업을 압도하는 CUSWAY 4대 무기
+            관세사와 기업을 압도하는 CUSWAY 핵심 지능형 솔루션
           </h2>
           <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
             탭을 클릭하여 CUSWAY가 실무 현장에서 어떻게 업무 속도를 10배 높이고 브랜딩을 강화하는지 확인하세요.
@@ -335,6 +335,7 @@ export default function BrandShowcase({
             { id: 'branding', label: '🖨️ 관세사 맞춤 A4 의견서 & Co-Branding', badge: '화주 바이럴 1위' },
             { id: 'cashback', label: '💰 비공개 결정례 AI 가치 감정 & 캐시백', badge: '구독료 0원화' },
             { id: 'pipeline', label: '⚡ 4단계 원스톱 수입통관 파이프라인', badge: '요건/FTA 일괄' },
+            { id: 'fta-psr', label: '🌐 세번별 FTA 원산지기준(PSR) 인텔리전스', badge: '21개 협정 전수 🚀' },
             { id: 'valuation', label: '⚖️ AI 관세평가 & 조세심판원 판례 허브', badge: '과세처분 방어' }
           ].map((t) => (
             <button
@@ -1011,7 +1012,131 @@ export default function BrandShowcase({
             </div>
           )}
 
-          {/* TAB 4: AI Valuation Precedents */}
+          {/* TAB 4: FTA Origin Criteria (PSR) Intelligence */}
+          {activeTab === 'fta-psr' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Globe size={18} color="#059669" />
+                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#059669' }}>
+                    FTA ORIGIN CRITERIA (PSR) INTELLIGENCE
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-main)', margin: 0 }}>
+                  기업 영업비밀(BOM) 유출 없이<br />
+                  <span style={{ color: '#059669' }}>HS 세번만으로 21개 FTA 원산지기준</span>을 실시간 판정합니다.
+                </h3>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, margin: 0 }}>
+                  원자재명세서(BOM)나 제조공정도 같은 극비 자산을 업로드할 필요가 없습니다. 6단위/10단위 세번만으로 한-미, 한-EU, 한-중, 한-아세안, RCEP 등 21개 협정의 세번변경기준(CC·CTH·CTSH)과 C/O 요건을 일괄 대조합니다.
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
+                    <span><strong>영업기밀 100% 안심 보장:</strong> BOM·제조원가 요구 일체 배제, 순수 세번 기반 법리 추론</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
+                    <span><strong>5대 주요 협정 즉시 매트릭스:</strong> CC(2단위), CTH(4단위), CTSH(6단위), RVC(부가가치) 자동 비교</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.85rem', color: 'var(--text-main)' }}>
+                    <CheckCircle2 size={16} color="#059669" />
+                    <span><strong>특혜세율 & C/O 요건 안내:</strong> 자율발급 / 기관발급 / 인증수출자 필수 요건 및 화주용 의견서 복사</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => onNavigate('fta-psr')}
+                    style={{
+                      padding: '12px 20px',
+                      background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)'
+                    }}
+                  >
+                    <Globe size={15} /> 세번별 FTA 원산지기준(PSR) 조회하기
+                  </button>
+
+                  <button
+                    onClick={() => onNavigate('clearance-wizard')}
+                    style={{
+                      padding: '12px 18px',
+                      background: '#f8fafc',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '8px',
+                      color: '#0f172a',
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <Zap size={15} color="#0284c7" /> 4단계 통관 심사 연계
+                  </button>
+                </div>
+              </div>
+
+              {/* Visual Mockup Card */}
+              <div style={{
+                background: '#ffffff',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '14px',
+                padding: '22px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
+              }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-main)', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>🌐 FTA 원산지결정기준(PSR) 실시간 판정표 예시</span>
+                  <span style={{ fontSize: '0.7rem', padding: '2px 8px', background: '#ecfdf5', color: '#065f46', borderRadius: '4px', fontWeight: 800 }}>영업비밀 보호 100%</span>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', borderLeft: '3px solid #059669' }}>
+                  <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700 }}>조회 세번 (HSK 10단위)</div>
+                  <div style={{ fontSize: '0.88rem', fontWeight: 900, color: 'var(--text-main)' }}>2009.89-1090 (배 주스 원료 농축액)</div>
+                  <div style={{ fontSize: '0.76rem', color: '#047857', fontWeight: 700, marginTop: '2px' }}>
+                    기본세율 50.0% ➔ FTA 특혜세율 0.0% (-50.0%p 절감)
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '8px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#15803d' }}>🇺🇸 한-미 FTA</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>CC (2단위)</div>
+                    <div style={{ fontSize: '0.68rem', color: '#16a34a', marginTop: '2px' }}>자율발급 C/O</div>
+                  </div>
+                  <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '8px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1d4ed8' }}>🇪🇺 한-EU FTA</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>CTH or RVC 50%</div>
+                    <div style={{ fontSize: '0.68rem', color: '#2563eb', marginTop: '2px' }}>인증수출자 필수</div>
+                  </div>
+                  <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '6px', padding: '8px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#b45309' }}>🌏 RCEP</div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 900, color: '#0f172a', marginTop: '2px' }}>CTH or RVC 40%</div>
+                    <div style={{ fontSize: '0.68rem', color: '#d97706', marginTop: '2px' }}>기관발급 C/O</div>
+                  </div>
+                </div>
+
+                <div style={{ background: '#f0f9ff', padding: '8px 12px', borderRadius: '6px', border: '1px solid #bae6fd', fontSize: '0.74rem', color: '#0369a1', fontWeight: 600 }}>
+                  💡 화주용 검토의견서 텍스트 원클릭 클립보드 복사 지원
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: AI Valuation Precedents */}
           {activeTab === 'valuation' && (
             <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.1fr) minmax(320px, 1fr)', gap: '32px', alignItems: 'center' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1183,6 +1308,10 @@ export default function BrandShowcase({
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                 <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
                 <span><strong>전문 관세사 안전망:</strong> COA/제조공정도 필수 10% 물품은 담당 관세사 1:1 상담 안내</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                <span style={{ color: 'var(--accent-primary)', fontWeight: 900 }}>✓</span>
+                <span><strong>세번별 FTA 원산지기준(PSR):</strong> 기업 영업비밀(BOM) 유출 없이 21개 협정 세번변경기준(CC·CTH·CTSH) 및 C/O 요건 즉시 조회</span>
               </li>
             </ul>
           </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   X, Search, Scale, Sparkles, BookOpen, Coins, Building2, ShieldAlert, 
   HelpCircle, Printer, ArrowRight, CheckCircle2, FileText, Send, 
-  Layers, Filter, Eye, Download, ShieldCheck, Zap, RefreshCw, MessageSquare
+  Layers, Filter, Eye, Download, ShieldCheck, Zap, RefreshCw, MessageSquare, Globe
 } from 'lucide-react';
 
 interface GuideItem {
@@ -94,6 +94,14 @@ const GUIDE_SECTIONS: GuideSection[] = [
         tip: '분류 후 번거롭게 세번을 복사·붙여넣기할 필요 없이 한 번의 클릭으로 4단계 통관 심사로 직행합니다.'
       },
       {
+        name: 'FTA 원산지기준(PSR) 즉시 연계',
+        badgeText: '🌐 FTA 원산지기준(PSR)',
+        badgeStyle: 'green',
+        location: '분류 결과 카드 하단 액션바',
+        description: '도출된 HS Code를 클릭 한 번으로 [FTA 원산지기준(PSR) 인텔리전스]로 전달하여 협정별 세번변경기준(CC/CTH/CTSH)과 C/O 요건을 즉시 확인합니다.',
+        actionDetail: '품목분류 확정 직후 세번 재입력 없이 한-미, 한-EU, 한-중, RCEP 등 21개 협정세율 및 원산지 판정 요건 검토 화면으로 직행합니다.'
+      },
+      {
         name: '유사 결정례 / WCO 해설서 조회',
         badgeText: '🔍 유사 결정례 & WCO 해설서',
         badgeStyle: 'dark',
@@ -119,6 +127,14 @@ const GUIDE_SECTIONS: GuideSection[] = [
         actionDetail: '각 탭을 클릭하여 [1단계: 품목 규격] ➡️ [2단계: FTA 협정세율 및 원산지기준] ➡️ [3단계: 세관장확인/소관부처 수입요건] ➡️ [4단계: 필수 행정서류 및 통관 타임라인]을 검토합니다.'
       },
       {
+        name: '세번별 5대 FTA 원산지결정기준(PSR) 정밀 심사 바로가기',
+        badgeText: '🌐 PSR 기준표 보기 ➡️',
+        badgeStyle: 'green',
+        location: '2단계 [세율/원산지 확정] 탭 하단 배너',
+        description: '현재 수입 품목의 5대 주요 협정별 세번변경기준(CC·CTH·CTSH) 및 C/O 발급 요건 전용 페이지로 즉시 연결합니다.',
+        actionDetail: '2단계에서 산출된 최저 FTA 특혜세율을 실제로 적용받기 위한 원산지 충족 조건과 사후검증 대응 팁을 정밀 심사합니다.'
+      },
+      {
         name: '수입통관 요건 정밀 분석',
         badgeText: '🛡️ 세관장확인 & 통합공고 요건 진단',
         badgeStyle: 'red',
@@ -141,6 +157,63 @@ const GUIDE_SECTIONS: GuideSection[] = [
         location: '4단계 [구비서류] 탭 하단',
         description: '4단계 심사 결과(세율, 요건, 구비서류, 예상 관세액)가 총집약된 A4 종합 보고서를 생성합니다.',
         actionDetail: '화주나 통관 실무팀에 공유할 수 있는 완성형 통관 가이드 문서를 PDF/인쇄 형식으로 출력합니다.'
+      }
+    ]
+  },
+  {
+    id: 'fta-psr',
+    title: 'FTA 원산지기준(PSR) 인텔리전스 (FtaPsrPortal)',
+    subtitle: '21개 협정별 세번변경기준(CC·CTH·CTSH) & 부가가치(RVC) 실시간 조회 및 C/O 요건 가이드',
+    icon: Globe,
+    color: '#059669',
+    items: [
+      {
+        name: '세번별 21개 협정 FTA 원산지결정기준(PSR) 실시간 조회',
+        badgeText: '🌐 세번별 FTA 원산지기준(PSR) 인텔리전스',
+        badgeStyle: 'green',
+        location: 'FTA 원산지기준(PSR) 상단 입력창',
+        description: 'BOM(원자재명세서)이나 제조공정도 등 기업 비밀 유출 위험 없이, 10단위 또는 6단위 HS 세번만으로 한-미, 한-EU, 한-중, RCEP 등 21개 FTA 협정별 품목별 원산지결정기준(PSR)을 즉시 도출합니다.',
+        actionDetail: '세번 입력 시 CC(2단위 류 변경), CTH(4단위 호 변경), CTSH(6단위 소호 변경), RVC(역내부가가치) 등 해당 세번의 공인 법리 기준을 카드 형태로 일괄 비교합니다.',
+        tip: '수입 원재료와 완제품 간의 세번 변경 여부를 즉각 판단하여 C/O 발급 가능성을 신속하게 사전 검토할 수 있습니다.'
+      },
+      {
+        name: '실무 대표 추천 품목 퀵 칩 (Quick Preset Chips)',
+        badgeText: '🍹 배 주스 / 📱 무선통신기기 / 💻 노트북 등',
+        badgeStyle: 'cyan',
+        location: '검색창 하단 퀵 프리셋 영역',
+        description: '실무에서 FTA 원산지 판정 문의가 가장 빈번한 대표 품목군(농산가공품, IT통신기기, 전자계측, 자동차부품, 기초화장품 등)의 세번을 원클릭으로 불러옵니다.',
+        actionDetail: '클릭 시 해당 품목의 10단위 HSK, 5대 협정별 PSR 판정 요건, 기본세율(A) 대비 FTA 특혜세율(F) 실익이 즉시 갱신됩니다.'
+      },
+      {
+        name: '협정별 특혜세율 & 관세 절감 실익 대조',
+        badgeText: '⚡ 최대 0.0% (기본세율 대비 즉시 절감)',
+        badgeStyle: 'green',
+        location: '우측 관세 실익 요약 스포트라이트 카드',
+        description: '기본 관세율(A)과 FTA 특혜세율(F)을 실시간 비교하여, 수입 시 절감 가능한 최대 관세율(%p)과 실익을 한눈에 제시합니다.',
+        actionDetail: '원산지증명서(C/O) 구비 시 절감할 수 있는 세액을 직관적으로 확인하여 화주 상담 및 C/O 발급 비용 대비 경제적 실익을 산정합니다.'
+      },
+      {
+        name: '협정별 C/O 발급 형태 & 인증수출자 요건 안내',
+        badgeText: '📋 자율발급 / 기관발급 / 인증수출자 필수 안내',
+        badgeStyle: 'amber',
+        location: '각 협정별 상세 카드 내부',
+        description: '협정별 상이한 원산지증명서(C/O) 발급 방식(자율발급, 세관/상의 기관발급, 원산지인증수출자 자율발급)을 정확히 안내합니다.',
+        actionDetail: '한-EU FTA(건당 6,000유로 초과 시 인증수출자 번호 기재 필수), 한-아세안/RCEP(기관발급 C/O 원본 제출) 등 세관 통관 보류를 사전 차단하는 필수 행정 요건을 표시합니다.'
+      },
+      {
+        name: '화주용 FTA 원산지 검토의견서 원클릭 복사',
+        badgeText: '📋 화주용 의견서 복사',
+        badgeStyle: 'cyan',
+        location: '상단 우측 액션 버튼',
+        description: '조회된 품목의 협정별 PSR 판정 요약, 특혜세율 절감폭, C/O 발급 권고사항을 정형화된 전문 의견서 텍스트로 클립보드에 복사합니다.',
+        actionDetail: '화주 안내 메일, 카카오톡 상담 메시지, 수출입 품의서에 즉시 붙여넣어 3초 만에 전문 컨설팅 답변을 작성할 수 있습니다.'
+      },
+      {
+        name: '4단계 원스톱 심사 진행 연동',
+        badgeText: '4단계 원스톱 심사 진행 ➡️',
+        badgeStyle: 'primary',
+        location: '검색창 우측 액션 버튼',
+        description: '현재 확인 중인 HS Code를 [통관 심사 파이프라인(ClearanceWizard)]으로 즉시 전달하여 통합공고 수입요건 및 통관 액션 플랜 단계로 이어집니다.'
       }
     ]
   },
@@ -238,7 +311,8 @@ const GUIDE_SECTIONS: GuideSection[] = [
         badgeStyle: 'amber',
         location: '캐시백 매니저 상단 메인 버튼',
         description: '보유 중인 품목분류 사전심사서나 관세평가 질의회신 문서를 업로드하여 지식 크레딧을 획득합니다.',
-        actionDetail: '업로드 시 AI가 화주명, 사업자번호, 고유 상표 등 민감 정보를 자동으로 마스킹(비식별화) 처리하여 안전하게 등록됩니다.'
+        actionDetail: '업로드 시 AI가 화주명, 사업자번호, 고유 상표 등 민감 정보를 자동으로 마스킹(비식별화) 처리하여 안전하게 등록됩니다.',
+        tip: '기업 영업비밀(BOM, 제조원가, 제조공정도 등)은 일체 업로드 대상이 아니며, 관세청 사전심사 회시서/심판청구 결정문 공문서에 한해 안전하게 비식별화되어 평가됩니다.'
       },
       {
         name: '집단지성 합의 판결 투표',
