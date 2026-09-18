@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle, Globe } from 'lucide-react'
+import { Scale, Settings, Bell, LogOut, User, Lock, Mail, ShieldAlert, Coins, CreditCard, Sparkles, RefreshCw, BookOpen, Gift, CheckCircle2, HelpCircle, Globe, Bot } from 'lucide-react'
 import HsClassifier from './components/HsClassifier'
 import CashBackManager from './components/CashBackManager'
 import ValuationPrecedents from './components/ValuationPrecedents'
@@ -12,6 +12,7 @@ import KakaoConsultModal from './components/KakaoConsultModal'
 import OfficeBrandingModal from './components/OfficeBrandingModal'
 import BrandShowcase from './components/BrandShowcase'
 import ServiceGuideModal from './components/ServiceGuideModal'
+import MarketingAgentModal from './components/MarketingAgentModal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -110,6 +111,9 @@ export default function App() {
   // Service Manual & Button Guide Modal State
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [guideDefaultSection, setGuideDefaultSection] = useState('hs-classifier');
+
+  // 24시 무인 자율 마케팅 봇 모달 State
+  const [showMarketingModal, setShowMarketingModal] = useState(false);
 
   const handleOpenGuide = (sectionId?: string) => {
     if (sectionId) {
@@ -1452,6 +1456,30 @@ export default function App() {
               <HelpCircle size={16} color="#2563eb" />
               <span>💡 버튼 & 기능 가이드</span>
             </button>
+
+            {/* 🤖 24시 AI 무인 마케팅 봇 관제 센터 버튼 */}
+            <button 
+              onClick={() => setShowMarketingModal(true)}
+              className="app-sidebar-nav-btn"
+              title="24시 무인 자율 마케팅 봇 관제 센터 열기"
+              style={{
+                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                color: '#ffffff',
+                fontWeight: 950,
+                cursor: 'pointer',
+                border: '1.5px solid #38bdf8',
+                borderRadius: '8px',
+                marginTop: '6px',
+                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <Bot size={17} color="#ffffff" />
+              <span>🤖 24시 무인 마케팅 봇</span>
+              <span style={{ fontSize: '0.62rem', background: '#f59e0b', color: '#000', padding: '1px 6px', borderRadius: '10px', fontWeight: 900 }}>실행</span>
+            </button>
           </nav>
         </div>
 
@@ -2137,6 +2165,12 @@ export default function App() {
         isOpen={showGuideModal}
         onClose={() => setShowGuideModal(false)}
         defaultSectionId={guideDefaultSection}
+      />
+
+      {/* 24시 무인 자율 마케팅 봇 관제 모달 */}
+      <MarketingAgentModal
+        isOpen={showMarketingModal}
+        onClose={() => setShowMarketingModal(false)}
       />
     </div>
   )
