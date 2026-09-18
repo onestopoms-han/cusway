@@ -225,7 +225,7 @@ def get_billing_config():
         "portone_user_code": os.environ.get("PORTONE_USER_CODE", "imp00000000"),
         "toss_client_key": os.environ.get("TOSS_CLIENT_KEY", "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"),
         "is_sandbox": os.environ.get("PAYMENT_ENV", "sandbox") == "sandbox",
-        "merchant_name": "삼흥 (대표자: 한상윤)"
+        "merchant_name": "(주)이레 (대표자: 강은정)"
     }
 
 @app.get("/api/auth/social/config")
@@ -1114,6 +1114,8 @@ def subscribe(req: BillingRequest, db: Session = Depends(get_db)):
     # 2. 요금제 업그레이드
     if req.plan_name == "business":
         user.plan = "Business"
+    elif req.plan_name == "pro":
+        user.plan = "Pro"
     elif req.plan_name == "basic":
         user.plan = "Basic"
     else:

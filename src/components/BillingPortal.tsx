@@ -41,7 +41,7 @@ interface ReceiptInfo {
 }
 
 export default function BillingPortal({ currentUser, onSubscribeSuccess }: BillingPortalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'business'>('basic');
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro' | 'business'>('basic');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
   const [usePoints, setUsePoints] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'toss' | 'card' | 'kakaopay' | 'naverpay'>('toss');
@@ -57,7 +57,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     portone_user_code: 'imp00000000',
     toss_client_key: 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq',
     is_sandbox: true,
-    merchant_name: '삼흥 (대표자: 한상윤)'
+    merchant_name: '(주)이레 (대표자: 강은정)'
   });
 
   // 유저 적립 포인트
@@ -65,7 +65,8 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
   const planPrices = {
     free: { monthly: 0, yearly: 0 },
-    basic: { monthly: 39000, yearly: 348000 },
+    basic: { monthly: 8900, yearly: 82800 },
+    pro: { monthly: 39000, yearly: 348000 },
     business: { monthly: 99000, yearly: 948000 }
   };
 
@@ -78,8 +79,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     : currentPrice;
 
   const planNamesKo = {
-    free: 'Basic 30일 무료 체험 (₩0/월)',
-    basic: billingCycle === 'yearly' ? 'Pro 실무팀형 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 월간 구독 (₩39,000/월)',
+    free: 'Free 30일 무료 체험 (₩0/월)',
+    basic: billingCycle === 'yearly' ? 'Basic 개인 실무자형 연간 구독 (₩82,800/연, 월 6,900원)' : 'Basic 개인 실무자형 월간 구독 (₩8,900/월)',
+    pro: billingCycle === 'yearly' ? 'Pro 실무팀형 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 월간 구독 (₩39,000/월)',
     business: billingCycle === 'yearly' ? 'Enterprise 법인형 연간 구독 (₩948,000/연, 월 79,000원)' : 'Enterprise 법인형 월간 구독 (₩99,000/월)'
   };
 
@@ -189,7 +191,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
       const updatedUser = {
         ...currentUser,
-        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'basic' ? 'Basic' : 'Free',
+        plan: selectedPlan === 'business' ? 'Business' : selectedPlan === 'pro' ? 'Pro' : selectedPlan === 'basic' ? 'Basic' : 'Free',
         accrued_points: usePoints ? 0 : userAccruedPoints
       };
       onSubscribeSuccess(updatedUser);
@@ -386,23 +388,23 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.65fr 1.35fr', gap: '24px' }}>
         
-        {/* 왼쪽: 요금제 선택 카드들 (3종 플랜) */}
+        {/* 왼쪽: 요금제 선택 카드들 (4종 플랜) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
             
-            {/* 1. Basic 무료 체험 요금제 */}
+            {/* 1. Free 무료 체험 요금제 */}
             <div 
               onClick={() => setSelectedPlan('free')}
               style={{
                 background: 'rgba(0,0,0,0.2)',
                 border: selectedPlan === 'free' ? '2px solid var(--text-secondary)' : '1px solid var(--border-color)',
                 borderRadius: '12px',
-                padding: '20px',
+                padding: '18px',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '10px',
                 transition: 'all 0.2s ease',
                 position: 'relative'
               }}
@@ -413,78 +415,123 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Basic (30일 무료)</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>신입 / 1인 개업 관세사</span>
+                <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#fff', margin: '0 0 2px 0' }}>Free (30일 무료)</h3>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>서비스 사전 검증 및 체험</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-secondary)' }}>₩0</span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}> / 30일 전액 무료</span>
+                <span style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--text-secondary)' }}>₩0</span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}> / 30일 전액 무료</span>
               </div>
-              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>30일간 Pro 플랜 전 기능</b> 무제한 무료 체험</li>
+              <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
+                <li><b>30일간 전 기능</b> 무제한 무료 체험</li>
                 <li>카드 등록 없이 3초 즉시 시작</li>
                 <li>체험 종료 후 매월 50건 HSK 기본 무료</li>
                 <li>세율 / 수입 요건 기본 통합 매핑</li>
               </ul>
             </div>
 
-            {/* 2. Pro (실무팀형) 요금제 */}
+            {/* 2. Basic (개인 실무자형) 요금제 */}
             <div 
               onClick={() => setSelectedPlan('basic')}
               style={{
-                background: 'rgba(0,0,0,0.2)',
-                border: selectedPlan === 'basic' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                background: selectedPlan === 'basic' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(0,0,0,0.2)',
+                border: selectedPlan === 'basic' ? '2px solid #10b981' : '1px solid var(--border-color)',
                 borderRadius: '12px',
-                padding: '20px',
+                padding: '18px',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '10px',
                 transition: 'all 0.2s ease',
                 position: 'relative'
               }}
             >
-              <div style={{ position: 'absolute', top: '-10px', left: '16px', background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#fff', fontSize: '0.62rem', padding: '2px 8px', borderRadius: '10px', fontWeight: 900, boxShadow: '0 2px 6px rgba(13,148,136,0.3)' }}>
-                관세사무소 추천 BEST
+              <div style={{ position: 'absolute', top: '-10px', left: '12px', background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', color: '#fff', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: 900, boxShadow: '0 2px 6px rgba(16,185,129,0.3)' }}>
+                🔥 개인 한정 초특가 (조건 100% 동일)
               </div>
               {selectedPlan === 'basic' && (
+                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontSize: '0.62rem', padding: '2px 6px', borderRadius: '8px', fontWeight: 700 }}>
+                  선택됨
+                </div>
+              )}
+              <div>
+                <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#fff', margin: '0 0 2px 0' }}>Basic (개인형)</h3>
+                <span style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 700 }}>1인 관세사 • 개인 수출입 셀러</span>
+              </div>
+              <div>
+                <span style={{ fontSize: '1.45rem', fontWeight: 800, color: '#34d399' }}>
+                  {billingCycle === 'yearly' ? '₩6,900' : '₩8,900'}
+                </span>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                  {billingCycle === 'yearly' ? ' / 월 (연 ₩82,800)' : ' / 월'}
+                </span>
+              </div>
+              <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
+                <li><b>개인 1인 전용 (단독 계정)</b></li>
+                <li><b>무제한 4단계 통관 시뮬레이션</b> (조건 동일)</li>
+                <li>AI RAG 해설서 및 결정례 소명 엔진</li>
+                <li><b>화주 제출용 A4 전문 리포트 무제한 발급</b></li>
+                <li>세율 / 세관장확인 요건 실시간 매핑</li>
+              </ul>
+            </div>
+
+            {/* 3. Pro (실무팀형) 요금제 */}
+            <div 
+              onClick={() => setSelectedPlan('pro')}
+              style={{
+                background: selectedPlan === 'pro' ? 'rgba(6, 182, 212, 0.08)' : 'rgba(0,0,0,0.2)',
+                border: selectedPlan === 'pro' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                transition: 'all 0.2s ease',
+                position: 'relative'
+              }}
+            >
+              <div style={{ position: 'absolute', top: '-10px', left: '12px', background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)', color: '#fff', fontSize: '0.6rem', padding: '2px 8px', borderRadius: '10px', fontWeight: 900, boxShadow: '0 2px 6px rgba(13,148,136,0.3)' }}>
+                관세사무소 추천 BEST
+              </div>
+              {selectedPlan === 'pro' && (
                 <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)', fontSize: '0.62rem', padding: '2px 6px', borderRadius: '8px', fontWeight: 700 }}>
                   선택됨
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Pro (실무팀형)</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>중소 지사 및 관세사무소</span>
+                <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#fff', margin: '0 0 2px 0' }}>Pro (실무팀형)</h3>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>중소 지사 및 관세사무소 (2~5인)</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
+                <span style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--accent-cyan)' }}>
                   {billingCycle === 'yearly' ? '₩29,000' : '₩39,000'}
                 </span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
                   {billingCycle === 'yearly' ? ' / 월 (연 ₩348,000)' : ' / 월'}
                 </span>
               </div>
-              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
-                <li><b>무제한</b> 4단계 수입 통관 시뮬레이션</li>
+              <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
                 <li><b>5인 계정 기본 포함</b> (동시접속 무제한)</li>
-                <li>AI RAG 해설서 및 결정례 소명 엔진</li>
-                <li><b>화주 제출용 A4 전문 리포트 무제한 발급</b></li>
-                <li>💎 관세사무소 로고 & 직인 브랜딩 탑재</li>
+                <li>Basic 전 기능 무제한 포함</li>
+                <li>💎 <b>관세사무소 로고 & 직인 브랜딩 탑재</b></li>
+                <li>팀원 간 품목분류 히스토리 클라우드 동기화</li>
+                <li>전담 관세 IT 기술 지원</li>
               </ul>
             </div>
 
-            {/* 3. Enterprise (법인형) 요금제 */}
+            {/* 4. Enterprise (법인형) 요금제 */}
             <div 
               onClick={() => setSelectedPlan('business')}
               style={{
-                background: 'rgba(0,0,0,0.2)',
+                background: selectedPlan === 'business' ? 'rgba(20, 184, 166, 0.08)' : 'rgba(0,0,0,0.2)',
                 border: selectedPlan === 'business' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
                 borderRadius: '12px',
-                padding: '20px',
+                padding: '18px',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '10px',
                 transition: 'all 0.2s ease',
                 position: 'relative'
               }}
@@ -495,18 +542,18 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 </div>
               )}
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>Enterprise (법인형)</h3>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>50인 이상 대형 관세법인</span>
+                <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#fff', margin: '0 0 2px 0' }}>Enterprise (법인형)</h3>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>50인 이상 대형 관세법인</span>
               </div>
               <div>
-                <span style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
+                <span style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--accent-primary)' }}>
                   {billingCycle === 'yearly' ? '₩79,000' : '₩99,000'}
                 </span>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
                   {billingCycle === 'yearly' ? ' / 월 (연 ₩948,000)' : ' / 월'}
                 </span>
               </div>
-              <ul style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc' }}>
+              <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
                 <li><b>전사 본·지사 인원 완전 무제한</b></li>
                 <li>법인 내부 ERP 및 통관 관리 시스템 API 연동</li>
                 <li>신고서 초안 대량 업로드 오류 검증 엔진</li>
@@ -957,9 +1004,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
           <span>서비스 결제 및 세금계산서 발행 사업자 정보</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginTop: '4px' }}>
-          <div>• 상호명: <strong>삼흥</strong></div>
-          <div>• 대표자: <strong>한상윤</strong></div>
-          <div>• 사업자등록번호: <strong>888-64-00585</strong></div>
+          <div>• 상호명: <strong>(주)이레</strong></div>
+          <div>• 대표자: <strong>강은정</strong></div>
+          <div>• 사업자등록번호: <strong>349-88-01445</strong></div>
           <div>• 직통 문의: <strong>010-9256-8480</strong></div>
           <div>• 서비스명: <strong>CUSWAY (AI 관세 통관 코파일럿)</strong></div>
         </div>
@@ -1049,8 +1096,8 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
             {/* 사업자 정보 */}
             <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '12px 16px', fontSize: '0.74rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '20px' }}>
-              <div>• 가맹점 상호: <strong>삼흥</strong> (대표자: <strong>한상윤</strong>)</div>
-              <div>• 사업자등록번호: <strong>888-64-00585</strong> | 직통: <strong>010-9256-8480</strong></div>
+              <div>• 가맹점 상호: <strong>(주)이레</strong> (대표자: <strong>강은정</strong>)</div>
+              <div>• 사업자등록번호: <strong>349-88-01445</strong> | 직통: <strong>010-9256-8480</strong></div>
               <div>• 서비스명: <strong>CUSWAY (AI 관세 통관 코파일럿)</strong></div>
               <div style={{ marginTop: '4px', color: 'rgba(255,255,255,0.6)' }}>
                 * 본 영수증은 부가가치세법 제32조의 2에 따라 매입세액 공제 및 법인 경비 지출 증빙 효력이 있습니다. 국세청 전자세금계산서 발행 내역은 홈택스에서 확인 가능합니다.

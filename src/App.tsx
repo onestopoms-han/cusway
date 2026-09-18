@@ -1212,8 +1212,8 @@ export default function App() {
               color: 'rgba(255,255,255,0.5)',
               lineHeight: 1.5
             }}>
-              <div><b>삼흥</b> | 대표자: 한상윤 | 사업자등록번호: 888-64-00585 | 직통: 010-9256-8480</div>
-              <div>CUSWAY AI 관세 코파일럿 서비스 | © 2026 삼흥. All rights reserved.</div>
+              <div><b>(주)이레</b> | 대표자: 강은정 | 사업자등록번호: 349-88-01445 | 직통: 010-9256-8480</div>
+              <div>CUSWAY AI 관세 코파일럿 서비스 | © 2026 (주)이레. All rights reserved.</div>
             </div>
           </div>
         </div>
@@ -1499,7 +1499,7 @@ export default function App() {
                     }}>
                       🏢 Enterprise 법인
                     </span>
-                  ) : currentUser?.plan === 'Basic' || currentUser?.plan === 'Pro' ? (
+                  ) : currentUser?.plan === 'Pro' ? (
                     <span style={{
                       fontSize: '0.64rem',
                       background: '#cffafe',
@@ -1510,6 +1510,18 @@ export default function App() {
                       fontWeight: 900
                     }}>
                       👑 Pro 실무팀
+                    </span>
+                  ) : currentUser?.plan === 'Basic' ? (
+                    <span style={{
+                      fontSize: '0.64rem',
+                      background: '#dcfce7',
+                      color: '#15803d',
+                      border: '1px solid #16a34a',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontWeight: 900
+                    }}>
+                      👤 Basic 개인형
                     </span>
                   ) : (
                     <span 
@@ -1644,8 +1656,8 @@ export default function App() {
               lineHeight: 1.4,
               textAlign: 'center'
             }}>
-              <div>운영: <b>삼흥</b> (대표: 한상윤)</div>
-              <div>사업자: 888-64-00585 | 직통: 010-9256-8480</div>
+              <div>운영: <b>(주)이레</b> (대표: 강은정)</div>
+              <div>사업자: 349-88-01445 | 직통: 010-9256-8480</div>
             </div>
           </div>
         )}

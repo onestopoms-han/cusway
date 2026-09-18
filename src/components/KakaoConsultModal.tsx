@@ -142,14 +142,14 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#FEE500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ⚡ 삼흥 대표 직통 상담 핫라인
+                ⚡ (주)이레 대표 직통 상담 핫라인
               </span>
               <span style={{ fontSize: '0.7rem', background: '#FEE500', color: '#000', padding: '2px 8px', borderRadius: '10px', fontWeight: 800 }}>
                 실시간 통화 & 문자 가능
               </span>
             </div>
             <p style={{ margin: 0, fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-              CUSWAY 운영사 <strong>삼흥(대표: 한상윤)</strong> 직통 번호 <strong>010-9256-8480</strong>으로 즉시 전화 또는 문자 상담이 가능하며, 카카오톡 친구검색에서 해당 번호로 1:1 상담을 나누실 수 있습니다.
+              CUSWAY 운영사 <strong>(주)이레(대표: 강은정)</strong> 직통 번호 <strong>010-9256-8480</strong>으로 즉시 전화 또는 문자 상담이 가능하며, 카카오톡 친구검색에서 해당 번호로 1:1 상담을 나누실 수 있습니다.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               <a
@@ -382,7 +382,7 @@ export default function KakaoConsultModal({ isOpen, onClose, currentUser }: Kaka
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Phone size={14} color="var(--accent-cyan)" />
-              <span>삼흥 직통 고객지원센터: <strong style={{ color: '#fff' }}>010-9256-8480</strong> (한상윤 대표)</span>
+              <span>(주)이레 직통 고객지원센터: <strong style={{ color: '#fff' }}>010-9256-8480</strong> (강은정 대표)</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Clock size={14} color="#f59e0b" />

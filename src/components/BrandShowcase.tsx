@@ -1525,7 +1525,7 @@ export default function BrandShowcase({
                     4. 합리적인 CUSWAY 요금제 기준
                   </div>
                   <div style={{ color: 'var(--text-muted)', lineHeight: '1.45' }}>
-                    1~5인 실무팀 Pro 플랜(월 39,000원), 전사 무제한 법인 플랜(월 99,000원)을 기준으로 실질 회수 배수를 도출했습니다.
+                    개인 실무자 Basic 플랜(월 8,900원), 1~5인 실무팀 Pro 플랜(월 39,000원), 전사 무제한 법인 플랜(월 99,000원)을 기준으로 실질 회수 배수를 도출했습니다.
                   </div>
                 </div>
               </div>
@@ -1552,7 +1552,7 @@ export default function BrandShowcase({
               }}
             >
               <Award size={18} />
-              <span>{teamSize <= 5 ? 'Pro 실무팀 플랜 (월 39,000원) 시작하기' : 'Enterprise 법인 플랜 도입하기'}</span>
+              <span>{teamSize <= 1 ? 'Basic 개인 플랜 (월 8,900원) 시작하기' : teamSize <= 5 ? 'Pro 실무팀 플랜 (월 39,000원) 시작하기' : 'Enterprise 법인 플랜 도입하기'}</span>
             </button>
             <button
               onClick={onOpenKakaoConsult}
@@ -1655,19 +1655,19 @@ export default function BrandShowcase({
           </div>
         </div>
 
-        {/* 3 Tier Pricing Cards Grid */}
+        {/* 4 Tier Pricing Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '24px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '20px',
           marginTop: '10px'
         }}>
-          {/* 1. Basic (30일 무료) */}
+          {/* 1. Free (30일 무료) */}
           <div style={{
             background: '#ffffff',
             border: '1.5px solid #e2e8f0',
             borderRadius: '16px',
-            padding: '28px',
+            padding: '24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1678,23 +1678,23 @@ export default function BrandShowcase({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
                 <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
-                  개인 / 신규 관세사
+                  체험 / 신규 유저
                 </span>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
-                  Basic (30일 무료)
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                  Free (30일 무료)
                 </h3>
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                  <span style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0f172a' }}>₩0</span>
+                  <span style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a' }}>₩0</span>
                   <span style={{ fontSize: '0.85rem', color: '#64748b' }}>/ 30일 전액 무료</span>
                 </div>
                 <p style={{ fontSize: '0.76rem', color: '#059669', margin: '4px 0 0 0', fontWeight: 700 }}>
-                  ✓ 신용카드 등록 없이 3초 만에 시작
+                  ✓ 카드 등록 없이 3초 만에 시작
                 </p>
               </div>
               <ul style={{
-                fontSize: '0.84rem',
+                fontSize: '0.82rem',
                 color: '#334155',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1702,8 +1702,8 @@ export default function BrandShowcase({
                 paddingLeft: '18px',
                 margin: '10px 0 0 0'
               }}>
-                <li><b>30일간 Pro 플랜 전 기능 무제한 무료 체험</b></li>
-                <li>체험 종료 후 매월 50건 HSK 기본 무료 조회</li>
+                <li><b>30일간 Pro 전 기능 무제한 무료 체험</b></li>
+                <li>체험 종료 후 매월 50건 HSK 기본 무료</li>
                 <li>기본 4단계 통관 요건 심사 조회</li>
                 <li>세율 / FTA 협정세율 실시간 매핑</li>
               </ul>
@@ -1719,7 +1719,7 @@ export default function BrandShowcase({
                 borderRadius: '8px',
                 color: '#0f172a',
                 fontWeight: 800,
-                fontSize: '0.9rem',
+                fontSize: '0.88rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1733,12 +1733,107 @@ export default function BrandShowcase({
             </button>
           </div>
 
-          {/* 2. Pro (실무팀형 - 추천 BEST) */}
+          {/* 2. Basic (개인 실무자형) */}
+          <div style={{
+            background: 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)',
+            border: '2px solid #10b981',
+            borderRadius: '16px',
+            padding: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '20px',
+            position: 'relative',
+            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.12)'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+              color: '#ffffff',
+              fontSize: '0.7rem',
+              fontWeight: 900,
+              padding: '3px 12px',
+              borderRadius: '20px',
+              boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+              whiteSpace: 'nowrap'
+            }}>
+              🔥 개인 한정 초특가 (조건 100% 동일)
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <span style={{ fontSize: '0.74rem', color: '#059669', fontWeight: 800, textTransform: 'uppercase' }}>
+                  1인 관세사 & 개인 무역 셀러
+                </span>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                  Basic (개인형)
+                </h3>
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                  <span style={{ fontSize: '2rem', fontWeight: 900, color: '#059669' }}>
+                    {showcaseBillingCycle === 'yearly' ? '₩6,900' : '₩8,900'}
+                  </span>
+                  <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                    {showcaseBillingCycle === 'yearly' ? '/월 (연 ₩82,800)' : '/월'}
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.76rem', color: '#059669', margin: '4px 0 0 0', fontWeight: 700 }}>
+                  ✓ 개인 1인 단독 계정 • 조건 100% 동일
+                </p>
+              </div>
+              <ul style={{
+                fontSize: '0.82rem',
+                color: '#1e293b',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                paddingLeft: '18px',
+                margin: '10px 0 0 0'
+              }}>
+                <li><b>개인 1인 전용 (단독 계정)</b></li>
+                <li><b>무제한 4단계 수입 통관 사전 심사 가이드</b> (동일)</li>
+                <li><b>AI RAG 해설서 및 결정례 소명 엔진</b> (동일)</li>
+                <li><b>화주 제출용 전문 리포트 PDF 무제한 출력</b> (동일)</li>
+                <li>세율 / 세관장확인 요건 실시간 통합 매핑</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={() => onNavigate('billing')}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#ffffff',
+                fontWeight: 900,
+                fontSize: '0.88rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Sparkles size={16} fill="#ffffff" />
+              <span>Basic 개인형 구독하기</span>
+              <ArrowRight size={15} />
+            </button>
+          </div>
+
+          {/* 3. Pro (실무팀형 - 추천 BEST) */}
           <div style={{
             background: 'linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%)',
             border: '2.5px solid #0d9488',
             borderRadius: '16px',
-            padding: '28px',
+            padding: '24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1753,11 +1848,12 @@ export default function BrandShowcase({
               transform: 'translateX(-50%)',
               background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
               color: '#ffffff',
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               fontWeight: 900,
               padding: '3px 12px',
               borderRadius: '20px',
-              boxShadow: '0 2px 8px rgba(13, 148, 136, 0.3)'
+              boxShadow: '0 2px 8px rgba(13, 148, 136, 0.3)',
+              whiteSpace: 'nowrap'
             }}>
               관세사무소 추천 BEST 플랜
             </div>
@@ -1767,17 +1863,17 @@ export default function BrandShowcase({
                 <span style={{ fontSize: '0.74rem', color: '#0d9488', fontWeight: 800, textTransform: 'uppercase' }}>
                   중소 지사 & 관세사무소
                 </span>
-                <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#0f172a', margin: '4px 0 0 0' }}>
                   Pro (실무팀형)
                 </h3>
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                  <span style={{ fontSize: '2.2rem', fontWeight: 900, color: '#0d9488' }}>
+                  <span style={{ fontSize: '2rem', fontWeight: 900, color: '#0d9488' }}>
                     {showcaseBillingCycle === 'yearly' ? '₩29,000' : '₩39,000'}
                   </span>
                   <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                    {showcaseBillingCycle === 'yearly' ? '/월 (연 ₩348,000 일시납)' : '/월'}
+                    {showcaseBillingCycle === 'yearly' ? '/월 (연 ₩348,000)' : '/월'}
                   </span>
                 </div>
                 <p style={{ fontSize: '0.76rem', color: '#0284c7', margin: '4px 0 0 0', fontWeight: 700 }}>
@@ -1785,7 +1881,7 @@ export default function BrandShowcase({
                 </p>
               </div>
               <ul style={{
-                fontSize: '0.84rem',
+                fontSize: '0.82rem',
                 color: '#1e293b',
                 display: 'flex',
                 flexDirection: 'column',
@@ -1793,11 +1889,11 @@ export default function BrandShowcase({
                 paddingLeft: '18px',
                 margin: '10px 0 0 0'
               }}>
-                <li><b>무제한</b> 4단계 수입 통관 사전 심사 가이드</li>
-                <li><b>AI RAG 해설서 및 결정례 소명 근거 매핑</b></li>
-                <li><b>화주 제출용 "전문 관세 검토 리포트" PDF 무제한 출력</b></li>
+                <li><b>5인 동시접속 계정 기본 포함</b></li>
+                <li>Basic 전 기능 무제한 포함</li>
+                <li><b>화주 제출용 "전문 관세 검토 리포트" 무제한 출력</b></li>
                 <li><b>관세사무소 상호 및 직인 도장 커스텀 브랜딩</b></li>
-                <li>동시접속 튕김 없는 전 직원 5인 동시 접속 지원</li>
+                <li>팀원 간 품목분류 히스토리 클라우드 동기화</li>
               </ul>
             </div>
 
@@ -1805,13 +1901,13 @@ export default function BrandShowcase({
               onClick={() => onNavigate('billing')}
               style={{
                 width: '100%',
-                padding: '13px',
+                padding: '12px',
                 background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
                 border: 'none',
                 borderRadius: '8px',
                 color: '#ffffff',
                 fontWeight: 900,
-                fontSize: '0.92rem',
+                fontSize: '0.88rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -1822,7 +1918,7 @@ export default function BrandShowcase({
               }}
             >
               <Sparkles size={16} fill="#ffffff" />
-              <span>Pro 플랜 구독하기 (30일 무료 포함)</span>
+              <span>Pro 플랜 구독하기</span>
               <ArrowRight size={15} />
             </button>
           </div>
@@ -1832,7 +1928,7 @@ export default function BrandShowcase({
             background: '#ffffff',
             border: '1.5px solid #cbd5e1',
             borderRadius: '16px',
-            padding: '28px',
+            padding: '24px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -1969,7 +2065,7 @@ export default function BrandShowcase({
         </div>
       </section>
 
-      {/* 6. Official Samheung Business Info Footer */}
+      {/* 6. Official Yireh Business Info Footer */}
       <footer style={{
         marginTop: '20px',
         padding: '30px 24px',
@@ -2042,11 +2138,11 @@ export default function BrandShowcase({
           gap: '6px'
         }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', color: '#cbd5e1', fontWeight: 600 }}>
-            <span>상호명: 삼흥</span>
+            <span>상호명: (주)이레</span>
             <span>|</span>
-            <span>대표자: 한상윤</span>
+            <span>대표자: 강은정</span>
             <span>|</span>
-            <span>사업자등록번호: 888-64-00585</span>
+            <span>사업자등록번호: 349-88-01445</span>
             <span>|</span>
             <span>직통 문의: 010-9256-8480</span>
             <span>|</span>
@@ -2056,7 +2152,7 @@ export default function BrandShowcase({
             결제 및 세금계산서 문의: 사업자등록증 첨부 시 관세사무소/관세법인 전용 정식 전자세금계산서 100% 당일 발급 지원
           </div>
           <div style={{ color: '#475569', fontSize: '0.75rem', marginTop: '6px' }}>
-            Copyright © 2026 삼흥 (Samheung). All rights reserved. 본 서비스 내 모든 판례 및 해설서는 관세청 공식 데이터베이스와 연동되어 무결성을 보장합니다.
+            Copyright © 2026 (주)이레 (Yireh). All rights reserved. 본 서비스 내 모든 판례 및 해설서는 관세청 공식 데이터베이스와 연동되어 무결성을 보장합니다.
           </div>
         </div>
       </footer>
