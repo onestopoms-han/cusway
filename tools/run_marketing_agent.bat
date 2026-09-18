@@ -1,17 +1,31 @@
 @echo off
+setlocal
 chcp 65001 > nul
+
 echo ===================================================================
-echo   [CUSWAY] 100%% 무인 자율 게릴라 마케팅 에이전트 실행기
+echo   [CUSWAY] Marketing Agent Runner
 echo ===================================================================
 
 set SCRIPT_DIR=%~dp0
 set WORKSPACE_ROOT=%SCRIPT_DIR%..
 set PYTHON_PATH=python
 
-echo [*] CUSWAY 자율 마케팅 에이전트를 가동합니다...
+if exist "C:\Users\PC\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" (
+    set "PYTHON_PATH=C:\Users\PC\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe"
+) else if exist "%LOCALAPPDATA%\Programs\Python\Python312\python.exe" (
+    set "PYTHON_PATH=%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
+) else if exist "%LOCALAPPDATA%\Programs\Python\Python311\python.exe" (
+    set "PYTHON_PATH=%LOCALAPPDATA%\Programs\Python\Python311\python.exe"
+)
+
+echo [*] Python executable: %PYTHON_PATH%
+echo [*] Starting CUSWAY Autonomous Marketing Agent...
+
 "%PYTHON_PATH%" "%WORKSPACE_ROOT%\backend\agents\autonomous_marketing_agent.py" --run-once
 
 echo.
-echo [✅ 완료] 자율 마케팅 정찰 및 댓글 작성 사이클이 완료되었습니다.
+echo ===================================================================
+echo   CUSWAY Marketing Cycle Completed!
+echo ===================================================================
 echo.
 pause

@@ -153,27 +153,33 @@ def query_hs_master(item_keyword: str) -> dict:
     # 1. HSK 마스터 검색
     hsk = "8508.11-0000"
     korean_name = item_keyword
-    cursor.execute("""
-        SELECT hsk_code, korean_name FROM hs_code_master 
-        WHERE korean_name LIKE ? OR english_name LIKE ? LIMIT 1
-    """, (f"%{item_keyword[:3]}%", f"%{item_keyword[:3]}%"))
-    row = cursor.fetchone()
-    if row:
-        hsk = row[0]
-        korean_name = row[1]
+    try:
+        cursor.execute("""
+            SELECT hs_code, name_ko FROM hs_code_master 
+            WHERE name_ko LIKE ? OR name_en LIKE ? LIMIT 1
+        """, (f"%{item_keyword[:3]}%", f"%{item_keyword[:3]}%"))
+        row = cursor.fetchone()
+        if row:
+            hsk = row[0]
+            korean_name = row[1]
+    except Exception:
+        pass
     
     # 2. 세율 검색
     basic_rate = "8.0%"
     wto_rate = "8.0%"
-    clean_code = re.sub(r'[^0-9]', '', hsk)
-    cursor.execute("""
-        SELECT basic_rate, wto_rate FROM hs_rate_master
-        WHERE hs_code = ? OR hs_code = ? LIMIT 1
-    """, (hsk, clean_code))
-    rate_row = cursor.fetchone()
-    if rate_row:
-        basic_rate = f"{rate_row[0]}%" if rate_row[0] is not None else "8.0%"
-        wto_rate = f"{rate_row[1]}%" if rate_row[1] is not None else basic_rate
+    try:
+        clean_code = re.sub(r'[^0-9]', '', hsk)
+        cursor.execute("""
+            SELECT base_rate, wto_rate FROM hs_rate_master
+            WHERE hs_code = ? OR hs_code = ? LIMIT 1
+        """, (hsk, clean_code))
+        rate_row = cursor.fetchone()
+        if rate_row:
+            basic_rate = f"{rate_row[0]}%" if rate_row[0] is not None else "8.0%"
+            wto_rate = f"{rate_row[1]}%" if rate_row[1] is not None else basic_rate
+    except Exception:
+        pass
     
     conn.close()
     return {
