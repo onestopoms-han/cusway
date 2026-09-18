@@ -1457,29 +1457,31 @@ export default function App() {
               <span>💡 버튼 & 기능 가이드</span>
             </button>
 
-            {/* 🤖 24시 AI 무인 마케팅 봇 관제 센터 버튼 */}
-            <button 
-              onClick={() => setShowMarketingModal(true)}
-              className="app-sidebar-nav-btn"
-              title="24시 무인 자율 마케팅 봇 관제 센터 열기"
-              style={{
-                background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
-                color: '#ffffff',
-                fontWeight: 950,
-                cursor: 'pointer',
-                border: '1.5px solid #38bdf8',
-                borderRadius: '8px',
-                marginTop: '6px',
-                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.35)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              <Bot size={17} color="#ffffff" />
-              <span>🤖 24시 무인 마케팅 봇</span>
-              <span style={{ fontSize: '0.62rem', background: '#f59e0b', color: '#000', padding: '1px 6px', borderRadius: '10px', fontWeight: 900 }}>실행</span>
-            </button>
+            {/* 🤖 24시 AI 무인 마케팅 봇 관제 센터 버튼 (관리자 전용) */}
+            {isAdmin && (
+              <button 
+                onClick={() => setShowMarketingModal(true)}
+                className="app-sidebar-nav-btn"
+                title="24시 무인 자율 마케팅 봇 관제 센터 열기 (관리자 전용)"
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                  color: '#ffffff',
+                  fontWeight: 950,
+                  cursor: 'pointer',
+                  border: '1.5px solid #38bdf8',
+                  borderRadius: '8px',
+                  marginTop: '6px',
+                  boxShadow: '0 3px 10px rgba(2, 132, 199, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Bot size={17} color="#ffffff" />
+                <span>🤖 24시 무인 마케팅 봇</span>
+                <span style={{ fontSize: '0.62rem', background: '#f59e0b', color: '#000', padding: '1px 6px', borderRadius: '10px', fontWeight: 900 }}>관리자</span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -1773,7 +1775,10 @@ export default function App() {
         )}
         {currentView === 'admin' && (
           isAdmin ? (
-            <AdminPortal currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }} />
+            <AdminPortal 
+              currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }}
+              onOpenMarketingBot={() => setShowMarketingModal(true)}
+            />
           ) : (
             <div style={{
               padding: '60px 24px',
@@ -2167,11 +2172,13 @@ export default function App() {
         defaultSectionId={guideDefaultSection}
       />
 
-      {/* 24시 무인 자율 마케팅 봇 관제 모달 */}
-      <MarketingAgentModal
-        isOpen={showMarketingModal}
-        onClose={() => setShowMarketingModal(false)}
-      />
+      {/* 24시 무인 자율 마케팅 봇 관제 모달 (관리자 전용) */}
+      {isAdmin && (
+        <MarketingAgentModal
+          isOpen={showMarketingModal}
+          onClose={() => setShowMarketingModal(false)}
+        />
+      )}
     </div>
   )
 }

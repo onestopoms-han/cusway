@@ -30,7 +30,8 @@ import {
   LayoutGrid,
   List,
   Calendar,
-  CreditCard
+  CreditCard,
+  Bot
 } from 'lucide-react';
 
 export interface Customer {
@@ -245,13 +246,14 @@ const INITIAL_MOCK_CUSTOMERS: Customer[] = [
 
 interface AdminPortalProps {
   currentUser?: any;
+  onOpenMarketingBot?: () => void;
 }
 
 type AdminTab = 'crm' | 'cashback' | 'marketing' | 'crawler';
 type MarketingSegment = 'all' | 'pro_leads' | 'enterprise_leads' | 'vip_contributors' | 'at_risk';
 type ViewMode = 'cards' | 'table';
 
-export default function AdminPortal({ currentUser }: AdminPortalProps) {
+export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPortalProps) {
   const [activeTab, setActiveTab] = useState<AdminTab>('crm');
   const [viewMode, setViewMode] = useState<ViewMode>('cards');
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -2124,7 +2126,58 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
 
       {/* 4. TAB 3: 마케팅 캠페인 센터 (Text-First Overhaul) */}
       {activeTab === 'marketing' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '22px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {/* Autonomous Guerrilla Marketing Bot Controller Banner */}
+          <div style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            border: '2px solid #38bdf8',
+            borderRadius: '16px',
+            padding: '24px 28px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            color: '#ffffff',
+            boxShadow: '0 6px 24px rgba(2, 132, 199, 0.2)',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <div style={{ maxWidth: '750px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                <span style={{ background: '#f59e0b', color: '#000000', fontSize: '0.72rem', fontWeight: 900, padding: '3px 8px', borderRadius: '4px' }}>SUPER ADMIN ONLY</span>
+                <span style={{ color: '#38bdf8', fontWeight: 950, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Bot size={24} color="#38bdf8" /> 24시 무인 자율 게릴라 마케팅 에이전트 관제
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.94rem', color: '#cbd5e1', lineHeight: 1.6, fontWeight: 500 }}>
+                네이버 지식iN, 무역/수입 카페, 커뮤니티의 관세·통관 질문을 24시간 실시간 탐지하여 WCO 통칙 및 관세평가분류원 실존 결정례 기반 법리 답변을 작성하고 <strong>30일 무료체험 회원가입</strong> 유입을 자동 견인합니다.
+              </p>
+            </div>
+            {onOpenMarketingBot && (
+              <button
+                onClick={onOpenMarketingBot}
+                style={{
+                  background: 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)',
+                  color: '#ffffff',
+                  border: '1.5px solid #38bdf8',
+                  borderRadius: '10px',
+                  padding: '13px 24px',
+                  fontWeight: 950,
+                  fontSize: '0.98rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 15px rgba(2, 132, 199, 0.4)',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Bot size={20} />
+                <span>🤖 마케팅 봇 관제창 열기</span>
+              </button>
+            )}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '22px' }}>
           
           {/* Left: Template Selector */}
           <div style={{ background: '#ffffff', border: '2.5px solid #475569', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '20px', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
@@ -2303,7 +2356,7 @@ export default function AdminPortal({ currentUser }: AdminPortalProps) {
             </div>
 
           </div>
-
+        </div>
         </div>
       )}
 
