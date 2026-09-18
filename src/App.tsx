@@ -52,6 +52,18 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
+  const [billingTarget, setBillingTarget] = useState<{
+    plan: 'free' | 'basic' | 'pro' | 'business';
+    cycle: 'monthly' | 'yearly';
+  }>({ plan: 'basic', cycle: 'monthly' });
+
+  const handleNavigateToBilling = (
+    plan: 'free' | 'basic' | 'pro' | 'business' = 'basic',
+    cycle: 'monthly' | 'yearly' = 'monthly'
+  ) => {
+    setBillingTarget({ plan, cycle });
+    setCurrentView('billing');
+  };
 
   // Admin Role Validation (Strictly admin@cusway.kr or verified is_admin flag only)
   const isAdmin = Boolean(
@@ -1668,7 +1680,14 @@ export default function App() {
         {currentView === 'showcase' && (
           <BrandShowcase 
             currentUser={currentUser}
-            onNavigate={(view) => setCurrentView(view)}
+            onNavigate={(view, opts) => {
+              if (view === 'billing') {
+                handleNavigateToBilling(opts?.plan || 'basic', opts?.cycle || 'monthly');
+              } else {
+                setCurrentView(view as any);
+              }
+            }}
+            onNavigateToBilling={handleNavigateToBilling}
             onOpenBranding={() => setShowBrandingModal(true)}
             onOpenKakaoConsult={handleOpenKakaoChat}
             onOpenGuide={handleOpenGuide}
@@ -1764,7 +1783,12 @@ export default function App() {
           )
         )}
         {currentView === 'billing' && (
-          <BillingPortal currentUser={currentUser} onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} />
+          <BillingPortal 
+            currentUser={currentUser} 
+            initialPlan={billingTarget.plan}
+            initialCycle={billingTarget.cycle}
+            onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} 
+          />
         )}
       </main>
 

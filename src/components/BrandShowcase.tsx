@@ -35,7 +35,11 @@ import MarketingBrochureModal from './MarketingBrochureModal';
 import CustomsReportModal from './CustomsReportModal';
 
 interface BrandShowcaseProps {
-  onNavigate: (view: 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'billing' | 'law-news') => void;
+  onNavigate: (
+    view: 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'billing' | 'law-news',
+    options?: { plan?: 'free' | 'basic' | 'pro' | 'business'; cycle?: 'monthly' | 'yearly' }
+  ) => void;
+  onNavigateToBilling?: (plan?: 'free' | 'basic' | 'pro' | 'business', cycle?: 'monthly' | 'yearly') => void;
   onOpenBranding: () => void;
   onOpenKakaoConsult: () => void;
   onOpenGuide?: (sectionId?: string) => void;
@@ -44,6 +48,7 @@ interface BrandShowcaseProps {
 
 export default function BrandShowcase({
   onNavigate,
+  onNavigateToBilling,
   onOpenBranding,
   onOpenKakaoConsult,
   onOpenGuide,
@@ -54,6 +59,14 @@ export default function BrandShowcase({
   const [showBrochureModal, setShowBrochureModal] = useState(false);
   const [showSampleReportModal, setShowSampleReportModal] = useState(false);
   const [showcaseBillingCycle, setShowcaseBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+
+  const handleGoToBilling = (plan: 'free' | 'basic' | 'pro' | 'business', cycle: 'monthly' | 'yearly') => {
+    if (onNavigateToBilling) {
+      onNavigateToBilling(plan, cycle);
+    } else {
+      onNavigate('billing', { plan, cycle });
+    }
+  };
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -1743,7 +1756,8 @@ export default function BrandShowcase({
             </div>
 
             <button
-              onClick={() => onNavigate('billing')}
+              type="button"
+              onClick={() => handleGoToBilling('free', 'monthly')}
               style={{
                 width: '100%',
                 padding: '12px',
@@ -1761,7 +1775,7 @@ export default function BrandShowcase({
                 transition: 'all 0.15s ease'
               }}
             >
-              <span>30일 무료체험 시작하기</span>
+              <span>⚡ 30일 무료체험 시작하기 (₩0)</span>
               <ArrowRight size={15} />
             </button>
           </div>
@@ -1835,30 +1849,61 @@ export default function BrandShowcase({
               </ul>
             </div>
 
-            <button
-              onClick={() => onNavigate('billing')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Sparkles size={16} fill="#ffffff" />
-              <span>Basic 개인형 구독하기</span>
-              <ArrowRight size={15} />
-            </button>
+            {/* 고객 선택형 1개월 vs 1년 결제 버튼 그룹 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+              <button
+                type="button"
+                onClick={() => handleGoToBilling('basic', 'monthly')}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  background: showcaseBillingCycle === 'monthly' ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : '#ffffff',
+                  border: showcaseBillingCycle === 'monthly' ? 'none' : '1.5px solid #10b981',
+                  borderRadius: '8px',
+                  color: showcaseBillingCycle === 'monthly' ? '#ffffff' : '#059669',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: showcaseBillingCycle === 'monthly' ? '0 3px 10px rgba(16, 185, 129, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📅 1개월 결제 (무약정)</span>
+                </span>
+                <span style={{ fontWeight: 900 }}>₩8,900 /월 →</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleGoToBilling('basic', 'yearly')}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  background: showcaseBillingCycle === 'yearly' ? 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)' : '#ffffff',
+                  border: showcaseBillingCycle === 'yearly' ? 'none' : '1.5px solid #0284c7',
+                  borderRadius: '8px',
+                  color: showcaseBillingCycle === 'yearly' ? '#ffffff' : '#0284c7',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: showcaseBillingCycle === 'yearly' ? '0 3px 10px rgba(2, 132, 199, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🎁 1년(12개월) 연간 결제</span>
+                  <span style={{ fontSize: '0.65rem', background: '#f59e0b', color: '#000', padding: '1px 5px', borderRadius: '4px', fontWeight: 900 }}>22% 할인</span>
+                </span>
+                <span style={{ fontWeight: 900 }}>₩82,800 /년 →</span>
+              </button>
+            </div>
           </div>
 
           {/* 3. Pro (실무팀형 - 추천 BEST) */}
@@ -1930,30 +1975,61 @@ export default function BrandShowcase({
               </ul>
             </div>
 
-            <button
-              onClick={() => onNavigate('billing')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#ffffff',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Sparkles size={16} fill="#ffffff" />
-              <span>Pro 플랜 구독하기</span>
-              <ArrowRight size={15} />
-            </button>
+            {/* 고객 선택형 1개월 vs 1년 결제 버튼 그룹 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+              <button
+                type="button"
+                onClick={() => handleGoToBilling('pro', 'monthly')}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  background: showcaseBillingCycle === 'monthly' ? 'linear-gradient(135deg, #0d9488 0%, #0284c7 100%)' : '#ffffff',
+                  border: showcaseBillingCycle === 'monthly' ? 'none' : '1.5px solid #0d9488',
+                  borderRadius: '8px',
+                  color: showcaseBillingCycle === 'monthly' ? '#ffffff' : '#0d9488',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: showcaseBillingCycle === 'monthly' ? '0 3px 10px rgba(13, 148, 136, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>📅 1개월 결제 (무약정)</span>
+                </span>
+                <span style={{ fontWeight: 900 }}>₩39,000 /월 →</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleGoToBilling('pro', 'yearly')}
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  background: showcaseBillingCycle === 'yearly' ? 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)' : '#ffffff',
+                  border: showcaseBillingCycle === 'yearly' ? 'none' : '1.5px solid #0284c7',
+                  borderRadius: '8px',
+                  color: showcaseBillingCycle === 'yearly' ? '#ffffff' : '#0284c7',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: showcaseBillingCycle === 'yearly' ? '0 3px 10px rgba(2, 132, 199, 0.25)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>🎁 1년(12개월) 연간 결제</span>
+                  <span style={{ fontSize: '0.65rem', background: '#f59e0b', color: '#000', padding: '1px 5px', borderRadius: '4px', fontWeight: 900 }}>25% 할인</span>
+                </span>
+                <span style={{ fontWeight: 900 }}>₩348,000 /년 →</span>
+              </button>
+            </div>
           </div>
 
           {/* 3. Enterprise (대형 법인형) */}
@@ -2008,29 +2084,80 @@ export default function BrandShowcase({
               </ul>
             </div>
 
-            <button
-              onClick={onOpenKakaoConsult}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: '#4338ca',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#ffffff',
-                fontWeight: 800,
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              <Building2 size={16} />
-              <span>법인 도입 문의 및 맞춤 상담</span>
-              <ArrowRight size={15} />
-            </button>
+            {/* 고객 선택형 Enterprise 결제 / 상담 버튼 그룹 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: 'auto' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => handleGoToBilling('business', 'monthly')}
+                  style={{
+                    padding: '10px 8px',
+                    background: showcaseBillingCycle === 'monthly' ? '#4338ca' : '#ffffff',
+                    border: '1.5px solid #4338ca',
+                    borderRadius: '8px',
+                    color: showcaseBillingCycle === 'monthly' ? '#ffffff' : '#4338ca',
+                    fontWeight: 800,
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '2px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>📅 1개월 결제</span>
+                  <span style={{ fontWeight: 900 }}>₩99,000 /월</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleGoToBilling('business', 'yearly')}
+                  style={{
+                    padding: '10px 8px',
+                    background: showcaseBillingCycle === 'yearly' ? '#4338ca' : '#ffffff',
+                    border: '1.5px solid #4338ca',
+                    borderRadius: '8px',
+                    color: showcaseBillingCycle === 'yearly' ? '#ffffff' : '#4338ca',
+                    fontWeight: 800,
+                    fontSize: '0.78rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '2px',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>🎁 1년 연간 결제</span>
+                  <span style={{ fontWeight: 900 }}>₩948,000 /년</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={onOpenKakaoConsult}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  background: '#f8fafc',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  color: '#334155',
+                  fontWeight: 700,
+                  fontSize: '0.82rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <Building2 size={15} />
+                <span>법인 맞춤 커스텀 견적 상담</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>

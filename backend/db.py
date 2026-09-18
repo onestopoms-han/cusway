@@ -75,7 +75,8 @@ def init_db_migrations():
                     ("payment_method", "TEXT DEFAULT 'card'"),
                     ("pg_provider", "TEXT DEFAULT 'portone'"),
                     ("transaction_id", "TEXT"),
-                    ("receipt_url", "TEXT")
+                    ("receipt_url", "TEXT"),
+                    ("billing_cycle", "TEXT DEFAULT 'monthly'")
                 ]
                 for col_name, col_type in hist_cols_to_add:
                     if col_name not in hist_cols:

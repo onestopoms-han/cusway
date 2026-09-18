@@ -212,6 +212,7 @@ class BillingRequest(BaseModel):
     original_price: int
     points_used: int
     final_price: int
+    billing_cycle: Optional[str] = "monthly"
     payment_method: Optional[str] = "card"
     pg_provider: Optional[str] = "portone"
     transaction_id: Optional[str] = None
@@ -1135,6 +1136,7 @@ def subscribe(req: BillingRequest, db: Session = Depends(get_db)):
     history = PaymentHistory(
         email=req.email,
         plan_name=req.plan_name,
+        billing_cycle=req.billing_cycle or "monthly",
         original_price=req.original_price,
         points_used=req.points_used,
         final_price=req.final_price,
@@ -1154,6 +1156,7 @@ def subscribe(req: BillingRequest, db: Session = Depends(get_db)):
         "transaction_id": tx_id,
         "approval_date": approval_time,
         "plan": user.plan,
+        "billing_cycle": req.billing_cycle or "monthly",
         "accrued_points": user.accrued_points,
         "payment_method": req.payment_method or "card",
         "pg_provider": req.pg_provider or "portone",

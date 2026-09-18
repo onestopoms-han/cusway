@@ -69,6 +69,7 @@ class PaymentHistory(Base):
     date = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d"))
     payment_method = Column(String, nullable=True, default="card")
     pg_provider = Column(String, nullable=True, default="portone")
+    billing_cycle = Column(String, nullable=True, default="monthly") # 'monthly' or 'yearly'
     transaction_id = Column(String, nullable=True)
     receipt_url = Column(String, nullable=True)
 

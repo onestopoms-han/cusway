@@ -24,12 +24,15 @@ declare global {
 interface BillingPortalProps {
   currentUser: any;
   onSubscribeSuccess: (updatedUser: any) => void;
+  initialPlan?: 'free' | 'basic' | 'pro' | 'business';
+  initialCycle?: 'monthly' | 'yearly';
 }
 
 interface ReceiptInfo {
   transactionId: string;
   approvalDate: string;
   planNameKo: string;
+  billingCycleKo: string;
   originalPrice: number;
   pointsUsed: number;
   finalPrice: number;
@@ -40,9 +43,14 @@ interface ReceiptInfo {
   customerName: string;
 }
 
-export default function BillingPortal({ currentUser, onSubscribeSuccess }: BillingPortalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro' | 'business'>('basic');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+export default function BillingPortal({ 
+  currentUser, 
+  onSubscribeSuccess, 
+  initialPlan = 'basic', 
+  initialCycle = 'monthly' 
+}: BillingPortalProps) {
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro' | 'business'>(initialPlan);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(initialCycle);
   const [usePoints, setUsePoints] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'toss' | 'card' | 'kakaopay' | 'naverpay'>('toss');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -51,6 +59,11 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [customerName, setCustomerName] = useState(currentUser?.name || '관세 실무 책임자');
   const [customerPhone, setCustomerPhone] = useState(currentUser?.phone_number || '010-9256-8480');
+
+  useEffect(() => {
+    if (initialPlan) setSelectedPlan(initialPlan);
+    if (initialCycle) setBillingCycle(initialCycle);
+  }, [initialPlan, initialCycle]);
 
   // 백엔드 PG사 설정값 상태
   const [pgConfig, setPgConfig] = useState({
@@ -80,9 +93,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
   const planNamesKo = {
     free: 'Free 30일 무료 체험 (₩0/월)',
-    basic: billingCycle === 'yearly' ? 'Basic 개인 실무자형 연간 구독 (₩82,800/연, 월 6,900원)' : 'Basic 개인 실무자형 1개월 구독 (₩8,900/월)',
-    pro: billingCycle === 'yearly' ? 'Pro 실무팀형 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 1개월 구독 (₩39,000/월)',
-    business: billingCycle === 'yearly' ? 'Enterprise 법인형 연간 구독 (₩948,000/연, 월 79,000원)' : 'Enterprise 법인형 1개월 구독 (₩99,000/월)'
+    basic: billingCycle === 'yearly' ? 'Basic 개인 실무자형 1년 연간 구독 (₩82,800/연, 월 6,900원)' : 'Basic 개인 실무자형 1개월 구독 (₩8,900/월)',
+    pro: billingCycle === 'yearly' ? 'Pro 실무팀형 1년 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 1개월 구독 (₩39,000/월)',
+    business: billingCycle === 'yearly' ? 'Enterprise 법인형 1년 연간 구독 (₩948,000/연, 월 79,000원)' : 'Enterprise 법인형 1개월 구독 (₩99,000/월)'
   };
 
   // 백엔드 PG 설정 로드 및 URL 콜백 감지
@@ -142,6 +155,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
     const payload = {
       email: currentUser?.email || 'guest@cusway.kr',
       plan_name: selectedPlan,
+      billing_cycle: billingCycle,
       original_price: currentPrice,
       points_used: usePoints ? userAccruedPoints : 0,
       final_price: chargedPrice,
@@ -175,6 +189,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
         transactionId: data.transaction_id || options.transactionId,
         approvalDate: data.approval_date || new Date().toLocaleString('ko-KR'),
         planNameKo: planNamesKo[selectedPlan],
+        billingCycleKo: billingCycle === 'yearly' ? '12개월(1년) 연간 일시납 결제' : '1개월 정기 구독 결제 (무약정 자유 해지)',
         originalPrice: currentPrice,
         pointsUsed: usePoints ? userAccruedPoints : 0,
         finalPrice: chargedPrice,
@@ -493,6 +508,72 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? ' / 월 (연 ₩82,800)' : ' / 1개월'}
                 </span>
               </div>
+
+              {/* Basic 카드 내 1개월 vs 1년 고객 직접 선택 라디오 박스 */}
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.35)',
+                borderRadius: '8px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('basic'); setBillingCycle('monthly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'basic' && billingCycle === 'monthly') ? 'rgba(16, 185, 129, 0.25)' : 'transparent',
+                    border: (selectedPlan === 'basic' && billingCycle === 'monthly') ? '1px solid #10b981' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_basic"
+                      checked={selectedPlan === 'basic' && billingCycle === 'monthly'} 
+                      onChange={() => { setSelectedPlan('basic'); setBillingCycle('monthly'); }}
+                      style={{ accentColor: '#10b981', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>📅 1개월씩 결제</span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#34d399' }}>₩8,900 /월</span>
+                </div>
+
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('basic'); setBillingCycle('yearly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'basic' && billingCycle === 'yearly') ? 'rgba(2, 132, 199, 0.25)' : 'transparent',
+                    border: (selectedPlan === 'basic' && billingCycle === 'yearly') ? '1px solid #0284c7' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_basic"
+                      checked={selectedPlan === 'basic' && billingCycle === 'yearly'} 
+                      onChange={() => { setSelectedPlan('basic'); setBillingCycle('yearly'); }}
+                      style={{ accentColor: '#0284c7', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>🎁 1년(12개월) 연간 결제</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#38bdf8' }}>₩82,800 /년</span>
+                    <span style={{ fontSize: '0.62rem', color: '#fbbf24', marginLeft: '4px', fontWeight: 800 }}>-22%</span>
+                  </div>
+                </div>
+              </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
                 <li><b>개인 1인 전용 (단독 계정)</b></li>
                 <li><b>무제한 4단계 통관 시뮬레이션</b> (조건 동일)</li>
@@ -538,6 +619,72 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? ' / 월 (연 ₩348,000)' : ' / 1개월'}
                 </span>
               </div>
+
+              {/* Pro 카드 내 1개월 vs 1년 고객 직접 선택 라디오 박스 */}
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.35)',
+                borderRadius: '8px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('pro'); setBillingCycle('monthly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'pro' && billingCycle === 'monthly') ? 'rgba(13, 148, 136, 0.3)' : 'transparent',
+                    border: (selectedPlan === 'pro' && billingCycle === 'monthly') ? '1px solid #0d9488' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_pro"
+                      checked={selectedPlan === 'pro' && billingCycle === 'monthly'} 
+                      onChange={() => { setSelectedPlan('pro'); setBillingCycle('monthly'); }}
+                      style={{ accentColor: '#0d9488', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>📅 1개월씩 결제</span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#5eead4' }}>₩39,000 /월</span>
+                </div>
+
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('pro'); setBillingCycle('yearly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'pro' && billingCycle === 'yearly') ? 'rgba(2, 132, 199, 0.25)' : 'transparent',
+                    border: (selectedPlan === 'pro' && billingCycle === 'yearly') ? '1px solid #0284c7' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_pro"
+                      checked={selectedPlan === 'pro' && billingCycle === 'yearly'} 
+                      onChange={() => { setSelectedPlan('pro'); setBillingCycle('yearly'); }}
+                      style={{ accentColor: '#0284c7', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>🎁 1년(12개월) 연간 결제</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#38bdf8' }}>₩348,000 /년</span>
+                    <span style={{ fontSize: '0.62rem', color: '#fbbf24', marginLeft: '4px', fontWeight: 800 }}>-25%</span>
+                  </div>
+                </div>
+              </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
                 <li><b>5인 계정 기본 포함</b> (동시접속 무제한)</li>
                 <li>Basic 전 기능 무제한 포함</li>
@@ -580,6 +727,71 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? ' / 월 (연 ₩948,000)' : ' / 1개월'}
                 </span>
               </div>
+
+              {/* Enterprise 카드 내 1개월 vs 1년 고객 직접 선택 라디오 박스 */}
+              <div style={{
+                background: 'rgba(0, 0, 0, 0.35)',
+                borderRadius: '8px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('business'); setBillingCycle('monthly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'business' && billingCycle === 'monthly') ? 'rgba(99, 102, 241, 0.3)' : 'transparent',
+                    border: (selectedPlan === 'business' && billingCycle === 'monthly') ? '1px solid #6366f1' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_business"
+                      checked={selectedPlan === 'business' && billingCycle === 'monthly'} 
+                      onChange={() => { setSelectedPlan('business'); setBillingCycle('monthly'); }}
+                      style={{ accentColor: '#6366f1', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>📅 1개월씩 결제</span>
+                  </div>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#a5b4fc' }}>₩99,000 /월</span>
+                </div>
+
+                <div 
+                  onClick={(e) => { e.stopPropagation(); setSelectedPlan('business'); setBillingCycle('yearly'); }}
+                  style={{
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    background: (selectedPlan === 'business' && billingCycle === 'yearly') ? 'rgba(99, 102, 241, 0.25)' : 'transparent',
+                    border: (selectedPlan === 'business' && billingCycle === 'yearly') ? '1px solid #6366f1' : '1px solid transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <input 
+                      type="radio" 
+                      name="cycle_business"
+                      checked={selectedPlan === 'business' && billingCycle === 'yearly'} 
+                      onChange={() => { setSelectedPlan('business'); setBillingCycle('yearly'); }}
+                      style={{ accentColor: '#6366f1', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#fff' }}>🎁 1년 연간 결제</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.74rem', fontWeight: 900, color: '#c7d2fe' }}>₩948,000 /년</span>
+                  </div>
+                </div>
+              </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
                 <li><b>전사 본·지사 인원 완전 무제한</b></li>
                 <li>법인 내부 ERP 및 통관 관리 시스템 API 연동</li>
@@ -613,8 +825,20 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
             <div style={{ background: 'rgba(0,0,0,0.3)', padding: '14px', borderRadius: '8px', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>선택한 요금제:</span>
+                <span style={{ fontWeight: 700, color: '#fff' }}>
+                  {selectedPlan === 'business' ? 'Enterprise (법인형)' : selectedPlan === 'pro' ? 'Pro (실무팀형)' : selectedPlan === 'basic' ? 'Basic (개인형)' : 'Free (30일 무료)'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>고객 선택 주기:</span>
+                <span style={{ fontWeight: 800, color: billingCycle === 'monthly' ? '#5eead4' : '#38bdf8' }}>
+                  {billingCycle === 'monthly' ? '📅 1개월 단위 결제 (무약정)' : '🎁 1년(12개월) 연간 결제 (할인적용)'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--text-muted)' }}>구독 가격:</span>
-                <span>₩{currentPrice.toLocaleString()} 원</span>
+                <span>₩{currentPrice.toLocaleString()} 원 {billingCycle === 'monthly' ? '/ 1개월' : '/ 1년'}</span>
               </div>
               {usePoints && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--accent-amber)' }}>
@@ -1024,10 +1248,10 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                 <>
                   <Lock size={16} />
                   <span>
-                    {paymentMethod === 'toss' && '토스페이먼츠 보안 결제창 열기'}
-                    {paymentMethod === 'card' && '신용/체크카드 안전 결제창 열기'}
-                    {paymentMethod === 'kakaopay' && '카카오페이 간편 결제창 열기'}
-                    {paymentMethod === 'naverpay' && '네이버페이 간편 결제창 열기'}
+                    {paymentMethod === 'toss' && `토스페이먼츠 ${billingCycle === 'monthly' ? '1개월' : '1년 연간'} 보안 결제창 열기`}
+                    {paymentMethod === 'card' && `신용/체크카드 ${billingCycle === 'monthly' ? '1개월' : '1년 연간'} 안전 결제창 열기`}
+                    {paymentMethod === 'kakaopay' && `카카오페이 ${billingCycle === 'monthly' ? '1개월' : '1년 연간'} 간편 결제창 열기`}
+                    {paymentMethod === 'naverpay' && `네이버페이 ${billingCycle === 'monthly' ? '1개월' : '1년 연간'} 간편 결제창 열기`}
                     {` (₩${finalPrice.toLocaleString()} 원)`}
                   </span>
                 </>
@@ -1172,6 +1396,12 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
               <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '8px', marginTop: '4px' }}>
                 <span style={{ color: 'var(--text-muted)' }}>구독 상품명:</span>
                 <span style={{ fontWeight: 700 }}>{receiptData.planNameKo}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>결제 주기 (고객 선택):</span>
+                <span style={{ fontWeight: 800, color: receiptData.billingCycleKo?.includes('1년') ? '#38bdf8' : '#5eead4' }}>
+                  {receiptData.billingCycleKo}
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--text-muted)' }}>기본 요금:</span>
