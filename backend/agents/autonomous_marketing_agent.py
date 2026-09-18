@@ -27,9 +27,12 @@ if hasattr(sys.stdout, 'reconfigure'):
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(WORKSPACE_ROOT, "cusway.db")
 
-# 정찰 대상 검색 쿼리 목록 (지식iN, 커뮤니티, 통관 질의응답)
+# 정찰 대상 검색 쿼리 목록 (지식iN, 커뮤니티, 통관 질의응답, 포워딩 포털)
 SCOUT_QUERIES = [
+    ("https://news.google.com/rss/search?q=%22%ED%8F%AC%EC%9B%8C%EB%8D%94%22+%ED%86%B5%EA%B4%80+HS%EC%BD%94%EB%93%9C&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%22%ED%8F%AC%EC%9B%8C%EB%94%A9%22+%EC%88%98%EC%9E%85%EC%9A%94%EA%B4%84+%EA%B4%80%EC%84%B8%EC%9C%A8&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
     ("https://news.google.com/rss/search?q=%22HS%EC%BD%94%EB%93%9C%22+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80&hl=ko&gl=KR&ceid=KR:ko", "kin"),
+    ("https://news.google.com/rss/search?q=%22%EA%B5%AD%EC%A0%9C%EB%AC%BC%EB%A5%98%EC%A3%BC%EC%84%A0%EC%97%85%22+%ED%86%B5%EA%B4%80+%EC%84%9C%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
     ("https://news.google.com/rss/search?q=%22%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98%22+%EA%B4%80%EC%84%B8%EC%9C%A8+%EC%A7%88%EB%AC%B8&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
     ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85+%22KC%EC%9D%B8%EC%A6%9D%22+%ED%86%B5%EA%B4%80+%EC%9A%94%EA%B4%84&hl=ko&gl=KR&ceid=KR:ko", "forum"),
     ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EA%B2%80%EC%97%AD+%ED%86%B5%EA%B4%80+%EB%B3%B4%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "kin"),
@@ -38,6 +41,47 @@ SCOUT_QUERIES = [
 
 # 실시간 시뮬레이션 및 상시 고빈도 질문 풀 (네트워크 단절 시에도 24시간 가동 보장)
 REPRESENTATIVE_QUESTIONS = [
+    # 포워더 & 물류 실무 특화 질문 (KIFFA, 포워더KR, 무역포워더모임 매칭)
+    {
+        "title": "[포워더KR] 화주가 산업용 유압 밸브 및 펌프 HS코드와 관세율 문의하는데 관세사 통화 전에 어떻게 확인하나요?",
+        "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89214",
+        "platform": "forwarder",
+        "item": "산업용 유압식 밸브",
+        "hsk": "8481.20-0000",
+        "reqs": "일반 산업용 유압 밸브는 세관장확인 비대상"
+    },
+    {
+        "title": "[포워더KR] 유럽에서 전기차 급속 충전기 수입 의뢰받은 포워더입니다. KC인증이랑 전파법 확인서 화주 안내 방법",
+        "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89230",
+        "platform": "forwarder",
+        "item": "전기차용 급속 충전기",
+        "hsk": "8504.40-1000",
+        "reqs": "전기용품및생활용품안전관리법(안전인증) 및 전파법(방송통신기자재 적합성평가확인서)"
+    },
+    {
+        "title": "[무역포워더모임] 신입 포워딩 OP입니다. 화주한테 보내줄 품목별 관세율/통관요건 A4 정리 서식이 있나요?",
+        "url": "https://cafe.naver.com/forwarder_community/45129",
+        "platform": "forwarder",
+        "item": "화주 제출용 통관 심사 리포트",
+        "hsk": "8471.30-0000",
+        "reqs": "관세법 제226조에 따른 세관장확인 고시 품목 확인"
+    },
+    {
+        "title": "[셀러오션] 포워딩 업체 추천 부탁드립니다. 베트남산 커피 생두 및 건조 과일 통관도 같이 봐주실 수 있는 곳 찾아요",
+        "url": "https://cafe.naver.com/seller_ocean/1831405",
+        "platform": "forwarder",
+        "item": "커피 생두 및 건조 과일",
+        "hsk": "0901.11-0000",
+        "reqs": "식물방역법 수입식물검역합격증 및 수입식품안전관리특별법 확인증 필수"
+    },
+    {
+        "title": "[포워더KR] 화주가 한-미 FTA C/O로 무관세 해달라는데 원산지결정기준(PSR) 충족 여부 어떻게 점검하나요?",
+        "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89301",
+        "platform": "forwarder",
+        "item": "한-미 FTA 원산지결정기준(PSR)",
+        "hsk": "3901.10-0000",
+        "reqs": "한-미 FTA 원산지증명서(자율서식) 구비 및 5년간 원산지소명서 보관 의무"
+    },
     {
         "title": "타오바오에서 무선 휴대용 청소기랑 보조배터리 수입하려는데 HS코드와 전파법 대상인가요?",
         "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94821034",
@@ -128,10 +172,23 @@ GREETINGS = [
     "현직 통관 실무자 관점에서 관세평가분류원 분류 지침과 통칙 법리에 기반하여 안내해 드립니다."
 ]
 
+FORWARDER_GREETINGS = [
+    "안녕하세요! 포워딩 및 국제물류 실무 관점에서 화주 응대 및 세관 수입신고에 필요한 핵심을 정리해 드립니다.",
+    "현직 무역·물류 실무자 관점에서 화주에게 전달하기 좋은 명확한 법리 분류 및 요건 안내를 드립니다.",
+    "포워딩 실무에서 화주가 가장 빈번하게 문의하는 세번 및 요건 이슈입니다. 알기 쉽게 3단계로 요약해 드립니다.",
+    "화주 안내용 또는 포워딩 내부 실무 검토용으로 활용하실 수 있도록 관세평가원 지침에 맞추어 검토해 드립니다."
+]
+
 HOOK_OUTROS = [
     "💡 [실무 팁] 화주 제출용 A4 전문 사전심사 리포트나 한-중/한-미 FTA 세율 시뮬레이션이 필요하시면, 최근 관세사·수출입 셀러들이 많이 활용하는 **CUSWAY(https://cusway.kr)**에서 30일간 무료로 전체 심사 리포트(PDF) 출력이 가능하니 직접 조회해 보시길 권장합니다.",
     "💡 [참고] 세관 사전소명서 양식이나 전 세번 통합 세율 비교표는 **CUSWAY(https://cusway.kr)**에서 신용카드 등록 없이 30일간 무료로 무제한 발급받으실 수 있습니다. 통관 준비에 많은 도움이 되실 겁니다.",
     "💡 [알아두면 좋은 정보] 정식 수입신고 전 세관장확인 법령 누락 여부 점검은 통관 보류를 막는 핵심입니다. **CUSWAY AI(https://cusway.kr)**에서 4단계 통관 시뮬레이션을 무료(30일 체험)로 돌려보시면 소명서 작성 시간을 크게 아끼실 수 있습니다."
+]
+
+FORWARDER_HOOK_OUTROS = [
+    "💡 [포워더 업무 효율 극대화 꿀팁] 화주가 HS코드나 관세율, 수입 요건 물어볼 때마다 관세사에게 매번 전화하기 눈치 보이셨다면, **CUSWAY(https://cusway.kr)**를 써보세요! 3초 만에 4단계 통관 요건과 WCO 법리 해설이 조회되며, **우리 포워딩 회사 상호/로고를 찍은 [화주 제출용 A4 통관 리포트(PDF)]**를 30일간 무료로 무제한 출력해서 화주에게 바로 전달할 수 있습니다.",
+    "💡 [포워딩 영업 수주 팁] 화주에게 운임 견적서 보낼 때 CUSWAY의 **[화주 제출용 4단계 통관 심사 리포트]**를 함께 첨부해 보세요. 포워더 신뢰도와 화주 부킹 수주 성공률이 비약적으로 상승합니다. (현재 CUSWAY에서 신용카드 등록 없이 30일간 무료 체험 제공 중: https://cusway.kr)",
+    "💡 [포워딩 OP 실무 팁] 수출입 화주 응대 시 세관장확인 필수 법령이나 FTA 세율 시뮬레이션은 **CUSWAY AI(https://cusway.kr)**에서 즉시 확인 가능합니다. 포워딩 OP/영업 실무진을 위한 A4 사전심사 소명서 양식도 30일 무료로 무제한 제공되니 업무에 적극 활용해 보세요."
 ]
 
 def init_marketing_db():
@@ -235,15 +292,21 @@ def query_hs_master(item_keyword: str, fallback_hsk: str = "") -> dict:
         "wto_rate": wto_rate
     }
 
-def generate_expert_comment(title: str, item_hint: str, hsk_hint: str, reqs_hint: str) -> str:
+def generate_expert_comment(title: str, item_hint: str, hsk_hint: str, reqs_hint: str, platform: str = "") -> str:
     """인간 관세사 수준의 완벽한 법리적 가치 제공 댓글을 100% 자동 생성합니다."""
     query_text = f"{title} {item_hint}".strip()
     master_info = query_hs_master(query_text, fallback_hsk=hsk_hint)
     target_hsk = hsk_hint or master_info["hsk"]
     target_name = master_info["korean_name"] or item_hint
     
-    greeting = random.choice(GREETINGS)
-    outro = random.choice(HOOK_OUTROS)
+    is_forwarder = platform == "forwarder" or any(w in query_text for w in ["포워더", "포워딩", "물류", "화주", "선사", "운임", "부킹", "B/L", "Forwarder"])
+    
+    if is_forwarder:
+        greeting = random.choice(FORWARDER_GREETINGS)
+        outro = random.choice(FORWARDER_HOOK_OUTROS)
+    else:
+        greeting = random.choice(GREETINGS)
+        outro = random.choice(HOOK_OUTROS)
     
     comment = f"""{greeting}
 
@@ -331,7 +394,8 @@ def execute_autonomous_marketing_cycle(max_posts: int = 5):
             title=q["title"],
             item_hint=q.get("item", "수입물품"),
             hsk_hint=q.get("hsk", ""),
-            reqs_hint=q.get("reqs", "세관장확인 대상 법령 검토 필요")
+            reqs_hint=q.get("reqs", "세관장확인 대상 법령 검토 필요"),
+            platform=q.get("platform", "")
         )
 
         # 인간형 스텔스 딜레이 (3~7초 무작위 일시정지)
