@@ -85,6 +85,38 @@ REPRESENTATIVE_QUESTIONS = [
         "item": "스마트워치 (블루투스 송수신 장치 내장)",
         "hsk": "8517.62-6080",
         "reqs": "전파법 적합성평가 대상. 단, 판매 목적이 아닌 연구·개발·샘플 목적 1대에 한하여 전파법 면제신청서 제출 시 면제 통관 가능"
+    },
+    {
+        "title": "프랑스산 기능성 에센스 세럼 화장품 수입 시 표준통관예정보고와 화장품법 절차 문의",
+        "url": "https://cafe.naver.com/seller_ocean/1830112",
+        "platform": "cafe",
+        "item": "기초화장용 세럼 화장품",
+        "hsk": "3304.99-1000",
+        "reqs": "화장품법 제5조에 따른 대한화장품협회 표준통관예정보고(EDI) 승인 및 품질검사 필수"
+    },
+    {
+        "title": "일본산 도자기 식기 및 주방용 조리용품 수입 시 식약처 기구용기 정밀검사 어떻게 받나요?",
+        "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94841209",
+        "platform": "kin",
+        "item": "도자기제 주방용 식기",
+        "hsk": "6912.00-1000",
+        "reqs": "수입식품안전관리특별법에 따른 기구 또는 용기·포장 최초 정밀검사(중금속 용출 시험) 및 한글표시사항 부착 필수"
+    },
+    {
+        "title": "독일산 자동차 부품(에어필터 및 브레이크 패드) 수입 통관 한-EU FTA C/O 적용",
+        "url": "https://cafe.naver.com/trade_forwarder/99410",
+        "platform": "cafe",
+        "item": "자동차용 공기여과기(에어필터)",
+        "hsk": "8421.31-0000",
+        "reqs": "일반 자동차 교체용 부품은 세관장확인 비대상이나, 인보이스 6천유로 초과 시 EU 인증수출자 번호 기재 필수"
+    },
+    {
+        "title": "중국 공장에서 실리콘 유아용 이유식 식기 수입하려는데 어린이제품 KC인증 필수인가요?",
+        "url": "https://gall.dcinside.com/mgallery/board/view/?id=trade&no=78350",
+        "platform": "dcinside",
+        "item": "유아용 실리콘제 식기",
+        "hsk": "3924.10-0000",
+        "reqs": "어린이제품안전특별법(안전인증/안전확인) 및 수입식품안전관리특별법(식약처 기구·용기 정밀검사) 동시 충족 필수"
     }
 ]
 
@@ -145,31 +177,45 @@ def record_campaign_log(platform: str, title: str, url: str, keyword: str, hsk: 
     conn.commit()
     conn.close()
 
-def query_hs_master(item_keyword: str) -> dict:
+def format_hsk(code: str) -> str:
+    """10자리 연속 숫자를 표준 HSK 10단위 표기법(XXXX.XX-XXXX)으로 변환합니다."""
+    clean = re.sub(r'[^0-9]', '', str(code or ''))
+    if len(clean) == 10:
+        return f"{clean[:4]}.{clean[4:6]}-{clean[6:]}"
+    return str(code or '8508.11-0000')
+
+def query_hs_master(item_keyword: str, fallback_hsk: str = "") -> dict:
     """CUSWAY 백엔드 SQLite DB에서 실제 HSK 세번과 세율을 고속 검색합니다."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # 1. HSK 마스터 검색
-    hsk = "8508.11-0000"
+    hsk = fallback_hsk or "8508.11-0000"
     korean_name = item_keyword
+    
     try:
-        cursor.execute("""
-            SELECT hs_code, name_ko FROM hs_code_master 
-            WHERE name_ko LIKE ? OR name_en LIKE ? LIMIT 1
-        """, (f"%{item_keyword[:3]}%", f"%{item_keyword[:3]}%"))
-        row = cursor.fetchone()
-        if row:
-            hsk = row[0]
-            korean_name = row[1]
+        # 키워드에서 2글자 이상 단어들 추출하여 순차 검색
+        tokens = [w for w in re.findall(r'[가-힣a-zA-Z0-9]{2,}', item_keyword)
+                  if w not in ["수입", "통관", "관세", "질문", "관세율", "어떻게", "미국", "중국", "수입시", "대상", "여부"]]
+        
+        for token in tokens:
+            cursor.execute("""
+                SELECT hs_code, name_ko FROM hs_code_master 
+                WHERE name_ko LIKE ? AND hscode_length = 10 
+                ORDER BY length(name_ko) ASC LIMIT 1
+            """, (f"%{token}%",))
+            row = cursor.fetchone()
+            if row:
+                hsk = format_hsk(row[0])
+                korean_name = row[1]
+                break
     except Exception:
         pass
     
-    # 2. 세율 검색
+    # 세율 검색
+    clean_code = re.sub(r'[^0-9]', '', hsk)
     basic_rate = "8.0%"
     wto_rate = "8.0%"
     try:
-        clean_code = re.sub(r'[^0-9]', '', hsk)
         cursor.execute("""
             SELECT base_rate, wto_rate FROM hs_rate_master
             WHERE hs_code = ? OR hs_code = ? LIMIT 1
@@ -183,7 +229,7 @@ def query_hs_master(item_keyword: str) -> dict:
     
     conn.close()
     return {
-        "hsk": hsk,
+        "hsk": format_hsk(hsk),
         "korean_name": korean_name,
         "basic_rate": basic_rate,
         "wto_rate": wto_rate
@@ -191,7 +237,8 @@ def query_hs_master(item_keyword: str) -> dict:
 
 def generate_expert_comment(title: str, item_hint: str, hsk_hint: str, reqs_hint: str) -> str:
     """인간 관세사 수준의 완벽한 법리적 가치 제공 댓글을 100% 자동 생성합니다."""
-    master_info = query_hs_master(item_hint)
+    query_text = f"{title} {item_hint}".strip()
+    master_info = query_hs_master(query_text, fallback_hsk=hsk_hint)
     target_hsk = hsk_hint or master_info["hsk"]
     target_name = master_info["korean_name"] or item_hint
     
