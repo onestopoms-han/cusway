@@ -53,7 +53,7 @@ export default function BrandShowcase({
   const [branding, setBranding] = useState<OfficeBranding>(() => getSavedOfficeBranding(currentUser));
   const [showBrochureModal, setShowBrochureModal] = useState(false);
   const [showSampleReportModal, setShowSampleReportModal] = useState(false);
-  const [showcaseBillingCycle, setShowcaseBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [showcaseBillingCycle, setShowcaseBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   useEffect(() => {
     const handleUpdate = () => {
@@ -1610,48 +1610,81 @@ export default function BrandShowcase({
             1인 개업 관세사부터 중대형 관세법인까지, 공수 절감과 정확도를 극대화하는 최적의 플랜을 30일간 무료로 체험하세요.
           </p>
 
-          {/* Monthly / Yearly Discount Toggle */}
+          {/* Monthly / Yearly Billing Cycle Selector Tabs (월간 1개월 단위 기본 활성화) */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '8px',
             marginTop: '20px',
-            background: '#f8fafc',
-            padding: '6px 16px',
-            borderRadius: '30px',
-            border: '1px solid #cbd5e1'
+            background: '#f1f5f9',
+            padding: '5px',
+            borderRadius: '14px',
+            border: '1.5px solid #cbd5e1'
           }}>
-            <span style={{ fontSize: '0.85rem', fontWeight: showcaseBillingCycle === 'monthly' ? 800 : 500, color: showcaseBillingCycle === 'monthly' ? '#0f172a' : '#64748b' }}>
-              월간 결제
-            </span>
             <button
               type="button"
-              onClick={() => setShowcaseBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
+              onClick={() => setShowcaseBillingCycle('monthly')}
               style={{
-                background: showcaseBillingCycle === 'yearly' ? '#0d9488' : '#cbd5e1',
-                border: 'none',
-                borderRadius: '20px',
-                width: '48px',
-                height: '26px',
-                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 20px',
+                borderRadius: '10px',
+                border: showcaseBillingCycle === 'monthly' ? '1.5px solid #0d9488' : '1.5px solid transparent',
+                background: showcaseBillingCycle === 'monthly' ? '#0d9488' : 'transparent',
+                color: showcaseBillingCycle === 'monthly' ? '#ffffff' : '#64748b',
+                fontWeight: showcaseBillingCycle === 'monthly' ? 900 : 600,
+                fontSize: '0.92rem',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                padding: '2px'
+                boxShadow: showcaseBillingCycle === 'monthly' ? '0 2px 10px rgba(13, 148, 136, 0.3)' : 'none',
+                transition: 'all 0.15s ease'
               }}
             >
-              <div style={{
-                width: '22px',
-                height: '22px',
-                borderRadius: '50%',
-                background: '#ffffff',
-                transform: showcaseBillingCycle === 'yearly' ? 'translateX(22px)' : 'translateX(0px)',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
-              }} />
+              <span>📅 1개월씩 월간 결제 (기본)</span>
+              <span style={{
+                fontSize: '0.7rem',
+                background: showcaseBillingCycle === 'monthly' ? 'rgba(255,255,255,0.2)' : '#e2e8f0',
+                color: showcaseBillingCycle === 'monthly' ? '#ffffff' : '#475569',
+                padding: '2px 6px',
+                borderRadius: '6px',
+                fontWeight: 700
+              }}>
+                1개월 단위
+              </span>
             </button>
-            <span style={{ fontSize: '0.85rem', fontWeight: showcaseBillingCycle === 'yearly' ? 800 : 500, color: showcaseBillingCycle === 'yearly' ? '#0d9488' : '#64748b', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              연간 결제 <span style={{ fontSize: '0.68rem', background: '#ccfbf1', color: '#0f766e', border: '1px solid #0d9488', padding: '1px 6px', borderRadius: '8px', fontWeight: 800 }}>최대 25% 할인 🔥</span>
-            </span>
+
+            <button
+              type="button"
+              onClick={() => setShowcaseBillingCycle('yearly')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 20px',
+                borderRadius: '10px',
+                border: showcaseBillingCycle === 'yearly' ? '1.5px solid #0284c7' : '1.5px solid transparent',
+                background: showcaseBillingCycle === 'yearly' ? 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)' : 'transparent',
+                color: showcaseBillingCycle === 'yearly' ? '#ffffff' : '#64748b',
+                fontWeight: showcaseBillingCycle === 'yearly' ? 900 : 600,
+                fontSize: '0.92rem',
+                cursor: 'pointer',
+                boxShadow: showcaseBillingCycle === 'yearly' ? '0 2px 10px rgba(2, 132, 199, 0.3)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <span>🎁 12개월 연간 결제</span>
+              <span style={{
+                fontSize: '0.7rem',
+                background: showcaseBillingCycle === 'yearly' ? '#f59e0b' : '#ccfbf1',
+                color: showcaseBillingCycle === 'yearly' ? '#000000' : '#0f766e',
+                border: showcaseBillingCycle === 'yearly' ? 'none' : '1px solid #0d9488',
+                padding: '2px 7px',
+                borderRadius: '6px',
+                fontWeight: 900
+              }}>
+                최대 25% 할인 🔥
+              </span>
+            </button>
           </div>
         </div>
 

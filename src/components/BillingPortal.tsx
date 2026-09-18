@@ -42,7 +42,7 @@ interface ReceiptInfo {
 
 export default function BillingPortal({ currentUser, onSubscribeSuccess }: BillingPortalProps) {
   const [selectedPlan, setSelectedPlan] = useState<'free' | 'basic' | 'pro' | 'business'>('basic');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [usePoints, setUsePoints] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'toss' | 'card' | 'kakaopay' | 'naverpay'>('toss');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -80,9 +80,9 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
 
   const planNamesKo = {
     free: 'Free 30일 무료 체험 (₩0/월)',
-    basic: billingCycle === 'yearly' ? 'Basic 개인 실무자형 연간 구독 (₩82,800/연, 월 6,900원)' : 'Basic 개인 실무자형 월간 구독 (₩8,900/월)',
-    pro: billingCycle === 'yearly' ? 'Pro 실무팀형 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 월간 구독 (₩39,000/월)',
-    business: billingCycle === 'yearly' ? 'Enterprise 법인형 연간 구독 (₩948,000/연, 월 79,000원)' : 'Enterprise 법인형 월간 구독 (₩99,000/월)'
+    basic: billingCycle === 'yearly' ? 'Basic 개인 실무자형 연간 구독 (₩82,800/연, 월 6,900원)' : 'Basic 개인 실무자형 1개월 구독 (₩8,900/월)',
+    pro: billingCycle === 'yearly' ? 'Pro 실무팀형 연간 구독 (₩348,000/연, 월 29,000원)' : 'Pro 실무팀형 1개월 구독 (₩39,000/월)',
+    business: billingCycle === 'yearly' ? 'Enterprise 법인형 연간 구독 (₩948,000/연, 월 79,000원)' : 'Enterprise 법인형 1개월 구독 (₩99,000/월)'
   };
 
   // 백엔드 PG 설정 로드 및 URL 콜백 감지
@@ -351,39 +351,66 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
         </div>
       </div>
 
-      {/* Billing Cycle Toggle (Monthly vs Yearly Discount) */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', margin: '-8px 0 4px 0' }}>
-        <span style={{ fontSize: '0.85rem', fontWeight: billingCycle === 'monthly' ? 800 : 500, color: billingCycle === 'monthly' ? '#fff' : 'var(--text-muted)' }}>
-          월간 결제
-        </span>
-        <button
-          type="button"
-          onClick={() => setBillingCycle(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-          style={{
-            background: billingCycle === 'yearly' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.2)',
-            border: 'none',
-            borderRadius: '20px',
-            width: '52px',
-            height: '28px',
-            position: 'relative',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            padding: '2px'
-          }}
-        >
-          <div style={{
-            width: '24px',
-            height: '24px',
-            borderRadius: '50%',
-            background: '#ffffff',
-            transform: billingCycle === 'yearly' ? 'translateX(24px)' : 'translateX(0px)',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-          }} />
-        </button>
-        <span style={{ fontSize: '0.85rem', fontWeight: billingCycle === 'yearly' ? 800 : 500, color: billingCycle === 'yearly' ? 'var(--accent-cyan)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          연간 결제 <span style={{ fontSize: '0.7rem', background: 'rgba(6, 182, 212, 0.2)', border: '1px solid var(--accent-cyan)', color: 'var(--accent-cyan)', padding: '2px 6px', borderRadius: '10px', fontWeight: 800 }}>최대 25% 할인 🔥</span>
-        </span>
+      {/* Billing Cycle Toggle (1개월씩 월간 결제 vs 12개월 연간 결제 탭) */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 0 16px 0' }}>
+        <div style={{
+          display: 'inline-flex',
+          background: 'rgba(0, 0, 0, 0.45)',
+          padding: '5px',
+          borderRadius: '14px',
+          border: '1.5px solid rgba(255, 255, 255, 0.12)',
+          gap: '6px'
+        }}>
+          <button
+            type="button"
+            onClick={() => setBillingCycle('monthly')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: '10px',
+              border: billingCycle === 'monthly' ? '1.5px solid var(--accent-primary)' : '1.5px solid transparent',
+              background: billingCycle === 'monthly' ? 'var(--accent-primary)' : 'transparent',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.15s ease',
+              boxShadow: billingCycle === 'monthly' ? '0 2px 10px rgba(13, 148, 136, 0.35)' : 'none'
+            }}
+          >
+            <span>📅 1개월씩 월간 결제 (기본)</span>
+            <span style={{ fontSize: '0.68rem', background: 'rgba(255,255,255,0.22)', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>
+              부담 없는 1개월 단위
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setBillingCycle('yearly')}
+            style={{
+              padding: '10px 22px',
+              borderRadius: '10px',
+              border: billingCycle === 'yearly' ? '1.5px solid var(--accent-cyan)' : '1.5px solid transparent',
+              background: billingCycle === 'yearly' ? 'linear-gradient(135deg, #0284c7 0%, #0d9488 100%)' : 'transparent',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '0.92rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.15s ease',
+              boxShadow: billingCycle === 'yearly' ? '0 2px 10px rgba(2, 132, 199, 0.35)' : 'none'
+            }}
+          >
+            <span>🎁 12개월 연간 결제</span>
+            <span style={{ fontSize: '0.68rem', background: '#f59e0b', color: '#000', padding: '2px 6px', borderRadius: '6px', fontWeight: 900 }}>
+              최대 25% 할인 🔥
+            </span>
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.65fr 1.35fr', gap: '24px' }}>
@@ -463,7 +490,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? '₩6,900' : '₩8,900'}
                 </span>
                 <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                  {billingCycle === 'yearly' ? ' / 월 (연 ₩82,800)' : ' / 월'}
+                  {billingCycle === 'yearly' ? ' / 월 (연 ₩82,800)' : ' / 1개월'}
                 </span>
               </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
@@ -508,7 +535,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? '₩29,000' : '₩39,000'}
                 </span>
                 <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                  {billingCycle === 'yearly' ? ' / 월 (연 ₩348,000)' : ' / 월'}
+                  {billingCycle === 'yearly' ? ' / 월 (연 ₩348,000)' : ' / 1개월'}
                 </span>
               </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
@@ -550,7 +577,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
                   {billingCycle === 'yearly' ? '₩79,000' : '₩99,000'}
                 </span>
                 <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                  {billingCycle === 'yearly' ? ' / 월 (연 ₩948,000)' : ' / 월'}
+                  {billingCycle === 'yearly' ? ' / 월 (연 ₩948,000)' : ' / 1개월'}
                 </span>
               </div>
               <ul style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: '14px', listStyleType: 'disc', margin: 0 }}>
@@ -697,6 +724,74 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
               </button>
             </div>
           )}
+
+          {/* 결제 주기 선택 박스 (1개월 vs 12개월 연간) */}
+          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 700 }}>
+                결제 주기 선택
+              </label>
+              <span style={{ fontSize: '0.72rem', color: billingCycle === 'monthly' ? 'var(--accent-primary)' : 'var(--accent-cyan)', fontWeight: 800 }}>
+                {billingCycle === 'monthly' ? '📅 1개월씩 결제 선택됨' : '🎁 연간 결제 (할인 적용됨)'}
+              </span>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setBillingCycle('monthly')}
+                style={{
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: billingCycle === 'monthly' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  background: billingCycle === 'monthly' ? 'rgba(13, 148, 136, 0.25)' : 'rgba(0,0,0,0.2)',
+                  color: billingCycle === 'monthly' ? '#fff' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '3px',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ fontSize: '0.8rem', fontWeight: 800, color: billingCycle === 'monthly' ? '#5eead4' : '#fff' }}>
+                  ● 1개월씩 결제
+                </span>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {selectedPlan === 'free' ? '₩0 (30일 무료)' : `₩${planPrices[selectedPlan].monthly.toLocaleString()}원 / 1개월`}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBillingCycle('yearly')}
+                style={{
+                  padding: '10px',
+                  borderRadius: '8px',
+                  border: billingCycle === 'yearly' ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
+                  background: billingCycle === 'yearly' ? 'rgba(2, 132, 199, 0.25)' : 'rgba(0,0,0,0.2)',
+                  color: billingCycle === 'yearly' ? '#fff' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '3px',
+                  textAlign: 'left',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: billingCycle === 'yearly' ? '#38bdf8' : '#fff' }}>
+                    ● 12개월 연간 결제
+                  </span>
+                  <span style={{ fontSize: '0.6rem', background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', padding: '1px 5px', borderRadius: '4px', fontWeight: 900 }}>
+                    최대 25% 할인
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                  {selectedPlan === 'free' ? '₩0 (30일 무료)' : `₩${planPrices[selectedPlan].yearly.toLocaleString()}원 / 1년`}
+                </span>
+              </button>
+            </div>
+          </div>
 
           {/* 결제 수단 선택 탭 (4가지) */}
           <div>
