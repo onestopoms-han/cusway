@@ -83,6 +83,22 @@ def init_db_migrations():
                         cursor.execute(f"ALTER TABLE payment_histories ADD COLUMN {col_name} {col_type}")
                         print(f"[MIGRATION] Added column {col_name} to payment_histories")
                 conn.commit()
+
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS marketing_campaign_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    platform TEXT NOT NULL,
+                    target_title TEXT NOT NULL,
+                    target_url TEXT UNIQUE NOT NULL,
+                    detected_keyword TEXT,
+                    inferred_hsk TEXT,
+                    generated_comment TEXT NOT NULL,
+                    status TEXT DEFAULT 'auto_posted',
+                    created_at TEXT,
+                    posted_at TEXT
+                )
+            """)
+            conn.commit()
             conn.close()
         except Exception as e:
             print(f"[MIGRATION_WARN] {e}")

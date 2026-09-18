@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles # 스태틱 서빙을 위한 임포트 추가
 from pydantic import BaseModel
@@ -1194,6 +1194,22 @@ def send_kakao_api(req: KakaoSendRequest):
     return {
         "status": "success",
         "message": f"카카오 알림톡이 {req.recipient_phone} 번호로 성공적으로 발송되었습니다."
+    }
+
+# --- 100% Autonomous Guerrilla Marketing Agent Endpoints ---
+
+@app.get("/api/marketing/status")
+def get_marketing_status():
+    from .agents.autonomous_marketing_agent import get_marketing_campaign_summary
+    return get_marketing_campaign_summary()
+
+@app.post("/api/marketing/trigger")
+def trigger_marketing_cycle(background_tasks: BackgroundTasks):
+    from .agents.autonomous_marketing_agent import execute_autonomous_marketing_cycle
+    background_tasks.add_task(execute_autonomous_marketing_cycle, 5)
+    return {
+        "status": "success",
+        "message": "100% 무인 자율 마케팅 에이전트 정찰 및 댓글 작성 사이클이 백그라운드에서 가동되었습니다."
     }
 
 def log_search(db: Session, search_type: str, query_text: str, email: Optional[str] = None):

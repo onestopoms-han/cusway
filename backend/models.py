@@ -185,6 +185,20 @@ class CustomsNews(Base):
     full_content = Column(Text, nullable=True)
     attached_files = Column(Text, nullable=True)
 
+class MarketingCampaignLog(Base):
+    __tablename__ = "marketing_campaign_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    platform = Column(String, nullable=False) # 'kin', 'dcinside', 'cafe', 'forum'
+    target_title = Column(String, nullable=False)
+    target_url = Column(String, unique=True, index=True, nullable=False)
+    detected_keyword = Column(String, nullable=True)
+    inferred_hsk = Column(String, nullable=True)
+    generated_comment = Column(Text, nullable=False)
+    status = Column(String, default="auto_posted") # 'auto_posted', 'queued', 'skipped'
+    created_at = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    posted_at = Column(String, nullable=True)
+
 
 
 
