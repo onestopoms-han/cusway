@@ -279,8 +279,9 @@ export default function App() {
   const handleStartTrial = () => {
     const trialEndDate = new Date();
     trialEndDate.setDate(trialEndDate.getDate() + 30);
+    const trialEmail = `trial_${Date.now().toString().slice(-4)}@cusway.kr`;
     const trialUser: UserInfo = {
-      email: `trial_${Date.now().toString().slice(-4)}@cusway.kr`,
+      email: trialEmail,
       company_name: '관세사무소 (30일 무료체험)',
       plan: 'Trial',
       status: 'Active',
@@ -292,6 +293,31 @@ export default function App() {
       is_trial: true,
       trial_end_date: trialEndDate.toISOString().split('T')[0]
     };
+
+    // 백엔드 DB 및 로컬 저장소 동시 등록하여 관리자 포털에 실시간 집계
+    fetch('/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: trialUser.email,
+        company_name: trialUser.company_name,
+        plan: 'Trial',
+        status: 'Active',
+        accrued_points: 0,
+        phone_number: '010-0000-0000',
+        user_type: 'broker'
+      })
+    }).catch(err => console.warn('Failed to post trial customer', err));
+
+    // Save to local users list for multi-session persistence
+    const localUsers = JSON.parse(localStorage.getItem('cusway_local_users') || '[]');
+    localUsers.unshift({
+      email: trialUser.email,
+      password: 'trial',
+      profile: trialUser
+    });
+    localStorage.setItem('cusway_local_users', JSON.stringify(localUsers));
+
     setCurrentUser(trialUser);
     setIsLoggedIn(true);
     localStorage.setItem('cusway_current_user', JSON.stringify(trialUser));

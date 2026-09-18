@@ -135,6 +135,7 @@ CUSWAY는 관세법인 소속 관세사님들의 품목분류 및 통관심사 �
 4. 전담 기술 지원 및 맞춤형 통관 API 제공
 
 온라인 데모 및 무료 14일 Enterprise 파일럿 테스트를 신청해보세요!
+👉 법인 상담 문의: https://cusway.kr/contact`
   },
   {
     id: 'tpl-enterprise-forwarder',
@@ -181,92 +182,7 @@ CUSWAY는 관세법인 소속 관세사님들의 품목분류 및 통관심사 �
   }
 ];
 
-const INITIAL_MOCK_CUSTOMERS: Customer[] = [
-  {
-    id: '1',
-    email: 'director@seoulcustoms.com',
-    companyName: '서울관세법인',
-    contactName: '서울관세 담당자',
-    plan: 'Business',
-    status: 'Active',
-    joinDate: '2026-06-15',
-    accruedPoints: 25000,
-    phoneNumber: '010-0000-0000',
-    tags: ['#관세법인', '#HS분류'],
-    notes: '시스템 기본 등록 고객',
-    lastActiveDate: '2026-09-06'
-  },
-  {
-    id: '2',
-    email: 'trade_agent@korea.co.kr',
-    companyName: '한국관세사무소',
-    contactName: '한국관세 담당자',
-    plan: 'Basic',
-    status: 'Active',
-    joinDate: '2026-07-01',
-    accruedPoints: 15000,
-    phoneNumber: '010-0000-0000',
-    tags: ['#관세법인', '#HS분류'],
-    notes: '시스템 기본 등록 고객',
-    lastActiveDate: '2026-09-05'
-  },
-  {
-    id: '3',
-    email: 'admin@cusway.kr',
-    companyName: 'CUSWAY 관세평가자문단 (마스터)',
-    contactName: 'CUSW 담당자',
-    plan: 'Free',
-    status: 'Active',
-    joinDate: '2026-08-01',
-    accruedPoints: 50000,
-    phoneNumber: '010-0000-0000',
-    tags: ['#관세법인', '#HS분류'],
-    notes: '시스템 기본 등록 고객',
-    lastActiveDate: '2026-09-06'
-  },
-  {
-    id: '4',
-    email: 'customs@hanatrade.com',
-    companyName: '하나통상 (수입화주)',
-    contactName: '하나통상 담당자',
-    plan: 'Free',
-    status: 'Active',
-    joinDate: '2026-08-12',
-    accruedPoints: 6200,
-    phoneNumber: '010-5541-9982',
-    tags: ['#농수산물', '#TRQ관심', '#Pro유망'],
-    notes: '농수산물 TRQ 추천세율 계산기 자주 이용 중',
-    lastActiveDate: '2026-09-06'
-  },
-  {
-    id: '5',
-    email: 'global@pacificlogis.co.kr',
-    companyName: '태평양로지스틱스',
-    contactName: '태평양 담당자',
-    plan: 'Basic',
-    status: 'Active',
-    joinDate: '2026-07-18',
-    accruedPoints: 12000,
-    phoneNumber: '010-4421-1190',
-    tags: ['#포워더', '#기계설비', '#84류85류'],
-    notes: '기계류 84류 분류 사례 3건 공유 승인 완료',
-    lastActiveDate: '2026-09-04'
-  },
-  {
-    id: '6',
-    email: 'support@meditech-import.com',
-    companyName: '메디텍코리아',
-    contactName: '메디텍 담당자',
-    plan: 'Free',
-    status: 'Suspended',
-    joinDate: '2026-06-20',
-    accruedPoints: 1000,
-    phoneNumber: '010-8841-2910',
-    tags: ['#의료기기', '#90류', '#휴면고객'],
-    notes: '장기 미접속으로 계정 일시정지 상태',
-    lastActiveDate: '2026-08-10'
-  }
-];
+const INITIAL_MOCK_CUSTOMERS: Customer[] = [];
 
 interface AdminPortalProps {
   currentUser?: any;
@@ -336,24 +252,45 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
   const fetchAdminData = async (isManual = false) => {
     if (isManual) setIsSyncing(true);
     try {
+      // 1. Clear old mock local storage keys
+      localStorage.removeItem('cusway_admin_customers_v5');
+      localStorage.removeItem('cusway_admin_customers_v4');
+      localStorage.removeItem('cusway_admin_customers_v3');
+
       const resCust = await fetch('/api/customers');
       let loadedCustomers: Customer[] = [];
       if (resCust.ok) {
         const data = await resCust.json();
         if (Array.isArray(data) && data.length > 0) {
-          loadedCustomers = data.map((c: any) => ({
-            id: String(c.id || c.email),
-            email: c.email,
-            companyName: c.company_name || `${c.email.split('@')[0]} (신규회원)`,
-            contactName: c.contact_name || (c.company_name ? `${c.company_name.slice(0, 4)} 담당자` : '고객 담당자'),
-            plan: (c.plan || 'Basic') as any,
-            status: (c.status || 'Active') as any,
-            joinDate: c.join_date || new Date().toISOString().split('T')[0],
-            accruedPoints: c.accrued_points !== undefined ? c.accrued_points : 15000,
-            phoneNumber: c.phone_number || c.phoneNumber || '010-0000-0000',
-            tags: c.tags || ['#신규가입', c.user_type === 'broker' ? '#관세사' : '#회원사'],
-            notes: c.notes || '시스템 연동 고객'
-          }));
+          loadedCustomers = data
+            .filter((c: any) => c.email && c.email.toLowerCase() !== 'admin@cusway.kr')
+            .map((c: any) => {
+              const isTrial = c.is_trial || c.plan === 'Trial' || (c.company_name && c.company_name.includes('무료체험'));
+              const emailLower = (c.email || '').toLowerCase();
+              const isKakao = emailLower.includes('kakao');
+              const isGoogle = emailLower.includes('google') || emailLower.includes('gmail');
+              const tags = ['#실제유입'];
+              if (isTrial) tags.push('#30일체험');
+              if (isKakao) tags.push('#카카오가입');
+              if (isGoogle) tags.push('#구글가입');
+              if (c.user_type === 'broker') tags.push('#관세사');
+              else if (c.user_type === 'forwarder') tags.push('#포워더');
+              else tags.push('#수출입화주');
+
+              return {
+                id: String(c.id || c.email),
+                email: c.email,
+                companyName: c.company_name || `${c.email.split('@')[0]} (신규회원)`,
+                contactName: c.contact_name || (c.company_name ? `${c.company_name.slice(0, 5)} 담당자` : '회원 담당자'),
+                plan: (c.plan || (isTrial ? 'Trial' : 'Basic')) as any,
+                status: (c.status || 'Active') as any,
+                joinDate: c.join_date || new Date().toISOString().split('T')[0],
+                accruedPoints: c.accrued_points !== undefined ? c.accrued_points : 0,
+                phoneNumber: c.phone_number || c.phoneNumber || '010-0000-0000',
+                tags: tags,
+                notes: isTrial ? '30일 무료 체험(Pro) 이용 중인 실고객' : '실시간 유입 정규 회원'
+              };
+            });
         }
       }
 
@@ -366,19 +303,31 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
             const existingEmails = new Set(loadedCustomers.map(x => x.email.toLowerCase()));
             parsedUsers.forEach((u: any) => {
               const prof = u.profile || u;
-              if (prof && prof.email && !existingEmails.has(prof.email.toLowerCase())) {
+              if (prof && prof.email && prof.email.toLowerCase() !== 'admin@cusway.kr' && !existingEmails.has(prof.email.toLowerCase())) {
+                const isTrial = prof.is_trial || prof.plan === 'Trial' || (prof.company_name && prof.company_name.includes('무료체험'));
+                const emailLower = (prof.email || '').toLowerCase();
+                const isKakao = emailLower.includes('kakao');
+                const isGoogle = emailLower.includes('google') || emailLower.includes('gmail');
+                const tags = ['#실제유입'];
+                if (isTrial) tags.push('#30일체험');
+                if (isKakao) tags.push('#카카오가입');
+                if (isGoogle) tags.push('#구글가입');
+                if (prof.user_type === 'broker') tags.push('#관세사');
+                else if (prof.user_type === 'forwarder') tags.push('#포워더');
+                else tags.push('#수출입화주');
+
                 loadedCustomers.unshift({
                   id: String(prof.id || prof.email),
                   email: prof.email,
                   companyName: prof.company_name || `${prof.email.split('@')[0]} (신규가입)`,
-                  contactName: prof.contact_name || `${prof.company_name?.slice(0, 4) || '신규'} 담당자`,
-                  plan: (prof.plan || 'Basic') as any,
+                  contactName: prof.contact_name || `${prof.company_name?.slice(0, 5) || '신규'} 담당자`,
+                  plan: (prof.plan || (isTrial ? 'Trial' : 'Basic')) as any,
                   status: (prof.status || 'Active') as any,
                   joinDate: prof.join_date || new Date().toISOString().split('T')[0],
-                  accruedPoints: prof.accrued_points || 15000,
+                  accruedPoints: prof.accrued_points || 0,
                   phoneNumber: prof.phone_number || '010-0000-0000',
-                  tags: ['#신규가입', prof.user_type === 'broker' ? '#관세사' : '#화주'],
-                  notes: '웹 회원가입을 통해 신규 가입한 고객'
+                  tags: tags,
+                  notes: isTrial ? '30일 무료 체험(Pro) 이용 고객' : '웹 회원가입 신규 고객'
                 });
                 existingEmails.add(prof.email.toLowerCase());
               }
@@ -389,14 +338,35 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
         }
       }
 
-      if (loadedCustomers.length === 0) {
-        const savedLocal = localStorage.getItem('cusway_admin_customers_v5');
-        if (savedLocal) {
-          loadedCustomers = JSON.parse(savedLocal);
-        } else {
-          loadedCustomers = INITIAL_MOCK_CUSTOMERS;
-        }
+      // Check current session user if trial
+      const currentUserRaw = localStorage.getItem('cusway_current_user');
+      if (currentUserRaw) {
+        try {
+          const cur = JSON.parse(currentUserRaw);
+          if (cur && cur.email && cur.email.toLowerCase() !== 'admin@cusway.kr') {
+            const existingEmails = new Set(loadedCustomers.map(x => x.email.toLowerCase()));
+            if (!existingEmails.has(cur.email.toLowerCase())) {
+              const isTrial = cur.is_trial || cur.plan === 'Trial';
+              loadedCustomers.unshift({
+                id: String(cur.id || cur.email),
+                email: cur.email,
+                companyName: cur.company_name || `${cur.email.split('@')[0]} (체험고객)`,
+                contactName: cur.contact_name || '체험 담당자',
+                plan: (cur.plan || (isTrial ? 'Trial' : 'Basic')) as any,
+                status: (cur.status || 'Active') as any,
+                joinDate: cur.join_date || new Date().toISOString().split('T')[0],
+                accruedPoints: cur.accrued_points || 0,
+                phoneNumber: cur.phone_number || '010-0000-0000',
+                tags: ['#실제유입', isTrial ? '#30일체험' : '#회원'],
+                notes: '현재 세션 체험 고객'
+              });
+            }
+          }
+        } catch (e) {}
       }
+
+      // Save pure real customers without mock fallback
+      localStorage.setItem('cusway_admin_customers_v6', JSON.stringify(loadedCustomers));
 
       // Check if new customer arrived in real-time
       setCustomers(prev => {
@@ -435,16 +405,28 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
       }
     } catch (err) {
       console.warn('Backend API connection fallback to local storage simulation');
-      const savedLocal = localStorage.getItem('cusway_admin_customers_v5');
+      const savedLocal = localStorage.getItem('cusway_admin_customers_v6');
       if (savedLocal) {
         setCustomers(JSON.parse(savedLocal));
       } else {
-        setCustomers(INITIAL_MOCK_CUSTOMERS);
+        setCustomers([]);
       }
     } finally {
       if (isManual) {
         setTimeout(() => setIsSyncing(false), 500);
       }
+    }
+  };
+
+  const handleResetMockData = () => {
+    if (window.confirm('과거 테스트/목업 고객 데이터를 완전히 비우고, 실제 유입된 회원만 표시하도록 초기화하시겠습니까?')) {
+      localStorage.removeItem('cusway_admin_customers_v6');
+      localStorage.removeItem('cusway_admin_customers_v5');
+      localStorage.removeItem('cusway_admin_customers_v4');
+      localStorage.removeItem('cusway_admin_customers_v3');
+      localStorage.removeItem('cusway_local_users');
+      fetchAdminData(true);
+      alert('✅ 목업 데이터가 완전 초기화되었습니다. 이제 실제 유입된 회원만 실시간으로 확인하실 수 있습니다.');
     }
   };
 
@@ -994,6 +976,27 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
               <span>{isSyncing ? '동기화 중...' : '실시간 새로고침'}</span>
             </button>
 
+            <button
+              onClick={handleResetMockData}
+              title="과거 목업 테스트 데이터 완전 정리 및 초기화"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '10px 16px',
+                borderRadius: '10px',
+                background: '#fee2e2',
+                color: '#991b1b',
+                border: '1.5px solid #f87171',
+                fontWeight: 900,
+                fontSize: '0.92rem',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(239, 68, 68, 0.15)'
+              }}
+            >
+              <span>🧹 목업 초기화</span>
+            </button>
+
             <span style={{ fontSize: '1.05rem', color: '#000000', fontWeight: 950, marginLeft: '8px' }}>관리자:</span>
             <span style={{ fontSize: '1.05rem', fontWeight: 950, color: '#064e3b', background: '#ccfbf1', padding: '10px 18px', borderRadius: '10px', border: '2.5px solid #0d9488' }}>
               {currentUser?.email || '인증된 관리자'}
@@ -1503,9 +1506,15 @@ export default function AdminPortal({ currentUser, onOpenMarketingBot }: AdminPo
 
           {/* Customer CRM Items List / Cards Presentation */}
           {filteredCustomers.length === 0 ? (
-            <div style={{ background: '#ffffff', border: '2.5px solid #475569', borderRadius: '16px', padding: '60px 20px', textAlign: 'center', color: '#000000' }}>
-              <Users size={48} color="#0f766e" style={{ opacity: 0.7, margin: '0 auto 12px' }} />
-              <p style={{ fontSize: '1.2rem', fontWeight: 950, color: '#000000' }}>검색 및 필터 조건에 부합하는 고객이 없습니다.</p>
+            <div style={{ background: '#ffffff', border: '2.5px solid #475569', borderRadius: '16px', padding: '70px 20px', textAlign: 'center', color: '#000000' }}>
+              <Users size={52} color="#0f766e" style={{ opacity: 0.7, margin: '0 auto 16px' }} />
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 950, color: '#000000', marginBottom: '8px' }}>
+                실시간 유입 회원 대기 중
+              </h3>
+              <p style={{ fontSize: '1.02rem', fontWeight: 750, color: '#475569', maxWidth: '580px', margin: '0 auto', lineHeight: 1.6 }}>
+                과거 테스트/목업 데이터가 성공적으로 초기화되었습니다.<br />
+                24시 게릴라 마케팅 봇과 온라인 홍보를 통해 유입되는 신규 회원(30일 무료 체험, 카카오/구글 소셜가입, 웹 정규 회원가입)이 실시간으로 이곳에 기록됩니다.
+              </p>
             </div>
           ) : viewMode === 'cards' ? (
             /* ===================================================
