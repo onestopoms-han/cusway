@@ -12,9 +12,9 @@ def seed_data():
 
     # 1. 테스트 유저 생성 (CUSWAY 관리자 및 일반 고객들)
     users_data = [
-        {"email": "admin@cusway.kr", "password": "pjhcustoms2026!", "company_name": "CUSWAY 관세팀", "plan": "Business", "status": "Active", "accrued_points": 15000, "user_type": "broker", "years_of_experience": 12, "credibility_weight": 3.0},
-        {"email": "director@seoulcustoms.com", "password": "password123!", "company_name": "서울관세법인", "plan": "Business", "status": "Active", "accrued_points": 25000, "user_type": "broker", "years_of_experience": 8, "credibility_weight": 2.0},
-        {"email": "trade_agent@korea.co.kr", "password": "password123!", "company_name": "한국관세사무소", "plan": "Basic", "status": "Active", "accrued_points": 5000, "user_type": "practitioner", "years_of_experience": 4, "credibility_weight": 1.5},
+        {"email": "admin@cusway.kr", "password": "pjhcustoms2026!", "company_name": "CUSWAY 관세팀", "plan": "Business", "status": "Active", "accrued_points": 0, "user_type": "broker", "years_of_experience": 12, "credibility_weight": 3.0},
+        {"email": "director@seoulcustoms.com", "password": "password123!", "company_name": "서울관세법인", "plan": "Business", "status": "Active", "accrued_points": 0, "user_type": "broker", "years_of_experience": 8, "credibility_weight": 2.0},
+        {"email": "trade_agent@korea.co.kr", "password": "password123!", "company_name": "한국관세사무소", "plan": "Basic", "status": "Active", "accrued_points": 0, "user_type": "practitioner", "years_of_experience": 4, "credibility_weight": 1.5},
         {"email": "customs_tax@corp.com", "password": "password123!", "company_name": "태평양세무관세", "plan": "Business", "status": "Suspended", "accrued_points": 0, "user_type": "general_user", "years_of_experience": 1, "credibility_weight": 1.0}
     ]
 
@@ -155,54 +155,8 @@ def seed_data():
             )
             db.add(db_p)
 
-    # 3. 기본 가짜 캐시백 공유 사례 적재
-    requests_data = [
-        {
-            "email": "director@seoulcustoms.com",
-            "type": "hs",
-            "type_ko": "HS 품목분류",
-            "hs_code_or_issue": "2101.12-1000",
-            "item_name": "식물성 대체크림 혼합 커피믹스",
-            "file_name": "품목분류회신_2026_커피믹스.pdf",
-            "points": 10000,
-            "status": "승인 완료"
-        },
-        {
-            "email": "director@seoulcustoms.com",
-            "type": "valuation",
-            "type_ko": "관세평가 판례",
-            "hs_code_or_issue": "상표권 권리사용료 범위",
-            "item_name": "의류 라이선스 수입 상표권 계약",
-            "file_name": "결정례_상표권로열티_비과세소명.pdf",
-            "points": 8000,
-            "status": "승인 완료"
-        },
-        {
-            "email": "trade_agent@korea.co.kr",
-            "type": "hs",
-            "type_ko": "HS 품목분류",
-            "hs_code_or_issue": "1902.19-1000",
-            "item_name": "기타 조리하지 않은 파스타면",
-            "file_name": "사전심사회신_1902_면류.pdf",
-            "points": 5000,
-            "status": "검토 대기중"
-        }
-    ]
-
-    for r in requests_data:
-        exists = db.query(CashbackRequest).filter(CashbackRequest.file_name == r["file_name"]).first()
-        if not exists:
-            db_r = CashbackRequest(
-                email=r["email"],
-                type=r["type"],
-                type_ko=r["type_ko"],
-                hs_code_or_issue=r["hs_code_or_issue"],
-                item_name=r["item_name"],
-                file_name=r["file_name"],
-                points=r["points"],
-                status=r["status"]
-            )
-            db.add(db_r)
+    # 3. 기본 캐시백 공유 사례 (클리어 상태)
+    requests_data = []
 
     # 4. RAG 관세율표 해설서 원문 적재 시드 구문 추가 (JSON 파일들로부터 로드)
     notes_count = db.query(ExplanatoryNote).count()

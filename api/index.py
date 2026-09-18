@@ -174,7 +174,7 @@ def social_login_kakao(req: SocialCallbackRequest):
                     company_name=row[1],
                     plan=row[2] or "Basic",
                     status=row[3] or "Active",
-                    accrued_points=row[4] or 15000,
+                    accrued_points=row[4] or 0,
                     join_date=row[5] or today_str,
                     user_type=row[6] or "general_user",
                     years_of_experience=row[7] or 0,
@@ -186,7 +186,7 @@ def social_login_kakao(req: SocialCallbackRequest):
                 cursor.execute("""
                     INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (email, "social_kakao_pw", company_name, "Basic", "Active", 15000, today_str, "general_user", 0, 0.5, phone_number))
+                """, (email, "social_kakao_pw", company_name, "Basic", "Active", 0, today_str, "general_user", 0, 0.5, phone_number))
                 conn.commit()
                 conn.close()
         except Exception as e:
@@ -210,7 +210,7 @@ def social_login_kakao(req: SocialCallbackRequest):
         company_name=company_name,
         plan="Basic",
         status="Active",
-        accrued_points=15000,
+        accrued_points=0,
         join_date=today_str,
         user_type="general_user",
         years_of_experience=0,
@@ -280,7 +280,7 @@ def social_login_google(req: SocialCallbackRequest):
                     company_name=row[1],
                     plan=row[2] or "Basic",
                     status=row[3] or "Active",
-                    accrued_points=row[4] or 15000,
+                    accrued_points=row[4] or 0,
                     join_date=row[5] or today_str,
                     user_type=row[6] or "general_user",
                     years_of_experience=row[7] or 0,
@@ -292,7 +292,7 @@ def social_login_google(req: SocialCallbackRequest):
                 cursor.execute("""
                     INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """, (email, "social_google_pw", company_name, "Basic", "Active", 15000, today_str, "general_user", 0, 0.5, ""))
+                """, (email, "social_google_pw", company_name, "Basic", "Active", 0, today_str, "general_user", 0, 0.5, ""))
                 conn.commit()
                 conn.close()
         except Exception as e:
@@ -315,7 +315,7 @@ def social_login_google(req: SocialCallbackRequest):
         company_name=company_name,
         plan="Basic",
         status="Active",
-        accrued_points=15000,
+        accrued_points=0,
         join_date=today_str,
         user_type="general_user",
         years_of_experience=0,
@@ -349,7 +349,7 @@ def signup(req: SignupRequest):
             cursor.execute("""
                 INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (req.email, req.password, company_name, "Basic", "Active", 15000, today_str, req.user_type or "general_user", y, weight, req.phone_number or ""))
+            """, (req.email, req.password, company_name, "Basic", "Active", 0, today_str, req.user_type or "general_user", y, weight, req.phone_number or ""))
             conn.commit()
             conn.close()
         except HTTPException:
@@ -362,7 +362,7 @@ def signup(req: SignupRequest):
         company_name=company_name,
         plan="Basic",
         status="Active",
-        accrued_points=15000,
+        accrued_points=0,
         join_date=today_str,
         user_type=req.user_type or "general_user",
         years_of_experience=y,
@@ -405,7 +405,7 @@ def login(req: LoginRequest):
                     cursor.execute("""
                         INSERT INTO users (email, password, company_name, plan, status, accrued_points, join_date, user_type, years_of_experience, credibility_weight, phone_number)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (req_email, "pjhcustoms2026!", "CUSWAY 총괄 관리자", "Business", "Active", 50000, today_str, "broker", 20, 3.0, "010-0000-0000"))
+                    """, (req_email, "pjhcustoms2026!", "CUSWAY 총괄 관리자", "Business", "Active", 0, today_str, "broker", 20, 3.0, "010-0000-0000"))
                     conn.commit()
                     conn.close()
                     return UserResponse(
@@ -413,7 +413,7 @@ def login(req: LoginRequest):
                         company_name="CUSWAY 총괄 관리자",
                         plan="Business",
                         status="Active",
-                        accrued_points=50000,
+                        accrued_points=0,
                         join_date=today_str,
                         user_type="broker",
                         years_of_experience=20,
@@ -435,7 +435,7 @@ def login(req: LoginRequest):
                     company_name=row[1],
                     plan=row[2] or "Basic",
                     status=row[3] or "Active",
-                    accrued_points=row[4] or 15000,
+                    accrued_points=row[4] or 0,
                     join_date=row[5] or datetime.now().strftime("%Y-%m-%d"),
                     user_type=row[6] or "broker",
                     years_of_experience=row[7] or 0,
@@ -457,7 +457,7 @@ def login(req: LoginRequest):
         company_name="CUSWAY 관세팀",
         plan="Business",
         status="Active",
-        accrued_points=50000,
+        accrued_points=0,
         join_date=datetime.now().strftime("%Y-%m-%d"),
         user_type="broker",
         years_of_experience=10,
@@ -2077,6 +2077,32 @@ def get_cashback_requests():
         return rows
     except Exception as e:
         return []
+
+@app.post("/api/cashback/clear")
+def clear_all_cashback():
+    import sqlite3
+    db_candidates = [
+        os.path.join(os.getcwd(), "cusway.db"),
+        os.path.join(parent_dir, "cusway.db"),
+        os.path.join(current_dir, "cusway.db"),
+        "/var/task/cusway.db"
+    ]
+    target_db = "cusway.db"
+    for c in db_candidates:
+        if os.path.exists(c):
+            target_db = c
+            break
+
+    try:
+        conn = sqlite3.connect(target_db)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM cashback_requests")
+        cur.execute("UPDATE users SET accrued_points = 0")
+        conn.commit()
+        conn.close()
+        return {"status": "success", "message": "모든 캐시백 내역 및 유저 마일리지가 성공적으로 클리어되었습니다."}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 # --- 1:1 Customs Consultation Booking & Lead Capture API ---
 class ConsultationRequest(BaseModel):

@@ -12,7 +12,7 @@ class User(Base):
     company_name = Column(String, nullable=False)
     plan = Column(String, default="Basic") # Free, Basic, Business
     status = Column(String, default="Active") # Active, Suspended
-    accrued_points = Column(Integer, default=15000)
+    accrued_points = Column(Integer, default=0)
     join_date = Column(String, default=lambda: datetime.now().strftime("%Y-%m-%d"))
     
     # B2B Consensus Weighting System Columns

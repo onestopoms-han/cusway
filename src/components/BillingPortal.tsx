@@ -61,7 +61,7 @@ export default function BillingPortal({ currentUser, onSubscribeSuccess }: Billi
   });
 
   // 유저 적립 포인트
-  const userAccruedPoints = currentUser?.accrued_points ?? 15000;
+  const userAccruedPoints = currentUser?.accrued_points ?? 0;
 
   const planPrices = {
     free: { monthly: 0, yearly: 0 },

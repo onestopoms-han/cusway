@@ -195,7 +195,7 @@ class CustomerCreate(BaseModel):
     password: Optional[str] = "1234"
     plan: Optional[str] = "Free"
     status: Optional[str] = "Active"
-    accrued_points: Optional[int] = 5000
+    accrued_points: Optional[int] = 0
     phone_number: Optional[str] = ""
     user_type: Optional[str] = "broker"
 
@@ -323,7 +323,7 @@ def social_login_kakao(req: SocialCallbackRequest, db: Session = Depends(get_db)
             company_name=f"{nickname} (카카오 가입)",
             plan="Basic",
             status="Active",
-            accrued_points=15000,
+            accrued_points=0,
             join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
@@ -427,7 +427,7 @@ def social_login_google(req: SocialCallbackRequest, db: Session = Depends(get_db
             company_name=f"{nickname} (구글 가입)",
             plan="Basic",
             status="Active",
-            accrued_points=15000,
+            accrued_points=0,
             join_date=today_str,
             user_type="general_user",
             years_of_experience=0,
@@ -460,7 +460,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
                 company_name="CUSWAY 총괄 관리자",
                 plan="Business",
                 status="Active",
-                accrued_points=50000,
+                accrued_points=0,
                 user_type="broker",
                 years_of_experience=20,
                 credibility_weight=3.0,
@@ -524,7 +524,7 @@ def signup(req: SignupRequest, db: Session = Depends(get_db)):
         company_name=req.company_name,
         plan="Basic",
         status="Active",
-        accrued_points=15000, # 가입 축하 포인트
+        accrued_points=0, # 기본 포인트 0
         user_type=req.user_type,
         years_of_experience=y,
         credibility_weight=weight,
@@ -889,6 +889,13 @@ def upload_cashback(req: CashbackRequestCreate, db: Session = Depends(get_db)):
 def get_all_cashback_requests(db: Session = Depends(get_db)):
     return db.query(CashbackRequest).order_by(CashbackRequest.id.desc()).all()
 
+@app.post("/api/cashback/clear")
+def clear_all_cashback(db: Session = Depends(get_db)):
+    db.query(CashbackRequest).delete()
+    db.query(User).update({User.accrued_points: 0})
+    db.commit()
+    return {"status": "success", "message": "모든 캐시백 내역 및 유저 마일리지가 성공적으로 클리어되었습니다."}
+
 @app.post("/api/cashback/requests/{req_id}/approve")
 def approve_cashback_request(req_id: int, db: Session = Depends(get_db)):
     req = db.query(CashbackRequest).filter(CashbackRequest.id == req_id).first()
@@ -1063,7 +1070,7 @@ def create_customer(req: CustomerCreate, db: Session = Depends(get_db)):
         password=req.password or "1234",
         plan=req.plan or "Free",
         status=req.status or "Active",
-        accrued_points=req.accrued_points if req.accrued_points is not None else 5000,
+        accrued_points=req.accrued_points if req.accrued_points is not None else 0,
         phone_number=req.phone_number or "",
         user_type=req.user_type or "broker"
     )

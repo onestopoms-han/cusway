@@ -98,7 +98,7 @@ export default function CashBackManager({ currentUser }: CashBackManagerProps) {
 
   const totalPoints = history
     .filter(item => item.status === '승인 완료')
-    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 3500)) + localAddedPoints;
+    .reduce((sum, item) => sum + item.points, (currentUser?.accrued_points || 0)) + localAddedPoints;
 
   // AI 실시간 가치 감정 실행 함수
   const triggerAppraisal = async (
