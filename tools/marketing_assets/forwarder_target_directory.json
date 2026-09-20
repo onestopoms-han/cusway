@@ -1,0 +1,74 @@
+{
+  "description": "CUSWAY B2B Forwarder Target Outreach Directory",
+  "target_sectors": [
+    "중소형 복합운송주선업(포워딩) 해상/항공 수입 전문",
+    "대중국/동남아(베트남, 태국, 인도네시아) 이커머스 & FCL/LCL 전문 포워더",
+    "식품/화장품/전자제품 등 세관장확인 까다로운 품목 특화 포워더",
+    "미국/유럽향 위험물(DG), 배터리, 정밀기계 프로젝트 카고 포워더"
+  ],
+  "sample_targets": [
+    {
+      "company_name": "은산해운항공",
+      "sector": "복합물류/전통 포워딩",
+      "focus": "FCL/LCL 정기선 및 대형 화주 영업",
+      "outreach_template": "Version A (영업팀장용)",
+      "target_role": "영업기획팀 / 해상영업팀"
+    },
+    {
+      "company_name": "태웅로직스",
+      "sector": "글로벌 종합물류",
+      "focus": "화학물/프로젝트 카고 및 복합운송",
+      "outreach_template": "Version C (대표/임원용)",
+      "target_role": "디지털물류혁신팀 / 영업총괄"
+    },
+    {
+      "company_name": "에이씨티앤코아물류",
+      "sector": "항공/해상 특송 및 이커머스 포워딩",
+      "focus": "중국 1688 알리바바 셀러 화물 핸들링",
+      "outreach_template": "Version B (OP/수입팀용)",
+      "target_role": "이커머스 통관팀 / 수입운영팀"
+    },
+    {
+      "company_name": "하나로TNS",
+      "sector": "글로벌 포워딩/SCM",
+      "focus": "전자/반도체/자동차부품 공급망",
+      "outreach_template": "Version A (영업팀장용)",
+      "target_role": "글로벌영업본부"
+    },
+    {
+      "company_name": "세방익스프레스",
+      "sector": "중량물 및 해상운송",
+      "focus": "수입 FCL 벌크 및 통관 연계",
+      "outreach_template": "Version C (대표/임원용)",
+      "target_role": "영업기획실"
+    },
+    {
+      "company_name": "인터지스",
+      "sector": "철강/해상 항만물류",
+      "focus": "원자재 및 제조사 직화주",
+      "outreach_template": "Version A (영업팀장용)",
+      "target_role": "해상포워딩팀"
+    },
+    {
+      "company_name": "삼영물류",
+      "sector": "3PL/풀필먼트 포워딩",
+      "focus": "식품/의약품/소비재 수입 유통",
+      "outreach_template": "Version B (OP/수입팀용)",
+      "target_role": "국제물류운영팀"
+    },
+    {
+      "company_name": "케이씨티시(KCTC)",
+      "sector": "종합물류 및 컨테이너 운송",
+      "focus": "수입 통관 보세창고 연계",
+      "outreach_template": "Version A (영업팀장용)",
+      "target_role": "포워딩사업본부"
+    }
+  ],
+  "outreach_strategy": {
+    "weekly_goal": "매주 30~50개사 개인화 이메일 발송",
+    "expected_open_rate": "35% ~ 45%",
+    "expected_reply_rate": "8% ~ 12%",
+    "expected_trial_conversion": "5% (월 5~8개 포워딩 기업 무료 체험 도입)",
+    "kpi": "분기 내 유료 B2B 포워더 파트너사 3~5곳 계약 확보 (연간 MRR 3,000만원~5,000만원 달성)"
+  }
+}

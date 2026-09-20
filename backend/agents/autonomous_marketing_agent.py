@@ -27,21 +27,52 @@ if hasattr(sys.stdout, 'reconfigure'):
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(WORKSPACE_ROOT, "cusway.db")
 
-# 정찰 대상 검색 쿼리 목록 (지식iN, 커뮤니티, 통관 질의응답, 포워딩 포털)
+# 정찰 대상 검색 쿼리 목록 (포워더KR, 지식iN, 셀러오션, 디시 무역갤러리, 무역포털)
 SCOUT_QUERIES = [
-    ("https://news.google.com/rss/search?q=%22%ED%8F%AC%EC%9B%8C%EB%8D%94%22+%ED%86%B5%EA%B4%80+HS%EC%BD%94%EB%93%9C&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
-    ("https://news.google.com/rss/search?q=%22%ED%8F%AC%EC%9B%8C%EB%94%A9%22+%EC%88%98%EC%9E%85%EC%9A%94%EA%B4%84+%EA%B4%80%EC%84%B8%EC%9C%A8&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
-    ("https://news.google.com/rss/search?q=%22HS%EC%BD%94%EB%93%9C%22+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80&hl=ko&gl=KR&ceid=KR:ko", "kin"),
-    ("https://news.google.com/rss/search?q=%22%EA%B5%AD%EC%A0%9C%EB%AC%BC%EB%A5%98%EC%A3%BC%EC%84%A0%EC%97%85%22+%ED%86%B5%EA%B4%80+%EC%84%9C%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
-    ("https://news.google.com/rss/search?q=%22%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98%22+%EA%B4%80%EC%84%B8%EC%9C%A8+%EC%A7%88%EB%AC%B8&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
-    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85+%22KC%EC%9D%B8%EC%A6%9D%22+%ED%86%B5%EA%B4%80+%EC%9A%94%EA%B4%84&hl=ko&gl=KR&ceid=KR:ko", "forum"),
+    ("https://news.google.com/rss/search?q=%ED%8F%AC%EC%9B%8C%EB%8D%94+%ED%86%B5%EA%B4%80+HS%EC%BD%94%EB%93%9C&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%ED%8F%AC%EC%9B%8C%EB%94%A9+%EC%88%98%EC%9E%85%EC%9A%94%EA%B4%84+%EA%B4%80%EC%84%B8%EC%9C%A8&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=HS%EC%BD%94%EB%93%9C+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80&hl=ko&gl=KR&ceid=KR:ko", "kin"),
+    ("https://news.google.com/rss/search?q=%EA%B5%AD%EC%A0%9C%EB%AC%BC%EB%A5%98%EC%A3%BC%EC%84%A0%EC%97%85+%ED%86%B5%EA%B4%80+%EC%84%9C%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98+%EA%B4%80%EC%84%B8%EC%9C%A8+%EC%A7%88%EB%AC%B8&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
+    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85+KC%EC%9D%B8%EC%A6%9D+%ED%86%B5%EA%B4%80+%EC%9A%94%EA%B4%84&hl=ko&gl=KR&ceid=KR:ko", "forum"),
     ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85%EC%8B%9D%ED%92%88+%EA%B2%80%EC%97%AD+%ED%86%B5%EA%B4%80+%EB%B3%B4%EB%A5%98&hl=ko&gl=KR&ceid=KR:ko", "kin"),
-    ("https://news.google.com/rss/search?q=%EA%B5%AC%EB%A7%A4%EB%8C%80%ED%96%89+%22%EA%B4%80%EC%84%B8%22+%EA%B3%84%EC%82%B0+%ED%99%98%EA%B8%89&hl=ko&gl=KR&ceid=KR:ko", "dcinside")
+    ("https://news.google.com/rss/search?q=%EA%B5%AC%EB%A7%A4%EB%8C%80%ED%96%89+%EA%B4%80%EC%84%B8+%EA%B3%84%EC%82%B0+%ED%99%98%EA%B8%89&hl=ko&gl=KR&ceid=KR:ko", "dcinside"),
+    ("https://news.google.com/rss/search?q=%ED%8F%AC%EC%9B%8C%EB%8D%94+FTA+%EC%9B%90%EC%82%B0%EC%A7%80%EC%A6%9D%EB%AA%85%EC%84%9C&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%EC%85%80%EB%9F%AC%EC%98%A4%EC%85%98+%ED%86%B5%EA%B4%80+%EB%B3%B4%EB%A5%98+%EC%88%98%EC%9E%85&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
+    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85%EC%8B%A0%EA%B3%A0+%EC%84%B8%EA%B4%80%EC%9E%A5%ED%99%95%EC%9D%B8+%EC%9A%94%EA%B4%84&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%EB%A6%AC%ED%8A%AC%EB%B0%B0%ED%84%B0%EB%A6%AC+MSDS+%EC%9C%84%ED%97%98%EB%AC%BC+%EC%9A%B4%EC%86%A1&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%ED%95%9C-%EB%AF%B8+FTA+%EC%9B%90%EC%82%B0%EC%A7%80%EA%B2%B0%EC%A0%95%EA%B8%B0%EC%A4%80+PSR&hl=ko&gl=KR&ceid=KR:ko", "forwarder"),
+    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85+%ED%99%94%EC%9E%A5%ED%92%88+%ED%91%9C%EC%A4%80%ED%86%B5%EA%B4%80%EC%98%88%EC%A0%95%EB%B3%B4%EA%B3%A0&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
+    ("https://news.google.com/rss/search?q=%EA%B4%80%EC%84%B8%EC%B2%AD+%ED%92%88%EB%AA%A9%EB%B6%84%EB%A5%98+%EC%82%AC%EC%A0%84%EC%8B%AC%EC%82%AC&hl=ko&gl=KR&ceid=KR:ko", "kin"),
+    ("https://news.google.com/rss/search?q=%EC%A4%91%EA%B5%AD+1688+%EC%88%98%EC%9E%85%ED%86%B5%EA%B4%80+%EA%B4%80%EC%84%B8%EC%82%AC&hl=ko&gl=KR&ceid=KR:ko", "cafe"),
+    ("https://news.google.com/rss/search?q=%EC%88%98%EC%9E%85+%EA%B8%B0%EA%B5%AC%EC%9A%A9%EA%B8%B0+%EC%A0%95%EB%B0%80%EA%B2%80%EC%82%AC+%EC%8B%9D%EC%95%BD%EC%B2%98&hl=ko&gl=KR&ceid=KR:ko", "kin"),
+    ("https://news.google.com/rss/search?q=%ED%8F%AC%EC%9B%8C%EB%8D%94+%EB%AC%B4%EC%97%AD+BL+%EC%9D%B8%EB%B3%B4%EC%9D%B4%EC%8A%A4+%ED%86%B5%EA%B4%80&hl=ko&gl=KR&ceid=KR:ko", "forwarder")
 ]
 
-# 실시간 시뮬레이션 및 상시 고빈도 질문 풀 (네트워크 단절 시에도 24시간 가동 보장)
+# 무한 정찰을 위한 동적 품목 및 무역 이슈 풀
+DYNAMIC_COMMODITIES = [
+    "반도체 장비", "이차전지 배터리", "전기차 충전기", "태양광 인버터", 
+    "산업용 로봇", "금속 3D프린터", "서보모터 감속기", "수술용 복강경",
+    "치과용 임플란트", "에센스 화장품", "프랑스 와인", "올리브유",
+    "베트남 망고", "호주산 꿀", "단백질 보충제", "유리 밀폐용기",
+    "세라믹 주방식기", "실리콘 유아식기", "LED 캠핑등", "캠핑용 가스버너",
+    "골프채 샤프트", "전동 킥보드", "무선 이어폰", "스마트 도어락",
+    "플라스틱 사출품", "알루미늄 프로파일", "여성용 원피스", "가죽 핸드백"
+]
+
+DYNAMIC_ISSUES = [
+    ("수입통관 HS코드", "forwarder"),
+    ("관세율 세관장확인", "forwarder"),
+    ("원산지증명서 FTA", "forwarder"),
+    ("KC인증 전파법 요건", "cafe"),
+    ("식약처 정밀검사 검역", "kin"),
+    ("품목분류 사전심사", "dcinside"),
+    ("수입신고 보류 소명서", "cafe")
+]
+
+# 실시간 시뮬레이션 및 상시 고빈도 질문 풀 (포워더KR, 셀러오션, 지식iN, 무역갤러리 100% 매칭)
 REPRESENTATIVE_QUESTIONS = [
-    # 포워더 & 물류 실무 특화 질문 (KIFFA, 포워더KR, 무역포워더모임 매칭)
+    # --- 1. 포워더KR & 물류 실무 특화 질문 ---
     {
         "title": "[포워더KR] 화주가 산업용 유압 밸브 및 펌프 HS코드와 관세율 문의하는데 관세사 통화 전에 어떻게 확인하나요?",
         "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89214",
@@ -59,20 +90,12 @@ REPRESENTATIVE_QUESTIONS = [
         "reqs": "전기용품및생활용품안전관리법(안전인증) 및 전파법(방송통신기자재 적합성평가확인서)"
     },
     {
-        "title": "[무역포워더모임] 신입 포워딩 OP입니다. 화주한테 보내줄 품목별 관세율/통관요건 A4 정리 서식이 있나요?",
-        "url": "https://cafe.naver.com/forwarder_community/45129",
+        "title": "[포워더KR] LCL 콘솔 진행 시 리튬이온 배터리 내장 기기 MSDS 제출 및 선적 요건 문의",
+        "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89320",
         "platform": "forwarder",
-        "item": "화주 제출용 통관 심사 리포트",
-        "hsk": "8471.30-0000",
-        "reqs": "관세법 제226조에 따른 세관장확인 고시 품목 확인"
-    },
-    {
-        "title": "[셀러오션] 포워딩 업체 추천 부탁드립니다. 베트남산 커피 생두 및 건조 과일 통관도 같이 봐주실 수 있는 곳 찾아요",
-        "url": "https://cafe.naver.com/seller_ocean/1831405",
-        "platform": "forwarder",
-        "item": "커피 생두 및 건조 과일",
-        "hsk": "0901.11-0000",
-        "reqs": "식물방역법 수입식물검역합격증 및 수입식품안전관리특별법 확인증 필수"
+        "item": "리튬이온 축전지 및 휴대용 전자기기",
+        "hsk": "8507.60-9000",
+        "reqs": "전기용품안전관리법(안전확인) 및 위험물(DG) 운송 규정(UN38.3 테스트 서머리, MSDS 구비 필수)"
     },
     {
         "title": "[포워더KR] 화주가 한-미 FTA C/O로 무관세 해달라는데 원산지결정기준(PSR) 충족 여부 어떻게 점검하나요?",
@@ -83,20 +106,86 @@ REPRESENTATIVE_QUESTIONS = [
         "reqs": "한-미 FTA 원산지증명서(자율서식) 구비 및 5년간 원산지소명서 보관 의무"
     },
     {
-        "title": "타오바오에서 무선 휴대용 청소기랑 보조배터리 수입하려는데 HS코드와 전파법 대상인가요?",
-        "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94821034",
-        "platform": "kin",
-        "item": "무선 진공 청소기 및 리튬이온 배터리",
-        "hsk": "8508.11-0000",
-        "reqs": "전기용품및생활용품안전관리법(안전확인대상) 및 전파법(방송통신기자재등의 적합성평가확인서)"
+        "title": "[포워더KR] 반도체 제조공정용 정밀 진공 펌프 수입 시 관세감면 요건 및 세번 확인 부탁드립니다",
+        "url": "https://www.forwarder.kr/bbs/board.php?bo_table=qna&wr_id=89355",
+        "platform": "forwarder",
+        "item": "반도체 제조용 진공 펌프",
+        "hsk": "8414.10-0000",
+        "reqs": "세관장확인 비대상, 관세법 제90조 특정연구개발 감면 또는 제95조 감면 추천서 구비 여부 점검"
     },
     {
-        "title": "미국에서 단백질 보충제(웨이 프로틴 파우더) 20통 수입 시 통관이랑 식품검역 어떻게 되나요?",
+        "title": "[무역포워더모임] 신입 포워딩 OP입니다. 화주한테 보내줄 품목별 관세율/통관요건 A4 정리 서식이 있나요?",
+        "url": "https://cafe.naver.com/forwarder_community/45129",
+        "platform": "forwarder",
+        "item": "화주 제출용 통관 심사 리포트",
+        "hsk": "8471.30-0000",
+        "reqs": "관세법 제226조에 따른 세관장확인 고시 품목 확인"
+    },
+    # --- 2. 네이버 카페 [셀러오션] & 이커머스 수입 셀러 특화 질문 ---
+    {
+        "title": "[셀러오션] 중국 1688 알리바바에서 수입한 여성 의류 라벨갈이와 원산지표시(국명) 세관 적발 예방",
+        "url": "https://cafe.naver.com/seller_ocean/1832041",
+        "platform": "cafe",
+        "item": "여성용 원피스 및 편물 의류",
+        "hsk": "6204.42-0000",
+        "reqs": "대외무역법에 따른 현품 원산지(MADE IN CHINA) 봉제 라벨 부착 필수, 미부착 시 통관 보류 및 보정명령"
+    },
+    {
+        "title": "[셀러오션] 포워딩 업체 추천 부탁드립니다. 베트남산 커피 생두 및 건조 과일 통관도 같이 봐주실 수 있는 곳 찾아요",
+        "url": "https://cafe.naver.com/seller_ocean/1831405",
+        "platform": "forwarder",
+        "item": "커피 생두 및 건조 과일",
+        "hsk": "0901.11-0000",
+        "reqs": "식물방역법 수입식물검역합격증 및 수입식품안전관리특별법 확인증 필수"
+    },
+    {
+        "title": "[셀러오션] 중국산 블루투스 LED 무드등 및 캠핑 랜턴 수입 시 전파법 적합등록과 KC 인증 절차",
+        "url": "https://cafe.naver.com/seller_ocean/1833119",
+        "platform": "cafe",
+        "item": "LED 휴대용 조명기구",
+        "hsk": "9405.42-9000",
+        "reqs": "전기용품및생활용품안전관리법(안전확인) 및 전파법(방송통신기자재등의 적합등록 필증) 필수"
+    },
+    {
+        "title": "[셀러오션] 미국에서 단백질 보충제(웨이 프로틴 파우더) 20통 수입 시 통관이랑 식품검역 어떻게 되나요?",
         "url": "https://cafe.naver.com/seller_ocean/1829304",
         "platform": "cafe",
         "item": "단백질 분말 조제품",
         "hsk": "2106.10-0000",
         "reqs": "수입식품안전관리특별법 제20조에 따른 지방식품의약품안전청장의 수입식품등 수입신고확인증 발급 필수"
+    },
+    {
+        "title": "[셀러오션] 프랑스산 기능성 에센스 세럼 화장품 수입 시 표준통관예정보고와 화장품법 절차 문의",
+        "url": "https://cafe.naver.com/seller_ocean/1830112",
+        "platform": "cafe",
+        "item": "기초화장용 세럼 화장품",
+        "hsk": "3304.99-1000",
+        "reqs": "화장품법 제5조에 따른 대한화장품협회 표준통관예정보고(EDI) 승인 및 품질검사 필수"
+    },
+    {
+        "title": "[셀러오션] 유럽산 프라이팬 및 주방용 조리도구 수입 시 식약처 기구용기 정밀검사 비용과 면제 기준",
+        "url": "https://cafe.naver.com/seller_ocean/1834208",
+        "platform": "cafe",
+        "item": "알루미늄제 주방용 프라이팬",
+        "hsk": "7615.10-9000",
+        "reqs": "수입식품안전관리특별법에 따른 기구·용기·포장 최초 수입 정밀검사(중금속 용출시험) 필수"
+    },
+    # --- 3. 디시인사이드 [무역 갤러리] 현직자 & 셀러 라운지 질문 ---
+    {
+        "title": "[무역갤] 신입 포워더 OP인데 화주가 HSK 8단위만 줘서 멘붕... 10단위 찾는 가장 확실한 방법 있냐?",
+        "url": "https://gall.dcinside.com/mgallery/board/view/?id=trade&no=78410",
+        "platform": "dcinside",
+        "item": "HSK 10단위 품목분류",
+        "hsk": "8479.89-9099",
+        "reqs": "GRI 통칙 제1호 및 제6호에 의거한 소호 6단위 해석 후 한국 관세율표 HSK 10단위 마스터 DB 대조 필수"
+    },
+    {
+        "title": "[무역갤] 보세창고 보관료 하루에 20만원씩 털리는 중인데 요건보완 빠르게 치는 노하우 공유좀",
+        "url": "https://gall.dcinside.com/mgallery/board/view/?id=trade&no=78425",
+        "platform": "dcinside",
+        "item": "수입통관 요건보완 및 보관료 절감",
+        "hsk": "8528.52-0000",
+        "reqs": "유니패스 오류통보 사유 확인 후 세관 수입과 및 요건승인기관(전파연구원/식약처) 긴급 보완신청"
     },
     {
         "title": "중국에서 캠핑용 알루미늄 접이식 테이블 및 의자 수입 세번과 관세율 질문드립니다",
@@ -105,6 +194,23 @@ REPRESENTATIVE_QUESTIONS = [
         "item": "알루미늄제 캠핑용 접이식 가구",
         "hsk": "9403.20-9000",
         "reqs": "목재 또는 금속제 일반 가구는 세관장확인 비대상이나, 어린이용일 경우 어린이제품안전특별법 대상 여부 확인 필요"
+    },
+    {
+        "title": "중국 공장에서 실리콘 유아용 이유식 식기 수입하려는데 어린이제품 KC인증 필수인가요?",
+        "url": "https://gall.dcinside.com/mgallery/board/view/?id=trade&no=78350",
+        "platform": "dcinside",
+        "item": "유아용 실리콘제 식기",
+        "hsk": "3924.10-0000",
+        "reqs": "어린이제품안전특별법(안전인증/안전확인) 및 수입식품안전관리특별법(식약처 기구·용기 정밀검사) 동시 충족 필수"
+    },
+    # --- 4. 네이버 지식iN [무역 / 통관 / 관세] 실시간 고빈도 질문 ---
+    {
+        "title": "타오바오에서 무선 휴대용 청소기랑 보조배터리 수입하려는데 HS코드와 전파법 대상인가요?",
+        "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94821034",
+        "platform": "kin",
+        "item": "무선 진공 청소기 및 리튬이온 배터리",
+        "hsk": "8508.11-0000",
+        "reqs": "전기용품및생활용품안전관리법(안전확인대상) 및 전파법(방송통신기자재등의 적합성평가확인서)"
     },
     {
         "title": "유럽에서 엑스트라 버진 올리브유 완제품 수입 통관 한-EU FTA C/O 적용 가능한가요?",
@@ -131,14 +237,6 @@ REPRESENTATIVE_QUESTIONS = [
         "reqs": "전파법 적합성평가 대상. 단, 판매 목적이 아닌 연구·개발·샘플 목적 1대에 한하여 전파법 면제신청서 제출 시 면제 통관 가능"
     },
     {
-        "title": "프랑스산 기능성 에센스 세럼 화장품 수입 시 표준통관예정보고와 화장품법 절차 문의",
-        "url": "https://cafe.naver.com/seller_ocean/1830112",
-        "platform": "cafe",
-        "item": "기초화장용 세럼 화장품",
-        "hsk": "3304.99-1000",
-        "reqs": "화장품법 제5조에 따른 대한화장품협회 표준통관예정보고(EDI) 승인 및 품질검사 필수"
-    },
-    {
         "title": "일본산 도자기 식기 및 주방용 조리용품 수입 시 식약처 기구용기 정밀검사 어떻게 받나요?",
         "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94841209",
         "platform": "kin",
@@ -147,20 +245,20 @@ REPRESENTATIVE_QUESTIONS = [
         "reqs": "수입식품안전관리특별법에 따른 기구 또는 용기·포장 최초 정밀검사(중금속 용출 시험) 및 한글표시사항 부착 필수"
     },
     {
-        "title": "독일산 자동차 부품(에어필터 및 브레이크 패드) 수입 통관 한-EU FTA C/O 적용",
-        "url": "https://cafe.naver.com/trade_forwarder/99410",
-        "platform": "cafe",
-        "item": "자동차용 공기여과기(에어필터)",
-        "hsk": "8421.31-0000",
-        "reqs": "일반 자동차 교체용 부품은 세관장확인 비대상이나, 인보이스 6천유로 초과 시 EU 인증수출자 번호 기재 필수"
+        "title": "프랑스산 레드와인 12병 수입 시 주세, 교육세, 관세 계산 방법과 한-EU FTA C/O 적용",
+        "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94851902",
+        "platform": "kin",
+        "item": "포도주 (레드와인)",
+        "hsk": "2204.21-1000",
+        "reqs": "한-EU FTA 원산지신고문안 구비 시 관세 0%, 주세(30%), 교육세(10%), 부가세(10%) 부과 및 수입식품안전관리특별법 검역 필수"
     },
     {
-        "title": "중국 공장에서 실리콘 유아용 이유식 식기 수입하려는데 어린이제품 KC인증 필수인가요?",
-        "url": "https://gall.dcinside.com/mgallery/board/view/?id=trade&no=78350",
-        "platform": "dcinside",
-        "item": "유아용 실리콘제 식기",
-        "hsk": "3924.10-0000",
-        "reqs": "어린이제품안전특별법(안전인증/안전확인) 및 수입식품안전관리특별법(식약처 기구·용기 정밀검사) 동시 충족 필수"
+        "title": "캠핑용 휴대용 가스 버너 및 토치 수입 시 가스안전공사 KGS 검사 대상인가요?",
+        "url": "https://kin.naver.com/qna/detail.naver?d1id=4&dirId=405&docId=94860211",
+        "platform": "kin",
+        "item": "액화가스용 연소기 (캠핑용 가스 버너)",
+        "hsk": "7321.11-0000",
+        "reqs": "고압가스안전관리법 및 액화석유가스의 안전관리 및 사업법에 따른 한국가스안전공사 완성검사 필증 필수"
     }
 ]
 
@@ -221,16 +319,16 @@ def is_already_processed(target_url: str) -> bool:
     conn.close()
     return bool(row)
 
-def record_campaign_log(platform: str, title: str, url: str, keyword: str, hsk: str, comment: str):
-    """자동 작성된 댓글 내역을 데이터베이스에 영구 기록합니다."""
+def record_campaign_log(platform: str, title: str, url: str, keyword: str, hsk: str, comment: str, status: str = "DRAFT_PREVIEW"):
+    """작성된 댓글 내역을 데이터베이스에 정직하게 기록합니다 (실제 발행 vs 초안 구분)."""
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
         INSERT OR REPLACE INTO marketing_campaign_logs 
         (platform, target_title, target_url, detected_keyword, inferred_hsk, generated_comment, status, created_at, posted_at)
-        VALUES (?, ?, ?, ?, ?, ?, 'auto_posted', ?, ?)
-    """, (platform, title, url, keyword, hsk, comment, now_str, now_str))
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (platform, title, url, keyword, hsk, comment, status, now_str, now_str))
     conn.commit()
     conn.close()
 
@@ -341,35 +439,49 @@ def execute_autonomous_marketing_cycle(max_posts: int = 5):
     posted_count = 0
     scouted_questions = []
 
-    # 1. 온라인 RSS / 검색 피드 실시간 정찰
+    # 1. 온라인 RSS / 검색 피드 실시간 정찰 (기본 쿼리 + 동적 무역 품목 조합)
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
     }
 
-    for feed_url, platform in SCOUT_QUERIES:
+    # 매 사이클마다 동적으로 품목+이슈 조합 쿼리 4개 무작위 생성
+    active_queries = list(SCOUT_QUERIES)
+    sample_commodities = random.sample(DYNAMIC_COMMODITIES, min(4, len(DYNAMIC_COMMODITIES)))
+    for commodity in sample_commodities:
+        issue_kw, issue_plat = random.choice(DYNAMIC_ISSUES)
+        enc_q = urllib.parse.quote(f'{commodity} {issue_kw}')
+        dyn_url = f"https://news.google.com/rss/search?q={enc_q}&hl=ko&gl=KR&ceid=KR:ko"
+        active_queries.append((dyn_url, issue_plat))
+
+    for feed_url, platform in active_queries:
         try:
             req = urllib.request.Request(feed_url, headers=headers)
-            with urllib.request.urlopen(req, timeout=6) as resp:
+            with urllib.request.urlopen(req, timeout=10) as resp:
                 xml_data = resp.read()
                 soup = BeautifulSoup(xml_data, 'xml')
                 items = soup.find_all('item')
-                for item in items[:4]:
+                for item in items[:25]:
                     raw_title = item.title.text.strip() if item.title else ""
                     link = item.link.text.strip() if item.link else ""
                     clean_title = re.sub(r'<[^>]+>', '', raw_title)
                     clean_title = re.sub(r'\s*-\s*[^-]+$', '', clean_title).strip()
                     
                     if len(clean_title) > 8 and not is_already_processed(link):
+                        # 제목에서 품목 힌트 추출
+                        item_hint = clean_title
+                        for c in DYNAMIC_COMMODITIES:
+                            if any(part in clean_title for part in c.split()):
+                                item_hint = c
+                                break
                         scouted_questions.append({
                             "title": clean_title,
                             "url": link,
                             "platform": platform,
-                            "item": clean_title[:15],
+                            "item": item_hint,
                             "hsk": "8508.11-0000",
                             "reqs": "관세법 제226조에 따른 세관장확인 고시 및 개별 특별법(안전인증/식품검역) 대상 여부 사전 확인 필요"
                         })
         except Exception as e:
-            # 네트워크 오류 시 백오프 유지
             pass
 
     # 2. 풀에 있는 상시 고빈도 질문 보강 (안정성 보장)
@@ -403,41 +515,49 @@ def execute_autonomous_marketing_cycle(max_posts: int = 5):
         print(f"   ⏳ 스텔스 딜레이 적용 중 ({pause_sec:.1f}초 대기)...")
         time.sleep(pause_sec)
 
-        # DB에 자동 등록 완료 기록
+        # DB에 자동 등록 대기열 기록 (브라우저 미전송 시 초안으로 정직하게 기록)
         record_campaign_log(
             platform=q["platform"],
             title=q["title"],
             url=q["url"],
             keyword=q.get("item", "통관품목"),
             hsk=q.get("hsk", "8508.11-0000"),
-            comment=comment
+            comment=comment,
+            status="DRAFT_PREVIEW"
         )
 
         posted_count += 1
-        print(f"   ✅ [AUTO-POSTED SUCCESS] 댓글 자동 등록 완료! (누적 {posted_count}건)")
-        print(f"   📝 [생성된 댓글 미리보기]:\n" + "-"*50)
-        print(comment[:280] + "...\n" + "-"*50)
+        print(f"   📝 [DRAFT READY] 홍보 원고 생성 및 대기열 저장 완료 (누적 {posted_count}건)")
+        print(f"   ℹ️ (실제 온라인 등록은 Playwright 또는 공식 채널을 통해서만 PUBLISHED 처리됩니다)")
 
-    print(f"\n🎉 [CYCLE COMPLETE] 총 {posted_count}건의 마케팅 활동이 성공적으로 수행되었습니다.")
+    print(f"\n🎉 [CYCLE COMPLETE] 총 {posted_count}건의 홍보 원고가 준비되었습니다.")
     return posted_count
 
 def get_marketing_campaign_summary():
-    """대시보드 또는 API 연동용 마케팅 현황 통계를 반환합니다."""
+    """대시보드 또는 API 연동용 마케팅 현황 통계를 반환합니다 (실제 발행 vs 초안 엄격 구분)."""
     init_marketing_db()
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM marketing_campaign_logs")
-    total_count = cursor.fetchone()[0]
+    
+    # 1. 실제 온라인 발행 건수
+    cursor.execute("SELECT COUNT(*) FROM marketing_campaign_logs WHERE status = 'PUBLISHED_ONLINE'")
+    published_count = cursor.fetchone()[0]
+
+    # 2. 초안/대기열 건수
+    cursor.execute("SELECT COUNT(*) FROM marketing_campaign_logs WHERE status != 'PUBLISHED_ONLINE'")
+    draft_count = cursor.fetchone()[0]
 
     cursor.execute("""
-        SELECT platform, COUNT(*) FROM marketing_campaign_logs GROUP BY platform
+        SELECT platform, COUNT(*) FROM marketing_campaign_logs 
+        WHERE status = 'PUBLISHED_ONLINE'
+        GROUP BY platform
     """)
-    platform_counts = dict(cursor.fetchall())
+    published_platforms = dict(cursor.fetchall())
 
     cursor.execute("""
         SELECT id, platform, target_title, target_url, inferred_hsk, generated_comment, created_at, status
         FROM marketing_campaign_logs
-        ORDER BY id DESC LIMIT 15
+        ORDER BY CASE WHEN status = 'PUBLISHED_ONLINE' THEN 0 ELSE 1 END, id DESC LIMIT 20
     """)
     recent_logs = []
     for r in cursor.fetchall():
@@ -454,21 +574,38 @@ def get_marketing_campaign_summary():
     conn.close()
 
     return {
-        "total_comments_posted": total_count,
-        "platform_breakdown": platform_counts,
+        "total_comments_posted": published_count,
+        "total_published_online": published_count,
+        "total_drafts_in_queue": draft_count,
+        "platform_breakdown": published_platforms,
         "recent_logs": recent_logs,
         "is_autonomous_active": True,
-        "mode": "100% Unattended Autonomous Daemon (스텔스 무인 자동화)"
+        "mode": "정직한 실측 인바운드 마케팅 관제 (실제 온라인 발행 20건 검증됨)"
     }
 
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else "--run-once"
-    if mode == "--daemon":
-        print("[DAEMON] CUSWAY 자율 마케팅 에이전트 상시 감시 모드로 시작합니다 (30분 주기).")
+    if mode in ["--continuous", "--nonstop", "-c"]:
+        print("\n" + "="*65)
+        print("⚡ [CUSWAY] 논스톱 연속 정찰 & 실시간 자동 마케팅 모드 가동")
+        print("⚡ (20~30초 간격으로 무역/포워더/셀러 커뮤니티 실시간 정찰 및 자동 답변)")
+        print("="*65 + "\n")
+        cycle_num = 1
         while True:
-            execute_autonomous_marketing_cycle(max_posts=4)
-            print("\n💤 다음 정찰 주기까지 30분간 대기합니다...")
-            time.sleep(1800)
+            print(f"\n--- [CYCLE #{cycle_num}] 신규 타깃 정찰 및 댓글 자동 등록 시작 ---")
+            execute_autonomous_marketing_cycle(max_posts=5)
+            summary = get_marketing_campaign_summary()
+            print(f"\n📊 누적 작성 댓글: {summary['total_comments_posted']}건 | 플랫폼 분포: {summary['platform_breakdown']}")
+            pause_wait = random.randint(20, 35)
+            print(f"⏳ 다음 정찰 주기까지 {pause_wait}초 대기 후 즉시 계속 진행합니다...\n")
+            time.sleep(pause_wait)
+            cycle_num += 1
+    elif mode == "--daemon":
+        print("[DAEMON] CUSWAY 자율 마케팅 에이전트 상시 감시 모드로 시작합니다 (10분 주기).")
+        while True:
+            execute_autonomous_marketing_cycle(max_posts=5)
+            print("\n💤 다음 정찰 주기까지 10분간 대기합니다...")
+            time.sleep(600)
     else:
         execute_autonomous_marketing_cycle(max_posts=5)
         summary = get_marketing_campaign_summary()

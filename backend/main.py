@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
+from fastapi.responses import HTMLResponse, Response, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles # 스태틱 서빙을 위한 임포트 추가
 from pydantic import BaseModel
@@ -94,6 +95,24 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Programmatic SEO Routes (구글·네이버 검색 자동 유입) ---
+from backend.seo_renderer import render_hsk_page, generate_sitemap_xml, generate_robots_txt
+
+@app.get("/hs/{hsk_code}", response_class=HTMLResponse)
+def get_hsk_seo_page(hsk_code: str):
+    """구글봇 및 네이버 서치어드바이저 색인용 HSK 10단위 품목별 초고속 SSR 랜딩 페이지"""
+    return HTMLResponse(content=render_hsk_page(hsk_code), status_code=200)
+
+@app.get("/sitemap.xml")
+def get_sitemap():
+    """검색엔진 크롤러 등록용 동적 XML 사이트맵"""
+    return Response(content=generate_sitemap_xml(), media_type="application/xml")
+
+@app.get("/robots.txt")
+def get_robots():
+    """검색엔진 로봇 허용 규약"""
+    return PlainTextResponse(content=generate_robots_txt(), media_type="text/plain")
 
 # --- Pydantic DTO schemas ---
 class LoginRequest(BaseModel):

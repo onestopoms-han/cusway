@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포워더 B2B 화이트라벨 파트너십 제안서 | CUSWAY</title>
+    <meta name="description" content="화주에게 단순 운임 견적서만 보내지 마세요. 우리 포워딩 회사 로고를 인쇄한 4단계 통관 심사 리포트로 화주 부킹 수주 성공률을 극대화하세요.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0b1329;
+            color: #f1f5f9;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 40px 24px 100px 24px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #38bdf8;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+        .badge-partner {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .hero {
+            text-align: center;
+            padding: 60px 10px 40px 10px;
+        }
+        .hero-tag {
+            display: inline-block;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .hero-title {
+            font-size: 2.7rem;
+            font-weight: 900;
+            line-height: 1.3;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+        .hero-title span {
+            color: #38bdf8;
+        }
+        .hero-desc {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            max-width: 780px;
+            margin: 0 auto 36px auto;
+        }
+        .btn-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            color: #ffffff;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.5);
+            transition: all 0.2s ease;
+        }
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(2, 132, 199, 0.7);
+        }
+        .section {
+            margin-top: 70px;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .section-desc {
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.05rem;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        @media (max-width: 860px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2.0rem; }
+        }
+        .feature-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 32px 24px;
+            transition: all 0.2s ease;
+        }
+        .feature-card:hover {
+            border-color: #38bdf8;
+            transform: translateY(-3px);
+        }
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 16px;
+        }
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+        .feature-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .preview-box {
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5);
+            margin-top: 30px;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0284c7;
+            margin-bottom: 24px;
+        }
+        .forwarder-logo-demo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f1f5f9;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1.5px dashed #0284c7;
+        }
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.95rem;
+        }
+        .table-custom th, .table-custom td {
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .table-custom th {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #334155;
+        }
+        .contact-box {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+            border: 1.5px solid #38bdf8;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 80px;
+        }
+        .contact-email {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #38bdf8;
+            margin-top: 12px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <a href="https://cusway.kr" class="brand">⚡ CUSWAY</a>
+            <span class="badge-partner">포워더 B2B 전용 파트너십</span>
+        </header>
+
+        <section class="hero">
+            <div class="hero-tag">FOR FORWARDING EXECUTIVES & SALES TEAMS</div>
+            <h1 class="hero-title">
+                화주에게 단순 운임 견적서만 보내지 마세요.<br>
+                <span>우리 포워딩 회사 로고가 인쇄된 A4 통관 리포트</span>로 수주를 완성하세요.
+            </h1>
+            <p class="hero-desc">
+                화주가 품목분류(HS코드), 수입요건, FTA 관세율을 물어볼 때마다 관세사 답변을 기다리며 영업 타이밍을 놓치셨나요? CUSWAY 화이트라벨 솔루션으로 3초 만에 전문 통관 리포트를 화주에게 전달하세요.
+            </p>
+            <a href="https://cusway.kr" class="btn-cta">🚀 포워더 전용 30일 무료 체험 시작하기 (신용카드 불필요)</a>
+        </section>
+
+        <!-- 3대 핵심 차별화 가치 -->
+        <section class="section">
+            <h2 class="section-title">포워더가 CUSWAY를 도입해야 하는 3가지 이유</h2>
+            <p class="section-desc">단순 운임 경쟁(Red Ocean)에서 벗어나 화주에게 대체 불가능한 프리미엄 가치를 제공합니다.</p>
+
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <h3 class="feature-title">화이트라벨(White-Label)</h3>
+                    <p class="feature-desc">
+                        CUSWAY 로고 대신 <strong>귀사의 상호·로고·영업담당자 연락처</strong>가 찍힌 정식 A4 통관 사전심사 리포트(PDF)가 자동 생성됩니다. 화주는 귀사를 '통관까지 원스톱으로 책임지는 전문 물류사'로 신뢰하게 됩니다.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">견적 회신 속도 3초 단축</h3>
+                    <p class="feature-desc">
+                        복잡한 산업용 기계나 화학제품, 수입식품도 제품명 입력 즉시 10단위 HSK, 기본/WTO/FTA 세율, 세관장확인 필수 법령(KC, 전파법, 식약처)이 4단계 파이프라인으로 추출됩니다.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3 class="feature-title">화주 부킹 수주 성공률 2배</h3>
+                    <p class="feature-desc">
+                        단순 운임 견적서 1장만 보내는 경쟁 포워더와 달리, <strong>[수입통관 법령 리스크 분석 + FTA 관세 절감 시뮬레이션]</strong>을 동봉하여 화주의 선택을 확실하게 이끌어냅니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 리포트 실제 프리뷰 -->
+        <section class="section">
+            <h2 class="section-title">화주에게 전송되는 실제 A4 리포트 예시</h2>
+            <p class="section-desc">관세평가분류원 심사관 수준의 법리 소명서와 4단계 통관 정보가 완벽히 포맷팅됩니다.</p>
+
+            <div class="preview-box">
+                <div class="report-header">
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #0284c7; letter-spacing: 1px;">CUSTOMS COMPLIANCE AUDIT REPORT</div>
+                        <div style="font-size: 1.5rem; font-weight: 900; color: #0f172a; margin-top: 4px;">수입물품 품목분류 및 세관장확인 사전진단서</div>
+                    </div>
+                    <div class="forwarder-logo-demo">
+                        <span style="font-size: 1.3rem;">🏢</span>
+                        <div>
+                            <div style="font-weight: 900; font-size: 0.95rem; color: #0284c7;">[귀사 포워딩 상호/로고 등록]</div>
+                            <div style="font-size: 0.75rem; color: #64748b;">국제물류 종합 솔루션 파트너</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table-custom">
+                    <tr>
+                        <th style="width: 25%;">대상 물품명</th>
+                        <td style="font-weight: 800;">전기차용 급속 충전기 (Electric Vehicle DC Fast Charger)</td>
+                        <th style="width: 20%;">권장 HSK 세번</th>
+                        <td style="font-weight: 900; color: #0284c7;">8504.40-1000</td>
+                    </tr>
+                    <tr>
+                        <th>적용 관세율</th>
+                        <td>기본 8.0% / 한-중 FTA 협정세율 0.0% (C/O 구비 시 무관세)</td>
+                        <th>수입 전 필수 요건</th>
+                        <td style="color: #dc2626; font-weight: 800;">전파법(적합성평가) + 전기용품안전인증(KC)</td>
+                    </tr>
+                    <tr>
+                        <th>WCO 법리 검토</th>
+                        <td colspan="3" style="font-size: 0.9rem; line-height: 1.6;">
+                            관세율표 해석에 관한 일반통칙(GRI) 제1호 및 제6호에 의거, 정지형 변환기(전기차 배터리 충전용 전력변환장치)로서 제8504호에 분류되며, 세관 수입신고 전 안전인증 필증 전산 연계 필수.
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="margin-top: 20px; font-size: 0.85rem; color: #64748b; text-align: right;">
+                    발행기관: (주)CUSWAY 관세 인텔리전스 엔진 & [귀사 포워딩 파트너스]
+                </div>
+            </div>
+        </section>
+
+        <!-- 콜드 도입 안내 및 문의 -->
+        <section class="contact-box">
+            <h2 style="font-size: 1.9rem; font-weight: 900; margin-bottom: 12px;">지금 귀사 포워딩 팀에 30일간 무료로 도입해 보세요</h2>
+            <p style="font-size: 1.1rem; color: #94a3b8; max-width: 680px; margin: 0 auto 24px auto;">
+                신용카드 등록 없이 즉시 30일간 전체 A4 리포트 무제한 출력 및 화이트라벨 기능을 사용해 보실 수 있습니다. 단체 계정(영업팀/OP팀 일괄 발급) 및 전담 기술 지원이 필요하시면 언제든 연락주세요.
+            </p>
+            <a href="https://cusway.kr" class="btn-cta" style="margin-right: 12px;">무료 체험 계정 만들기 →</a>
+            <div style="margin-top: 24px;">
+                <div style="font-size: 0.9rem; color: #64748b;">포워더 B2B 단체 도입 및 전담 관세 제휴 문의:</div>
+                <a href="mailto:admin@cusway.kr" class="contact-email">admin@cusway.kr</a>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
