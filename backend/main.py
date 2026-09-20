@@ -114,6 +114,19 @@ def get_robots():
     """검색엔진 로봇 허용 규약"""
     return PlainTextResponse(content=generate_robots_txt(), media_type="text/plain")
 
+@app.get("/api/marketing/summary")
+def get_marketing_summary():
+    """마케팅 에이전트 실시간 현황 통계 (실제 발행 vs 초안 엄격 분리)"""
+    from backend.agents.autonomous_marketing_agent import get_marketing_campaign_summary
+    return get_marketing_campaign_summary()
+
+@app.post("/api/marketing/run-scout")
+def run_marketing_scout(background_tasks: BackgroundTasks):
+    """무인 게릴라 마케팅 정찰 및 원고 생성 1회 수동/자동 트리거"""
+    from backend.agents.autonomous_marketing_agent import execute_autonomous_marketing_cycle
+    background_tasks.add_task(execute_autonomous_marketing_cycle, max_posts=5)
+    return {"status": "started", "message": "Autonomous marketing scout cycle initiated in background"}
+
 # --- Pydantic DTO schemas ---
 class LoginRequest(BaseModel):
     email: str
