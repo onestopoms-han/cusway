@@ -1339,15 +1339,68 @@ def get_ai_engines_status():
         pass
 
     parent_dir = os.path.dirname(os.path.abspath(__file__))
-    has_openai = bool(os.environ.get("OPENAI_API_KEY") or os.path.exists(os.path.join(parent_dir, "openai.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "openai.key")))
-    has_gemini = bool(os.environ.get("GEMINI_API_KEY") or os.path.exists(os.path.join(parent_dir, "gemini.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "gemini.key")))
+
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_key:
+        for p in [os.path.join(parent_dir, "gemini.key"), os.path.join(os.path.dirname(parent_dir), "gemini.key")]:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as kf:
+                        gemini_key = kf.read().strip()
+                    break
+                except Exception:
+                    pass
+
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    if not openai_key:
+        for p in [os.path.join(parent_dir, "openai.key"), os.path.join(os.path.dirname(parent_dir), "openai.key")]:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as kf:
+                        openai_key = kf.read().strip()
+                    break
+                except Exception:
+                    pass
+
+    gemini_test_result = "not_configured"
+    if gemini_key:
+        try:
+            test_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key={gemini_key.strip()}"
+            test_req = urllib.request.Request(
+                test_url,
+                data=json.dumps({"contents": [{"parts": [{"text": "ping"}]}]}).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(test_req, timeout=5) as t_resp:
+                gemini_test_result = f"HTTP {t_resp.status} OK"
+        except Exception as te:
+            gemini_test_result = f"Error: {str(te)}"
+
+    openai_test_result = "not_configured"
+    if openai_key:
+        try:
+            o_req = urllib.request.Request(
+                "https://api.openai.com/v1/chat/completions",
+                data=json.dumps({"model": "gpt-4o-mini", "messages": [{"role": "user", "content": "ping"}]}).encode("utf-8"),
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {openai_key.strip()}"}
+            )
+            with urllib.request.urlopen(o_req, timeout=5) as o_resp:
+                openai_test_result = f"HTTP {o_resp.status} OK"
+        except Exception as oe:
+            openai_test_result = f"Error: {str(oe)}"
+
+    has_openai = bool(openai_key)
+    has_gemini = bool(gemini_key)
     has_groq = bool(os.environ.get("GROQ_API_KEY") or os.path.exists(os.path.join(parent_dir, "groq.key")) or os.path.exists(os.path.join(os.path.dirname(parent_dir), "groq.key")))
+
+    masked_gemini = (gemini_key[:6] + "..." + gemini_key[-4:] + f" (len {len(gemini_key)})") if gemini_key else "none"
+    masked_openai = (openai_key[:6] + "..." + openai_key[-4:] + f" (len {len(openai_key)})") if openai_key else "none"
 
     return {
         "lmstudio": {"online": lm_status, "models": lm_models, "endpoint": "http://127.0.0.1:1234"},
         "ollama": {"online": ollama_status, "models": ollama_models, "endpoint": "http://127.0.0.1:11434"},
-        "openai": {"configured": has_openai, "model": "gpt-4o-mini"},
-        "gemini": {"configured": has_gemini, "model": "gemini-flash-latest"},
+        "openai": {"configured": has_openai, "model": "gpt-4o-mini", "key_fingerprint": masked_openai, "live_test": openai_test_result},
+        "gemini": {"configured": has_gemini, "model": "gemini-flash-lite-latest", "key_fingerprint": masked_gemini, "live_test": gemini_test_result},
         "groq": {"configured": has_groq, "model": "openai/gpt-oss-120b"}
     }
 

@@ -34,8 +34,8 @@ app.add_middleware(
 def get_version():
     return {
         "status": "online",
-        "version": "v1.2.0-head-noun-anchoring",
-        "timestamp": "2026-09-14T23:33:00Z"
+        "version": "v1.2.2-gemini-diagnostic",
+        "timestamp": "2026-09-29T16:38:00Z"
     }
 
 # --- Programmatic SEO Routes (구글·네이버 검색 자동 유입) ---
