@@ -487,9 +487,29 @@ class AICustomsClassificationProcessor:
                 sub_margin = top1_sub["score"] - top2_sub["score"]
                 has_distinct_head = any("핵심 주어" in r or "성상 명사" in r for r in top1_sub.get("reasons", []))
 
-                if sub_margin >= 80.0 or (has_distinct_head and sub_margin > 20.0):
+                # Check if top1 is residual ("기타") while other candidates have distinct specific names that don't match input
+                clean_top1 = re.sub(r'[^\d]', '', top1_sub["code"])
+                is_top1_residual = clean_top1.endswith("9000") or clean_top1.endswith("9090") or clean_top1.endswith("9099") or "기타" in top1_sub.get("name_ko", "")
+                
+                p_lower = product_name.lower()
+                competing_has_match = False
+                for c in same_subheading_cands[1:]:
+                    c_clean = re.sub(r'[^\d]', '', c["code"])
+                    if not (c_clean.endswith("9000") or c_clean.endswith("9090") or c_clean.endswith("9099")):
+                        c_words = [w for w in re.findall(r'[a-zA-Z가-힣]+', c.get("name_ko", "")) if len(w) >= 2 and w not in ["기타", "그밖", "용도", "물품"]]
+                        if any(cw.lower() in p_lower for cw in c_words):
+                            competing_has_match = True
+                            break
+
+                from backend.models import CustomsPrecedent
+                has_precedent = db.query(CustomsPrecedent).filter(
+                    CustomsPrecedent.hs_code.like(f"%{clean_top1[:6]}%"),
+                    (CustomsPrecedent.product_name.like(f"%{head_noun}%") | CustomsPrecedent.product_name.like(f"%{product_name}%"))
+                ).first() is not None
+
+                if sub_margin >= 80.0 or (has_distinct_head and sub_margin > 20.0) or (is_top1_residual and not competing_has_match) or has_precedent:
                     clarification_info["needs_clarification"] = False
-                    clarification_info["resolution_stage"] = "CONFIRMED_VIA_MORPHOLOGY"
+                    clarification_info["resolution_stage"] = "CONFIRMED_VIA_RESIDUAL_OR_PRECEDENT" if (is_top1_residual or has_precedent) else "CONFIRMED_VIA_MORPHOLOGY"
                 else:
                     clarification_info["needs_clarification"] = True
                     clarification_info["resolution_stage"] = "NEEDS_SPEC_CLARIFICATION"

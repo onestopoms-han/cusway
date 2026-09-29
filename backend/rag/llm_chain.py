@@ -215,6 +215,26 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
    - 예: '원자력용 탄화규소(SiC) 세라믹 복합재 피복관' ➔ 도자제품 제6909호(6909.19호) 또는 제6815호. (금속 8109호 아님)
    - 예: '양자센서용 NV센터 합성 단결정 다이아몬드 기판' ➔ 합성 다이아몬드 제7104호. (IC 8542호 아님)
 
+3. [완제품 성상(Slot 1) vs 사용 용도/수식어(Slot 3) 엄격 분리 15대 불변 법리 (용도 낚임 전면 차단)]:
+   - ① [소스/조미료 vs 조리 대상 식품]: '파스타 소스', '스파게티 소스', '토마토 소스', '샐러드 드레싱'은 면류/파스타(제1902호)나 과실채소(제20류)가 아니라 조미 소스인 제2103호(HSK 2103.20/2103.90호)로 최우선 분류됩니다.
+   - ② [곡물 조제품 vs 단순 원물/당류]: '콘플레이크 시리얼', '조제 시리얼'은 코팅된 설탕(제1701호)이나 옥수수(제1005호)가 아니라 조제 곡물인 제1904호(HSK 1904.10호)로 분류됩니다.
+   - ③ [화학적으로 단일한 유기산 vs 혼합 조제품]: '구연산(Citric Acid)', '무수 구연산', '아스코르브산', '초산' 등 순수 단일 화합물은 기타 화학품(제3824호)이 아니라 제29류 유기산인 제2918호(구연산은 HSK 2918.14-0000호)로 분류됩니다.
+   - ④ [전동 벨트 vs 컨베이어 기계]: '컨베이어 벨트', 'V-벨트', '타이밍 벨트' 등 고무제 전동/운반 벨트는 컨베이어 기계(제8428호)가 아니라 가황고무제 벨트인 제4010호(HSK 4010.12/4010.19호)로 최우선 분류됩니다 (제16부 주 제1호 가목).
+   - ⑤ [철강제 체인 vs 컨베이어 기계]: '롤러 체인', '스틸 전동 체인'은 컨베이어나 구동 기계(제8428호)가 아니라 철강제 체인인 제7315호(HSK 7315.11/7315.12호)로 최우선 분류됩니다 (제16부 주 제1호 가목).
+   - ⑥ [수공구 vs 전동/기계공구]: 손으로 조작하는 '토크 렌치', '라챗 스패너', '소켓 렌치'는 디지털 토크 LCD나 센서가 부착되어 있더라도 모터가 내장된 전동공구(제8467호)가 아니라 수동 수공구인 제8204호(HSK 8204.11/8204.12호)로 분류됩니다.
+   - ⑦ [완성 의류/잡화 vs 소재/원단/피혁]:
+     * '천연 가죽 재킷/점퍼'는 가죽 원단(제4105/4107호)이 아니라 가죽제 의류인 제4203호(HSK 4203.10호)로 분류됩니다.
+     * '데님 청바지', '면 팬츠'는 직물 원단(제5209호)이 아니라 직물제 의류인 제6203호(HSK 6203.42호)로 분류됩니다.
+     * '나일론 백팩/등산 배낭', '가죽 가방'은 직물/원단이 아니라 운반용 가방인 제4202호(HSK 4202.92호)로 분류됩니다.
+   - ⑧ [태양광 발전 모듈 vs 회전식 발전기]: 빛 에너지를 흡수하여 직류 전기를 생성하는 '태양광 모듈/패널'은 회전자가 회전하는 기계식 발전기(제8501호)가 아니라 광전 반도체 디바이스인 제8541호(HSK 8541.43호)로 분류됩니다.
+   - ⑨ [완성 조명기구 vs 광원/전구/램프]: 'LED 펜던트 천장 조명등', '샹들리에', '가정용 전등 기구'는 개별 LED 램프/전구 단품(제8539호)이 아니라 완성된 조명기구인 제9405호(HSK 9405.11/9405.19호)로 최우선 분류됩니다.
+   - ⑩ [유압/공압 실린더 vs 승강/운반기계]: '복동식 유압 실린더', '유압 액추에이터'는 프레스나 리프트의 용도가 기재되어 있더라도 운반기계(제8428호)가 아니라 유압 모터/실린더인 제8412호(HSK 8412.21호)로 분류됩니다.
+   - ⑪ [인쇄 기계 vs 반도체 제조장비]: 목재, 아크릴, 종이, 섬유 등에 잉크를 분사하여 인쇄하는 '디지털 UV 평판 프린터', '잉크젯 프린터'는 반도체 제조장비(제8486호)가 아니라 인쇄기계인 제8443호(HSK 8443.32호)로 분류됩니다.
+   - ⑫ [실내용 방향제 vs 화장품]: 실내 공간에 향을 확산시키는 '아로마 디퓨저', '룸 프래그런스'는 피부에 바르는 화장품(제3304호)이 아니라 실내용 조제 방향제인 제3307호(HSK 3307.49호)로 분류됩니다.
+   - ⑬ [가정용 피부 미안기 vs 병원용 외과 수술기구]: '초음파 미안기', '갈바닉 이온 마사지기'는 병원용 내외과 기기(제9018호)가 아니라 전기식 미안기 제8543호(HSK 8543.70호) 또는 마사지기 제9019호(HSK 9019.10호)로 분류됩니다.
+   - ⑭ [포장/밀봉 기계 vs 반도체 장비]: 화물을 스트레치 필름으로 감싸는 '파레트 랩핑기', '삼면 포장기'는 반도체 장비(제8486호)가 아니라 포장기계인 제8422호(HSK 8422.40호)로 분류됩니다.
+   - ⑮ [절연 전선/케이블 vs 운반기기]: 전기차 충전용이나 산업용 고전압 '절연 전선', '케이블'은 선박(제89류)이나 차량(제87류)이 아니라 절연 전선인 제8544호(HSK 8544.49호)로 분류됩니다.
+
 2. [통칙 제3호 나목에 따른 완성 복합 물품의 본질적 특성(Essential Character) 및 기계 본체 판정]:
    - [완성된 기계(3D 프린터, 가전, 전동차 등) vs 공급/가공 대상 재료 엄격 분리]: 물품의 본체 실체가 3D 프린터(적층제조기)인 경우, 조형에 사용되는 부자재나 원료가 '금속 분말'이나 '아르곤 가스'라 하더라도 원료(제8108호, 제2804호 등)가 아닌 적층제조기 제8485호(금속 적층가공기는 HSK 8485.10-0000호)로 분류합니다.
    - [기계 본체 vs 공급/취급 대상물 엄격 분리]: 물품명에 가공·조립·공급 대상물(예: '볼트 피더기', '나사 정렬 공급기', '웨이퍼 세정기', '라벨 부착기')이 명시되어 있더라도 공급 대상물(볼트/스크류 제7318호, 웨이퍼 제8486호, 라벨 제4821호 등)로 오분류해서는 안 되며, 기계 본체인 자동 공급/정렬 기계 제8479호(HSK 8479.89-9099호) 또는 제8428호로 분류해야 합니다.
@@ -594,37 +614,50 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 api_key = kf.read().strip()
 
     if api_key and api_key.strip():
-        try:
-            url = "https://api.openai.com/v1/chat/completions"
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {api_key.strip()}"
-            }
-            data = {
-                "model": "gpt-4o-mini",
-                "messages": [
-                    {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.0
-            }
-            
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as response:
-                res_body = response.read().decode("utf-8")
-                res_json = json.loads(res_body)
-                gpt_output = res_json["choices"][0]["message"]["content"].strip()
-                
-                if gpt_output.startswith("```json"):
-                    gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
-                elif gpt_output.startswith("```"):
-                    gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+        url = "https://api.openai.com/v1/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key.strip()}"
+        }
+        data = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": "You are a professional Korean Customs Broker chatbot. Respond strictly in valid JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.0
+        }
+        
+        req_data = json.dumps(data).encode("utf-8")
+        import time
+        max_openai_attempts = 4
+        for attempt in range(max_openai_attempts):
+            try:
+                req = urllib.request.Request(url, data=req_data, headers=headers)
+                with urllib.request.urlopen(req, timeout=35) as response:
+                    res_body = response.read().decode("utf-8")
+                    res_json = json.loads(res_body)
+                    gpt_output = res_json["choices"][0]["message"]["content"].strip()
                     
-                print(f"[RAG-LLM] Successfully processed via OpenAI Engine.")
-                parsed_res = json.loads(gpt_output)
-                return normalize_llm_response(parsed_res, db, product_name)
-        except Exception as e:
-            print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to backup.")
+                    if gpt_output.startswith("```json"):
+                        gpt_output = gpt_output.split("```json")[1].split("```")[0].strip()
+                    elif gpt_output.startswith("```"):
+                        gpt_output = gpt_output.split("```")[1].split("```")[0].strip()
+                        
+                    print(f"[RAG-LLM] Successfully processed via OpenAI Engine.")
+                    parsed_res = json.loads(gpt_output)
+                    return normalize_llm_response(parsed_res, db, product_name)
+            except urllib.error.HTTPError as he:
+                if he.code == 429 and attempt < max_openai_attempts - 1:
+                    wait_sec = 2.0 * (attempt + 1)
+                    print(f"[RAG-LLM] OpenAI 429 Rate Limit hit. Retrying in {wait_sec}s (attempt {attempt+1}/{max_openai_attempts})...")
+                    time.sleep(wait_sec)
+                    continue
+                print(f"[RAG-LLM] OpenAI call failed: HTTP {he.code}. Cascading to backup.")
+                break
+            except Exception as e:
+                print(f"[RAG-LLM] OpenAI call failed: {str(e)}. Cascading to backup.")
+                break
 
     # 2. Try Gemini Engine Second (2nd Priority: Backup)
     gemini_key = os.environ.get("GEMINI_API_KEY")
@@ -644,34 +677,36 @@ def _query_rag_hs_classification_raw(product_name: str, material: str, function_
                 gemini_key = gkf.read().strip()
                 
     if gemini_key and gemini_key.strip():
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={gemini_key.strip()}"
-            headers = {
-                "Content-Type": "application/json"
-            }
-            data = {
-                "contents": [{
-                    "parts": [{"text": prompt}]
-                }],
-                "generationConfig": {
-                    "responseMimeType": "application/json",
-                    "temperature": 0.0
+        gemini_candidate_models = ["gemini-flash-lite-latest", "gemini-flash-latest"]
+        for g_model in gemini_candidate_models:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{g_model}:generateContent?key={gemini_key.strip()}"
+                headers = {
+                    "Content-Type": "application/json"
                 }
-            }
-            req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as response:
-                res_body = response.read().decode("utf-8")
-                res_json = json.loads(res_body)
-                output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-                if output.startswith("```json"):
-                    output = output.split("```json")[1].split("```")[0].strip()
-                elif output.startswith("```"):
-                    output = output.split("```")[1].split("```")[0].strip()
-                print(f"[RAG-LLM] Successfully processed via Google Gemini Engine.")
-                parsed_res = json.loads(output)
-                return normalize_llm_response(parsed_res, db, product_name)
-        except Exception as gem_err:
-            print(f"[RAG-LLM] Gemini call failed: {str(gem_err)}. Cascading to Groq/Local.")
+                data = {
+                    "contents": [{
+                        "parts": [{"text": prompt}]
+                    }],
+                    "generationConfig": {
+                        "responseMimeType": "application/json",
+                        "temperature": 0.0
+                    }
+                }
+                req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers)
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    res_body = response.read().decode("utf-8")
+                    res_json = json.loads(res_body)
+                    output = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    if output.startswith("```json"):
+                        output = output.split("```json")[1].split("```")[0].strip()
+                    elif output.startswith("```"):
+                        output = output.split("```")[1].split("```")[0].strip()
+                    print(f"[RAG-LLM] Successfully processed via Google Gemini Engine ({g_model}).")
+                    parsed_res = json.loads(output)
+                    return normalize_llm_response(parsed_res, db, product_name)
+            except Exception as gem_err:
+                print(f"[RAG-LLM] Gemini ({g_model}) call failed: {str(gem_err)}. Trying next candidate model.")
 
     # 3. Try Local Free AI Engines (LM Studio / Ollama)
     # 3-A. LM Studio (Local Free OpenAI-Compatible Engine)
@@ -843,20 +878,25 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
         if anchor_k.lower() in clean_pname or clean_pname in anchor_k.lower():
             for h in anchor_heads:
                 h_digits = re.sub(r'[^\d]', '', h)
-                if len(h_digits) >= 4:
-                    matched_head = h_digits[:4]
+                if len(h_digits) >= 6:
+                    matched_head = h_digits[:6]
                     break
+                elif len(h_digits) >= 4 and not matched_head:
+                    matched_head = h_digits[:4]
             if matched_head:
                 break
                 
     if matched_head:
-        # 마스터 DB에서 해당 4단위로 시작하는 실존 10자리 세번 검색
-        if matched_head == "9031":
-            master_match = db.query(HSCodeMaster).filter(
-                HSCodeMaster.hs_code.like("9031.80%"),
-                HSCodeMaster.hscode_length == 10
-            ).order_by(HSCodeMaster.hs_code.desc()).first()
-        else:
+        # 마스터 DB에서 해당 4~6단위로 시작하는 실존 10자리 세번 검색 (부품 전용 질문이 아닌 한 부분품 제외)
+        is_part_query = any(pk in clean_pname for pk in ["부품", "부분품", "부속품", "part"])
+        q = db.query(HSCodeMaster).filter(
+            HSCodeMaster.hs_code.like(f"{matched_head}%"),
+            HSCodeMaster.hscode_length == 10
+        )
+        if not is_part_query:
+            q = q.filter(~HSCodeMaster.name_ko.like("%부분품%"))
+        master_match = q.order_by(HSCodeMaster.hs_code.desc()).first()
+        if not master_match:
             master_match = db.query(HSCodeMaster).filter(
                 HSCodeMaster.hs_code.like(f"{matched_head}%"),
                 HSCodeMaster.hscode_length == 10
@@ -866,7 +906,7 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             if len(raw_c) >= 10:
                 f_code = f"{raw_c[:4]}.{raw_c[4:6]}-{raw_c[6:10]}"
             else:
-                f_code = f"{matched_head}.80-9090" if matched_head == "9031" else f"{matched_head}.90-9000"
+                f_code = f"{matched_head}.80-9090" if matched_head.startswith("9031") else f"{matched_head[:4]}.90-9000"
             return {
                 "recommendedHsCode": f_code,
                 "headingName": master_match.name_ko or f"제{matched_head}호 관련 물품",
@@ -887,13 +927,18 @@ def run_local_fallback_match(product_name: str, material: str, function_use: str
             best_prec = sim_precedents[0]
             words_query = set(re.split(r'[\s,\.\-\(\)]+', product_name.lower()))
             words_prec = set(re.split(r'[\s,\.\-\(\)]+', best_prec.product_name.lower()))
-            common = words_query.intersection(words_prec)
             from backend.rag.retriever import STOPWORDS
+            common = words_query.intersection(words_prec)
+            # Also allow subword containment matching for Korean unspaced compound nouns
+            for wq in words_query:
+                for wp in words_prec:
+                    if len(wp) >= 2 and wp not in STOPWORDS and (wp in wq or wq in wp):
+                        common.add(wp)
             common_filtered = [w for w in common if len(w) >= 2 and w not in STOPWORDS]
             query_keywords = [w for w in words_query if len(w) >= 2 and w not in STOPWORDS]
             
-            # Require at least 50% of the query keywords to match the precedent name
-            if query_keywords and len(common_filtered) / len(query_keywords) >= 0.5:
+            # Require at least 50% match or at least one meaningful subword match
+            if (query_keywords and len(common_filtered) / len(query_keywords) >= 0.5) or len(common_filtered) >= 1:
                 prec = best_prec
                 print(f"[RAG-LLM] Exact match not found for '{product_name}'. Found highly similar cached precedent: '{prec.product_name}'")
 

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status, BackgroundTasks
-from fastapi.responses import HTMLResponse, Response, PlainTextResponse
+from fastapi.responses import HTMLResponse, Response, PlainTextResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles # 스태틱 서빙을 위한 임포트 추가
 from pydantic import BaseModel
@@ -41,6 +41,11 @@ except Exception as e:
     print(f"[INIT_WARN] DB schema creation skipped: {e}")
 
 app = FastAPI(title="CUSWAY Backend API", version="1.0")
+
+@app.get("/")
+def root_redirect():
+    """루트 접속 시 로컬 프론트엔드 포트(5173)로 자동 리다이렉트"""
+    return RedirectResponse(url="http://localhost:5173", status_code=302)
 
 @app.get("/api/version")
 def get_version():

@@ -50,6 +50,8 @@ STATE_MARKERS = [
     ("3D 프린터", "적층제조기(3D 프린터)는 제8485호(금속 SLM은 8485.10호) 전용"),
     ("3D프린터", "적층제조기(3D 프린터)는 제8485호(금속 SLM은 8485.10호) 전용"),
     ("그라인더", "가정용 모터내장 원두 그라인더는 제8509호(가정용 전기기기) 최우선"),
+    ("가습기", "제85류 주4호: 전동기 내장형 공기 가습기(20kg 이하)는 제8509호 가정용 전기기기 최우선 (대형 산업용 공조기는 제8415/8479호)"),
+    ("제습기", "제85류 주4호: 전동기 내장형 공기 제습기(20kg 이하)는 제8509호 가정용 전기기기 최우선 (대형 산업용 공조기는 제8415/8479호)"),
     
     # 화학 및 형태적 성상
     ("분말", "분말/가루(Powder) 형태"),
@@ -124,15 +126,29 @@ def decouple_3slots(product_name: str, material: str = "", function_use: str = "
     materials_from_name = []
     remaining_tokens = []
 
-    for t in tokens:
-        if t.endswith("용") or t.endswith("전용") or t.endswith("위한"):
+    EXPANDED_MAT_KWS = [
+        "알루미늄", "스테인리스", "철강", "실리콘", "테플론", "티타늄", "금속", "목재",
+        "가죽", "아라미드", "골판지", "유리", "수산화리튬", "데님", "양가죽", "소가죽",
+        "원목", "캐시미어", "나일론", "동관", "황동", "구리", "플라스틱", "eva",
+        "pet", "ptfe", "세라믹", "가황고무", "합성고무", "천연고무", "pvc"
+    ]
+    FOOD_DISH_APPLICATIONS = ["파스타", "스파게티", "피자", "샐러드", "스테이크", "바비큐", "커피"]
+    MACHINE_TARGET_APPLICATIONS = ["컨베이어", "프레스", "사출기", "선박", "자동차", "반도체", "에어컨"]
+
+    for i, t in enumerate(tokens):
+        t_lower = t.lower()
+        is_last = (i == len(tokens) - 1)
+        if t.endswith("용") or t.endswith("전용") or t.endswith("위한") or t.endswith("목적"):
             purposes_from_name.append(t)
-        elif any(mat_kw in t for mat_kw in ["알루미늄", "스테인리스", "철강", "실리콘", "테플론", "티타늄", "금속", "목재", "가죽", "아라미드", "골판지", "유리", "수산화리튬"]) or t in ["면", "순면", "면직물", "코튼", "면사"]:
+        elif not is_last and (t in FOOD_DISH_APPLICATIONS or t in MACHINE_TARGET_APPLICATIONS):
+            # Preceding culinary dish or host machine name is an application (Slot 3)
+            purposes_from_name.append(f"{t}용/조리")
+        elif any(mat_kw in t_lower for mat_kw in EXPANDED_MAT_KWS) or t in ["면", "순면", "면직물", "코튼", "면사"]:
             materials_from_name.append(t)
         else:
             remaining_tokens.append(t)
 
-    # In Korean compound nouns, the head noun (주어) is predominantly at the very end.
+    # In Korean compound nouns, the true physical head noun (핵심 중심어) is at the very end.
     # Exclude trailing adjectives/modifiers (e.g. '튀기지 않은', '가공된') from being standalone head nouns.
     valid_remaining = []
     for rt in remaining_tokens:
@@ -141,14 +157,15 @@ def decouple_3slots(product_name: str, material: str = "", function_use: str = "
         valid_remaining.append(rt)
 
     if valid_remaining:
-        head_noun = " ".join(valid_remaining[-2:]) if len(valid_remaining) >= 2 else valid_remaining[-1]
+        # The ultimate single head noun is the final token, with compound context available
+        head_noun = valid_remaining[-1]
     elif remaining_tokens:
-        head_noun = " ".join(remaining_tokens[-2:]) if len(remaining_tokens) >= 2 else remaining_tokens[-1]
+        head_noun = remaining_tokens[-1]
     else:
         head_noun = tokens[-1] if tokens else raw_name
 
     # Synthesize clean slots
-    slot1_subject = name_without_parens if name_without_parens else raw_name
+    slot1_subject = f"{head_noun} (전체 물품 성상: {name_without_parens})" if name_without_parens else raw_name
     
     # Slot 2 Ingredients
     slot2_parts = []
