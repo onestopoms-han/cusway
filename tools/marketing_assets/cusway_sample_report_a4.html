@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>[샘플] 화주 제출용 A4 수입 통관 사전진단서 (CUSWAY White-Label)</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Malgun Gothic', '맑은 고딕', -apple-system, sans-serif;
+    color: #1e293b;
+    background: #f8fafc;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .report-paper {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 36px 40px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  }
+  .header-table {
+    width: 100%;
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+  .doc-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+  .doc-sub {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .co-brand-box {
+    text-align: right;
+    font-size: 12px;
+    color: #2563eb;
+    font-weight: 700;
+    border: 1px dashed #93c5fd;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #eff6ff;
+    display: inline-block;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    background: #f1f5f9;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  .meta-item strong {
+    display: block;
+    color: #64748b;
+    font-size: 10px;
+    margin-bottom: 2px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding-left: 8px;
+    border-left: 4px solid #2563eb;
+  }
+  .step-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    background: #ffffff;
+  }
+  .step-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .step-table th {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px;
+    text-align: left;
+    color: #475569;
+    width: 28%;
+  }
+  .step-table td {
+    border: 1px solid #e2e8f0;
+    padding: 8px;
+    color: #1e293b;
+  }
+  .badge-hsk {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: #1d4ed8;
+    background: #dbeafe;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .badge-opt {
+    font-size: 11px;
+    font-weight: 700;
+    color: #059669;
+    background: #d1fae5;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .warn-box {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-left: 3px solid #f59e0b;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+  .footer-sign {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 16px;
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 11px;
+    color: #64748b;
+  }
+  .no-print {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .btn-print {
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+  }
+  @media print {
+    body { background: #ffffff; padding: 0; }
+    .report-paper { border: none; box-shadow: none; padding: 0; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <button class="btn-print" onclick="window.print()">🖨️ PDF 다운로드 / A4 출력 (Ctrl + P)</button>
+  <p style="font-size: 12px; color: #64748b; margin-top: 6px;">포워더 메일 발송 시 본 리포트를 PDF로 저장하여 견적서와 함께 첨부하실 수 있습니다.</p>
+</div>
+
+<div class="report-paper">
+  <table class="header-table">
+    <tr>
+      <td>
+        <div class="doc-title">수입 물품 통관 및 세관장확인 사전진단서</div>
+        <div class="doc-sub">Customs Pre-Clearance Legal Audit Report</div>
+      </td>
+      <td style="text-align: right;">
+        <div class="co-brand-box">
+          🏢 [귀사 포워딩 상호 & 로고 인쇄 영역]<br>
+          <span style="font-size: 10px; color: #64748b; font-weight: normal;">CUSWAY 화이트라벨 파트너십 발급</span>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="meta-grid">
+    <div class="meta-item">
+      <strong>진단 대상 물품</strong>
+      스마트 무선 온습도 센서 모듈
+    </div>
+    <div class="meta-item">
+      <strong>수입 원산지</strong>
+      중국 (China, CN)
+    </div>
+    <div class="meta-item">
+      <strong>진단 일자</strong>
+      2026-09-22
+    </div>
+    <div class="meta-item">
+      <strong>진단서 고유번호</strong>
+      CUSWAY-2026-B2B-0482
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="section-title">Step 1. AI 품목분류(HSK 10단위) 및 법리 소명</div>
+  <div class="step-box">
+    <table class="step-table">
+      <tr>
+        <th>최종 확정 HSK</th>
+        <td><span class="badge-hsk">9025.80.2000</span> (전자식 온도계·습도계)</td>
+      </tr>
+      <tr>
+        <th>통칙 적용 (GRI)</th>
+        <td>관세율표 해석에 관한 일반통칙 제1호 및 제6호 적용 (제90류 주규정 검토)</td>
+      </tr>
+      <tr>
+        <th>경합 세번 배제 이유</th>
+        <td>블루투스 무선통신 기능이 있으나 본질적 기능이 환경 측정(온·습도)이므로 제8517호(통신기기) 배제, 제9025호 우선 분류.</td>
+      </tr>
+      <tr>
+        <th>관세청 결정례 인용</th>
+        <td>관세평가분류원 품목분류사전심사 제2021-0428호 ("무선 온습도 로거 센서") 법리 일치.</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="section-title">Step 2. 관세율 비교 및 FTA 원산지 최적화</div>
+  <div class="step-box">
+    <table class="step-table">
+      <tr>
+        <th>기본관세율 (A)</th>
+        <td>8.0% (과세가격 5,000만 원 기준 예상 관세 400만 원)</td>
+      </tr>
+      <tr>
+        <th>한-중 FTA 협정세율</th>
+        <td><span class="badge-opt">0.0% (완전 면제)</span> ➔ <strong>관세 400만 원 즉시 절감</strong></td>
+      </tr>
+      <tr>
+        <th>필수 구비 서류</th>
+        <td>중국 해관 또는 중국국제무역촉진위원회(CCPIT) 정식 발급 한-중 FTA 원산지증명서(C/O)</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="section-title">Step 3. 세관장확인 필수 법정 요건 (통관 보류 방지)</div>
+  <div class="step-box">
+    <table class="step-table">
+      <tr>
+        <th>전파법 제58조의2</th>
+        <td><strong>[필수] 방송통신기자재등의 적합성평가(KC인증)</strong> 대상 (국립전파연구원 인증번호 필요)</td>
+      </tr>
+      <tr>
+        <th>전기생활용품안전법</th>
+        <td>공급자적합성확인 대상 여부: 내부 배터리 탑재 시 배터리 안전확인(KC) 별도 확인 요망</td>
+      </tr>
+    </table>
+    <div class="warn-box">
+      ⚠️ <strong>주의:</strong> 입항 전 국립전파연구원 전파인증 적합등록이 완료되지 않은 경우, 인천세관 보세구역 반입 즉시 수입신고가 보류되어 일일 보세창고료가 발생하므로 반드시 선적 14일 전 인증번호를 확보해야 합니다.
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="section-title">Step 4. 통관 행정서류 및 포워딩 액션 플랜</div>
+  <div class="step-box">
+    <table class="step-table">
+      <tr>
+        <th>B/L & Invoice 기재</th>
+        <td>B/L 상 품명에 단순 "Sensor" 기재 금지 ➔ "Wireless Temp & Humidity Sensor Module (HS 9025.80)" 구체 기재</td>
+      </tr>
+      <tr>
+        <th>한글표시사항 라벨</th>
+        <td>선적 전 현지 공장에서 KC인증 마크, 모델명, 수입원 상호, A/S 연락처 라벨링 인쇄 권장</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="footer-sign">
+    <div>
+      본 리포트는 관세법, 관세평가분류원 결정례 DB 및 대외무역법에 기반하여 생성된 사전진단 자료입니다.<br>
+      엔진 제공: CUSWAY AI 관세·통관 인텔리전스 | 기술문의: admin@cusway.kr
+    </div>
+    <div style="text-align: right; font-weight: 700; color: #0f172a;">
+      [포워딩사 담당부서 검토 확인인]
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

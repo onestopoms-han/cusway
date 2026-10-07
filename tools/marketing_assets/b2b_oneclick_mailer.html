@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUSWAY B2B 포워더 실전 콜드메일 원클릭 발송 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-main: #0b0f19;
+    --card-bg: #151d2f;
+    --card-border: #24324f;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-blue: #38bdf8;
+    --accent-indigo: #6366f1;
+    --accent-green: #10b981;
+    --accent-hover: #0284c7;
+    --tag-bg: #1e293b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    padding: 32px 20px;
+    line-height: 1.5;
+  }
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto 30px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-title h1 {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .header-title p {
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .stats-bar {
+    display: flex;
+    gap: 14px;
+  }
+  .stat-pill {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .stat-pill span {
+    color: var(--accent-blue);
+    font-weight: 700;
+    margin-left: 6px;
+  }
+  .grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 650px) {
+    .grid-container { grid-template-columns: 1fr; }
+  }
+  .target-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .target-card:hover {
+    transform: translateY(-2px);
+    border-color: #3b82f6;
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .company-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .company-badge {
+    font-size: 11px;
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .email-badge {
+    font-size: 12px;
+    background: var(--tag-bg);
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    font-family: monospace;
+  }
+  .pitch-box {
+    background: rgba(15, 23, 42, 0.6);
+    border-left: 3px solid #38bdf8;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #cbd5e1;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+  .subject-preview {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    background: #090d16;
+    padding: 8px 12px;
+    border-radius: 6px;
+    word-break: break-all;
+  }
+  .subject-preview strong {
+    color: #e2e8f0;
+  }
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    border: none;
+  }
+  .btn-naver {
+    background: #03c75a;
+    color: #ffffff;
+  }
+  .btn-naver:hover {
+    background: #02b150;
+  }
+  .btn-mailto {
+    background: #2563eb;
+    color: #ffffff;
+  }
+  .btn-mailto:hover {
+    background: #1d4ed8;
+  }
+  .btn-copy {
+    background: #334155;
+    color: #f1f5f9;
+  }
+  .btn-copy:hover {
+    background: #475569;
+  }
+  .btn-rich {
+    background: #8b5cf6;
+    color: #ffffff;
+  }
+  .btn-rich:hover {
+    background: #7c3aed;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #10b981;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="header-container">
+  <div class="header-title">
+    <h1>CUSWAY B2B 포워더 실전 콜드메일 원클릭 발송 대시보드</h1>
+    <p>국내 Top 10 검증 포워더 맞춤형 [화이트라벨 A4 통관 리포트 무료 지원 제안서]</p>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill">검증 타깃: <span>150개 기업 (100곳 발송완료 / 50곳 신규대기)</span></div>
+    <div class="stat-pill">법적 규정: <span>정보통신망법 제50조 준수</span></div>
+    <div class="stat-pill">연계 계정: <span>원스탑관세사무소 (CUSWAY)</span></div>
+  </div>
+</div>
+
+<div class="tip-box-container" style="max-width: 1200px; margin: 0 auto 26px auto; background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 10px; padding: 16px 20px; font-size: 13px; color: #cbd5e1; line-height: 1.6;">
+  <div style="font-weight: 700; color: #38bdf8; margin-bottom: 6px; font-size: 14px;">💡 [클릭 유입률 200% 높이는 사이트 링크 발송 안내]</div>
+  <div>• <strong>🟢 네이버 메일 클릭 시</strong>: 네이버 작성창이 열리면 본문 속 <span style="color:#38bdf8; font-family:monospace; background:#0f172a; padding:2px 6px; border-radius:4px;">https://cusway.kr</span> 뒤에서 <strong>[엔터(Enter)]</strong> 또는 <strong>[스페이스바]</strong>를 한 번 누르면 수신자가 바로 누를 수 있는 <span style="color:#60a5fa; text-decoration:underline;">파란색 하이퍼링크</span>로 자동 활성화됩니다.</div>
+  <div>• <strong>✨ 서식/링크 복사 클릭 시</strong>: 네이버 메일 본문에 <kbd style="background:#0f172a; padding:2px 6px; border-radius:4px; border:1px solid #475569;">Ctrl + V</kbd>로 붙여넣으면 <strong>[👉 CUSWAY 30일 무료 체험 바로가기]</strong> 파란색 클릭 버튼과 밑줄 링크가 통째로 서식 그대로 붙여넣어집니다.</div>
+  <div style="color: #94a3b8; font-size: 12px; margin-top: 4px;">※ 수신자가 아웃룩, 지메일, 스마트폰 메일 앱 등에서 메일을 열어볼 때도 <span style="color:#38bdf8;">https://cusway.kr</span>은 100% 터치 가능한 파란색 링크로 자동 인식되어 표시됩니다.</div>
+</div>
+
+
+<div class="tip-box-container" style="max-width: 1200px; margin: 0 auto 20px auto; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9)); border: 1px solid #38bdf8; border-radius: 10px; padding: 18px 22px; font-size: 13px; color: #cbd5e1; line-height: 1.6; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+  <div>
+    <div style="font-weight: 800; color: #38bdf8; font-size: 15px; margin-bottom: 4px;">📄 [화주 제출용 A4 통관 사전진단서 샘플 & PDF 인쇄]</div>
+    <div style="color: #94a3b8; font-size: 13px;">포워더 귀사의 로고를 넣어 화주에게 전달할 수 있는 '원스탑 통관 4단계 사전진단서' 정식 A4 양식입니다.</div>
+  </div>
+  <div>
+    <a href="cusway_sample_report_a4.html" target="_blank" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); font-size: 13px;">
+      🖨️ A4 샘플 리포트 열기 / PDF 저장
+    </a>
+  </div>
+</div>
+
+<div class="filter-container" style="max-width: 1200px; margin: 0 auto 24px auto; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+  <span style="color: #94a3b8; font-size: 13px; font-weight: 600; margin-right: 6px;">🎯 필터 선택:</span>
+  <button class="filter-btn active" onclick="setFilter('NEW')" style="background: #ef4444; color: #fff; border: 1px solid #ef4444; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;">🚀 11~15차 신규 미발송 (101~150번 / 50곳)</button>
+  <button class="filter-btn" onclick="setFilter('BATCH_11_12')" style="background: #24324f; color: #cbd5e1; border: 1px solid #334155; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">🔥 11~12차 신규 (101~120번 / 20곳)</button>
+  <button class="filter-btn" onclick="setFilter('BATCH_13_15')" style="background: #24324f; color: #cbd5e1; border: 1px solid #334155; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">⚡ 13~15차 최신 (121~150번 / 30곳)</button>
+  <button class="filter-btn" onclick="setFilter('DONE')" style="background: #24324f; color: #cbd5e1; border: 1px solid #334155; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">✓ 1~10차 발송완료 (1~100번 / 100곳)</button>
+  <button class="filter-btn" onclick="setFilter('ALL')" style="background: #24324f; color: #cbd5e1; border: 1px solid #334155; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;">전체 보기 (150곳)</button>
+</div>
+
+<div class="grid-container" id="cards-container">
+  <!-- JavaScript로 10개 카드 동적 렌더링 -->
+</div>
+
+<div class="toast" id="toast">내용이 클립보드에 복사되었습니다!</div>
+
+<script>
+const TARGETS = [
+  {
+    "id": 1,
+    "company": "은산해운항공",
+    "role": "영업팀장 및 수입화물 담당자님",
+    "email": "info@eunsan.co.kr",
+    "sector": "중대형 복합포워딩 (해상/항공 정기선)",
+    "pitch": "화주에게 단순 운임 견적 대신 '은산해운항공 상호가 인쇄된 A4 통관 심사 리포트'를 동봉하여 수주 성공률을 극대화하실 수 있도록 지원해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 2,
+    "company": "태웅로직스",
+    "role": "물류영업팀 및 프로젝트 카고 담당자님",
+    "email": "mst@e-tgl.com",
+    "sector": "글로벌 프로젝트카고 및 복합운송",
+    "pitch": "화학물/정밀기계/프로젝트 화물의 복잡한 세관장확인 요건과 FTA 세율을 화주 제출용 A4 사전진단서로 3초 만에 원클릭 발행해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 3,
+    "company": "에이씨티앤코아물류",
+    "role": "수입통관팀 및 특송물류 담당자님",
+    "email": "mhcha@actcore.com",
+    "sector": "이커머스/중국 특송 및 통관 특화 포워더",
+    "pitch": "1688 알리바바 사입 셀러들의 품목분류(HSK 10단위) 및 KC인증/식약처 검역 등 세관장확인 누락으로 인한 보세창고 체화 비용을 0원으로 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 4,
+    "company": "하나로TNS",
+    "role": "글로벌영업본부 담당자님",
+    "email": "contact@htns.com",
+    "sector": "글로벌 SCM 및 전자/부품 공급망",
+    "pitch": "전자/반도체 부품 화주의 까다로운 세번 경합과 FTA 원산지증명서(C/O) 충족 요건을 관세평가분류원 법리 기준으로 즉시 소명해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 5,
+    "company": "세방익스프레스",
+    "role": "국제영업팀 및 수입포워딩 담당자님",
+    "email": "sebangexpress@sebangexpress.com",
+    "sector": "중량물/해상벌크 및 보세운송",
+    "pitch": "수입 FCL/벌크 화주 영업 시 세방익스프레스 브랜드의 사전통관 심사 리포트를 함께 전달하여 부킹 성사율을 높이실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 6,
+    "company": "인터지스",
+    "role": "국제물류팀 담당자님",
+    "email": "namwoo.choi@dongkuk.com",
+    "sector": "철강/원자재 및 항만물류",
+    "pitch": "화주 응대 시 관세사 전화 대기 시간 없이 원자재/기계류 수입요건과 기본/WTO/FTA 관세율을 즉시 시뮬레이션하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 7,
+    "company": "삼영물류",
+    "role": "국제물류운영팀 담당자님",
+    "email": "sylogis@sylogis.co.kr",
+    "sector": "3PL 및 식품/소비재 수입물류",
+    "pitch": "식품, 주방용기, 건강식품 등 정밀검역과 한글표시사항 등 수입 전 법정 세관장확인 리스크를 사전진단서로 100% 예방합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 8,
+    "company": "고려종합국제운송(KCTC)",
+    "role": "포워딩 영업 및 수입팀 담당자님",
+    "email": "sales@kctcintl.com",
+    "sector": "종합물류 및 컨테이너 해운/항공 수입",
+    "pitch": "KCTC만의 차별화된 영업 무기로 화주 제출용 A4 4단계 통관 진단 리포트를 무제한 출력해 견적서와 함께 번들링할 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 9,
+    "company": "대신로지스틱스",
+    "role": "수입물류 영업 담당자님",
+    "email": "admin@dslogis.com",
+    "sector": "동남아/중국 수입 물류 전문",
+    "pitch": "중국/동남아 수입화물 통관 보류를 사전에 차단하고, 화주에게 신속하고 전문적인 통관 가이드를 원스톱으로 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 10,
+    "company": "대운해운항공",
+    "role": "국제물류 영업팀 담당자님",
+    "email": "seoul@dwairocean.com",
+    "sector": "해운/항공 수입 특송 포워딩",
+    "pitch": "화주들의 잦은 품목분류 및 수입요건 문의에 3초 만에 대응 가능한 AI 통관 코파일럿 솔루션을 30일간 무료로 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 11,
+    "company": "롯데글로벌로지스",
+    "role": "영업전략팀 및 포워딩사업부 담당자님",
+    "email": "salesstrategy@lotte.net",
+    "sector": "글로벌 종합물류 및 해상/항공 포워딩",
+    "pitch": "대형 수입 화주사 영업 시 롯데글로벌로지스 브랜드가 들어간 A4 사전통관 리포트를 견적서와 동봉하여 계약 성공률을 비약적으로 높일 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 12,
+    "company": "세중해운",
+    "role": "국제물류 영업팀 담당자님",
+    "email": "kor_shp_sel@sejunggroup.com",
+    "sector": "전통 해상/항공 복합포워딩",
+    "pitch": "화주들이 자주 문의하는 HSK 10단위 분류 및 FTA 세율을 관세사 통화 대기 없이 3초 만에 확인 가능한 AI 통관 코파일럿을 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 13,
+    "company": "서중물류",
+    "role": "물류영업팀 및 복합운송 담당자님",
+    "email": "sj@sjl.co.kr",
+    "sector": "유라시아/대륙철도 및 중국 복합포워딩",
+    "pitch": "중국 및 유라시아 화물의 복잡한 세관장확인 법령 및 수입 검역 요건을 사전에 점검하여 국경 통관 지연을 완벽히 예방합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 14,
+    "company": "유니코로지스틱스",
+    "role": "포워딩 영업 및 수입운영팀 담당자님",
+    "email": "jeonyt@unicologx.com",
+    "sector": "글로벌 종합물류 및 프로젝트 카고",
+    "pitch": "프로젝트 및 일반 수입화물 견적 시 귀사 로고가 인쇄된 A4 전문 통관 진단서를 화주에게 무상 제공할 수 있도록 30일 무료 계정을 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 15,
+    "company": "코스모항운",
+    "role": "항공/해상 특송 영업팀 담당자님",
+    "email": "cosmo@cosmoair.com",
+    "sector": "항공/해상 특송 및 긴급화물 포워딩",
+    "pitch": "항공 특송 화물의 까다로운 전파법/KC인증 요건을 3초 만에 사전 판정하여 공항 통관 지연 및 보세구역 체화 비용을 0원으로 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 16,
+    "company": "오리엔트스타로직스",
+    "role": "서울 본사 영업팀 담당자님",
+    "email": "seoul@orientstar.co.kr",
+    "sector": "아시아/미주 해상 콘솔 및 정기선 포워딩",
+    "pitch": "LCL 수입 화주 유치 시 타 포워더와의 단순 단가 경쟁을 넘어 우리 회사 명칭의 4단계 전문 통관 리포트를 무제한 제공해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 17,
+    "company": "한익스프레스",
+    "role": "국제물류/풀필먼트 영업팀 담당자님",
+    "email": "jyun76@hanex.co.kr",
+    "sector": "특수물류/풀필먼트 및 수입 포워딩",
+    "pitch": "수입 소비재 및 특수화물의 세관 수입신고 필수 요건을 원스톱으로 점검하여 풀필먼트 연계 수입 화주의 편의를 극대화합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 18,
+    "company": "유센로지스틱스코리아",
+    "role": "영업기획부 및 물류팀 담당자님",
+    "email": "ylkr.ml.enquiry@kr.yusen-logistics.com",
+    "sector": "글로벌 항공/해상 네트워크 포워딩",
+    "pitch": "글로벌 수입 화주의 국가별 FTA 협정세율 및 품목분류(HSK 10단위)를 법리적 소명서 양식으로 즉시 발행해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 19,
+    "company": "팍스로지스틱스",
+    "role": "고객지원팀 및 수입물류 담당자님",
+    "email": "cs@paxlogis.com",
+    "sector": "해운/항공 수입 통관 연계 포워딩",
+    "pitch": "수입신고 전 세관장확인 고시 요건 누락을 사전 방지하는 A4 진단서를 귀사 화주들에게 30일간 무료로 제공할 수 있도록 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 20,
+    "company": "신한해운항공",
+    "role": "복합물류 영업팀 담당자님",
+    "email": "shinhan@iSHINHAN.net",
+    "sector": "수출입 복합운송 및 국제물류 포워딩",
+    "pitch": "수입 견적서 전달 시 귀사 로고가 인쇄된 A4 4단계 통관 진단 리포트를 동봉하여 수주 성공률을 극대화하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 21,
+    "company": "(주)동방",
+    "role": "포워딩 사업팀 담당자님",
+    "email": "dbforwarder@dongbang.co.kr",
+    "sector": "종합물류 및 프로젝트/해상 포워딩",
+    "pitch": "중량물/프로젝트 및 일반 수입화물 영업 시 동방 명칭의 4단계 A4 통관 리포트를 화주에게 동봉하여 부킹 성사율을 극대화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 22,
+    "company": "샤프에비에이션케이",
+    "role": "항공화물 영업 및 물류운영팀 담당자님",
+    "email": "sharp@sharp.co.kr",
+    "sector": "항공화물 GSA 및 복합물류 포워딩",
+    "pitch": "항공 화물 수입 시 까다로운 세관장확인 법령 및 전파법/KC인증 요건을 3초 만에 사전 진단하여 보세구역 체화 비용을 0원으로 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 23,
+    "company": "우진글로벌로지스틱스",
+    "role": "해운/항공 포워딩 영업 담당자님",
+    "email": "woojin@woojingl.com",
+    "sector": "글로벌 해운/항공 수입 포워딩",
+    "pitch": "화주 응대 시 품목별 HSK 10단위 분류 및 FTA 협정세율을 관세사 통화 대기 없이 즉시 소명해 드리는 A4 리포트를 30일간 무료 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 24,
+    "company": "케이엠티씨로지스틱스(고려해운)",
+    "role": "항공/해상 수입그룹 담당자님",
+    "email": "seaimp@kmtclogistics.com",
+    "sector": "대형 정기선 연계 해상/항공 포워딩",
+    "pitch": "KMTC 브랜드의 고품격 화주 제출용 사전통관 진단서를 무제한 출력하여 대형 수입 화주사 유치 경쟁력을 강화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 25,
+    "company": "주식회사 코로넷",
+    "role": "국제물류 및 3PL 영업팀 담당자님",
+    "email": "kolonet@kolonet.net",
+    "sector": "3PL 풀필먼트 및 복합물류 포워딩",
+    "pitch": "수입 풀필먼트 소비재의 식약처 검역 및 KC인증 등 세관 수입신고 필수 요건을 원스톱 사전 진단으로 통관 지연을 완벽 예방합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 26,
+    "company": "에이원로지스틱",
+    "role": "해상/항공 영업팀 담당자님",
+    "email": "aone@iaone.co.kr",
+    "sector": "해상/항공 수출입 포워딩",
+    "pitch": "단순 운임 단가 경쟁 대신 에이원로지스틱 상호가 인쇄된 전문 A4 통관 리포트를 화주에게 전달하여 수주 성공률을 2배로 높여드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 27,
+    "company": "한생해운항공",
+    "role": "국제물류팀 담당자님",
+    "email": "dhsohn@hansaeng.co.kr",
+    "sector": "전통 복합운송 및 수출입 주선",
+    "pitch": "화주들이 빈번히 문의하는 수입 관세율 및 FTA 원산지증명서(C/O) 발급 요건을 3초 만에 정리해 주는 AI 코파일럿을 무료 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 28,
+    "company": "한길해운항공",
+    "role": "해상/항공 콘솔 영업 담당자님",
+    "email": "yjkim@hanroad.com",
+    "sector": "해상/항공 LCL 콘솔 및 복합물류",
+    "pitch": "LCL 수입화물의 복합 세번 경합과 필수 세관장확인 법령을 사전에 확인하여 안전하고 신속한 통관을 보장해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 29,
+    "company": "한결해운항공",
+    "role": "포워딩 영업팀 담당자님",
+    "email": "hankyul@hkshipping.co.kr",
+    "sector": "국제물류 및 수출입 포워딩",
+    "pitch": "화주 견적서 전달 시 귀사의 브랜드 가치를 높이는 A4 통관 심사 리포트를 30일간 무료로 무제한 출력하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 30,
+    "company": "케이더블유이코리아(KWE Korea)",
+    "role": "글로벌 물류영업부 담당자님",
+    "email": "seloce@kwe.com",
+    "sector": "글로벌 항공/해상 네트워크 복합운송",
+    "pitch": "글로벌 수입 화주의 국가별 FTA 협정세율 및 품목분류(HSK 10단위) 법리 소명서를 3초 만에 생성해 영업 수주율을 극대화합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 31,
+    "company": "CJ대한통운(LoIS 포워더스)",
+    "role": "디지털 포워딩 및 글로벌 물류영업팀 담당자님",
+    "email": "Forwarders.Service@cjlogistics.com",
+    "sector": "국내 최대 종합물류 및 디지털 포워딩",
+    "pitch": "대형 수출입 화주사 영업 시 CJ대한통운 브랜드가 인쇄된 A4 4단계 통관 리포트를 견적서와 번들링하여 수주 성공률을 극대화하실 수 있도록 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 32,
+    "company": "주성씨앤에어(주)",
+    "role": "복합물류 영업본부 담당자님",
+    "email": "willkim@jssa.co.kr",
+    "sector": "KIFFA 등록 우수 해상/항공 포워딩",
+    "pitch": "화주 견적서 전달 시 주성씨앤에어 상호가 인쇄된 4단계 전문 통관 심사 리포트를 무상 첨부하여 계약 성사율을 극대화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 33,
+    "company": "(주)팍트라인터내셔널",
+    "role": "유럽/글로벌 프로젝트 물류 담당자님",
+    "email": "shuaiman@pactra.co.kr",
+    "sector": "유럽/글로벌 프로젝트 및 복합물류 포워딩",
+    "pitch": "유럽 및 글로벌 프로젝트 카고 화주의 까다로운 세번 경합과 FTA 원산지증명서(C/O) 충족 요건을 관세평가분류원 법리 기준으로 즉시 소명해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 34,
+    "company": "유로라인글로벌",
+    "role": "국제물류 영업팀 담당자님",
+    "email": "sales@eurolineglobal.co.kr",
+    "sector": "유럽/북미 해상·항공 복합포워딩",
+    "pitch": "화주 응대 시 관세사 전화 대기 시간 없이 원자재/기계류 수입요건과 기본/WTO/FTA 관세율을 3초 만에 시뮬레이션하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 35,
+    "company": "(주)두라로지스틱스",
+    "role": "동남아/중국 특송 및 물류팀 담당자님",
+    "email": "cargo@doora.co.kr",
+    "sector": "동남아/중국 특송 및 항공·해상 포워딩",
+    "pitch": "베트남/동남아/중국 수입화물 통관 보류를 사전에 차단하고, 화주에게 신속하고 전문적인 통관 가이드를 원스톱으로 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 36,
+    "company": "유수로지스틱스(Eusu)",
+    "role": "해상/항공 물류영업부 담당자님",
+    "email": "ocean@eusu-logistics.com",
+    "sector": "글로벌 SCM 및 해상·항공 종합물류",
+    "pitch": "대형 수입 화주사 영업 시 유수로지스틱스 로고가 박힌 사전통관 진단서를 번들링하여 화주 신뢰도와 수주율을 비약적으로 끌어올립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 37,
+    "company": "천지해운(주)",
+    "role": "항공부 및 해운영업팀 담당자님",
+    "email": "yjlee@chun-jee.co.kr",
+    "sector": "해상/항공 복합포워딩 및 수출입 주선",
+    "pitch": "화주들의 잦은 품목분류 및 수입요건 문의에 3초 만에 대응 가능한 AI 통관 코파일럿 솔루션을 30일간 무료로 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 38,
+    "company": "선진해운항공(주)",
+    "role": "국제물류 영업팀 담당자님",
+    "email": "sunjin@sunjinsa.co.kr",
+    "sector": "수출입 해상/항공 포워딩 및 보세물류",
+    "pitch": "단순 운임 단가 경쟁 대신 선진해운항공 상호가 인쇄된 전문 A4 통관 리포트를 화주에게 전달하여 수주 성공률을 2배로 높여드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 39,
+    "company": "(주)우성항운(WSF)",
+    "role": "항공/해상 정기선 영업 담당자님",
+    "email": "wsf@wsf.co.kr",
+    "sector": "항공/해상 정기 포워딩 및 공항 특송",
+    "pitch": "항공 화물 수입 시 까다로운 세관장확인 법령 및 전파법/KC인증 요건을 3초 만에 사전 진단하여 보세창고 체화 비용을 0원으로 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 40,
+    "company": "퀴네앤드나겔(Kuehne+Nagel)",
+    "role": "글로벌 영업본부 및 물류팀 담당자님",
+    "email": "info.seoul@kuehne-nagel.com",
+    "sector": "세계 1위 글로벌 포워딩 한국법인",
+    "pitch": "글로벌 수입 화주의 국가별 FTA 협정세율 및 품목분류(HSK 10단위) 법리 소명서를 3초 만에 생성해 영업 수주율을 극대화합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 41,
+    "company": "디에스브이에어앤씨(DSV Korea)",
+    "role": "항공/해상 포워딩 영업본부 담당자님",
+    "email": "info@kr.dsv.com",
+    "sector": "글로벌 탑티어 복합물류 및 항공/해상 포워딩",
+    "pitch": "글로벌 화주 유치 시 DSV만의 화이트라벨 A4 통관 리포트를 견적서와 패키징하여 차별화된 영업 무기로 활용하실 수 있도록 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 42,
+    "company": "에스에프익스프레스(SF Express)",
+    "role": "이커머스 B2B 포워딩 및 영업팀 담당자님",
+    "email": "contact_kr@sf-express.com",
+    "sector": "중국/아시아 특화 글로벌 특송 및 복합포워딩",
+    "pitch": "직구 및 B2B 수입화물의 복잡한 세관장확인 요건과 통관 보류 리스크를 3초 만에 사전 점검하여 통관 지연을 완벽히 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 43,
+    "company": "조양국제종합물류(주)",
+    "role": "국제물류 영업팀 담당자님",
+    "email": "admin@joyang.com",
+    "sector": "전통 복합운송 및 수출입 주선 (KIFFA 회원사)",
+    "pitch": "화주 견적서 전달 시 조양 명칭의 전문 통관 심사 리포트를 무제한 출력해 견적서와 동봉할 수 있도록 30일 무료 계정을 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 44,
+    "company": "극동항공해운(주)",
+    "role": "항공/해상 포워딩 영업팀 담당자님",
+    "email": "fesaco@fesaco.co.kr",
+    "sector": "KIFFA 제317호 전통 복합물류 포워더",
+    "pitch": "수입 견적서 전달 시 귀사 로고가 인쇄된 A4 4단계 통관 진단 리포트를 동봉하여 화주 신뢰도와 수주율을 높여드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 45,
+    "company": "동원로엑스(DONGWON LOEX)",
+    "role": "국제물류사업부 및 해상운송팀 담당자님",
+    "email": "ismilei@dongwon.com",
+    "sector": "대형 종합물류 및 콜드체인/포워딩",
+    "pitch": "수입 식품, 소비재, 원자재 화주의 까다로운 정밀검역과 세관장확인 요건을 사전에 100% 진단해 주는 AI 통관 솔루션을 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 46,
+    "company": "자유로해운항공(주)",
+    "role": "포워딩 영업 및 수입물류 담당자님",
+    "email": "jaeuro@jaeurosa.com",
+    "sector": "항공/해상 복합물류 전문 포워더",
+    "pitch": "타 포워더와의 단순 단가 경쟁을 넘어 우리 회사 명칭의 4단계 전문 통관 리포트를 화주에게 무상 제공하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 47,
+    "company": "(주)와이피엘해운항공(YPL)",
+    "role": "복합물류 영업팀 담당자님",
+    "email": "ypl@yplkorea.com",
+    "sector": "해운/항공 수출입 복합운송",
+    "pitch": "화주들이 자주 문의하는 HSK 10단위 분류 및 최적 관세율을 관세사 통화 대기 없이 즉시 시뮬레이션해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 48,
+    "company": "삼민해운항공(주)",
+    "role": "해상/항공 수입물류 담당자님",
+    "email": "inkim@smseaair.com",
+    "sector": "아시아/베트남 복합포워딩 전문",
+    "pitch": "베트남 및 아시아 수입 화물의 복잡한 세관 수입신고 필수 요건을 원스톱으로 사전 진단하여 통관 지연을 완벽 예방합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 49,
+    "company": "주식회사 화인통운",
+    "role": "국제물류 및 수입운송 담당자님",
+    "email": "higls@naver.com",
+    "sector": "포워딩 및 보세화물 운송 전문",
+    "pitch": "화주 응대 시 관세사 전화 대기 시간 없이 원자재 및 완제품 수입요건과 기본/WTO/FTA 관세율을 3초 만에 정리해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 50,
+    "company": "성우해운항공(주)",
+    "role": "부산 해상/항공 포워딩 영업팀 담당자님",
+    "email": "delpus@sungwooship.com",
+    "sector": "부산/영남권 복합운송 및 수출입 포워딩",
+    "pitch": "화주 견적서 전달 시 성우해운항공 브랜드 가치를 높이는 A4 통관 심사 리포트를 30일간 무료로 무제한 출력하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 51,
+    "company": "한솔로지스틱스",
+    "role": "글로벌KAM팀장 및 글로벌물류 담당자님",
+    "email": "jhkuk@hansol.com",
+    "sector": "대형 종합물류 및 글로벌 포워딩",
+    "pitch": "수입 화주 영업 시 한솔로지스틱스 명칭의 4단계 A4 통관 리포트를 견적서와 동봉하여 부킹 성사율을 극대화하실 수 있도록 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 52,
+    "company": "(주)한진 (글로벌물류)",
+    "role": "서울 본사 글로벌포워딩 영업본부 담당자님",
+    "email": "SELGP@hanjin.com",
+    "sector": "종합물류 대기업 해상/항공 포워딩",
+    "pitch": "글로벌 수출입 화주 유치 시 한진 브랜드가 인쇄된 사전통관 진단서를 번들링하여 차별화된 영업 무기로 활용하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 53,
+    "company": "남성해운 (Namsung)",
+    "role": "수입영업팀 및 고객지원팀 담당자님",
+    "email": "nsist@namsung.co.kr",
+    "sector": "전통 정기선사 및 아시아 복합물류",
+    "pitch": "아시아/동남아 수입 화주의 까다로운 세관장확인 요건과 FTA 협정세율을 관세평가분류원 법리 기준으로 3초 만에 정리해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 54,
+    "company": "천경해운 (CK Line)",
+    "role": "수입영업팀 수석 및 물류담당자님",
+    "email": "jhlee@ckline.co.kr",
+    "sector": "동아시아/동남아 컨테이너 복합포워딩",
+    "pitch": "수입 FCL/LCL 화주 응대 시 관세사 통화 대기 없이 제품명만으로 HSK 10단위와 최적세율을 즉시 확인 가능한 AI 코파일럿을 무료 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 55,
+    "company": "동영해운 (PCS Line)",
+    "role": "수입영업팀장 및 멀티모달팀 담당자님",
+    "email": "SDPARK@PCSLINE.CO.KR",
+    "sector": "아주/원양 복합운송 및 수출입물류",
+    "pitch": "화주에게 단순 운임표 대신 귀사 로고가 인쇄된 전문 A4 통관 리포트를 함께 전달하여 영업 수주 성공률을 대폭 끌어올려 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 56,
+    "company": "(주)흥아로지스틱스",
+    "role": "해운 수출입 영업팀 담당자님",
+    "email": "hspark@halogistics.co.kr",
+    "sector": "아시아·원양 정기 복합운송 포워딩",
+    "pitch": "화주들이 자주 겪는 KC인증, 전파법, 식약처 검역 등 세관장확인 리스크를 사전진단서로 100% 예방하여 보세구역 체화 비용을 방지합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 57,
+    "company": "장금상선 (Sinokor)",
+    "role": "수출입영업팀 및 고객지원실 담당자님",
+    "email": "ics@sinokor.co.kr",
+    "sector": "동북아 최대 컨테이너 복합포워딩",
+    "pitch": "중국 및 아시아 수입 화주의 복잡한 세번 경합과 FTA 원산지증명서(C/O) 충족 요건을 즉시 소명해 드리는 A4 리포트를 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 58,
+    "company": "SM상선 (SM Line)",
+    "role": "수입서비스 및 문서영업팀 담당자님",
+    "email": "pusdoc@smlines.com",
+    "sector": "미주·아주 정기선사 및 해상포워딩",
+    "pitch": "화주 견적서 전달 시 SM상선 상호가 인쇄된 A4 4단계 통관 진단 리포트를 동봉하여 화주 신뢰도와 부킹 성사율을 극대화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 59,
+    "company": "태영상선 (Taiyoung)",
+    "role": "컨테이너영업팀 담당자님",
+    "email": "cbt@tysp.co.kr",
+    "sector": "한중일 정기선 및 복합운송 포워딩",
+    "pitch": "품목분류 및 수입 통관 요건에 대해 관세사 회신을 반나절씩 기다릴 필요 없이 3초 만에 법리 진단서를 출력해 화주에게 제공해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 60,
+    "company": "월드로드항공해운(주)",
+    "role": "수출입영업부 및 고객상담팀 담당자님",
+    "email": "wrec@worldroad.co.kr",
+    "sector": "KIFFA 등록 우수 복합물류 포워더",
+    "pitch": "타 포워더들과의 단순 운임 깎기 경쟁을 넘어 우리 회사 명칭의 전문 통관 리포트를 화주에게 무상 제공하실 수 있도록 30일 무료 계정을 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 61,
+    "company": "선광종합물류 (SLC)",
+    "role": "CY/CFS 물류영업팀 담당자님",
+    "email": "slcsales@sun-kwang.co.kr",
+    "sector": "항만하역, 보세창고 및 수입물류 전문",
+    "pitch": "보세창고 반입 수입 화물의 사전 요건 결격으로 인한 장기 체화 비용을 0원으로 사전에 차단하는 4단계 통관 진단서를 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 62,
+    "company": "에이치앤피로지스 (H&P Logis)",
+    "role": "국제물류 및 특수화물 영업팀 담당자님",
+    "email": "sales@hnplogis.com",
+    "sector": "항공/해상 정기 포워딩 및 통관물류",
+    "pitch": "수입 화주 견적 전달 시 귀사 로고가 찍힌 사전통관 진단서를 패키징하여 화주 수주 성공률을 2배로 높여드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 63,
+    "company": "동진로직스(주)",
+    "role": "국제물류주선사업부 담당자님",
+    "email": "all@dongjinlogis.com",
+    "sector": "KIFFA 회원사 및 해상/항공 수출입 포워딩",
+    "pitch": "화주들의 잦은 품목분류(HSK 10단위) 및 최적 관세율 문의에 3초 만에 대응 가능한 AI 코파일럿을 무료로 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 64,
+    "company": "(주)아이엠에이해운항공 (IMA)",
+    "role": "해상/항공 포워딩 영업본부 담당자님",
+    "email": "ima@imashipping.co.kr",
+    "sector": "유럽/미주 복합물류 및 프로젝트카고",
+    "pitch": "유럽/미주 특수화물 및 프로젝트 카고의 복잡한 수입 법정요건과 FTA 세율을 화주 제출용 A4 리포트로 즉시 발행해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 65,
+    "company": "(주)스카이월드씨앤에어",
+    "role": "복합물류 영업팀 담당자님",
+    "email": "info@skyworldkorea.com",
+    "sector": "해상·항공 특송 및 수출입 주선 포워딩",
+    "pitch": "항공 및 해상 특송 수입 건의 통관 보류를 사전에 차단하고, 화주에게 신속한 사전진단 가이드를 원스톱으로 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 66,
+    "company": "정인씨앤에어 (Jungin)",
+    "role": "국제물류팀 및 수입화물 담당자님",
+    "email": "jungin@jisa.co.kr",
+    "sector": "항공/해상 복합운송 전문 포워더",
+    "pitch": "단순 운임 단가 경쟁 대신 정인씨앤에어 브랜드가 박힌 전문 A4 통관 리포트를 화주에게 제공해 계약 성사율을 극대화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 67,
+    "company": "팬스타라인닷컴 (PanStar)",
+    "role": "국제화물 마케팅 및 제휴팀 담당자님",
+    "email": "marketing@panstar.kr",
+    "sector": "한일 정기선, 복합운송 및 페리 화물물류",
+    "pitch": "한일 정기선 및 복합물류 화주의 통관 이슈를 원클릭으로 해결해 주는 화이트라벨 A4 통관 리포트를 30일간 무료 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 68,
+    "company": "동서해운(주) (Dongsue)",
+    "role": "복합운송사업부 및 영업팀 담당자님",
+    "email": "ysjung@dongsue.com",
+    "sector": "40년 전통 해상/항공 복합포워딩",
+    "pitch": "전통 포워더의 전문성에 AI 통관 리포트를 결합하여 대형 수입 화주사 유치 경쟁력을 한층 더 강화하실 수 있도록 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 69,
+    "company": "(주)유니온로지스틱스 (UNION)",
+    "role": "포워딩영업팀 및 수출입운영부 담당자님",
+    "email": "team@union25.co.kr",
+    "sector": "수출입 물류주선 및 보세운송 전문",
+    "pitch": "화주 견적서 전달 시 유니온로지스틱스 상호가 인쇄된 4단계 전문 통관 심사 리포트를 무제한 출력하여 번들링하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 70,
+    "company": "(주)아이엠엑스로지스 (IMX)",
+    "role": "글로벌포워딩 영업본부 담당자님",
+    "email": "info@imxlogis.com",
+    "sector": "이커머스 및 글로벌 항공·해상물류",
+    "pitch": "이커머스 및 글로벌 B2B 수입화물의 복합 세번 경합과 필수 세관장확인 법령을 3초 만에 사전 진단해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 71,
+    "company": "(주)도성해운항공",
+    "role": "조익현 대표님 및 수입통관·운송팀 귀중",
+    "email": "info@dosung.co.kr",
+    "sector": "한중·동남아 복합해운항공 물류",
+    "pitch": "복합운송 화주의 수입통관 시 복잡한 요건확인 및 관세 감면을 도성해운항공 명의 4단계 진단서로 즉시 해결해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 72,
+    "company": "(주)그린월드라인",
+    "role": "이은경 대표님 및 수입통관·운송팀 귀중",
+    "email": "eklee@gwline.co.kr",
+    "sector": "미주·유럽 원거리 해상 콘솔 물류",
+    "pitch": "수입 B/L 접수 즉시 화주용 4단계 세무/요건 사전심사서를 제공하여 그린월드라인의 화주 신뢰도와 락인(Lock-in)을 강화합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 73,
+    "company": "(주)썬샤인로직스",
+    "role": "남성욱 대표님 및 수입통관·운송팀 귀중",
+    "email": "info@sunshinelogix.co.kr",
+    "sector": "글로벌 복합운송 및 수출입 포워딩",
+    "pitch": "화주가 어려워하는 KC인증, 전파법 등 세관장확인 요건을 원스톱관세사무소(CUSWAY) 법리진단 리포트로 사전 해결해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 74,
+    "company": "(주)케이로지스틱스",
+    "role": "김유정 대표님 및 수입통관·운송팀 귀중",
+    "email": "klog@klogistics2.com",
+    "sector": "인천항·공항 연계 수출입 항공해상 포워딩",
+    "pitch": "인천 입항 화물의 급행 통관 및 보세운송 지연 리스크를 4단계 사전진단 프로세스로 제로화해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 75,
+    "company": "(주)티엔케이로지스",
+    "role": "손민희 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@tnklogis.com",
+    "sector": "정밀기기 및 글로벌 프로젝트 화물 물류",
+    "pitch": "정밀기기 및 첨단장비 화주의 HS Code 법리분류와 최적 FTA 협정세율(0%) 컨설팅을 티엔케이로지스 고객사 전용으로 무상 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 76,
+    "company": "가나해운",
+    "role": "이기보 대표님 및 수입통관·운송팀 귀중",
+    "email": "kana@kanashipping.com",
+    "sector": "30년 전통 아시아·중국 해상 수출입 전문",
+    "pitch": "오랜 노하우의 가나해운 운송에 원스탑 AI 통관 코파일럿을 결합하여 화주 대상 디지털 물류 리포트를 바로 납품하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 77,
+    "company": "가야쉬핑",
+    "role": "정계성 대표님 및 수입통관·운송팀 귀중",
+    "email": "kaias@kaiaseoul.com",
+    "sector": "글로벌 해운·항공 복합운송 포워딩",
+    "pitch": "가야쉬핑 화주사만을 위한 A4 맞춤형 관세진단서(GRI 통칙+세율비교+세관장확인+액션플랜)를 영업 제안서에 번들링 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 78,
+    "company": "게브루더바이스코리아",
+    "role": "이정환 대표님 및 수입통관·운송팀 귀중",
+    "email": "south-korea@gw-world.com",
+    "sector": "유럽계 글로벌 복합운송 및 프로젝트 물류",
+    "pitch": "유럽·글로벌 수입 화주의 복잡한 국내 통관 규제(KC, 식약처, 전파법)를 관세평가분류원 심사기준 100% 실존 판례로 신속 해결합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 79,
+    "company": "고려국제운송",
+    "role": "이윤호 대표님 및 수입통관·운송팀 귀중",
+    "email": "master@koreaintl.co.kr",
+    "sector": "전통의 국제복합운송 및 해상항공 물류",
+    "pitch": "수입 화주 영업 시 타 포워더와의 견적 출혈경쟁을 피하고, CUSWAY 4단계 통관진단서로 화주 계약을 선점할 수 있도록 돕습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 80,
+    "company": "고려로지스틱스",
+    "role": "김호준 대표님 및 수입통관·운송팀 귀중",
+    "email": "hjkim@korealogistics.kr",
+    "sector": "글로벌 공급망 관리 및 복합 수출입 물류",
+    "pitch": "화주사의 세번 오류 및 가산세 추징 리스크를 원천 예방하는 AI 관세평가 법리 리포트를 화주 관리용으로 무상 공급합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 81,
+    "company": "골드쉬핑(주)",
+    "role": "이현재 대표님 및 수입통관·운송팀 귀중",
+    "email": "leejin@goldshipping.co.kr",
+    "sector": "한중·동남아 수출입 해상 포워딩",
+    "pitch": "골드쉬핑의 해상 운송 화주에게 한-중/한-아세안 FTA 최적 원산지증명서(C/O) 요건과 0% 특혜세율 진단을 원클릭 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 82,
+    "company": "골드웨이",
+    "role": "배기창 대표님 및 수입통관·운송팀 귀중",
+    "email": "info@goldway.co.kr",
+    "sector": "해상·항공 콘솔 및 복합물류 서비스",
+    "pitch": "콘솔 화물 화주들의 빈번한 품목분류 혼선과 수입요건 문의를 전담 관세사 직통 AI 사전진단서로 즉각 해소해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 83,
+    "company": "광명물류 주식회사",
+    "role": "얀광제 대표님 및 수입통관·운송팀 귀중",
+    "email": "stephen@korea-gl.com",
+    "sector": "수도권 종합물류센터 및 수출입 포워딩",
+    "pitch": "보세창고 보관 및 통관 연계 화주에게 세관장확인 사전승인과 액션플랜 체크리스트를 광명물류 코브랜딩으로 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 84,
+    "company": "광진글로벌",
+    "role": "김장원 대표님 및 수입통관·운송팀 귀중",
+    "email": "kjgl5001@kj-global.co.kr",
+    "sector": "국제복합운송 및 3PL 삼국간 물류",
+    "pitch": "삼국간 무역 및 복합운송 화주 대상 맞춤 통관 법리 지원으로 화주 이탈을 방지하고 장기계약을 유도합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 85,
+    "company": "광진티엘에스",
+    "role": "김경호 대표님 및 수입통관·운송팀 귀중",
+    "email": "kmahn@kjtc.co.kr",
+    "sector": "부산·영남권 해상 물류 및 종합보세운송",
+    "pitch": "부산항 통관 지연을 방지하기 위한 입항 전 수입신고 4단계 사전진단서를 화주에게 전송하여 포워딩 가치를 높여드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 86,
+    "company": "국보물류(주)",
+    "role": "박지언 대표님 및 수입통관·운송팀 귀중",
+    "email": "kbl-ex@kblogix.co.kr",
+    "sector": "대형 화물·컨테이너 내륙 및 수출입 복합물류",
+    "pitch": "국보그룹의 대형 화주사 대상 법인 통관 컨설팅(GRI 통칙 1~6호 적격성 검토 및 최적 FTA 세율)을 완벽 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 87,
+    "company": "국보해운(주)",
+    "role": "박희준 대표님 및 수입통관·운송팀 귀중",
+    "email": "kbe-ex@kbe.co.kr",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 화주가 가장 민감해하는 수입 관세 비용 절감(FTA 0% 최적화) 리포트를 국보해운 이름으로 화주에 전달하실 수 있습니다.",
+    "dispatched": true
+  },
+  {
+    "id": 88,
+    "company": "국제로지스틱",
+    "role": "나승진 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@k-kukjae.co.kr",
+    "sector": "수출입 항공·해상 특화 포워딩",
+    "pitch": "항공 급행 화물 및 해상 LCL 화주의 요건 미비 통관 보류를 사전에 100% 차단하는 4단계 진단서를 즉시 발급해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 89,
+    "company": "국제마린항공",
+    "role": "이명상 대표님 및 수입통관·운송팀 귀중",
+    "email": "jooy@intlmaritime.com",
+    "sector": "국제해사 및 항공복합물류",
+    "pitch": "국제마린항공 화주사 대상 무상 통관 법리 진단 지원으로 신규 화주 유치 제안 시 차별화된 경쟁력을 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 90,
+    "company": "굿맨지엘에스(주)",
+    "role": "신현억 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@goodmangls.com",
+    "sector": "글로벌 복합물류 네트워크 및 수출입 통관 포워딩",
+    "pitch": "복합물류 화주가 필요로 하는 모든 통관 행정서류(B/L, C/I, P/L, C/O, 요건승인서) 준비 체크리스트를 자동 완비해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 91,
+    "company": "그로발스타로지스틱스(주)",
+    "role": "진병수 대표님 및 수입통관·운송팀 귀중",
+    "email": "globals@globals.co.kr",
+    "sector": "부산 거점 글로벌 해상운송 및 포워딩",
+    "pitch": "부산항 입항 수입화물의 복잡한 세관장확인 법령(전안법, 전파법 등)을 사전 분석하여 화주 통관 시간을 획기적으로 단축합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 92,
+    "company": "그린글로브라인",
+    "role": "홍은표 대표님 및 수입통관·운송팀 귀중",
+    "email": "helio@ggl.co.kr, tommy@ggl.co.kr",
+    "sector": "친환경 글로벌 해운항공 포워딩",
+    "pitch": "그린글로브라인 고객사에게 원스탑관세사무소의 100% 실존 판례 기반 AI 통관 리포트를 화주 맞춤으로 공급합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 93,
+    "company": "근영해운항공(주)",
+    "role": "박순현 대표님 및 수입통관·운송팀 귀중",
+    "email": "cargo@geunyoung.com",
+    "sector": "영남권 해상항공 복합운송 및 삼국무역 포워딩",
+    "pitch": "삼국무역 및 한중일 포워딩 화주의 관세리스크를 원천 차단하고 원산지증명서 가이드를 제공하여 화주 만족도를 극대화합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 94,
+    "company": "글로넷티엘에스(주)",
+    "role": "이준일 대표님 및 수입통관·운송팀 귀중",
+    "email": "heeyoung.lim@glonet.net",
+    "sector": "해운대리점 및 국제물류 토탈 솔루션",
+    "pitch": "해운 고객사의 세번 경합 이슈를 WCO 해설서와 관세평가분류원 결정례로 법리 소명하는 리포트를 즉시 무상 제공합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 95,
+    "company": "글로발로직스",
+    "role": "김길수 대표님 및 수입통관·운송팀 귀중",
+    "email": "kskim@glogix.co.kr",
+    "sector": "수출입 화물 토탈 운송 및 통관 연계 포워딩",
+    "pitch": "글로발로직스 영업팀이 신규 화주 미팅 시 즉시 제출할 수 있는 4단계 A4 관세진단서 번들링을 전폭 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 96,
+    "company": "글로텍",
+    "role": "강재윤 대표님 및 수입통관·운송팀 귀중",
+    "email": "glotech@glotechcorp.com",
+    "sector": "프로젝트 화물 및 첨단 플랜트 해상운송",
+    "pitch": "플랜트 및 기계류 대형 화물의 분할 수입·조립 완제품 HS 분류 법리를 관세사 직접 검증으로 안전하게 소명합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 97,
+    "company": "금천해운(주)",
+    "role": "최성식 대표님 및 수입통관·운송팀 귀중",
+    "email": "info@kumchun.co.kr",
+    "sector": "전통의 국제해운대리점 및 포워딩",
+    "pitch": "화주사의 수입신고 전 통관 비용 절감 및 세관 검사 위험 예방을 위한 4단계 진단서를 금천해운 화주 전용으로 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 98,
+    "company": "나루인터내셔날",
+    "role": "윤귀만 대표님 및 수입통관·운송팀 귀중",
+    "email": "sw-jung@naruintl.co.kr",
+    "sector": "글로벌 복합운송 및 수출입 무역 물류",
+    "pitch": "신규 수입 품목 취급 시 발생하는 품목분류 오류 위험을 CUSWAY AI 엔진과 관세사 전담 감정으로 완벽 해소합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 99,
+    "company": "나우리해운항공",
+    "role": "장순철, 문종석 대표님 및 수입통관·운송팀 귀중",
+    "email": "account1@naurilog.co.kr",
+    "sector": "해상·항공 토탈 포워딩 및 보세화물 운송",
+    "pitch": "나우리해운항공 고객사 화물의 빠른 통관과 최적 세율 설계를 위해 4단계 진단서 인쇄/PDF본을 실시간 협업 지원합니다.",
+    "dispatched": true
+  },
+  {
+    "id": 100,
+    "company": "네슈라항운",
+    "role": "권오덕 대표님 및 수입통관·운송팀 귀중",
+    "email": "sales@nesura.co.kr",
+    "sector": "항공 급행 화물 및 글로벌 특송 포워딩",
+    "pitch": "항공 특송 화물의 당일 통관을 위해 필수적인 세관장확인 요건과 FTA C/O 구비 가이드를 화주에 사전 전달해 드립니다.",
+    "dispatched": true
+  },
+  {
+    "id": 101,
+    "company": "네오트랜스해운항공",
+    "role": "손재연 대표님 및 수입통관·운송팀 귀중",
+    "email": "neotop@neotrans.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 102,
+    "company": "네옴글로벌",
+    "role": "이서형 대표님 및 수입통관·운송팀 귀중",
+    "email": "kbmin@neomglobal.co.kr",
+    "sector": "글로벌 복합운송 및 프로젝트 카고 물류",
+    "pitch": "해외 파트너 및 다국적 화주사 대상 영문/국문 4단계 사전진단서로 B/L 접수부터 통관까지 원스톱 법리 경쟁력을 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 103,
+    "company": "노루로지넷",
+    "role": "김장호, 한영재 대표님 및 수입통관·운송팀 귀중",
+    "email": "dgwoo@noroo.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 104,
+    "company": "논스톱익스프레스",
+    "role": "이진한 대표님 및 수입통관·운송팀 귀중",
+    "email": "nonstopsel@nonstopexpress.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 105,
+    "company": "누리해운항공",
+    "role": "박옥희 대표님 및 수입통관·운송팀 귀중",
+    "email": "nuri@nurisa.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 106,
+    "company": "뉴월드쉬핑(주)",
+    "role": "김효곤 대표님 및 수입통관·운송팀 귀중",
+    "email": "nwsc@nwskorea.com",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 수입 화주가 가장 민감해하는 관세 절감과 수입신고 지연 방지 체크리스트를 귀사 브랜드로 완벽 납품해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 107,
+    "company": "뉴월드씨앤에어(주)",
+    "role": "박진상 대표님 및 수입통관·운송팀 귀중",
+    "email": "sna@nwsna.com",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 108,
+    "company": "뉴포트인터내셔날",
+    "role": "박관일 대표님 및 수입통관·운송팀 귀중",
+    "email": "info@newporti.co.kr",
+    "sector": "글로벌 복합운송 및 프로젝트 카고 물류",
+    "pitch": "해외 파트너 및 다국적 화주사 대상 영문/국문 4단계 사전진단서로 B/L 접수부터 통관까지 원스톱 법리 경쟁력을 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 109,
+    "company": "뉴포트탱크컨테이너스코리아",
+    "role": "쑹웨이 대표님 및 수입통관·운송팀 귀중",
+    "email": "nptuaccount@hotmail.com",
+    "sector": "글로벌 복합운송 및 프로젝트 카고 물류",
+    "pitch": "해외 파트너 및 다국적 화주사 대상 영문/국문 4단계 사전진단서로 B/L 접수부터 통관까지 원스톱 법리 경쟁력을 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 110,
+    "company": "늘푸른해운항공(주)",
+    "role": "남극영 대표님 및 수입통관·운송팀 귀중",
+    "email": "ablue@ablue.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 111,
+    "company": "다산상선(주)",
+    "role": "전종진 대표님 및 수입통관·운송팀 귀중",
+    "email": "dmm@dasanmm.net",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 112,
+    "company": "다성해운(주)",
+    "role": "이정남 대표님 및 수입통관·운송팀 귀중",
+    "email": "dasungjin@hanmail.net",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 수입 화주가 가장 민감해하는 관세 절감과 수입신고 지연 방지 체크리스트를 귀사 브랜드로 완벽 납품해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 113,
+    "company": "다우해상",
+    "role": "곽동원 대표님 및 수입통관·운송팀 귀중",
+    "email": "dhow@dhowkorea.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 114,
+    "company": "닥터물류(주)",
+    "role": "인재환 대표님 및 수입통관·운송팀 귀중",
+    "email": "oper@doctorlogis.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 115,
+    "company": "단우해운항공",
+    "role": "이정붕 대표님 및 수입통관·운송팀 귀중",
+    "email": "danu@danulogis.com",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 116,
+    "company": "대동종합물류",
+    "role": "윤원상 대표님 및 수입통관·운송팀 귀중",
+    "email": "intl@dil.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 117,
+    "company": "대륙항공해운(주)",
+    "role": "이상훈 대표님 및 수입통관·운송팀 귀중",
+    "email": "webmaster@tcikorea.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 118,
+    "company": "대문종합물류",
+    "role": "황아숙 대표님 및 수입통관·운송팀 귀중",
+    "email": "ahsook@daemoon.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 119,
+    "company": "대성로지스틱스(주)",
+    "role": "장재근 대표님 및 수입통관·운송팀 귀중",
+    "email": "acct@dslkr.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 120,
+    "company": "대신국제특송",
+    "role": "박현석 대표님 및 수입통관·운송팀 귀중",
+    "email": "op@dskor.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 121,
+    "company": "대신운송",
+    "role": "김종인 대표님 및 수입통관·운송팀 귀중",
+    "email": "jikim@dstckor.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 122,
+    "company": "대아트랜스",
+    "role": "박흥준 대표님 및 수입통관·운송팀 귀중",
+    "email": "admt@daea-trans.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 123,
+    "company": "대영물류운송",
+    "role": "정성욱 대표님 및 수입통관·운송팀 귀중",
+    "email": "tykim@dylogistrans.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 124,
+    "company": "대우로지스틱스",
+    "role": "김도영 대표님 및 수입통관·운송팀 귀중",
+    "email": "dwlhr@dwlogistics.co.kr",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 125,
+    "company": "대원로지피아",
+    "role": "김경수 대표님 및 수입통관·운송팀 귀중",
+    "email": "kskim@daewonls.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 126,
+    "company": "대원에스앤티(주)",
+    "role": "김광련 대표님 및 수입통관·운송팀 귀중",
+    "email": "daewonshpg@hanmail.net",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 127,
+    "company": "대진항운(주)",
+    "role": "박창현 대표님 및 수입통관·운송팀 귀중",
+    "email": "daijin@daijinexpress.co.kr",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 128,
+    "company": "대청해운(주)",
+    "role": "수입통관 및 글로벌 영업 담당자 귀중",
+    "email": "dcs@dcsx.co.kr",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 수입 화주가 가장 민감해하는 관세 절감과 수입신고 지연 방지 체크리스트를 귀사 브랜드로 완벽 납품해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 129,
+    "company": "대한국제물류",
+    "role": "홍호선 대표님 및 수입통관·운송팀 귀중",
+    "email": "cil@cil.co.kr",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 130,
+    "company": "대한국제종합물류",
+    "role": "김동만 대표님 및 수입통관·운송팀 귀중",
+    "email": "dhe@daehanexps.co.kr",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 131,
+    "company": "대한유엘피(주)",
+    "role": "송하민, 김연주 대표님 및 수입통관·운송팀 귀중",
+    "email": "shlee@dulogistic.com",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 132,
+    "company": "더블유비엘",
+    "role": "황의장 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@wblkorea.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 133,
+    "company": "더블유제이씨 (우진항공)",
+    "role": "김무신 대표님 및 수입통관·운송팀 귀중",
+    "email": "woojinair@woojinair.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 134,
+    "company": "더웨이",
+    "role": "전진기 대표님 및 수입통관·운송팀 귀중",
+    "email": "thewayco@korea.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 135,
+    "company": "더케이로지스틱스",
+    "role": "김형석 대표님 및 수입통관·운송팀 귀중",
+    "email": "andrewkim@thek-l.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 136,
+    "company": "델로로지스틱스서울 유한회사",
+    "role": "ASTAFEV ALEXEY 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@dlseoul.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 137,
+    "company": "도암글로벌해운(주)",
+    "role": "이원준 대표님 및 수입통관·운송팀 귀중",
+    "email": "admin@doamglobal.com",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 수입 화주가 가장 민감해하는 관세 절감과 수입신고 지연 방지 체크리스트를 귀사 브랜드로 완벽 납품해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 138,
+    "company": "도이그로코리아(주)",
+    "role": "김기호 대표님 및 수입통관·운송팀 귀중",
+    "email": "seo-hui.park@deugro.com",
+    "sector": "글로벌 복합운송 및 프로젝트 카고 물류",
+    "pitch": "해외 파트너 및 다국적 화주사 대상 영문/국문 4단계 사전진단서로 B/L 접수부터 통관까지 원스톱 법리 경쟁력을 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 139,
+    "company": "동남익스프레스",
+    "role": "성낙청 대표님 및 수입통관·운송팀 귀중",
+    "email": "ncsung@dnex.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 140,
+    "company": "동덕시스템즈(주)",
+    "role": "조범제 대표님 및 수입통관·운송팀 귀중",
+    "email": "bjcho@dongdeuk.co.kr",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 141,
+    "company": "동방기업(주)",
+    "role": "윤명수 대표님 및 수입통관·운송팀 귀중",
+    "email": "dbtrans@dbtrans.co.kr",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 142,
+    "company": "동방항공해운",
+    "role": "박영규, 임창현 대표님 및 수입통관·운송팀 귀중",
+    "email": "chlim@eastern-air.com",
+    "sector": "대형 해상·항공 종합 수출입 물류",
+    "pitch": "대형 화주사의 복잡한 품목분류(HS Code)와 한-중/한-아세안 FTA 특혜세율을 귀사 명의 4단계 A4 리포트로 즉시 소명해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 143,
+    "company": "동보국제운송(주)",
+    "role": "정재흥 대표님 및 수입통관·운송팀 귀중",
+    "email": "hschung@dongboint.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 144,
+    "company": "동보로직스",
+    "role": "함동균 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@dblkr.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 145,
+    "company": "동서로지스틱스",
+    "role": "서영택 대표님 및 수입통관·운송팀 귀중",
+    "email": "service@dongsuero.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 146,
+    "company": "동서스카이라이너",
+    "role": "노동욱 대표님 및 수입통관·운송팀 귀중",
+    "email": "dsgood@dsskyliner.co.kr",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 147,
+    "company": "동서콘솔(주)",
+    "role": "이승희 대표님 및 수입통관·운송팀 귀중",
+    "email": "dsc@dsconsol.com",
+    "sector": "항공 급행 화물 및 해상 콘솔(LCL) 특화",
+    "pitch": "항공/콘솔 급행 화물의 입항 즉시 신속 통관을 위한 세관장확인 필수요건(KC/전파법) 사전진단서를 화주에게 무상 제공합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 148,
+    "company": "동서해운(주)",
+    "role": "서영택 대표님 및 수입통관·운송팀 귀중",
+    "email": "yschoi@dongsue.com",
+    "sector": "국제해상운송 및 정기선 포워딩",
+    "pitch": "해상 수입 화주가 가장 민감해하는 관세 절감과 수입신고 지연 방지 체크리스트를 귀사 브랜드로 완벽 납품해 드립니다.",
+    "dispatched": false
+  },
+  {
+    "id": 149,
+    "company": "동성물류",
+    "role": "이병국 대표님 및 수입통관·운송팀 귀중",
+    "email": "goupds@daum.net",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  },
+  {
+    "id": 150,
+    "company": "동성항운",
+    "role": "홍준표 대표님 및 수입통관·운송팀 귀중",
+    "email": "account@dongsungkorea.com",
+    "sector": "국제복합물류주선 및 수입통관 연계",
+    "pitch": "화주 영업 시 타 포워더와의 운임 출혈경쟁을 방어하고, 원스탑관세사무소의 통관 법리 리포트로 수주 성공률을 극대화합니다.",
+    "dispatched": false
+  }
+];
+
+function makeSubject(company) {
+  return `(광고) [${company} 업무지원] 화주에게 운임표 보낼 때 '귀사 로고 찍힌 통관 리포트'를 함께 제공해 보세요`;
+}
+
+function makeBody(t) {
+  return `안녕하세요 ${t.company} ${t.role},
+
+수입 화주에게 해상·항공 운임 견적서를 보낼 때, 다른 포워더들과 10달러, 20달러 단가 깎기 경쟁으로 피로하지 않으셨습니까?
+화주가 신뢰하고 부킹을 맡기는 포워더는 '단순히 운임만 던져주는 곳'이 아니라, "우리 제품이 세관에서 묶이지 않는지, FTA로 관세를 얼마나 아낄 수 있는지"를 먼저 짚어주는 포워더입니다.
+
+[🎯 ${t.company} 맞춤 지원 제안]
+${t.pitch}
+
+■ 귀사 영업·수입운영팀이 얻으실 수 있는 3가지 혜택:
+1. ${t.company} 상호·로고가 인쇄된 A4 통관 리포트 무료 출력 (견적서 동봉용)
+2. 화주 부킹 수주 성공률 급상승 (KC, 전파법, 식약처 검역 등 요건 3초 진단)
+3. 관세사 전화 대기 시간 0초 (제품명만 치면 HSK 10단위 및 최적세율 즉시 도출)
+
+현재 런칭 기념으로 ${t.company} 임직원분들께 【30일간 무료 무제한 리포트 출력 계정】을 제공해 드립니다. (신용카드 등록 불필요)
+
+👉 [CUSWAY 30일 무료 체험 및 리포트 샘플 바로가기]:
+https://cusway.kr
+
+혹시 영업팀 일괄 도입이나 화주 제출용 양식 커스텀이 필요하시면 본 메일로 편하게 회신 부탁드립니다.
+
+감사합니다.
+CUSWAY B2B 파트너십 팀 드림
+이메일: admin@cusway.kr | 웹사이트: https://cusway.kr
+
+----------------------------------------------------------------------
+[정보통신망법 제50조에 따른 의무 표기]
+• 본 메일은 귀사의 공개된 공식 업무용 연락처를 통해 발송된 B2B 업무 제휴 제안 안내 메일입니다.
+• 전송자: CUSWAY (원스탑관세사무소 기술제휴 서비스) | 대표: 박종혁 | 사업자번호: 211-88-84801
+• 주소: 서울특별시 강남구 역삼동 705-1 | 문의전화: 02-6953-2026 | 이메일: admin@cusway.kr
+• [수신거부]: 향후 수신을 원치 않으시면 본 메일로 '수신거부'라고 회신해 주시기 바랍니다.`;
+}
+
+function makeRichHtml(t) {
+  return `
+<div style="font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif; line-height: 1.7; color: #222222; max-width: 650px;">
+  <p style="font-size: 15px;">안녕하세요 <strong>${t.company}</strong> ${t.role},</p>
+  <p style="font-size: 14px;">
+    수입 화주에게 해상·항공 운임 견적서를 보낼 때, 다른 포워더들과 10달러, 20달러 단가 깎기 경쟁으로 피로하지 않으셨습니까?<br>
+    화주가 신뢰하고 부킹을 맡기는 포워더는 '단순히 운임만 던져주는 곳'이 아니라, <strong>&ldquo;우리 제품이 세관에서 묶이지 않는지, FTA로 관세를 얼마나 아낄 수 있는지&rdquo;</strong>를 먼저 짚어주는 포워더입니다.
+  </p>
+  
+  <div style="background: #f1f5f9; border-left: 4px solid #0284c7; padding: 14px 16px; margin: 18px 0; border-radius: 4px; font-size: 13px;">
+    <strong style="color: #0369a1;">🎯 ${t.company} 맞춤 지원 제안:</strong><br>
+    ${t.pitch}
+  </div>
+
+  <p style="font-size: 14px;"><strong>■ 귀사 영업·수입운영팀이 얻으실 수 있는 3가지 혜택:</strong><br>
+  1. <strong>${t.company} 상호·로고가 인쇄된 A4 통관 리포트 무료 출력</strong> (화주 견적서 동봉용)<br>
+  2. <strong>화주 부킹 수주 성공률 급상승</strong> (KC인증, 전파법, 식약처 검역 등 수입요건 3초 진단)<br>
+  3. <strong>관세사 전화 대기 시간 0초</strong> (제품명만 치면 HSK 10단위 및 최적세율 즉시 도출)</p>
+
+  <p style="font-size: 14px; margin-top: 18px;">
+    현재 런칭 기념으로 ${t.company} 임직원분들께 <strong style="color: #2563eb;">【30일간 무료 무제한 리포트 출력 계정】</strong>을 제공해 드립니다. (신용카드 등록 불필요)
+  </p>
+
+  <div style="text-align: center; margin: 26px 0;">
+    <a href="https://cusway.kr" target="_blank" style="display: inline-block; background: #2563eb; color: #ffffff !important; font-weight: 700; font-size: 15px; padding: 14px 28px; text-decoration: none; border-radius: 6px; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2);">
+      👉 [CUSWAY 30일 무료 체험 및 리포트 샘플 바로가기 (클릭)]
+    </a>
+    <div style="margin-top: 8px; font-size: 12px; color: #64748b;">
+      직접 주소: <a href="https://cusway.kr" target="_blank" style="color: #2563eb; text-decoration: underline;">https://cusway.kr</a>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: #475569;">
+    혹시 영업팀 일괄 도입이나 화주 제출용 양식 커스텀이 필요하시면 본 메일로 편하게 회신 부탁드립니다.
+  </p>
+
+  <p style="font-size: 14px;">
+    감사합니다.<br>
+    <strong>CUSWAY B2B 파트너십 팀 드림</strong><br>
+    이메일: admin@cusway.kr | 웹사이트: <a href="https://cusway.kr" target="_blank" style="color: #2563eb; text-decoration: underline;">https://cusway.kr</a>
+  </p>
+
+  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 22px 0;">
+  
+  <div style="font-size: 11px; color: #64748b; line-height: 1.6;">
+    [정보통신망법 제50조에 따른 의무 표기]<br>
+    • 본 메일은 귀사의 공개된 공식 업무용 연락처를 통해 발송된 B2B 업무 제휴 제안 안내 메일입니다.<br>
+    • 전송자: CUSWAY (원스탑관세사무소 기술제휴 서비스) | 대표: 박종혁 | 사업자번호: 211-88-84801<br>
+    • 주소: 서울특별시 강남구 역삼동 705-1 | 문의전화: 02-6953-2026 | 이메일: admin@cusway.kr<br>
+    • [수신거부]: 향후 수신을 원치 않으시면 본 메일로 '수신거부'라고 회신해 주시기 바랍니다.
+  </div>
+</div>`;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.innerText = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 2500);
+}
+
+function copyToClipboard(text, msg) {
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(msg || "클립보드에 복사되었습니다!");
+  });
+}
+
+async function copyRichCardContent(targetId) {
+  const t = TARGETS.find(item => item.id === targetId);
+  if (!t) return;
+  const richHtml = makeRichHtml(t);
+  const plain = makeBody(t);
+  
+  if (navigator.clipboard && window.ClipboardItem) {
+    try {
+      const blobHtml = new Blob([richHtml], { type: "text/html" });
+      const blobText = new Blob([plain], { type: "text/plain" });
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": blobHtml,
+          "text/plain": blobText
+        })
+      ]);
+      showToast(`[${t.company}] 파란색 링크 버튼이 포함된 서식이 복사되었습니다! (메일에 Ctrl+V)`);
+      return;
+    } catch(e) {
+      console.warn("ClipboardItem write failed, fallback", e);
+    }
+  }
+  copyToClipboard(plain, `[${t.company}] 제안서 본문이 복사되었습니다!`);
+}
+
+function getBadge(t) {
+  if (t.dispatched) {
+    return '<span style="background:#10b981; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">✓ 발송완료 (1~10차)</span>';
+  } else if (t.id <= 110) {
+    return '<span style="background:#ef4444; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">🔥 11차 신규</span>';
+  } else if (t.id <= 120) {
+    return '<span style="background:#8b5cf6; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">🚀 12차 신규</span>';
+  } else if (t.id <= 130) {
+    return '<span style="background:#2563eb; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">✨ 13차 신규</span>';
+  } else if (t.id <= 140) {
+    return '<span style="background:#d97706; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">⚡ 14차 신규</span>';
+  } else {
+    return '<span style="background:#0d9488; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; font-weight:700;">🌟 15차 신규</span>';
+  }
+}
+
+let currentFilter = 'NEW';
+
+function setFilter(filterType) {
+  currentFilter = filterType;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.style.background = '#24324f';
+    btn.style.color = '#cbd5e1';
+    btn.style.borderColor = '#334155';
+    btn.classList.remove('active');
+  });
+  if (event && event.target) {
+    event.target.style.background = filterType === 'NEW' ? '#ef4444' : '#0284c7';
+    event.target.style.color = '#fff';
+    event.target.style.borderColor = filterType === 'NEW' ? '#ef4444' : '#0284c7';
+    event.target.classList.add('active');
+  }
+  renderCards();
+}
+
+function renderCards() {
+  const container = document.getElementById("cards-container");
+  container.innerHTML = "";
+
+  const filtered = TARGETS.filter(t => {
+    if (currentFilter === 'ALL') return true;
+    if (currentFilter === 'NEW') return !t.dispatched;
+    if (currentFilter === 'BATCH_11_12') return t.id >= 101 && t.id <= 120;
+    if (currentFilter === 'BATCH_13_15') return t.id >= 121 && t.id <= 150;
+    if (currentFilter === 'DONE') return t.dispatched;
+    return true;
+  });
+
+  filtered.forEach(t => {
+    const subj = makeSubject(t.company);
+    const body = makeBody(t);
+
+    const naverMailUrl = `https://mail.naver.com/v2/new?to=${encodeURIComponent(t.email)}&subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(t.email)}&su=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+    const mailtoUrl = `mailto:${t.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+
+    const card = document.createElement("div");
+    card.className = "target-card";
+    card.innerHTML = `
+      <div>
+        <div class="card-top">
+          <div class="company-title">
+            <span>${t.id}. ${t.company}</span>
+            <span class="company-badge">${t.sector}</span>
+            ${getBadge(t)}
+          </div>
+          <span class="email-badge">${t.email}</span>
+        </div>
+        <div class="pitch-box">
+          <strong>🎯 ${t.company} 맞춤 제안:</strong><br>${t.pitch}
+        </div>
+        <div class="subject-preview">
+          <strong>제목:</strong> ${subj}
+        </div>
+      </div>
+      <div class="btn-group">
+        <a href="${naverMailUrl}" target="_blank" class="btn btn-naver">
+          🟢 네이버 메일
+        </a>
+        <button class="btn btn-rich" onclick="copyRichCardContent(${t.id})">
+          ✨ 서식/링크 복사
+        </button>
+        <a href="${gmailUrl}" target="_blank" class="btn" style="background:#ea4335; color:#fff;">
+          🔴 Gmail
+        </a>
+        <a href="${mailtoUrl}" class="btn btn-mailto">
+          ✉️ 아웃룩
+        </a>
+        <button class="btn btn-copy" onclick="copyToClipboard('${t.email}', '${t.company} 이메일이 복사되었습니다!')">
+          📋 이메일 복사
+        </button>
+        <button class="btn btn-copy" onclick="copyCardContent(${t.id})">
+          📄 전체 본문 복사
+        </button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function copyCardContent(targetId) {
+  const t = TARGETS.find(item => item.id === targetId);
+  if (!t) return;
+  const subj = makeSubject(t.company);
+  const body = makeBody(t);
+  const full = `[수신]: ${t.email}\n[제목]: ${subj}\n\n${body}`;
+  copyToClipboard(full, `[${t.company}] 제안서 전체가 복사되었습니다!`);
+}
+
+renderCards();
+</script>
+
+</body>
+</html>

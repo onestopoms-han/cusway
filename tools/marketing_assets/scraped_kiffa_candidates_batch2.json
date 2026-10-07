@@ -1,0 +1,839 @@
+[
+  {
+    "company_name": "네오트랜스해운항공",
+    "ceo": "손재연",
+    "email": "neotop@neotrans.co.kr",
+    "tel": "82-2-776-8200",
+    "fax": "82-2-776-8228",
+    "address": "Rm.914, Hyundai Topics-Bldg., 6, Wiryeseong-daero, Songpa-gu, Seoul",
+    "homepage": "http://www.neotrans.co.kr/"
+  },
+  {
+    "company_name": "네옴글로벌",
+    "ceo": "이서형",
+    "email": "kbmin@neomglobal.co.kr",
+    "tel": "82-2-587-3325",
+    "fax": "82-2-587-3329",
+    "address": "3Fl, 266, Hyoryeong-ro, Seocho-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "노루로지넷",
+    "ceo": "김장호, 한영재",
+    "email": "dgwoo@noroo.com",
+    "tel": "82-31-467-6361",
+    "fax": "82-31-467-6507",
+    "address": "351, Bakdal-ro, Manan-gu, Anyang-si, Gyeonggi-do",
+    "homepage": "http://www.loginet.co.kr/"
+  },
+  {
+    "company_name": "논스톱익스프레스",
+    "ceo": "이진한",
+    "email": "nonstopsel@nonstopexpress.com",
+    "tel": "82-2-2658-0001",
+    "fax": "82-2-2666-9744",
+    "address": "14-69, Gonghang-dong, Gangseo-gu, Seoul",
+    "homepage": "https://www.nonstopexpress.com/"
+  },
+  {
+    "company_name": "누리해운항공",
+    "ceo": "박옥희",
+    "email": "nuri@nurisa.co.kr",
+    "tel": "82-2-414-4789",
+    "fax": "82-2-414-0580",
+    "address": "Rm.101, Daemyung-Bldg., 22, Songpadaero-48gil, Songpa-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "뉴월드쉬핑(주)",
+    "ceo": "김효곤",
+    "email": "nwsc@nwskorea.com",
+    "tel": "82-2-774-5811",
+    "fax": "82-2-756-5327",
+    "address": "11Fl, 41, Cheonggyecheon-ro, Jongno-gu, Seoul",
+    "homepage": "http://www.nwskorea.com/"
+  },
+  {
+    "company_name": "뉴월드씨앤에어(주)",
+    "ceo": "박진상",
+    "email": "sna@nwsna.com",
+    "tel": "82-51-442-3760",
+    "fax": "82-51-468-5287",
+    "address": "4-10, 40gyedan-gil, Jung-gu, Busan, Republic of Korea",
+    "homepage": ""
+  },
+  {
+    "company_name": "뉴포트인터내셔날",
+    "ceo": "박관일",
+    "email": "info@newporti.co.kr",
+    "tel": "82-2-6952-7575",
+    "fax": "82-2-6969-5089",
+    "address": "Rm.301~302, 248, Gonghang-daero, Gangseo-gu, Seoul",
+    "homepage": "https://newporti.co.kr"
+  },
+  {
+    "company_name": "뉴포트탱크컨테이너스코리아",
+    "ceo": "쑹웨이",
+    "email": "nptuaccount@hotmail.com",
+    "tel": "82-2-757-3993",
+    "fax": "82-2-757-9696",
+    "address": "4F, Central Place, 50, Seosomun-ro, Jung-gu, Seoul",
+    "homepage": "www.newporttank.com"
+  },
+  {
+    "company_name": "늘푸른해운항공(주)",
+    "ceo": "남극영",
+    "email": "ablue@ablue.co.kr",
+    "tel": "82-2-319-7767",
+    "fax": "82-2-319-7791",
+    "address": "14F #1405 Jangkyo Bldg,363, Samil-daero, Jung-gu, Seoul",
+    "homepage": "http://www.ablue.co.kr/"
+  },
+  {
+    "company_name": "다산상선(주)",
+    "ceo": "전종진",
+    "email": "dmm@dasanmm.net",
+    "tel": "02-742-2277",
+    "fax": "02-742-2882",
+    "address": "Rm.302, 36 Samil-daero 32-gil, Jongno-gu, Seoul",
+    "homepage": "http://dasanmm.net/"
+  },
+  {
+    "company_name": "다성해운(주)",
+    "ceo": "이정남",
+    "email": "dasungjin@hanmail.net",
+    "tel": "82-2-324-2781",
+    "fax": "82-2-324-2785",
+    "address": "Rm.508, Jinam-Bldg., 565-15, Yunnam-dong, Mapo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "다우해상",
+    "ceo": "곽동원",
+    "email": "dhow@dhowkorea.com",
+    "tel": "82-2-736-4200",
+    "fax": "82-2-734-2800",
+    "address": "Rm.829, Gwanghwamun-Officia., 92, Saemunan-ro, Jongno-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "닥터물류(주)",
+    "ceo": "인재환",
+    "email": "oper@doctorlogis.com",
+    "tel": "82-2-716-3900",
+    "fax": "82-2-716-3910",
+    "address": "(Gasan-Dong, Shinhan innoplex), 1002, 149, gasandigital1-ro, Geumcheon-gu, Seoul",
+    "homepage": "http://doctorlogis.wcw.co.kr/"
+  },
+  {
+    "company_name": "단우해운항공",
+    "ceo": "이정붕",
+    "email": "danu@danulogis.com",
+    "tel": "82-2-508-6071",
+    "fax": "82-2-508-6072",
+    "address": "room911 ,133, Yanghwa-ro, Mapo-gu, Seoul, Republic of Korea",
+    "homepage": ""
+  },
+  {
+    "company_name": "대동종합물류",
+    "ceo": "윤원상",
+    "email": "intl@dil.co.kr",
+    "tel": "82-2-3142-7050",
+    "fax": "82-2-3142-7054",
+    "address": "904, Munrae SK V1 Center, 10, Seonyu-ro 9-gil, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.dil.co.kr/"
+  },
+  {
+    "company_name": "대륙항공해운(주)",
+    "ceo": "이상훈",
+    "email": "webmaster@tcikorea.co.kr",
+    "tel": "82-2-710-8888",
+    "fax": "82-2-706-0233~8",
+    "address": "Rm.207, 43, Yangsan-ro, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.tcikorea.co.kr/"
+  },
+  {
+    "company_name": "대문종합물류",
+    "ceo": "황아숙",
+    "email": "ahsook@daemoon.co.kr",
+    "tel": "82-2-3446-4905",
+    "fax": "82-2-3446-4945",
+    "address": "2Fl, Sajeon-Bldg., 34, Nonhyeon-ro 132-gil, Gangnam-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "대성로지스틱스(주)",
+    "ceo": "장재근",
+    "email": "acct@dslkr.com",
+    "tel": "82-2-325-7811",
+    "fax": "82-2-325-6711",
+    "address": "Rm301,  Ace techno Tower, 12, Dangsan-ro 2-gil, Yeongdeungpo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "대신국제특송",
+    "ceo": "박현석",
+    "email": "op@dskor.co.kr",
+    "tel": "02-6080-7711",
+    "fax": "02-6080-7712",
+    "address": "Rm.601, 191 Donggyo-ro, Mapo-gu, Seoul",
+    "homepage": "https://www.daesinglobal.com/"
+  },
+  {
+    "company_name": "대신운송",
+    "ceo": "김종인",
+    "email": "jikim@dstckor.co.kr",
+    "tel": "82-51-645-5822",
+    "fax": "82-51-645-2238",
+    "address": "Rm.910, hanil officetel,152, Jaseong-ro, Nam-gu, Busan",
+    "homepage": "https://dstc.co.kr/"
+  },
+  {
+    "company_name": "대아트랜스",
+    "ceo": "박흥준",
+    "email": "admt@daea-trans.co.kr",
+    "tel": "82-2-779-2345",
+    "fax": "82-2-779-2346",
+    "address": "9F, Young-saeng Bldg, 12, Seochojungang-ro 24-gil, Seocho-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "대영물류운송",
+    "ceo": "정성욱",
+    "email": "tykim@dylogistrans.com",
+    "tel": "02-2266-8198",
+    "fax": "02-2266-2090",
+    "address": "Room 601, 6th floor, International Building 187, Toegye-ro, Jung-gu, Seoul, Republic of Korea",
+    "homepage": ""
+  },
+  {
+    "company_name": "대우로지스틱스",
+    "ceo": "김도영",
+    "email": "dwlhr@dwlogistics.co.kr",
+    "tel": "82-2-750-0400",
+    "fax": "82-2-750-0495",
+    "address": "12F,  83 Uisadang-daero, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.dwlogistics.co.kr/"
+  },
+  {
+    "company_name": "대원로지피아",
+    "ceo": "김경수",
+    "email": "kskim@daewonls.com",
+    "tel": "02-3462-5241",
+    "fax": "02-3462-5271",
+    "address": "A 606, 201, Songpa-daero, Songpa-gu, Seoul, Republic of Korea",
+    "homepage": "https://daewonls.com"
+  },
+  {
+    "company_name": "대원에스앤티(주)",
+    "ceo": "김광련",
+    "email": "daewonshpg@hanmail.net",
+    "tel": "82-2-777-9018",
+    "fax": "82-2-319-8433",
+    "address": "Rm.906, Daeyeong-Bldg.,72, Sejong-daero, Jung-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "대진항운(주)",
+    "ceo": "박창현",
+    "email": "daijin@daijinexpress.co.kr",
+    "tel": "82-2-323-2700~9",
+    "fax": "82-2-323-2442/2580",
+    "address": "19, Sinchon-ro 2an-gil, Mapo-gu, Seoul",
+    "homepage": "http://www.daijinexpress.co.kr/"
+  },
+  {
+    "company_name": "대청해운(주)",
+    "ceo": "",
+    "email": "dcs@dcsx.co.kr",
+    "tel": "82-2-783-7080",
+    "fax": "82-2-783-6190",
+    "address": "Rm.305, Garden-Bldg., 22, Gukhoe-daero 72-gil, Yeongdeungpo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "대한국제물류",
+    "ceo": "홍호선",
+    "email": "cil@cil.co.kr",
+    "tel": "82-31-950-3309",
+    "fax": "82-31-950-3330",
+    "address": "146, Ugye-ro, Paju-eup, Paju-si, Gyeonggi-do",
+    "homepage": "http://www.cil.co.kr/"
+  },
+  {
+    "company_name": "대한국제종합물류",
+    "ceo": "김동만",
+    "email": "dhe@daehanexps.co.kr",
+    "tel": "82-2-2693-6600",
+    "fax": "82-2-2697-6600",
+    "address": "434, Gonghang-daero, Gangseo-gu, Seoul (Rm.301 Daeji Bldg, HwakokDong)",
+    "homepage": "http://www.daehanexps.co.kr/"
+  },
+  {
+    "company_name": "대한유엘피(주)",
+    "ceo": "송하민, 김연주",
+    "email": "shlee@dulogistic.com",
+    "tel": "82-41-532-1266",
+    "fax": "82-41-532-8488",
+    "address": "2Fl, 2-dong, 180-19 Yeongok-gil, Ipjang-myeon, Seobuk-gu, Cheonan-si, Chungcheongnam-do",
+    "homepage": "http://dhulp.co.kr/"
+  },
+  {
+    "company_name": "더블유비엘",
+    "ceo": "황의장",
+    "email": "account@wblkorea.com",
+    "tel": "82-2-778-8455",
+    "fax": "82-2-778-8456",
+    "address": "Fl.6, 34, Namdaemun-ro 1-gil, Jung-gu, Seoul",
+    "homepage": "http://www.wblkorea.com"
+  },
+  {
+    "company_name": "더블유제이씨 (우진항공)",
+    "ceo": "김무신",
+    "email": "woojinair@woojinair.co.kr",
+    "tel": "82-2-2628-0800",
+    "fax": "82-2-2628-0830",
+    "address": "Rm.305~7, E&C Dream Tower Bldg, 146, Seonyu-Ro, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.woojinair.co.kr/"
+  },
+  {
+    "company_name": "더웨이",
+    "ceo": "전진기",
+    "email": "thewayco@korea.com",
+    "tel": "82-2-548-1852",
+    "fax": "82-2-548-1854",
+    "address": "Rm.505, Wonbang-Bldg., 584-3, Sinsa-dong, Gangnam-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "더케이로지스틱스",
+    "ceo": "김형석",
+    "email": "andrewkim@thek-l.com",
+    "tel": "82-2-6457-3000",
+    "fax": "82-2-6457-3003",
+    "address": "Rm.707, Fl.7, 40, Seocho-daero 73-gil, Seocho-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "델로로지스틱스서울 유한회사",
+    "ceo": "ASTAFEV ALEXEY",
+    "email": "account@dlseoul.com",
+    "tel": "82-70-4322-6128",
+    "fax": "82-2-779-9228",
+    "address": "Rm. 602, 50, Seosomun-ro 11-gil,  Jung-gu, Seoul, Republic of Korea",
+    "homepage": ""
+  },
+  {
+    "company_name": "도암글로벌해운(주)",
+    "ceo": "이원준",
+    "email": "admin@doamglobal.com",
+    "tel": "02-51-466-0993",
+    "fax": "82-51-466-0994",
+    "address": "Rm. 505, Dongbang Bldg, 22, Jungang-daero, Jung-gu, Busan",
+    "homepage": "http://www.doamglobal.com/"
+  },
+  {
+    "company_name": "도이그로코리아(주)",
+    "ceo": "김기호",
+    "email": "seo-hui.park@deugro.com",
+    "tel": "82-2-3789-8400",
+    "fax": "82-2-3789-4700",
+    "address": "8F, Hansan building, 115, Seosomun-ro, Jung-gu, Seoul",
+    "homepage": "https://deugro.com/"
+  },
+  {
+    "company_name": "동남익스프레스",
+    "ceo": "성낙청",
+    "email": "ncsung@dnex.co.kr",
+    "tel": "82-2-337-6001",
+    "fax": "82-2-337-5487",
+    "address": "Rm.401, Dong Nam B/D, (Dongkyo-Dong) Dongkyoro 25gil, Mapo-ku, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동덕시스템즈(주)",
+    "ceo": "조범제",
+    "email": "bjcho@dongdeuk.co.kr",
+    "tel": "82-2-543-4100",
+    "fax": "82-2-543-5970",
+    "address": "10, Eonju-ro 147-gil, Gangnam-gu, Seoul, Republic of Korea",
+    "homepage": ""
+  },
+  {
+    "company_name": "동방기업(주)",
+    "ceo": "윤명수",
+    "email": "dbtrans@dbtrans.co.kr",
+    "tel": "82-2-771-0151",
+    "fax": "82-2-753-7107",
+    "address": "Rm.901, Taepyung Bldg. 74-1, Sejong-daero, Jung-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동방항공해운",
+    "ceo": "박영규, 임창현",
+    "email": "chlim@eastern-air.com",
+    "tel": "82-2-718-3691",
+    "fax": "82-2-718-9573",
+    "address": "Rm.702, 158 Magokseo-ro, Gangseo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동보국제운송(주)",
+    "ceo": "정재흥",
+    "email": "hschung@dongboint.com",
+    "tel": "02-771-0477",
+    "fax": "02-771-0484",
+    "address": "Rm.609, 6Fl, 36, Toegye-ro, Jung-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동보로직스",
+    "ceo": "함동균",
+    "email": "account@dblkr.com",
+    "tel": "82-2-3274-3004",
+    "fax": "82-2-3274-3020",
+    "address": "10Fl, Local Finance-Bldg., 136, Mapo-daero, Mapo-gu, Seoul",
+    "homepage": "http://www.dblkr.com/"
+  },
+  {
+    "company_name": "동서로지스틱스",
+    "ceo": "서영택",
+    "email": "service@dongsuero.com",
+    "tel": "82-2-775-7200",
+    "fax": "82-2-775-3400",
+    "address": "Rm.72, 10Fl, Electronics Building, 304, Hyoryeong-Ro, Seocho-Gu, Seoul",
+    "homepage": "http://www.dongsuero.com/"
+  },
+  {
+    "company_name": "동서스카이라이너",
+    "ceo": "노동욱",
+    "email": "dsgood@dsskyliner.co.kr",
+    "tel": "82-2-325-8533",
+    "fax": "82-2-325-8532",
+    "address": "Rm.303, 76, Macheon-ro, Songpa-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동서콘솔(주)",
+    "ceo": "이승희",
+    "email": "dsc@dsconsol.com",
+    "tel": "82-51-462-4488",
+    "fax": "82-51-442-0066",
+    "address": "Rm.1501, Bando Bldg, 65, Haegwan-ro, Jung-gu, Busan",
+    "homepage": "http://www.dsconsol.com/"
+  },
+  {
+    "company_name": "동서해운(주)",
+    "ceo": "서영택",
+    "email": "yschoi@dongsue.com",
+    "tel": "82-2-3788-4000",
+    "fax": "82-2-3788-4040",
+    "address": "Rm.1710, Kukje Electronics Center, 304, Hyoryeong-ro, Seocho-gu, Seoul",
+    "homepage": "http://www.dongsue.com/"
+  },
+  {
+    "company_name": "동성물류",
+    "ceo": "이병국",
+    "email": "goupds@daum.net",
+    "tel": "82-31-8054-0026",
+    "fax": "82-31-8054-0028",
+    "address": "Rm. 1102, 73, Pyeongtaekhangman-gil, Poseung-eup, Pyeongtaek-si, Gyeonggi-do",
+    "homepage": ""
+  },
+  {
+    "company_name": "동성항운",
+    "ceo": "홍준표",
+    "email": "account@dongsungkorea.com",
+    "tel": "82-2-2637-9393",
+    "fax": "82-2-2636-7720",
+    "address": "Rm.1710~11, A,  Woolim Blueline Business Center, 583, Yangcheon-ro, Gangseo-gu, Seoul",
+    "homepage": "http://www.dongsungkorea.com/"
+  },
+  {
+    "company_name": "동신글로벌마리타임(주)",
+    "ceo": "현상규",
+    "email": "skhyun@dsgl.co.kr",
+    "tel": "82-2-706-5993",
+    "fax": "82-2-706-5972",
+    "address": "Rm.1006, Ilsin-Bldg., 38, Mapo-daero, Mapo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동신로지스틱스(주)",
+    "ceo": "서준형",
+    "email": "dslc1004@naver.com",
+    "tel": "82-2-702-2640",
+    "fax": "82-2-702-2643",
+    "address": "Rm.1004, Gangseo Hanhwa Bizmetro B-dong, 551-24, Yangcheon-ro, Gangseo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동신씨앤에어",
+    "ceo": "안승완",
+    "email": "swan@dssna.com",
+    "tel": "82-2-715-0058",
+    "fax": "82-2-715-0059",
+    "address": "Rm. 607, A-dong, 168, Gasan digital 1-ro, Geumcheon-gu, Seoul",
+    "homepage": "http://dssna.com"
+  },
+  {
+    "company_name": "동신에스앤에프(주)",
+    "ceo": "강부부",
+    "email": "dongshin@dssf.co.kr",
+    "tel": "82-2-3701-1800",
+    "fax": "82-2-725-6941",
+    "address": "8Fl, Sejong-Bldg., 54, Sejong-daero 23-gil, Jongno-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동아로지스",
+    "ceo": "김기태",
+    "email": "kmc@donga-logis.com",
+    "tel": "031-405-1901",
+    "fax": "",
+    "address": "144, Gwangdeok 4-ro, Danwon-gu, Ansan-si, Gyeonggi-do",
+    "homepage": ""
+  },
+  {
+    "company_name": "동양물류(주)",
+    "ceo": "김일연",
+    "email": "otssel@otskorea.co.kr",
+    "tel": "82-2-325-6500",
+    "fax": "82-2-325-6503, 324-1757",
+    "address": "6Fl, Yangkyung-Bldg., 65, World Cup-ro, Mapo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "동양미디어판매(주)",
+    "ceo": "최문성",
+    "email": "sales@tyms.co.kr",
+    "tel": "070-7209-5409",
+    "fax": "02-6919-1459",
+    "address": "A-dong 1F  ,512, Hoedong-gil, Paju-si, Gyeonggi-do, Republic of Korea",
+    "homepage": "https://octobooks.co.kr/"
+  },
+  {
+    "company_name": "동영해운(주)",
+    "ceo": "서명천",
+    "email": "jwahn@pcsline.co.kr",
+    "tel": "82-2-753-0661",
+    "fax": "82-2-752-9075",
+    "address": "3 Fl, 43, Dadong-gil, Jung-gu, Seoul",
+    "homepage": "http://www.pcsline.co.kr/"
+  },
+  {
+    "company_name": "동우국제",
+    "ceo": "조철호, 조철용",
+    "email": "dwi@dongwoo.com",
+    "tel": "82-2-369-7700",
+    "fax": "82-2-369-7770",
+    "address": "Dongwoo Int'l Bldg., 19, Gukhoe-daero 74-gil, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://dongwoo.com/"
+  },
+  {
+    "company_name": "동원산업(주)",
+    "ceo": "이명우",
+    "email": "forwarding@dongwon.com",
+    "tel": "82-2-589-3333",
+    "fax": "82-2-589-3775",
+    "address": "8Fl, 68, Mabang-ro, Seocho-gu, Seoul",
+    "homepage": "https://www.dwml.co.kr/"
+  },
+  {
+    "company_name": "동조쉬핑",
+    "ceo": "양철용",
+    "email": "cs@dongjoshipping.com",
+    "tel": "82-2-2057-3855",
+    "fax": "82-2-2057-3859",
+    "address": "3Fl, 19-7, Nambusunhwan-ro 350-gil, Seocho-gu, Seoul",
+    "homepage": "http://www.dongjoshipping.com/"
+  },
+  {
+    "company_name": "동주마리타임주식회사",
+    "ceo": "손경수",
+    "email": "djsales@djmtc.co.kr",
+    "tel": "82-51-460-2800",
+    "fax": "82-51-460-2899",
+    "address": "6Fl, 5, Jungang-daero 42beon-gil, Jung-gu, Busan",
+    "homepage": "https://www.dongjumaritime.co.kr/"
+  },
+  {
+    "company_name": "동주해상(주)",
+    "ceo": "이동인",
+    "email": "forwarding@djis.co.kr",
+    "tel": "82-2-3455-6900",
+    "fax": "82-2-780-6858",
+    "address": "Rm.805, Coryo. Daeyeongak Tower, 97, Toegye-ro, Jung-gu, Seoul",
+    "homepage": "http://www.djis.co.kr/"
+  },
+  {
+    "company_name": "동진글로벌로지스틱스",
+    "ceo": "차태섭",
+    "email": "dgl@dongjingl.co.kr",
+    "tel": "82-2-717-7388",
+    "fax": "82-2-717-7389",
+    "address": "Suite 305, Daerung Post Tower #3, 27, Digital-ro 34gil, Guro-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "두기해운(주)",
+    "ceo": "이기백",
+    "email": "kabinlee@dookimarine.co.kr",
+    "tel": "82-2-583-7571/2",
+    "fax": "82-2-583-7578",
+    "address": "Rm.1106, 11Floor ,Samil praza-Bldg.,14, Dogok-ro 1-gil, Gangnam-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "두인로지스틱스(주)",
+    "ceo": "박기완",
+    "email": "dooin@doo-in.com",
+    "tel": "82-2-3665-8400",
+    "fax": "82-2-3665-0665",
+    "address": "Rm.605, halla SigmaVally, 51, Seongsui-ro, Seongdong-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "듀얼에어엔씨(주)",
+    "ceo": "이명현",
+    "email": "sales@dualanc.com",
+    "tel": "82-2-3663-5831",
+    "fax": "82-2-3663-5833",
+    "address": "Rm. 1105, B-dong, 583, Yangcheon-ro, Gangseo-gu, Seoul",
+    "homepage": "http://dualanc.com/"
+  },
+  {
+    "company_name": "디메르코익스프레스코리아",
+    "ceo": "치우주인롱",
+    "email": "hy_park@dimerco.com",
+    "tel": "82-2-337-0905",
+    "fax": "82-2-337-0447~9",
+    "address": "Rm1501,1502,Bldg E,SK V1 center, 11,Dangsan-ro 41-gil, Yeongdeungpo-gu, Seoul",
+    "homepage": "https://dimerco.com/"
+  },
+  {
+    "company_name": "디에스브이에어앤씨",
+    "ceo": "최문호",
+    "email": "kr.sha.korea@kr.dsv.com",
+    "tel": "82-2-323-1313",
+    "fax": "82-2-323-1212",
+    "address": "16Fl, 179, Seongam-ro, Mapo-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "디와이디해운항공(주)",
+    "ceo": "구철용",
+    "email": "dyd@dydshipping.co.kr",
+    "tel": "82-51-467-7908",
+    "fax": "82-51-467-7907/7903",
+    "address": "15F, 119, Daegyo-ro, Jung-gu, Busan",
+    "homepage": "https://www.dydshipping.co.kr/"
+  },
+  {
+    "company_name": "디제이트란스(주)",
+    "ceo": "오일환",
+    "email": "djt@dj-trans.com",
+    "tel": "82-2-755-9722",
+    "fax": "82-2-755-9726",
+    "address": "Rm.1003, Baeknam-Bldg.,16, Ulji-ro, Chung-ku, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "디지월드넷서비스",
+    "ceo": "김희섭",
+    "email": "info@dgworldnet.com",
+    "tel": "82-2-2666-9996",
+    "fax": "82-2-2666-9978",
+    "address": "24-39 Wondang-daero 428beon-gil, Seo-gu, Incheon",
+    "homepage": "http://www.dgworldnet.com"
+  },
+  {
+    "company_name": "디티씨",
+    "ceo": "김규학",
+    "email": "andypark@dtc.co.kr",
+    "tel": "070-7012-1808",
+    "fax": "82-32-833-6226",
+    "address": "Rm.2001, B-dong, 323, Incheon tower-daero, Yeonsu-gu, Incheon",
+    "homepage": "http://www.dtc.co.kr/"
+  },
+  {
+    "company_name": "디티인터내셔널",
+    "ceo": "정은우",
+    "email": "hjlee@dtintl.co.kr",
+    "tel": "82-2-2051-7150",
+    "fax": "82-2-2051-7159",
+    "address": "Rm, 802, 333, Yeongdong-daero, Gangnam-gu",
+    "homepage": "http://www.dtintl.co.kr"
+  },
+  {
+    "company_name": "람세스물류(주)",
+    "ceo": "박래문",
+    "email": "ramses@ramseskr.com",
+    "tel": "82-2-779-1400",
+    "fax": "82-2-779-1401",
+    "address": "Rm.505, A-dong, Hangang Xi Tower, 401, Yangcheon-ro, Gangseo-gu, Seoul",
+    "homepage": "http://www.ramseskr.com/"
+  },
+  {
+    "company_name": "레누스로지스틱스코리아유한회사",
+    "ceo": "PATRICK DARGEL",
+    "email": "accounting@kr.rhenus.com",
+    "tel": "02-3660-1700",
+    "fax": "02-3660-1717",
+    "address": "10FL, 165, Yanghwa-ro, Mapo-gu, Seoul, Republic of Korea",
+    "homepage": "http://rhenus.group"
+  },
+  {
+    "company_name": "레샤코코리아(주)",
+    "ceo": "김도균",
+    "email": "info-kr@leschaco.com",
+    "tel": "82-2-3444-1879",
+    "fax": "82-2-442-5936",
+    "address": "Fl.8, D-dong, 105-7 Magokjungang-ro, Gangseo-gu, Seoul",
+    "homepage": "https://www.leschaco.com/"
+  },
+  {
+    "company_name": "레오나해운항공",
+    "ceo": "김내영",
+    "email": "sales@leonakorea.com",
+    "tel": "051-717-2541",
+    "fax": "051-717-2543",
+    "address": "BIFC2 Rm.901~905, 128 Namdongcheon-ro, Nam-gu, Busan",
+    "homepage": "http://www.leonakorea.com"
+  },
+  {
+    "company_name": "레이딕스(주)",
+    "ceo": "박현진",
+    "email": "info@radixkorea.com",
+    "tel": "82-2-720-9922",
+    "fax": "82-2-720-9110/9119",
+    "address": "Royal Bldg. Room 406, 19, Saemunan-ro 5-gil, Jongno-gu, Seoul",
+    "homepage": "http://www.radixkorea.com/"
+  },
+  {
+    "company_name": "렉스국제운송",
+    "ceo": "장희범",
+    "email": "rex@ril.co.kr",
+    "tel": "82-2-6309-5200",
+    "fax": "82-2-6309-5210",
+    "address": "Rm.1308, 1-dong, Ace Hightech City, 55-20, Moonrae-dong 3ga, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.ril.co.kr/"
+  },
+  {
+    "company_name": "로드스타씨앤에어(주)",
+    "ceo": "변무경",
+    "email": "leeggoon@lodestars.com",
+    "tel": "82-2-754-5131",
+    "fax": "82-2-755-0242",
+    "address": "9F,10, Sowol-ro, Jung-gu, Seoul, Republic of Korea",
+    "homepage": "http://lodestars.com/"
+  },
+  {
+    "company_name": "로릭코리아(주)",
+    "ceo": "홍현욱",
+    "email": "kr.rc.account@rohlig.com",
+    "tel": "82-2-2095-1200",
+    "fax": "82-2-2095-1277",
+    "address": "Rm.1012, Baejae-Bldg., 103, Seosomun-ro, Jung-gu, Seoul",
+    "homepage": "https://www.rohlig.com/"
+  },
+  {
+    "company_name": "로얄디엔엘",
+    "ceo": "김영수",
+    "email": "manager@royaldnl.com",
+    "tel": "82-2-335-6660",
+    "fax": "82-2-335-6620",
+    "address": "Rm.310, Byucksan Digital Valley 6-cha, 219, Gasan digital 1-ro, Geumcheon-gu, Seoul",
+    "homepage": "http://www.royaldnl.com/"
+  },
+  {
+    "company_name": "로얄지엘에스",
+    "ceo": "김환용",
+    "email": "info@royalgls.kr",
+    "tel": "82-2-598-0066",
+    "fax": "82-2-598-1661",
+    "address": "3F, Daemyung-Bldg., 196 Worldcup-ro, Mapo-gu, Seoul",
+    "homepage": "http://www.royalgls.kr/"
+  },
+  {
+    "company_name": "로지스코어(주)",
+    "ceo": "양유정",
+    "email": "locobest@logiscore.co.kr",
+    "tel": "82-32-818-1838",
+    "fax": "82-32-819-1838",
+    "address": "Rm. 1205-1, D-dong, 30, Songdomirae-ro, Yeonsu-gu, Incheon",
+    "homepage": "http://logiscore.co.kr/"
+  },
+  {
+    "company_name": "로지스타",
+    "ceo": "장지수",
+    "email": "our@logistar.co.kr",
+    "tel": "82-2-323-7477",
+    "fax": "82-2-323-9440",
+    "address": "Rm.1109, 285, Digital-ro, Guro-gu, Seoul",
+    "homepage": ""
+  },
+  {
+    "company_name": "로지인터내셔날(주)",
+    "ceo": "정미경",
+    "email": "logi@logi-intl.co.kr",
+    "tel": "82-2-6968-5200",
+    "fax": "82-2-6008-2223",
+    "address": "Rm.707, B-dong, Hangang Xi Tower, 401, Yangcheon-ro, Gangseo-gu, Seoul",
+    "homepage": "http://www.logi-intl.co.kr/"
+  },
+  {
+    "company_name": "로커스로지스틱스",
+    "ceo": "염관석",
+    "email": "locus@locuskorea.com",
+    "tel": "82-2-2661-2320",
+    "fax": "82-2-2661-3282",
+    "address": "Rm. 718-2, Fl.7, 293, Bupyeong-daero, Bupyeong-gu, Incheon",
+    "homepage": "http://www.locuskorea.com/"
+  },
+  {
+    "company_name": "롬로지스틱스코리아",
+    "ceo": "나성",
+    "email": "kor@lom-logistics.com",
+    "tel": "82-31-902-3399",
+    "fax": "82-31-902-6447",
+    "address": "Rm.806, 12, Samsong-ro, Deogyang-gu, Goyang-si, Gyeonggi-do",
+    "homepage": "http://www.lomsin.com/"
+  },
+  {
+    "company_name": "롯데관광 항공해운사업본부",
+    "ceo": "박영걸",
+    "email": "lai@lotteairnsea.co.kr",
+    "tel": "82-2-2078-6500",
+    "fax": "82-2-718-0835",
+    "address": "2F, Sungwoo Bldg ,49, Mapo-daero, Mapo-gu, Seoul",
+    "homepage": "http://www.lottecargo.co.kr/"
+  },
+  {
+    "company_name": "리더스트랜스포트",
+    "ceo": "황호연",
+    "email": "sel@leaderstrans.com",
+    "tel": "82-2-733-2001",
+    "fax": "82-2-733-3999",
+    "address": "3F, Karis Tower., 12-11, Jeongdong-gil, Chung-ku, Seoul",
+    "homepage": "http://www.leaderstrans.com/"
+  },
+  {
+    "company_name": "마레콘솔리데이션",
+    "ceo": "김연청",
+    "email": "mare@mareconsol.co.kr",
+    "tel": "82-2-6263-6500",
+    "fax": "82-2-6263-6520~22",
+    "address": "Rm.606, World Merdiang Biz Center, 53, Yangpyeong-ro, Yeongdeungpo-gu, Seoul",
+    "homepage": "http://www.mareconsol.co.kr/"
+  },
+  {
+    "company_name": "마린아이닷컴",
+    "ceo": "오재우",
+    "email": "mic@milogix.net",
+    "tel": "82-2-325-9048",
+    "fax": "82-2-325-9046",
+    "address": "2Fl, Koma-Bldg., 73, Jandari-ro, Mapo-gu, Seoul",
+    "homepage": "http://www.marine-i.com/"
+  }
+]

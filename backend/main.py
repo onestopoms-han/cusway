@@ -255,7 +255,38 @@ class BillingRequest(BaseModel):
     transaction_id: Optional[str] = None
     receipt_url: Optional[str] = None
 
+class EmailShareRequest(BaseModel):
+    recipient_email: str
+    title: Optional[str] = "CUSWAY AI 관세 분석 결과"
+    category: Optional[str] = "hs-classification"
+    data: Optional[dict] = {}
+    sender_name: Optional[str] = "CUSWAY AI 관세 코파일럿"
+    cc_self: Optional[bool] = False
+    sender_email: Optional[str] = None
+
 # --- API Endpoints ---
+
+@app.post("/api/share/email")
+def share_customs_report_email(req: EmailShareRequest):
+    """
+    공인 AI 관세 분석 결과서 및 소명의견서 이메일 다이렉트 전송 API
+    수신자 이메일 주소만 입력하면 CUSWAY 서버가 직접 정식 HTML 리포트 발송
+    """
+    from .notifier import send_customs_report_email
+    success, message = send_customs_report_email(
+        recipient_email=req.recipient_email,
+        title=req.title or "CUSWAY AI 관세 분석 결과",
+        category=req.category or "hs-classification",
+        data=req.data or {},
+        sender_name=req.sender_name or "CUSWAY AI 관세 코파일럿",
+        cc_self=req.cc_self or False,
+        sender_email=req.sender_email or ""
+    )
+    return {
+        "success": success,
+        "message": message,
+        "recipient": req.recipient_email
+    }
 
 @app.get("/api/billing/config")
 def get_billing_config():

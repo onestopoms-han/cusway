@@ -129,3 +129,160 @@ def notify_new_user_registration(user_email: str, company_name: str, user_type: 
         daemon=True
     )
     t.start()
+
+def send_customs_report_email(
+    recipient_email: str,
+    title: str,
+    category: str,
+    data: dict,
+    sender_name: str = "CUSWAY AI 관세 코파일럿",
+    cc_self: bool = False,
+    sender_email: str = ""
+) -> tuple:
+    """
+    Universal customs report direct email delivery via SMTP.
+    Delivers executive-grade HTML report directly to the recipient's inbox.
+    Returns (success: bool, message: str).
+    """
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.naver.com")
+    smtp_port = int(os.environ.get("SMTP_PORT", 465))
+    smtp_user = os.environ.get("SMTP_USER", "")
+    smtp_password = os.environ.get("SMTP_PASSWORD", "")
+
+    if not smtp_user or not smtp_password:
+        return False, "서버의 발신용 이메일 계정(SMTP)이 아직 설정되지 않았습니다. .env 환경설정을 확인해 주세요."
+
+    clean_to = recipient_email.strip()
+    if not clean_to or "@" not in clean_to:
+        return False, "유효한 수신자 이메일 주소를 입력해 주세요."
+
+    prod_name = data.get("productName") or title or "수입신고 대상 물품"
+    hs_code = data.get("hsCode") or "-"
+    duty_rate = data.get("dutyRate") or "2026 관세율표 연동"
+    fta_rate = data.get("ftaRate") or "협정세율 최적적용"
+    requirements = data.get("requirements") or "해당 물품 세관장확인 수입요건 법령 검토 완료"
+    legal_reasoning = data.get("legalReasoning") or "관세율표 해석에 관한 일반통칙 제1호 및 제6호에 따라 법리적으로 확정 분류함."
+    case_number = data.get("caseNumber") or ""
+    holding_ko = data.get("holdingKo") or ""
+
+    now_str = datetime.now().strftime("%Y년 %m월 %d일 %H:%M")
+    subject = f"[CUSWAY 공인 관세 리포트] {prod_name} - AI 품목분류 및 통관 소명의견서"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="utf-8">
+      <style>
+        body {{ font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; background-color: #0f172a; padding: 24px; margin: 0; color: #334155; }}
+        .email-card {{ max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid #e2e8f0; }}
+        .header {{ background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); padding: 30px 28px; color: #ffffff; border-bottom: 3px solid #0284c7; }}
+        .brand-badge {{ display: inline-block; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 10px; }}
+        .title {{ margin: 0; font-size: 22px; font-weight: 800; color: #ffffff; line-height: 1.35; }}
+        .subtitle {{ margin: 8px 0 0 0; font-size: 13px; color: #94a3b8; }}
+        .content {{ padding: 28px; background: #ffffff; line-height: 1.6; font-size: 14px; }}
+        .summary-box {{ background: #f8fafc; border-radius: 10px; border: 1.5px solid #e2e8f0; padding: 18px; margin-bottom: 22px; }}
+        .row {{ display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #edf2f7; font-size: 14px; }}
+        .row:last-child {{ border-bottom: none; }}
+        .label {{ color: #64748b; font-weight: 600; min-width: 110px; }}
+        .val {{ color: #0f172a; font-weight: 700; text-align: right; }}
+        .val-code {{ font-family: Consolas, monospace; color: #0284c7; font-size: 16px; font-weight: 800; }}
+        .val-highlight {{ color: #059669; font-weight: 800; }}
+        .section-title {{ font-size: 15px; font-weight: 800; color: #0f172a; margin: 24px 0 10px 0; display: flex; align-items: center; gap: 6px; }}
+        .box {{ background: #f1f5f9; border-left: 4px solid #0284c7; padding: 14px 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: #334155; white-space: pre-wrap; line-height: 1.65; }}
+        .req-box {{ background: #fffbeb; border-left: 4px solid #f59e0b; padding: 14px 16px; border-radius: 0 8px 8px 0; font-size: 13px; color: #92400e; white-space: pre-wrap; line-height: 1.65; }}
+        .cta-wrap {{ text-align: center; margin: 30px 0 10px 0; }}
+        .cta-btn {{ display: inline-block; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 800; font-size: 15px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35); }}
+        .footer {{ background: #f8fafc; padding: 20px 28px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; line-height: 1.5; }}
+      </style>
+    </head>
+    <body>
+      <div class="email-card">
+        <div class="header">
+          <div class="brand-badge">CUSWAY AI CUSTOMS INTELLIGENCE</div>
+          <h1 class="title">공인 AI 관세 품목분류 & 통관 사전진단서</h1>
+          <p class="subtitle">발행 일시: {now_str} &nbsp;|&nbsp; 발신: {sender_name}</p>
+        </div>
+        <div class="content">
+          <p style="margin-top: 0; font-size: 14px; color: #475569;">
+            안녕하세요, <strong>CUSWAY</strong>에서 발행된 공인 AI 관세 분석 결과서를 안내해 드립니다.
+          </p>
+
+          <div class="summary-box">
+            <div class="row">
+              <span class="label">대상 품목명</span>
+              <span class="val">{prod_name}</span>
+            </div>
+            <div class="row">
+              <span class="label">추천 세번(HSK)</span>
+              <span class="val val-code">{hs_code}</span>
+            </div>
+            <div class="row">
+              <span class="label">2026 기본세율</span>
+              <span class="val">{duty_rate}</span>
+            </div>
+            <div class="row">
+              <span class="label">적용 최적 협정세율</span>
+              <span class="val val-highlight">{fta_rate}</span>
+            </div>
+          </div>
+
+          <div class="section-title">⚖️ 관세율표 일반통칙 및 법적 분류 근거</div>
+          <div class="box">{legal_reasoning}</div>
+
+          <div class="section-title">📋 세관장확인 필수 수입요건</div>
+          <div class="req-box">{requirements}</div>
+
+          {f'''
+          <div class="section-title">🏛️ 조세심판원/관세평가 결정례 요지</div>
+          <div class="box"><strong>사건번호: {case_number}</strong><br>{holding_ko}</div>
+          ''' if case_number or holding_ko else ''}
+
+          <div class="cta-wrap">
+            <a href="https://cusway.kr" target="_blank" class="cta-btn">
+              👉 CUSWAY에서 4단계 전체 소명의견서(PDF) 확인하기
+            </a>
+          </div>
+        </div>
+
+        <div class="footer">
+          <strong>(주)이레 CUSWAY 관세 AI 인텔리전스 사업부</strong><br>
+          본 메일은 수신자의 요청 또는 업무 협조에 의해 발송되었습니다.<br>
+          웹사이트: <a href="https://cusway.kr" style="color: #0284c7; text-decoration: none;">https://cusway.kr</a> &nbsp;|&nbsp; 문의: admin@cusway.kr
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+
+    recipients = [clean_to]
+    if cc_self and sender_email and "@" in sender_email and sender_email.strip() != clean_to:
+        recipients.append(sender_email.strip())
+
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{sender_name} <{smtp_user}>"
+        msg["To"] = clean_to
+        if len(recipients) > 1:
+            msg["Cc"] = sender_email.strip()
+        msg.attach(MIMEText(html_content, "html", "utf-8"))
+
+        if smtp_port == 465:
+            server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=12)
+        else:
+            server = smtplib.SMTP(smtp_host, smtp_port, timeout=12)
+            server.starttls()
+
+        server.login(smtp_user, smtp_password)
+        server.sendmail(smtp_user, recipients, msg.as_string())
+        server.quit()
+        return True, f"수신자({clean_to})에게 분석 결과서가 성공적으로 발송되었습니다."
+    except smtplib.SMTPAuthenticationError as auth_err:
+        err_msg = f"SMTP 인증 실패 (535): {auth_err}. 네이버 메일 환경설정에서 [POP3/SMTP 사용함]을 켜고, 2단계 인증 시 [애플리케이션 비밀번호]를 발급받아야 합니다."
+        print(f"[REPORT_EMAIL_AUTH_ERROR] {err_msg}")
+        return False, err_msg
+    except Exception as e:
+        err_msg = f"이메일 전송 중 네트워크/서버 오류: {e}"
+        print(f"[REPORT_EMAIL_ERROR] {err_msg}")
+        return False, err_msg

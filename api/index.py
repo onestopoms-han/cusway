@@ -95,6 +95,43 @@ class SignupRequest(BaseModel):
     years_of_experience: int = 0
     phone_number: Optional[str] = ""
 
+class EmailShareRequest(BaseModel):
+    recipient_email: str
+    title: Optional[str] = "CUSWAY AI 관세 분석 결과"
+    category: Optional[str] = "hs-classification"
+    data: Optional[dict] = {}
+    sender_name: Optional[str] = "CUSWAY AI 관세 코파일럿"
+    cc_self: Optional[bool] = False
+    sender_email: Optional[str] = None
+
+@app.post("/api/share/email")
+def share_customs_report_email(req: EmailShareRequest):
+    """
+    공인 AI 관세 분석 결과서 및 소명의견서 이메일 다이렉트 전송 API
+    """
+    try:
+        from backend.notifier import send_customs_report_email
+        success, message = send_customs_report_email(
+            recipient_email=req.recipient_email,
+            title=req.title or "CUSWAY AI 관세 분석 결과",
+            category=req.category or "hs-classification",
+            data=req.data or {},
+            sender_name=req.sender_name or "CUSWAY AI 관세 코파일럿",
+            cc_self=req.cc_self or False,
+            sender_email=req.sender_email or ""
+        )
+        return {
+            "success": success,
+            "message": message,
+            "recipient": req.recipient_email
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"서버 발송 실패: {e}",
+            "recipient": req.recipient_email
+        }
+
 # --- Core Authentication & Customer Endpoints (SQLite Integrated) ---
 
 def _get_db_conn():
