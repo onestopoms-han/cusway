@@ -3704,6 +3704,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
               </button>
             </div>
           </div>
+        </div>
       )}
 
       {/* CL (Customs Law Information Portal) Real-time Manual Inspector Modal */}
