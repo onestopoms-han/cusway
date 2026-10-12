@@ -1523,8 +1523,30 @@ def get_hs_structure(prefix: str, db: Session = Depends(get_db)):
         print(f"[HS_STRUCTURE_ERROR] {e}")
         return []
 
+
+@app.get("/api/hs/clip-inspector")
+def clip_inspector_api(hs_code: str, db: Session = Depends(get_db)):
+    """
+    관세법령정보포털(CLIP/CL) 스타일의 실시간 심층 매뉴얼 검토 데이터 제공 엔드포인트
+    - 1. 관세율표 품목 계층 구조 (류/호/소호/HSK 세목 및 형제 세번 목록)
+    - 2. 부(Section) 및 류(Chapter) 법정 주규정 전문
+    - 3. 공식 WCO HS 해설서 원문 (국문 및 영문)
+    - 4. 관세평가분류원 실존 결정례 (5,668건 마스터 DB 연동)
+    - 5. 2026 기본/WTO/FTA 관세율표
+    - 6. 세관장확인 수입요건 및 통합공고 법령
+    - 7. 관세사 실무 점검 매뉴얼 체크리스트
+    """
+    try:
+        from backend.rag.clip_inspector import get_clip_inspection_data
+        data = get_clip_inspection_data(hs_code, db)
+        return data
+    except Exception as e:
+        print(f"[CLIP_INSPECTOR_ERROR] {e}")
+        raise HTTPException(status_code=500, detail=f"CL 매뉴얼 검토 데이터 조회 실패: {str(e)}")
+
 # --- CUSWAY 4단계 파이프라인 신규 API 엔드포인트 ---
 from .models import HSRateMaster, HSRequirement, RequirementProcedure
+
 import json
 
 class HsConfirmRequest(BaseModel):

@@ -33,6 +33,8 @@ import CustomsReportModal, { ReportData } from './CustomsReportModal';
 import OfficeBrandingModal from './OfficeBrandingModal';
 import OriginMarkingGuideWidget from './OriginMarkingGuideWidget';
 import InvoiceParserModal, { ParsedInvoiceData } from './InvoiceParserModal';
+import { ClipManualInspectorModal } from './ClipManualInspectorModal';
+
 
 export interface SearchHistoryItem {
   id: string;
@@ -153,6 +155,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
   const [showReportModal, setShowReportModal] = useState(false);
   const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
   const [showInvoiceParserModal, setShowInvoiceParserModal] = useState(false);
+  const [showClipInspectorModal, setShowClipInspectorModal] = useState(false);
+  const [clipTargetCode, setClipTargetCode] = useState<string>('');
   const [copiedHsCode, setCopiedHsCode] = useState(false);
   const [cifAmountState, setCifAmountState] = useState<number>(10000);
   const [currencyState, setCurrencyState] = useState<string>('USD');
@@ -2511,6 +2515,34 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                           <span>{copiedHsCode ? '복사완료!' : 'HSK 복사'}</span>
                         </button>
 
+                        {/* CL Manual Inspector In-App Modal Trigger */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setClipTargetCode(matchedRule.recommendedHsCode);
+                            setShowClipInspectorModal(true);
+                          }}
+                          title="관세법령정보포털(CL/CLIP) 공식 DB 실시간 매뉴얼 대조 검토 (해설서, 주규정, 5668건 판례, 요건)"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
+                            border: '1px solid rgba(6, 182, 212, 0.5)',
+                            borderRadius: '6px',
+                            padding: '5px 12px',
+                            color: '#fff',
+                            fontSize: '0.75rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            boxShadow: '0 2px 8px rgba(6, 182, 212, 0.25)',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <BookOpen size={13} color="var(--accent-cyan)" />
+                          <span>📋 CL 공식 매뉴얼 대조 검토</span>
+                        </button>
+
                         {/* Direct Portal Links */}
                         <a
                           href="https://unipass.customs.go.kr/csp/index.do"
@@ -2518,8 +2550,8 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                           rel="noopener noreferrer"
                           title="관세청 유니패스(UNI-PASS) 품목분류 포털 직통 조회"
                           style={{
-                            background: 'rgba(6, 182, 212, 0.1)',
-                            border: '1px solid rgba(6, 182, 212, 0.3)',
+                            background: 'rgba(6, 182, 212, 0.08)',
+                            border: '1px solid rgba(6, 182, 212, 0.25)',
                             borderRadius: '6px',
                             padding: '4px 8px',
                             color: 'var(--accent-cyan)',
@@ -2531,7 +2563,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                             gap: '4px'
                           }}
                         >
-                          <span>🏛️ 유니패스 조회</span>
+                          <span>🏛️ 유니패스</span>
                           <ExternalLink size={11} />
                         </a>
 
@@ -2539,10 +2571,10 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                           href="https://unipass.customs.go.kr/clip/index.do"
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="관세법령정보포털(CLIP) 법령 및 결정례 직통 조회"
+                          title="관세법령정보포털(CLIP) 외부 사이트 직통 열기"
                           style={{
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            background: 'rgba(59, 130, 246, 0.08)',
+                            border: '1px solid rgba(59, 130, 246, 0.25)',
                             borderRadius: '6px',
                             padding: '4px 8px',
                             color: '#60a5fa',
@@ -2554,7 +2586,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                             gap: '4px'
                           }}
                         >
-                          <span>⚖️ CLIP 법령·결정례</span>
+                          <span>외부 CLIP</span>
                           <ExternalLink size={11} />
                         </a>
                       </div>
@@ -3672,8 +3704,23 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
               </button>
             </div>
           </div>
-        </div>
       )}
+
+      {/* CL (Customs Law Information Portal) Real-time Manual Inspector Modal */}
+      <ClipManualInspectorModal
+        isOpen={showClipInspectorModal}
+        onClose={() => setShowClipInspectorModal(false)}
+        initialHsCode={clipTargetCode || matchedRule?.recommendedHsCode || '8471.30-0000'}
+        productName={productName}
+        onSelectHsCode={(selectedCode) => {
+          if (matchedRule) {
+            setMatchedRule({
+              ...matchedRule,
+              recommendedHsCode: selectedCode
+            });
+          }
+        }}
+      />
     </div>
   );
 }
