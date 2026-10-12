@@ -13,7 +13,6 @@ import OfficeBrandingModal from './components/OfficeBrandingModal'
 import BrandShowcase from './components/BrandShowcase'
 import ServiceGuideModal from './components/ServiceGuideModal'
 import MarketingAgentModal from './components/MarketingAgentModal'
-import { ClipManualInspectorModal } from './components/ClipManualInspectorModal'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -53,7 +52,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'clip-inspector' | 'fta-psr' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
+  const [currentView, setCurrentView] = useState<'showcase' | 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'admin' | 'billing' | 'law-news'>('showcase');
   const [billingTarget, setBillingTarget] = useState<{
     plan: 'free' | 'basic' | 'pro' | 'business';
     cycle: 'monthly' | 'yearly';
@@ -1348,22 +1347,6 @@ export default function App() {
             </button>
 
             <button 
-              onClick={() => setCurrentView('clip-inspector')}
-              className="app-sidebar-nav-btn"
-              style={{
-                background: currentView === 'clip-inspector' ? '#e0f2fe' : '#f8fafc',
-                color: currentView === 'clip-inspector' ? '#0369a1' : '#0f172a',
-                fontWeight: 900,
-                cursor: 'pointer',
-                border: currentView === 'clip-inspector' ? '2px solid #0284c7' : '1.5px solid #cbd5e1',
-                borderRadius: '8px'
-              }}
-            >
-              <BookOpen size={16} color={currentView === 'clip-inspector' ? '#0284c7' : '#0f172a'} />
-              <span>관세율표 (Ciel HS)</span>
-            </button>
-
-            <button 
               onClick={() => setCurrentView('clearance-wizard')}
               className="app-sidebar-nav-btn"
               style={{
@@ -1779,18 +1762,6 @@ export default function App() {
             onNavigateToFtaPsr={(hs) => {
               setWizardHsCode(hs);
               setCurrentView('fta-psr');
-            }}
-          />
-        )}
-        {currentView === 'clip-inspector' && (
-          <ClipManualInspectorModal
-            isPageMode={true}
-            initialHsCode={wizardHsCode || '8708'}
-            productName={wizardKeyword || ''}
-            onNavigateToClassifier={() => setCurrentView('hs-classifier')}
-            onSelectHsCode={(selectedCode) => {
-              setWizardHsCode(selectedCode);
-              setCurrentView('clearance-wizard');
             }}
           />
         )}

@@ -28,8 +28,7 @@ import {
   ChevronDown,
   ChevronUp,
   CreditCard,
-  Globe,
-  BookOpen
+  Globe
 } from 'lucide-react';
 import { getSavedOfficeBranding, OfficeBranding } from './OfficeBrandingModal';
 import MarketingBrochureModal from './MarketingBrochureModal';
@@ -37,7 +36,7 @@ import CustomsReportModal from './CustomsReportModal';
 
 interface BrandShowcaseProps {
   onNavigate: (
-    view: 'hs-classifier' | 'clearance-wizard' | 'clip-inspector' | 'fta-psr' | 'valuation' | 'cashback' | 'billing' | 'law-news',
+    view: 'hs-classifier' | 'clearance-wizard' | 'fta-psr' | 'valuation' | 'cashback' | 'billing' | 'law-news',
     options?: { plan?: 'free' | 'basic' | 'pro' | 'business'; cycle?: 'monthly' | 'yearly' }
   ) => void;
   onNavigateToBilling?: (plan?: 'free' | 'basic' | 'pro' | 'business', cycle?: 'monthly' | 'yearly') => void;
@@ -211,30 +210,6 @@ export default function BrandShowcase({
               <Zap size={17} fill="#ffffff" />
               <span>⚡ 2단계 AI 품목분류 & 소명 리포트 체험하기 (무료)</span>
               <ArrowRight size={17} />
-            </button>
-
-            <button
-              onClick={() => onNavigate('clip-inspector')}
-              style={{
-                padding: '14px 22px',
-                background: 'linear-gradient(135deg, #0284c7 0%, #06b6d4 100%)',
-                border: 'none',
-                borderRadius: '10px',
-                color: '#ffffff',
-                fontSize: '0.92rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 14px rgba(6, 182, 212, 0.3)',
-                transition: 'transform 0.15s ease'
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-            >
-              <BookOpen size={17} />
-              <span>📋 관세율표 Ciel HS 수작업 검토</span>
             </button>
 
             <button

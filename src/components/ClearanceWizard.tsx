@@ -23,8 +23,6 @@ import ResultShareModal from './ResultShareModal';
 import CustomsReportModal from './CustomsReportModal';
 import OfficeBrandingModal from './OfficeBrandingModal';
 import OriginMarkingGuideWidget from './OriginMarkingGuideWidget';
-import { ClipManualInspectorModal } from './ClipManualInspectorModal';
-
 
 interface ClearanceWizardProps {
   currentUser?: any;
@@ -52,7 +50,6 @@ export default function ClearanceWizard({
   const [showShareModal, setShowShareModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showOfficeBrandingModal, setShowOfficeBrandingModal] = useState(false);
-  const [showClipInspectorModal, setShowClipInspectorModal] = useState(false);
   const [printGuideType, setPrintGuideType] = useState<'inapp' | 'mobile' | null>(null);
 
   const handlePdfPrint = () => {
@@ -560,32 +557,9 @@ export default function ClearanceWizard({
         {/* Step 1: HS 분류 확정 */}
         {currentStep === 1 && (
           <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={18} color="var(--accent-primary)" />
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>[1단계] 관세 세번 공식 확정</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowClipInspectorModal(true)}
-                title="관세법령정보포털(CL/CLIP) 공식 DB 실시간 매뉴얼 대조 검토"
-                style={{
-                  padding: '6px 14px',
-                  borderRadius: '6px',
-                  background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)',
-                  border: '1px solid rgba(6, 182, 212, 0.4)',
-                  color: 'var(--accent-cyan)',
-                  fontSize: '0.78rem',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 2px 8px rgba(6, 182, 212, 0.2)'
-                }}
-              >
-                <span>📋 CL 공식 매뉴얼 대조 검토 (CLIP)</span>
-              </button>
+            <div style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <FileText size={18} color="var(--accent-primary)" />
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700 }}>[1단계] 관세 세번 공식 확정</h3>
             </div>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -1931,17 +1905,6 @@ export default function ClearanceWizard({
             currentUser={currentUser}
           />
         )}
-
-        {/* CL (Customs Law Information Portal) Real-time Manual Inspector Modal */}
-        <ClipManualInspectorModal
-          isOpen={showClipInspectorModal}
-          onClose={() => setShowClipInspectorModal(false)}
-          initialHsCode={hsCode || '2009.89-1090'}
-          productName={keyword}
-          onSelectHsCode={(selectedCode) => {
-            setHsCode(selectedCode);
-          }}
-        />
 
     </div>
   );
