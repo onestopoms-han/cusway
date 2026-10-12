@@ -2488,74 +2488,120 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
                               const cleanCode = matchedRule.recommendedHsCode.replace(/[\.\-\s]/g, '');
                               navigator.clipboard.writeText(cleanCode);
                               setCopiedHsCode(true);
-                              setTimeout(() => setCopiedHsCode(false), 2000);
+                              setTimeout(() => setCopiedHsCode(false), 3000);
                             }
                           }}
                           title="HSK 10단위 코드 (특수문자 제외) 클립보드 복사"
                           style={{
                             background: copiedHsCode ? 'rgba(16, 185, 129, 0.2)' : 'rgba(15, 23, 42, 0.08)',
-                            border: copiedHsCode ? '1px solid #10b981' : '1px solid var(--border-color)',
+                            border: copiedHsCode ? '1.5px solid #10b981' : '1px solid var(--border-color)',
                             borderRadius: '6px',
-                            padding: '4px 8px',
+                            padding: '5px 10px',
                             color: copiedHsCode ? '#10b981' : 'var(--text-main)',
-                            fontSize: '0.72rem',
+                            fontSize: '0.74rem',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px',
+                            gap: '5px',
                             transition: 'all 0.15s'
                           }}
                         >
-                          {copiedHsCode ? <Check size={12} /> : <Copy size={12} />}
-                          <span>{copiedHsCode ? '복사완료!' : 'HSK 복사'}</span>
+                          {copiedHsCode ? <Check size={13} color="#10b981" /> : <Copy size={13} />}
+                          <span>{copiedHsCode ? 'HSK 복사완료!' : 'HSK 복사'}</span>
                         </button>
 
-                        {/* Direct Portal Links */}
-                        <a
-                          href="https://unipass.customs.go.kr/csp/index.do"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="관세청 유니패스(UNI-PASS) 품목분류 포털 직통 조회"
-                          style={{
-                            background: 'rgba(6, 182, 212, 0.1)',
-                            border: '1px solid rgba(6, 182, 212, 0.3)',
-                            borderRadius: '6px',
-                            padding: '4px 8px',
-                            color: 'var(--accent-cyan)',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span>🏛️ 유니패스 조회</span>
-                          <ExternalLink size={11} />
-                        </a>
-
+                        {/* Direct 관세법령정보포털 (CLIP) 수작업 검증 링크 */}
                         <a
                           href="https://unipass.customs.go.kr/clip/index.do"
                           target="_blank"
                           rel="noopener noreferrer"
-                          title="관세법령정보포털(CLIP) 법령 및 결정례 직통 조회"
+                          onClick={() => {
+                            if (matchedRule?.recommendedHsCode) {
+                              const cleanCode = matchedRule.recommendedHsCode.replace(/[\.\-\s]/g, '');
+                              navigator.clipboard.writeText(cleanCode);
+                              setCopiedHsCode(true);
+                              setTimeout(() => setCopiedHsCode(false), 3000);
+                            }
+                          }}
+                          title="관세법령정보포털(CLIP)로 이동하여 수작업 검증 (클릭 시 HSK 자동 복사)"
                           style={{
-                            background: 'rgba(59, 130, 246, 0.1)',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(37, 99, 235, 0.18) 100%)',
+                            border: '1.5px solid #3b82f6',
                             borderRadius: '6px',
-                            padding: '4px 8px',
-                            color: '#60a5fa',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
+                            padding: '5px 12px',
+                            color: '#2563eb',
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
                             textDecoration: 'none',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '4px'
+                            gap: '5px',
+                            boxShadow: '0 2px 6px rgba(59, 130, 246, 0.12)',
+                            transition: 'all 0.15s'
                           }}
                         >
-                          <span>⚖️ CLIP 법령·결정례</span>
-                          <ExternalLink size={11} />
+                          <span>⚖️ 관세법령사이트 (수작업 검증)</span>
+                          <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    )}
+
+                    {/* Manual Verification Guidance Banner */}
+                    {matchedRule.recommendedHsCode !== "0000.00-0000" && (
+                      <div style={{
+                        marginTop: '8px',
+                        padding: '8px 12px',
+                        background: copiedHsCode ? 'rgba(16, 185, 129, 0.08)' : 'rgba(59, 130, 246, 0.05)',
+                        border: copiedHsCode ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.18)',
+                        borderRadius: '6px',
+                        fontSize: '0.76rem',
+                        color: copiedHsCode ? '#059669' : '#334155',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '8px',
+                        transition: 'all 0.2s'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Info size={14} style={{ color: copiedHsCode ? '#10b981' : '#3b82f6', flexShrink: 0 }} />
+                          <span>
+                            {copiedHsCode ? (
+                              <span>
+                                <strong>✓ HSK 세번({matchedRule.recommendedHsCode})이 복사되었습니다!</strong> 관세법령정보포털 검색창에 붙여넣기(Ctrl+V)하여 수작업 검증을 진행하세요.
+                              </span>
+                            ) : (
+                              <span>
+                                <strong>수작업 검증 안내:</strong> <b>[HSK 복사]</b> 후 <b>관세법령정보포털(CLIP)</b>로 이동하여 검색창에 붙여넣기(Ctrl+V)하시면 최신 관세율표 및 분류사례를 직접 대조·검증하실 수 있습니다.
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <a
+                          href="https://unipass.customs.go.kr/clip/index.do"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => {
+                            if (matchedRule?.recommendedHsCode) {
+                              const cleanCode = matchedRule.recommendedHsCode.replace(/[\.\-\s]/g, '');
+                              navigator.clipboard.writeText(cleanCode);
+                              setCopiedHsCode(true);
+                              setTimeout(() => setCopiedHsCode(false), 3000);
+                            }
+                          }}
+                          style={{
+                            fontSize: '0.74rem',
+                            fontWeight: 800,
+                            color: '#1d4ed8',
+                            textDecoration: 'underline',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}
+                        >
+                          관세법령사이트 바로가기 →
                         </a>
                       </div>
                     )}

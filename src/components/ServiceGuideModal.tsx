@@ -77,12 +77,12 @@ const GUIDE_SECTIONS: GuideSection[] = [
         actionDetail: '클릭 시 전문 관세사와의 실시간 상담 채널로 연결되며, AI가 작성한 사전 소명서와 함께 사건이 접수됩니다.'
       },
       {
-        name: '1-Click HSK 복사 & UNI-PASS / CLIP 연동',
-        badgeText: '📋 HSK 복사 & 🏛️ 유니패스 조회',
+        name: '1-Click HSK 복사 & 관세법령정보포털 수작업 검증 연동',
+        badgeText: '📋 HSK 복사 & ⚖️ 관세법령정보포털 수작업 검증',
         badgeStyle: 'dark',
         location: 'HS Code 결과 표시부 우측',
-        description: '확정된 10단위 HSK 코드를 특수문자 없이 클립보드에 원클릭 복사하거나, 관세청 유니패스 및 관세법령정보포털(CLIP) 기분류 조회 페이지로 즉시 이동합니다.',
-        actionDetail: '수입신고서 작성 시 오타 없이 세번을 입력할 수 있으며, 관세청 공식 포털에서 실시간 고시세율을 교차 확인할 수 있습니다.'
+        description: '확정된 10단위 HSK 코드를 클립보드에 원클릭 복사한 후, 관세법령정보포털(CLIP) 기분류 및 법령 조회 페이지로 이동하여 최종 수작업 검증을 수행합니다.',
+        actionDetail: '클릭 시 HSK 코드가 자동 복사되며 관세법령정보포털로 이동하여, 검색창에 붙여넣기(Ctrl+V)로 실시간 관세율표 및 공식 결정례를 직접 대조 검증할 수 있습니다.'
       },
       {
         name: '통관 심사 파이프라인으로 전송',
