@@ -234,7 +234,7 @@ export default function BrandShowcase({
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
             >
               <BookOpen size={17} />
-              <span>📋 CL 공식 매뉴얼 대조 검토</span>
+              <span>📋 관세율표 Ciel HS 수작업 검토</span>
             </button>
 
             <button

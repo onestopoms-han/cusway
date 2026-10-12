@@ -1360,7 +1360,7 @@ export default function App() {
               }}
             >
               <BookOpen size={16} color={currentView === 'clip-inspector' ? '#0284c7' : '#0f172a'} />
-              <span>CL 매뉴얼 검토</span>
+              <span>관세율표 (Ciel HS)</span>
             </button>
 
             <button 
@@ -1785,7 +1785,7 @@ export default function App() {
         {currentView === 'clip-inspector' && (
           <ClipManualInspectorModal
             isPageMode={true}
-            initialHsCode={wizardHsCode || '8471.30-0000'}
+            initialHsCode={wizardHsCode || '8708'}
             productName={wizardKeyword || ''}
             onNavigateToClassifier={() => setCurrentView('hs-classifier')}
             onSelectHsCode={(selectedCode) => {
