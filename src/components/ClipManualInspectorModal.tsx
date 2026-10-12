@@ -81,19 +81,23 @@ interface ClipInspectorData {
 }
 
 interface ClipManualInspectorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  initialHsCode: string;
+  isOpen?: boolean;
+  isPageMode?: boolean;
+  onClose?: () => void;
+  initialHsCode?: string;
   productName?: string;
   onSelectHsCode?: (code: string) => void;
+  onNavigateToClassifier?: () => void;
 }
 
 export const ClipManualInspectorModal: React.FC<ClipManualInspectorModalProps> = ({
-  isOpen,
+  isOpen = true,
+  isPageMode = false,
   onClose,
-  initialHsCode,
+  initialHsCode = '8471.30-0000',
   productName = '',
-  onSelectHsCode
+  onSelectHsCode,
+  onNavigateToClassifier
 }) => {
   const [currentCode, setCurrentCode] = useState(initialHsCode);
   const [inputCode, setInputCode] = useState(initialHsCode);
@@ -176,44 +180,30 @@ export const ClipManualInspectorModal: React.FC<ClipManualInspectorModalProps> =
     setCheckedItems(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  return (
+  const mainViewer = (
     <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(5, 10, 24, 0.85)',
-      backdropFilter: 'blur(8px)',
-      zIndex: 9999,
+      background: '#0d1527',
+      border: '1px solid rgba(6, 182, 212, 0.3)',
+      borderRadius: '16px',
+      width: '100%',
+      maxWidth: isPageMode ? '100%' : '1100px',
+      height: isPageMode ? 'calc(100vh - 120px)' : '90vh',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px'
+      flexDirection: 'column',
+      boxShadow: isPageMode ? 'none' : '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(6, 182, 212, 0.15)',
+      overflow: 'hidden'
     }}>
+      {/* Header Bar */}
       <div style={{
-        background: '#0d1527',
-        border: '1px solid rgba(6, 182, 212, 0.3)',
-        borderRadius: '16px',
-        width: '100%',
-        maxWidth: '1100px',
-        height: '90vh',
+        padding: '16px 24px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%)',
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(6, 182, 212, 0.15)',
-        overflow: 'hidden'
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px'
       }}>
-        {/* Header Bar */}
-        <div style={{
-          padding: '16px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'linear-gradient(90deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
               width: '38px',
@@ -311,23 +301,48 @@ export const ClipManualInspectorModal: React.FC<ClipManualInspectorModalProps> =
               <ExternalLink size={12} />
             </a>
 
-            <button
-              onClick={onClose}
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '8px',
-                padding: '6px',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s'
-              }}
-            >
-              <X size={18} />
-            </button>
+            {onNavigateToClassifier && (
+              <button
+                type="button"
+                onClick={onNavigateToClassifier}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-cyan) 100%)',
+                  border: 'none',
+                  color: '#000',
+                  fontSize: '0.76rem',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                <span>⚡ AI HS 분류로 이동</span>
+              </button>
+            )}
+
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  padding: '6px',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <X size={18} />
+              </button>
+            )}
           </div>
         </div>
 
@@ -1041,6 +1056,33 @@ export const ClipManualInspectorModal: React.FC<ClipManualInspectorModalProps> =
           )}
         </div>
       </div>
+    </div>
+  );
+
+  if (isPageMode) {
+    return (
+      <div style={{ width: '100%', height: '100%', padding: '0px' }}>
+        {mainViewer}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'rgba(5, 10, 24, 0.85)',
+      backdropFilter: 'blur(8px)',
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px'
+    }}>
+      {mainViewer}
     </div>
   );
 };
