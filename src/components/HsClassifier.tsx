@@ -26,7 +26,8 @@ import {
   Cpu,
   X,
   CheckCircle2,
-  Settings
+  Settings,
+  Info
 } from 'lucide-react';
 import ResultShareModal from './ResultShareModal';
 import CustomsReportModal, { ReportData } from './CustomsReportModal';
