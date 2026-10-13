@@ -1009,7 +1009,7 @@ export default function ClearanceWizard({
                   </div>
 
                   {/* TRQ (시장접근물량) In-Quota vs Out-of-Quota 비교 분석 카드 */}
-                  {isTrqItem && (
+                  {isTrqItem && (rates.trq_in_rate !== null && rates.trq_in_rate !== undefined || rates.trq_out_rate) && (
                     <div style={{ 
                       background: '#fffbeb', 
                       border: '1.5px solid #f59e0b', 
@@ -1038,7 +1038,7 @@ export default function ClearanceWizard({
                             ✅ 추천물량 내(In-Quota) 파격 저율
                           </span>
                           <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#059669', marginTop: '6px' }}>
-                            {rates.trq_in_rate || '3.0%'}
+                            {rates.trq_in_rate !== null && rates.trq_in_rate !== undefined ? `${rates.trq_in_rate}%` : '추천세율'}
                           </div>
                           <span style={{ fontSize: '0.78rem', color: '#334155', fontWeight: 600, display: 'block', marginTop: '4px' }}>
                             * 수입추천서 제출 시 적용 (세액 대폭 절감)
@@ -1050,7 +1050,7 @@ export default function ClearanceWizard({
                             ⚠️ 추천물량 외(Out-of-Quota) 고율 과세
                           </span>
                           <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#dc2626', marginTop: '6px' }}>
-                            {rates.trq_out_rate || '487.0%'}
+                            {rates.trq_out_rate || '미추천 고율 과세'}
                           </div>
                           <span style={{ fontSize: '0.78rem', color: '#334155', fontWeight: 600, display: 'block', marginTop: '4px' }}>
                             * 추천서 미제출 시 고액 종가/종량 선택세 적용
