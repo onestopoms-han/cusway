@@ -853,6 +853,7 @@ export default function ClearanceWizard({
               const hasSeasonalRate = !!rates.has_seasonal_rate;
               const dutyFormula = rates.duty_formula;
               const notice = rates.notice;
+              const ratesNotice = rates.notice || notice || '원산지증명서(C/O) 구비 시 최적 특혜세율이 적용됩니다.';
 
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -1199,7 +1200,7 @@ export default function ClearanceWizard({
                         {recommendedRate}%
                       </h3>
                       <p style={{ fontSize: '0.98rem', color: '#0f172a', marginTop: '8px', lineHeight: 1.6, fontWeight: 700 }}>
-                        {ratesNotice}
+                        {ratesNotice || notice || rates?.notice || '원산지증명서(C/O) 구비 시 최적 특혜세율이 적용됩니다.'}
                       </p>
                     </div>
                   </div>
