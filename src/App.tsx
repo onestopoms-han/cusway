@@ -13,6 +13,7 @@ import OfficeBrandingModal from './components/OfficeBrandingModal'
 import BrandShowcase from './components/BrandShowcase'
 import ServiceGuideModal from './components/ServiceGuideModal'
 import MarketingAgentModal from './components/MarketingAgentModal'
+import ErrorBoundary from './components/ErrorBoundary'
 
 export default function App() {
   const [isMobile, setIsMobile] = useState(
@@ -1305,7 +1306,7 @@ export default function App() {
             {isMobile && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ fontSize: '0.75rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
-                  {currentUser?.company_name.split(' ')[0]}
+                  {(currentUser?.company_name || '게스트').split(' ')[0]}
                 </span>
                 <LogOut size={16} onClick={handleLogout} style={{ cursor: 'pointer', color: 'var(--text-muted)' }} />
               </div>
@@ -1733,122 +1734,124 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="app-main">
-        {currentView === 'showcase' && (
-          <BrandShowcase 
-            currentUser={currentUser}
-            onNavigate={(view, opts) => {
-              if (view === 'billing') {
-                handleNavigateToBilling(opts?.plan || 'basic', opts?.cycle || 'monthly');
-              } else {
-                setCurrentView(view as any);
-              }
-            }}
-            onNavigateToBilling={handleNavigateToBilling}
-            onOpenBranding={() => setShowBrandingModal(true)}
-            onOpenKakaoConsult={handleOpenKakaoChat}
-            onOpenGuide={handleOpenGuide}
-          />
-        )}
-        {currentView === 'hs-classifier' && (
-          <HsClassifier 
-            currentUser={currentUser} 
-            onNavigateToWizard={(hs, kw, mat, fn) => {
-              setWizardHsCode(hs);
-              setWizardKeyword(kw);
-              setWizardMaterial(mat);
-              setWizardFunction(fn);
-              setCurrentView('clearance-wizard');
-            }}
-            onNavigateToFtaPsr={(hs) => {
-              setWizardHsCode(hs);
-              setCurrentView('fta-psr');
-            }}
-          />
-        )}
-        {currentView === 'clearance-wizard' && (
-          <ClearanceWizard 
-            currentUser={currentUser} 
-            initialHsCode={wizardHsCode}
-            initialKeyword={wizardKeyword}
-            initialMaterial={wizardMaterial}
-            initialFunction={wizardFunction}
-            onNavigateToFtaPsr={(hs) => {
-              setWizardHsCode(hs);
-              setCurrentView('fta-psr');
-            }}
-          />
-        )}
-        {currentView === 'fta-psr' && (
-          <FtaPsrPortal 
-            currentUser={currentUser}
-            initialHsCode={wizardHsCode}
-            onNavigateToWizard={(hs) => {
-              setWizardHsCode(hs);
-              setCurrentView('clearance-wizard');
-            }}
-            onOpenGuide={handleOpenGuide}
-          />
-        )}
-        {currentView === 'law-news' && (
-          <LawNewsPortal currentUser={currentUser} />
-        )}
-
-        {currentView === 'valuation' && (
-          <ValuationPrecedents currentUser={currentUser} />
-        )}
-        {currentView === 'cashback' && (
-          <CashBackManager currentUser={currentUser} />
-        )}
-        {currentView === 'admin' && (
-          isAdmin ? (
-            <AdminPortal 
-              currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }}
-              onOpenMarketingBot={() => setShowMarketingModal(true)}
+        <ErrorBoundary onReset={() => setCurrentView('hs-classifier')}>
+          {currentView === 'showcase' && (
+            <BrandShowcase 
+              currentUser={currentUser}
+              onNavigate={(view, opts) => {
+                if (view === 'billing') {
+                  handleNavigateToBilling(opts?.plan || 'basic', opts?.cycle || 'monthly');
+                } else {
+                  setCurrentView(view as any);
+                }
+              }}
+              onNavigateToBilling={handleNavigateToBilling}
+              onOpenBranding={() => setShowBrandingModal(true)}
+              onOpenKakaoConsult={handleOpenKakaoChat}
+              onOpenGuide={handleOpenGuide}
             />
-          ) : (
-            <div style={{
-              padding: '60px 24px',
-              textAlign: 'center',
-              background: '#ffffff',
-              borderRadius: '16px',
-              border: '1.5px solid #e2e8f0',
-              maxWidth: '520px',
-              margin: '60px auto',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
-            }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#dc2626' }}>
-                <ShieldAlert size={28} />
+          )}
+          {currentView === 'hs-classifier' && (
+            <HsClassifier 
+              currentUser={currentUser} 
+              onNavigateToWizard={(hs, kw, mat, fn) => {
+                setWizardHsCode(hs || '8509.80-9000');
+                setWizardKeyword(kw || '수입 대상 품목');
+                setWizardMaterial(mat || '원재료 규격 기준');
+                setWizardFunction(fn || '상업 및 산업용');
+                setCurrentView('clearance-wizard');
+              }}
+              onNavigateToFtaPsr={(hs) => {
+                setWizardHsCode(hs || '8509.80-9000');
+                setCurrentView('fta-psr');
+              }}
+            />
+          )}
+          {currentView === 'clearance-wizard' && (
+            <ClearanceWizard 
+              currentUser={currentUser} 
+              initialHsCode={wizardHsCode}
+              initialKeyword={wizardKeyword}
+              initialMaterial={wizardMaterial}
+              initialFunction={wizardFunction}
+              onNavigateToFtaPsr={(hs) => {
+                setWizardHsCode(hs || '8509.80-9000');
+                setCurrentView('fta-psr');
+              }}
+            />
+          )}
+          {currentView === 'fta-psr' && (
+            <FtaPsrPortal 
+              currentUser={currentUser}
+              initialHsCode={wizardHsCode}
+              onNavigateToWizard={(hs) => {
+                setWizardHsCode(hs || '8509.80-9000');
+                setCurrentView('clearance-wizard');
+              }}
+              onOpenGuide={handleOpenGuide}
+            />
+          )}
+          {currentView === 'law-news' && (
+            <LawNewsPortal currentUser={currentUser} />
+          )}
+
+          {currentView === 'valuation' && (
+            <ValuationPrecedents currentUser={currentUser} />
+          )}
+          {currentView === 'cashback' && (
+            <CashBackManager currentUser={currentUser} />
+          )}
+          {currentView === 'admin' && (
+            isAdmin ? (
+              <AdminPortal 
+                currentUser={currentUser || { email: 'admin@cusway.kr', company_name: 'CUSWAY 관리자' }}
+                onOpenMarketingBot={() => setShowMarketingModal(true)}
+              />
+            ) : (
+              <div style={{
+                padding: '60px 24px',
+                textAlign: 'center',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1.5px solid #e2e8f0',
+                maxWidth: '520px',
+                margin: '60px auto',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.05)'
+              }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: '#dc2626' }}>
+                  <ShieldAlert size={28} />
+                </div>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>관리자 전용 페이지</h2>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '24px', lineHeight: 1.5 }}>
+                  해당 화면은 CUSWAY 총괄 관리자 계정(admin@cusway.kr)으로 로그인된 경우에만 접근할 수 있습니다.
+                </p>
+                <button
+                  onClick={() => setCurrentView('showcase')}
+                  style={{
+                    padding: '10px 24px',
+                    background: '#0d9488',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  메인 쇼케이스로 이동
+                </button>
               </div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#0f172a', marginBottom: '8px' }}>관리자 전용 페이지</h2>
-              <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '24px', lineHeight: 1.5 }}>
-                해당 화면은 CUSWAY 총괄 관리자 계정(admin@cusway.kr)으로 로그인된 경우에만 접근할 수 있습니다.
-              </p>
-              <button
-                onClick={() => setCurrentView('showcase')}
-                style={{
-                  padding: '10px 24px',
-                  background: '#0d9488',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
-                }}
-              >
-                메인 쇼케이스로 이동
-              </button>
-            </div>
-          )
-        )}
-        {currentView === 'billing' && (
-          <BillingPortal 
-            currentUser={currentUser} 
-            initialPlan={billingTarget.plan}
-            initialCycle={billingTarget.cycle}
-            onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} 
-          />
-        )}
+            )
+          )}
+          {currentView === 'billing' && (
+            <BillingPortal 
+              currentUser={currentUser} 
+              initialPlan={billingTarget.plan}
+              initialCycle={billingTarget.cycle}
+              onSubscribeSuccess={(updatedUser: any) => setCurrentUser(updatedUser)} 
+            />
+          )}
+        </ErrorBoundary>
       </main>
 
       {/* Weight Upgrade Modal */}
