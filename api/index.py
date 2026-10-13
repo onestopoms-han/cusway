@@ -1318,7 +1318,7 @@ def hs_classify_api(req: ClassifyReq):
         is_truly_roasted = not is_negated_roasted and any(
             rk in prod_low for rk in ["볶은", "볶음", "구운", "로스팅", "roast", "toasted", "조제"]
         )
-        has_powder = any(pk in prod_low for pk in ["가루", "분말", "powder", "flour", "세말", "조말", "분"])
+        has_powder = any(pk in prod_low for pk in ["가루", "분말", "powder", "flour", "세말", "조말"])
 
         # 1-A. 생 들깨 분말 / 볶지않은 들깨가루 (1208.90-9000)
         if is_perilla and has_powder and (is_negated_roasted or (not is_truly_roasted and "분말" in prod_low and "가루" not in prod_low)):

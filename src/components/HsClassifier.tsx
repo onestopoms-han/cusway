@@ -531,7 +531,7 @@ export default function HsClassifier({ currentUser, onNavigateToWizard, onNaviga
     const isSesame = (query.includes('참깨') || (query.includes('깨') && !isPerilla) || query.includes('sesame') || query.includes('sesamum'));
     const isNegatedRoasted = ['볶지않', '볶지 않', '안볶', '안 볶', '미볶', '비볶', '비가열', '미가공', '생', '날것', 'raw', 'unroasted', 'non-roasted', '탈지'].some(kw => query.includes(kw));
     const isTrulyRoasted = !isNegatedRoasted && ['볶은', '볶음', '구운', '로스팅', 'roast', 'toasted', '조제'].some(kw => query.includes(kw));
-    const hasPowder = ['가루', '분말', 'powder', 'flour', '세말', '조말', '분'].some(kw => query.includes(kw));
+    const hasPowder = ['가루', '분말', 'powder', 'flour', '세말', '조말'].some(kw => query.includes(kw));
 
     if (query.includes('표고버섯') || query.includes('건조표고') || query.includes('shiitake') || (query.includes('버섯') && query.includes('건조'))) {
       return {

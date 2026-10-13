@@ -500,6 +500,14 @@ class HSConsistencyValidator:
             score_deduction += 60
             warnings.append("압착 식물성 아보카도 오일은 신선/건조 과실(제0804호)이 아니라 기타 식물성 고정유 제1515호로 분류되어야 합니다.")
 
+        # 11. Raw oil seeds (Sesame, Perilla) vs Roasted/Flour (Chapter 12 vs Chapters 20, 1208)
+        is_sesame_or_perilla = any(k in query_text for k in ["참깨", "생참깨", "들깨", "생들깨", "sesame", "perilla"])
+        is_processed_flour_or_roasted = any(k in query_text for k in ["가루", "분말", "flour", "powder", "볶은", "볶음", "구운", "로스팅", "열처리", "조제"])
+        if is_sesame_or_perilla and not is_processed_flour_or_roasted:
+            if clean_code.startswith("2008") or clean_code.startswith("1208"):
+                score_deduction += 60
+                warnings.append("볶음(열처리)이나 가루(분말) 형태가 아닌 미가공 참깨/들깨 원물은 조제 식물(제2008호)이나 가루(제1208호)가 아니라 채유용 종실 제1207호(참깨: 1207.40-0000호, 들깨: 1207.99-1000호)로 분류되어야 합니다.")
+
         return len(warnings) == 0, score_deduction, " | ".join(warnings)
 
     @classmethod
