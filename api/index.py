@@ -1286,6 +1286,33 @@ class ClassifyReq(BaseModel):
     api_key: Optional[str] = None
     email: Optional[str] = None
 
+class ProbeReq(BaseModel):
+    product_name: str
+    api_key: Optional[str] = None
+    email: Optional[str] = None
+
+@app.post("/api/hs/probe")
+def hs_probe_api(req: ProbeReq):
+    try:
+        from backend.db import SessionLocal
+        from backend.rag.classification_processor import AICustomsClassificationProcessor
+        db = SessionLocal()
+        try:
+            return AICustomsClassificationProcessor.probe_clarification_needs(
+                product_name=req.product_name,
+                db=db
+            )
+        finally:
+            db.close()
+    except Exception as e:
+        return {
+            "needs_clarification": False,
+            "clarification_type": "NONE",
+            "question": "",
+            "suggested_chips": [],
+            "direct_result": None
+        }
+
 @app.post("/api/hs/classify")
 def hs_classify_api(req: ClassifyReq):
     try:

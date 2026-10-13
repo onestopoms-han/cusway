@@ -605,17 +605,27 @@ class AICustomsClassificationProcessor:
                         "direct_result": None
                     }
 
-            # Sub-case 1-3: Sesame / Perilla / Agricultural & Spices powders
-            if any(k in p_lower for k in ["참깨", "들깨", "곡물", "고춧가루", "향신료", "분말", "가루", "파우더"]):
-                has_spec = any(s in p_lower for s in ["볶은", "미볶", "구운", "생", "100%", "조제", "가공", "조미"])
+            # Sub-case 1-3: Agricultural & Food Powders / Flours / Spices
+            # [CRITICAL] Raw agricultural commodities (참깨, 들깨, 대두, 콩, 쌀 등 원물 알곡) must proceed DIRECTLY without clarification!
+            powder_indicators = ["분말", "가루", "파우더", "flour", "powder", "meal", "고춧가루"]
+            is_powder_form = any(pi in p_lower for pi in powder_indicators)
+            
+            # Pure raw commodities without powder/flour words: DIRECT PASS to classification pipeline
+            is_raw_commodity = any(rg in p_lower for rg in [
+                "참깨", "들깨", "대두", "콩", "팥", "녹두", "쌀", "보리", "밀", "옥수수", 
+                "수수", "조", "기장", "감자", "고구마", "마늘", "양파", "생강", "고추", "인삼"
+            ])
+            
+            if is_powder_form and not (is_raw_commodity and not is_powder_form):
+                has_spec = any(s in p_lower for s in ["볶은", "미볶", "구운", "생", "100%", "조제", "가공", "조미", "비열처리", "단순제분"])
                 if not has_spec:
                     return {
                         "needs_clarification": True,
                         "clarification_type": "MATERIAL",
-                        "question": f"'{p_clean}'은(는) 열처리(볶음/가열) 여부 및 조미 첨가물 배합에 따라 세번이 달라집니다. 어떤 상태인가요?",
+                        "question": f"'{p_clean}'은(는) 가공 공정(생가루 단순 제분 vs 볶음 열처리 vs 조미 배합)에 따라 세번이 달라집니다. 어떤 상태인가요?",
                         "suggested_chips": [
-                            "볶은 열처리 가공품 (제2008호 / 제2106호)",
-                            "미가공 단순 건조 및 분쇄물 (제12류 / 제09류)",
+                            "생알곡 단순 제분 비열처리 분말 (제1208호 / 제12류)",
+                            "볶은 열처리 가공 분말 (제2008호 / 제2106호)",
                             "식염·당류·향신료 배합 복합 조미분말 (제2103호 / 제2106호)"
                         ],
                         "direct_result": None
