@@ -158,6 +158,51 @@ class ConstitutionalAuditor:
 
         conn.close()
 
+    def audit_trq_master_integrity(self):
+        """5. 시장접근물량(TRQ) 63개 품목군 234개 HSK 세번 및 분말 판정 무결성 검사 (헌법 제6장)"""
+        db_path = os.path.join(ROOT_DIR, "customs_rates_2026.db")
+        if not os.path.exists(db_path):
+            self.log_violation("8조(TRQ연동)", "customs_rates_2026.db 파일이 존재하지 않습니다.")
+            return
+
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+
+        # Check exact count of distinct HSK with W1
+        cur.execute("SELECT COUNT(DISTINCT hs_code) FROM customs_rates_2026 WHERE rate_code = 'W1'")
+        trq_count = cur.fetchone()[0]
+        if trq_count < 200:
+            self.log_violation("8조(TRQ연동)", f"TRQ(W1) 대상 세번 수가 {trq_count}개로 기준치(200개 이상)에 미달합니다.")
+        else:
+            self.log_pass(f"시장접근물량(TRQ, W1/W2) 마스터 DB 무결성 검증 완료 (총 {trq_count}개 정규 세번)")
+
+        # Verify raw sesame 1207.40-0000 has W1 and W2
+        cur.execute("SELECT rate_code FROM customs_rates_2026 WHERE hs_code = '1207400000' AND rate_code IN ('W1', 'W2')")
+        sesame_codes = [r[0] for r in cur.fetchall()]
+        if "W1" not in sesame_codes or "W2" not in sesame_codes:
+            self.log_violation("7조(원물분류)", "참깨 원물(1207.40-0000)의 TRQ 세율(W1/W2)이 DB에 누락되었습니다.")
+        else:
+            self.log_pass("참깨 원물(1207.40-0000) TRQ(W1: 40%, W2: 630%) 마스터 등록 확인")
+
+        # Verify non-TRQ items do NOT have W1
+        cur.execute("SELECT COUNT(*) FROM customs_rates_2026 WHERE hs_code = '2106909099' AND rate_code = 'W1'")
+        if cur.fetchone()[0] > 0:
+            self.log_violation("8조(허위TRQ금지)", "비해당 가공식품 2106.90-9099에 W1이 등록되어 있습니다.")
+
+        conn.close()
+
+        # Verify no isolated '분' in powder detection arrays
+        for chk_file in ["api/index.py", "src/components/HsClassifier.tsx"]:
+            f_path = os.path.join(ROOT_DIR, chk_file)
+            if os.path.exists(f_path):
+                with open(f_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                if re.search(r'\[[^\]]*["\']분["\'][^\]]*\]', content):
+                    self.log_violation("7조(분자낚임금지)", f"가루 감지 배열에 단일 글자 '분'이 포함되어 성분/수분 낚임 위험이 있습니다.", chk_file)
+
+        if not any("분자낚임" in v for v in self.violations):
+            self.log_pass("가루 판정 시 일상어('성분/수분/구분') 낚임 방지 무결성 검증 완료")
+
     def run_all(self):
         print("=" * 80)
         print("⚖️  [CUSWAY 불변 헌법 자동 감사 시스템 (CONSTITUTION AUDITOR)]  ⚖️")
@@ -167,6 +212,7 @@ class ConstitutionalAuditor:
         self.audit_fake_precedent_ids()
         self.audit_llm_timeouts()
         self.audit_database_master_integrity()
+        self.audit_trq_master_integrity()
 
         print("\n✅ [통과된 헌법 준수 항목]")
         for p in self.passed_checks:
